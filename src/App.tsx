@@ -1,15 +1,18 @@
 import React, { useCallback } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import shttp from './utils/shttp';
+// import shttp from './utils/shttp';
 import { message } from 'antd';
+import * as apis from './api'
 
 function App() {
   const test = useCallback(async () => {
     try {
-      const result = await shttp.get('/v1/public/menus');
-      message.info(result.status);
-      console.log(result)
+      // const result = await shttp.get('/v1/public/menus');
+      // message.info(result.status);
+      // console.log(result)
+      await apis.SignIn({ account: '2048', pass: '123456' });
+      message.info('登录成功');
     } catch (e) {
       console.log(e)
     }

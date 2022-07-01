@@ -3,7 +3,7 @@ import { message } from 'antd'
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
-let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:8097' : 'https://your.domain.com/api';
+let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3334' : 'https://your.domain.com/api';
 
 //默认请求超时时间
 const timeout = 10000;
@@ -35,8 +35,8 @@ instance.interceptors.request.use(
 )
 
 //axios返回格式
-export interface BaseResponse<T> {
-  data: T;
+export interface BaseResponse {
+  data: any;
   status: number;
   statusText: string;
 }
@@ -59,8 +59,8 @@ export interface BaseResultsWrapper<T> {
 }
 
 //核心处理代码 将返回一个promise 调用then将可获取响应的业务数据
-const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<BaseResponse<BaseResultWrapper<T> | BaseResultsWrapper<T>>> => {
-  let response: Promise<BaseResponse<BaseResultWrapper<T> | BaseResultsWrapper<T>>>;
+const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<BaseResultWrapper<T> | BaseResultsWrapper<T>> => {
+  let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
       response = instance.get(url, { params: { ...params }, ...config });
@@ -82,26 +82,24 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   return new Promise<any>((resolve, reject) => {
     response.then(res => {
       //业务代码 可根据需求自行处理
-
-      const data = res.data;
-      if (data.code !== 0) {
+      const body = res.data;
+      if (res.status !== 200) {
 
         //特定状态码 处理特定的需求
-        if (data.code === 401) {
+        if (res.status === 401) {
           message.warn('您的账号已登出或超时，即将登出...');
           console.log('登录异常，执行登出...');
         }
 
-        let e = JSON.stringify(data);
+        let e = JSON.stringify(body);
         message.warn(`请求错误：${e}`);
         console.log(`请求错误：${e}`)
         //数据请求错误 使用reject将错误返回
-        reject(data);
+        reject(body);
       } else {
         //数据请求正确 使用resolve将结果返回
-        resolve(data);
+        resolve(body.data);
       }
-
     }).catch(error => {
       let e = JSON.stringify(error);
       message.warn(`网络错误：${e}`);
