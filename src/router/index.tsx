@@ -1,57 +1,64 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Route } from "react-router-dom";
-import { CacheRoute, CacheSwitch } from "react-router-cache-route";
-import loadable, { LoadableComponent } from "@loadable/component";
-import { MenuItem } from "@/types";
+import {
+  AppstoreOutlined,
+  ContainerOutlined,
+  DesktopOutlined,
+  MailOutlined,
+  PieChartOutlined,
+} from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Menu } from 'antd';
+import React, { useState } from 'react';
 
+type MenuItem = Required<MenuProps>['items'][number];
 
-export interface IRouter {
-  components: LoadableComponent<any> | React.ReactElement | React.ComponentClass<any>
-  path: string
-  key?: any
-  title?: string | any
-  alive?: string | any
-  [name: string]: any
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+  type?: 'group',
+): MenuItem {
+  return {
+    key,
+    icon,
+    children,
+    label,
+    type,
+  } as MenuItem;
 }
-const Error = loadable(() => import("../pages/error"));
 
-const menus: IRouter[] = [
-  {
-    path: "/",
-    key: "index",
-    to: "/details/person",
-    components: Error,
-  },
-  {
-    path: "/result/404",
-    components: Error,
-  },
-  {
-    path: "/result/403",
-    status: "403",
-    errTitle: "403",
-    subTitle: "Sorry, you don't have access to this page.",
-    components: Error,
-  },
-  {
-    path: "/result/500",
-    status: "500",
-    errTitle: "500",
-    subTitle: "Sorry, the server is reporting an error.",
-    components: Error,
-  },
-  {
-    path: "*",
-    title: "页面不存在",
-    key: "404",
-    alive: "true",
-    components: Error,
-  },
+const items: MenuItem[] = [
+  getItem('Option 1', '1', <PieChartOutlined />),
+  getItem('Option 2', '2', <DesktopOutlined />),
+  getItem('Option 3', '3', <ContainerOutlined />),
+
+  getItem('Navigation One', 'sub1', <MailOutlined />, [
+    getItem('Option 5', '5'),
+    getItem('Option 6', '6'),
+    getItem('Option 7', '7'),
+    getItem('Option 8', '8'),
+  ]),
+
+  getItem('Navigation Two', 'sub2', <AppstoreOutlined />, [
+    getItem('Option 9', '9'),
+    getItem('Option 10', '10'),
+
+    getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
+  ]),
 ];
 
-export default function Router() {
-  const setStateMenuList = useCallback((list: MenuItem[]) => setUserMenu(list), [])
-  const [localMenus, setMergeList] = useState<IRouter[]>([]);// 本地 和 接口返回的路由列表 合并的结果
-  const [userMeus, setAjaxUserMenuList] = useState<IRouter[]>([]); // 网络请求回来的 路由列表
+const MENU: React.FC = () => {
+  return (
+    <div>
+      <Menu
+        defaultSelectedKeys={['1']}
+        defaultOpenKeys={['sub1']}
+        mode="inline"
+        theme="dark"
+        items={items}
+      />
+    </div>
+  );
+};
 
-}
+export default MENU;

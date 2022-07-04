@@ -19,5 +19,19 @@
 - loadable
 - echarts
 - axios
-- react-router-cache-route
+- ❌ react-router-cache-route(没必要用route实现标签页)
 - http-proxy-middleware
+
+## 代码流程
+- 通过url进入app页面
+- 通过缓存数据判断是否登录: 是,这请求初始化; 否,跳转到登录页
+  - 登录: 请求成功,缓存数据,跳转到首页
+  - 注册: 
+  - 忘记密码: 
+- 请求初始化:
+  - 菜单数据(重整:openedMenus,openedTabs).show bread,show tab
+
+
+## 问题与方案
+- 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`
+  - `import 'antd/dist/antd.min.css`
