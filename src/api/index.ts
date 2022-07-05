@@ -1,6 +1,7 @@
 import shttp from "../utils/shttp";
 import constant from '../constant'
 import store from '../store'
+import { Component } from '../types'
 
 export const SignIn = async (data: { account: string, pass: string }) => {
   const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
@@ -17,5 +18,10 @@ export const getMenu = async () => {
 
 export const getComponents = async () => {
   const result: any = await shttp.get('/api/v1/components');
+  return result
+}
+
+export const createComponent = async ({ body }: { body: Component }) => {
+  const result: any = await shttp.post('/api/v1/components', body);
   return result
 }

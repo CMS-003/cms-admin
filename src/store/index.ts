@@ -11,7 +11,7 @@ const app = IApp.create({
 });
 // 用户信息状态
 const user = IUser.create({ token: {} });
-const menu = types.model({ list: types.array(IMenu) }).actions((self)=>({})).create();
+const menu = IMenu.create();
 
 const store = {
   app,

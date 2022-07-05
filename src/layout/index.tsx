@@ -4,6 +4,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import logo from '../logo.svg';
 import Menu from '../router'
+import ComponentPage from '../pages/component';
 
 const { Content, Footer, Sider } = Layout;
 
@@ -20,7 +21,7 @@ const App: React.FC = () => {
         <Menu />
       </Sider>
       <Layout className="site-layout">
-        <Content style={{ margin: '0 16px' }}>
+        <Content style={{ margin: '0 16px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Breadcrumb style={{ margin: '16px 0' }}>
               <Breadcrumb.Item>User</Breadcrumb.Item>
@@ -29,7 +30,7 @@ const App: React.FC = () => {
             <Avatar icon={<UserOutlined />} />
           </div>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            Bill is a cat.
+            <ComponentPage />
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
