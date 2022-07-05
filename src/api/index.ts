@@ -9,3 +9,13 @@ export const SignIn = async (data: { account: string, pass: string }) => {
   store.app.setIsSignIn(true)
   return result;
 };
+
+export const getMenu = async () => {
+  const result: any = await shttp.get('/api/v1/menus');
+  return result
+}
+
+export const getComponents = async () => {
+  const result: any = await shttp.get('/api/v1/components');
+  return result
+}
