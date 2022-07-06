@@ -41,7 +41,7 @@ const fields = [
     autoFocus: false,
   },
 ]
-export default function EditPage({ ...props }) {
+export default function EditPage({ visible, fetch, close, ...props }: { visible: boolean, data: any, fetch: Function, close: Function }) {
   const local = useLocalObservable<{ data: any, fetching: boolean }>(() => ({
     fetching: false,
     data: {}
@@ -49,23 +49,23 @@ export default function EditPage({ ...props }) {
   return <Observer>{() => (<Fragment>
     <Modal
       title={local.data.id ? '修改' : '添加'}
-      visible={props.visible}
+      visible={visible}
       okText="确定"
       confirmLoading={local.fetching}
       cancelText="取消"
       onOk={async () => {
         local.fetching = true
         try {
-          await apis.createComponent({ body: local.data })
+          await fetch({ body: local.data })
         } catch (e: any) {
           notification.error({ message: e.message })
         } finally {
           local.fetching = false
-          props.close();
+          close();
         }
       }}
       onCancel={async () => {
-        props.close();
+        close();
       }}
     >
       <Form>

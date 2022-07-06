@@ -5,55 +5,59 @@ import { Observer, useLocalObservable } from 'mobx-react';
 import React, { useState } from 'react';
 import EditPage from './edit'
 import { getSnapshot } from 'mobx-state-tree';
+import { Component } from '../../types'
+import { createComponent, destroyComponent } from '../../api'
 
 interface DataType {
   key: string;
   title: string;
   name: string;
   type: string;
+  dataIndex: string;
 }
 
-const columns: ColumnsType<DataType> = [
+const columns: ColumnsType<Component> = [
   {
     title: '组件名称',
     dataIndex: 'title',
-    key: 'title',
+    key: 'id',
     render: text => <a>{text}</a>,
   },
   {
     title: '组件类型',
     dataIndex: 'name',
-    key: 'name',
+    key: 'id',
   },
   {
     title: '分类类型',
     dataIndex: 'type',
-    key: 'type',
+    key: 'id',
   },
   {
     title: '可接受子组件',
-    key: 'accepts',
     dataIndex: 'accepts',
-    render: (accepts: string[]) => (
-      <span>
-        {accepts.map(name => {
+    key: 'id',
+    render: (accepts: string[], record, i: number) => (<span key={i} >
+      {
+        accepts.map((name, j) => {
           let color = name.length > 5 ? 'geekblue' : 'green';
           return (
-            <Tag color={color} key={name}>
+            <Tag color={color} key={j}>
               {name.toUpperCase()}
             </Tag>
           );
-        })}
-      </span>
-    ),
+        })
+      }
+    </span >),
   },
   {
     title: '操作',
-    key: 'action',
+    key: 'id',
     render: (_, record) => (
       <Space size="middle">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
+        <Button onClick={() => {
+          destroyComponent({ params: { id: record.id } })
+        }}>delete</Button>
       </Space>
     ),
   },
@@ -61,11 +65,11 @@ const columns: ColumnsType<DataType> = [
 
 
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, data: DataType[] }>(() => ({
     showEditPage: false,
-    data: {},
+    data: [],
   }))
-  const data: DataType[] = []
+  const data: Component[] = store.component.getList()
   return (
     <Observer>{() => (<div>
       <Space>
@@ -77,6 +81,7 @@ const ComponentPage: React.FC = () => {
         visible={local.showEditPage}
         close={() => { local.showEditPage = false }}
         data={local.data}
+        fetch={createComponent}
       />
       <Table columns={columns} pagination={{ position: ['bottomRight'] }} dataSource={data} />
     </div>)}

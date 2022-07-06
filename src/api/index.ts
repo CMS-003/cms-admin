@@ -25,3 +25,8 @@ export const createComponent = async ({ body }: { body: Component }) => {
   const result: any = await shttp.post('/api/v1/components', body);
   return result
 }
+
+export const destroyComponent = async ({ params }: { params: any }) => {
+  const result: any = await shttp.delete(`/api/v1/components/${params.id}`)
+  return result
+}
