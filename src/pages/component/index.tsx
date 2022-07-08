@@ -2,7 +2,7 @@ import store from '../../store';
 import { Button, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import { Observer, useLocalObservable } from 'mobx-react';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import EditPage from './edit'
 import { getSnapshot } from 'mobx-state-tree';
 import { Component } from '../../types'
@@ -65,17 +65,22 @@ const columns: ColumnsType<Component> = [
 
 
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, data: DataType[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, data: Component[] }>(() => ({
     showEditPage: false,
-    data: [],
+    data: store.component.getList(),
   }))
-  const data: Component[] = store.component.getList()
+  const refresh = useCallback(async () => {
+
+  }, [])
   return (
     <Observer>{() => (<div>
       <Space>
         <Button type="primary" onClick={e => {
           local.showEditPage = true
         }}>添加</Button>
+        <Button type="primary" onClick={e => {
+          refresh()
+        }}>刷新</Button>
       </Space>
       <EditPage
         visible={local.showEditPage}

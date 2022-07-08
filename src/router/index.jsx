@@ -1,15 +1,13 @@
 import React from 'react'
-import { HashRouter as Router, Route } from 'react-router-dom'
-import CacheRoute, { CacheSwitch } from 'react-router-cache-route'
+import { Route, Routes } from 'react-router-dom'
+import ComponentPage from '../pages/component'
 
 const App = () => (
-  <Router>
-    <CacheSwitch>
-      <CacheRoute exact path="/list" component={<div>list</div>} />
-      <Route exact path="/item/:id" component={<div>detail</div>} />
-      <Route render={() => <div>404 Not Found</div>} />
-    </CacheSwitch>
-  </Router>
+  <Routes>
+    <Route path="/" element={<div>Hello World!</div>} />
+    <Route path="/component" element={<ComponentPage />} />
+    <Route path="*" element={<div>404 Not Found</div>} />
+  </Routes>
 )
 
 export default App

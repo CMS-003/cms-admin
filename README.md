@@ -1,18 +1,18 @@
 # admin-ts
 
 ## TODO: 任务计划大纲
-- shttp封装
-- 全局store设定
+- ✅ shttp封装
+- ✅ 全局store设定
 - 动态菜单
 - tab标签页(路由缓存)
 - ✅ path alias @
 - api与mock(axios封装,业务错误码/token/拦截器)
-- store(mobx-state-tree,user/config的model)
-- 全局types
+- ✅ store(mobx-state-tree,user/config的model)
+- ✅ 全局types
 - utils
 - 默认页(登录注册,错误页,无权限页,dashboard)
 - icon组件
-- 布局layout
+- ✅ 布局layout
 
 ## 代码库学习
 - mobx,mobx-react
@@ -35,3 +35,5 @@
 ## 问题与方案
 - 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`
   - `import 'antd/dist/antd.min.css`
+- react-router-dom@v6: BrowserRouter放最顶级,使用useNavigate跳转才有响应
+- alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired

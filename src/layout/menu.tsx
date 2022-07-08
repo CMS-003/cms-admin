@@ -7,7 +7,8 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -28,8 +29,8 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('Option 1', '1', <PieChartOutlined />),
-  getItem('Option 2', '2', <DesktopOutlined />),
+  getItem('首页', 'home', <PieChartOutlined />),
+  getItem('组件', 'component', <DesktopOutlined />),
   getItem('Option 3', '3', <ContainerOutlined />),
 
   getItem('Navigation One', 'sub1', <MailOutlined />, [
@@ -48,6 +49,7 @@ const items: MenuItem[] = [
 ];
 
 const MENU: React.FC = () => {
+  const navigate = useNavigate()
   return (
     <div>
       <Menu
@@ -56,6 +58,9 @@ const MENU: React.FC = () => {
         mode="inline"
         theme="dark"
         items={items}
+        onClick={e => {
+          navigate(e.key)
+        }}
       />
     </div>
   );

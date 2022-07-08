@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import logo from '../logo.svg';
-import Menu from '../router'
-import ComponentPage from '../pages/component';
+import Menu from './menu'
+import Router from '../router'
+
 
 const { Content, Footer, Sider } = Layout;
 
@@ -30,7 +31,7 @@ const App: React.FC = () => {
             <Avatar icon={<UserOutlined />} />
           </div>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            <ComponentPage />
+            <Router/>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
