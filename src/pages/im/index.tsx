@@ -8,17 +8,20 @@ import events from '../../utils/events';
 import TIM from 'tim-js-sdk'
 
 const IMPage: React.FC = () => {
-  const local = useLocalObservable<{ groupId: string, groups: { GroupId: string, joined?: boolean }[], fetchSignature: boolean, fetchGroups: boolean }>(() => ({
+  const local = useLocalObservable<{ groupId: string, users: { user_id: string, time: number, cover?: string, name?: string }[], groups: { GroupId: string, joined?: boolean }[], fetchSignature: boolean, fetchGroups: boolean }>(() => ({
     fetchSignature: false,
     fetchGroups: false,
     groups: [],
     groupId: '',
+    users: [],
   }))
   const contentRef = useRef<null | Element>(null)
   const getGroups = useCallback(async () => {
     try {
       local.fetchGroups = true
       const result = await shttp.get<{ list: { GroupId: string }[] }>('/api/v1/im/groups/remote')
+      const user = await shttp.get(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`)
+      local.users = user.data.items.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
       if (result.code === 0) {
         local.groups = result.data.list
         notification.info({ message: '成功' })
@@ -90,27 +93,32 @@ const IMPage: React.FC = () => {
         }}>所有群</Button>
       </Space>
       <div style={{ display: 'flex', flexDirection: 'row', }}>
-        <div style={{ width: 200 }}>{local.fetchGroups ? <Spin /> : <div>
-          {
-            local.groups.map((item) => <div
-              key={item.GroupId}
-              onClick={() => {
-                if (!item.joined) {
-                  item.joined = true;
-                  local.groupId = item.GroupId
-                  store.tim.joinGroup({ groupID: item.GroupId, type: 'AVChatRoom' });
-                } else {
-                  item.joined = false;
-                  local.groupId = ''
-                  store.tim.quitGroup(item.GroupId);
-                }
-              }}>
-              {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
+        <div style={{ width: 200, padding: 5, backgroundColor: '#dfe98ae6', margin: '10px 10px 0 0' }}>
+          <div>群列表</div>
+          {local.fetchGroups ? <Spin /> : <div>
+            {
+              local.groups.map((item) => <div
+                key={item.GroupId}
+                onClick={async () => {
+                  if (!item.joined) {
+                    item.joined = true;
+                    local.groupId = item.GroupId
+                    store.tim.joinGroup({ groupID: item.GroupId, type: 'AVChatRoom' });
+                    // const result = await shttp.get<{ total: number, items: { Member_Account: string }[] }>(`/api/v1/im/group/${item.GroupId}/members`)
+                    // local.users = result.data.items.map(item => ({ user_id: item.Member_Account }))
+                  } else {
+                    item.joined = false;
+                    local.groupId = ''
+                    store.tim.quitGroup(item.GroupId);
+                    local.users = []
+                  }
+                }}>
+                {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
+            }</div>
           }</div>
-        }</div>
         <div style={{ flex: 1 }}>
-          <div id="content" style={{ width: '100%', height: 500, overflowY: 'auto' }} ref={elem => contentRef.current = elem}></div>
-          <textarea id="msg" style={{ width: 500, height: 150, resize: 'none', display: 'block', margin: '10px 0' }}></textarea>
+          <div id="content" style={{ width: '100%', height: 500, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}></div>
+          <textarea id="msg" style={{ width: 500, height: 150, borderRadius: 10, padding: 5, resize: 'none', display: 'block', margin: '10px 0' }}></textarea>
           <Button type="primary" size='small' onClick={async () => {
             const t: any = document.querySelector('#msg');
             if (t) {
@@ -146,10 +154,25 @@ const IMPage: React.FC = () => {
             }
           }}>发送</Button>
         </div>
+        <div style={{ width: 200, backgroundColor: '#ac8bcd', margin: '10px 0 0 10px' }}>
+          <div>成员列表</div>
+          {local.users.map(user => <div key={user.user_id} onClick={async () => {
+            if (user.time === 0) {
+              await shttp.post(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`, { seconds: 3600 })
+              user.time = 3600
+            } else {
+              await shttp.delete(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`, { members: [user.user_id], seconds: 0 })
+              user.time = 0
+            }
+          }}>
+            {user.user_id} {user.time}
+          </div>)}
+        </div>
       </div>
 
-    </div>)}
-    </Observer>
+    </div>)
+    }
+    </Observer >
   );
 };
 

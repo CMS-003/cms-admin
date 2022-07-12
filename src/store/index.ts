@@ -150,7 +150,7 @@ const app = IApp.create({
   lastVisitedAt: 0,
 });
 // 用户信息状态
-const user = IUser.create({ token: {}, im_signatue: storage.getKey('signatrue') || '' });
+const user = IUser.create({ token: {}, im_signatue: storage.getKey('im_signatrue') || '' });
 const menu = IMenu.create();
 const component = IComponent.create();
 
