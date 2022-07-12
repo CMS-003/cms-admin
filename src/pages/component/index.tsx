@@ -88,7 +88,7 @@ const ComponentPage: React.FC = () => {
         data={local.data}
         fetch={createComponent}
       />
-      <Table columns={columns} pagination={{ position: ['bottomRight'] }} dataSource={data} />
+      <Table columns={columns} pagination={{ position: ['bottomRight'] }} dataSource={local.data} />
     </div>)}
     </Observer>
   );

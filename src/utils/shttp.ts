@@ -3,7 +3,7 @@ import { message } from 'antd'
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
-let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3334' : 'https://your.domain.com/api';
+let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3335' : 'https://your.domain.com/api';
 
 //默认请求超时时间
 const timeout = 10000;
@@ -45,7 +45,7 @@ export interface BaseResponse {
 export interface BaseResultWrapper<T> {
   code: number,
   message: string,
-  data: T
+  data?: T
 }
 
 export interface BaseResultsWrapper<T> {
@@ -59,7 +59,7 @@ export interface BaseResultsWrapper<T> {
 }
 
 //核心处理代码 将返回一个promise 调用then将可获取响应的业务数据
-const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<BaseResultWrapper<T> | BaseResultsWrapper<T>> => {
+const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> => {
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
@@ -98,7 +98,7 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
         reject(body);
       } else {
         //数据请求正确 使用resolve将结果返回
-        resolve(body.data);
+        resolve(body);
       }
     }).catch(error => {
       let e = JSON.stringify(error);
