@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
 import { message } from 'antd'
 
 //基础URL，axios将会自动拼接在url前
@@ -109,12 +109,86 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   })
 }
 
+interface Request<T> {
+  constructor(): Promise<this>;
+  url: string;
+  method: string;
+  data?: any;
+  params?: any;
+  headers?: any;
+  then(fn: Function): PromiseLike<BaseResultWrapper<T> & BaseResultsWrapper<T>>;
+}
+class Request<T> {
+  constructor(url: string, method: string) {
+    this.url = url;
+    this.method = method;
+  }
+
+  send(data: any) {
+    this.data = data
+  }
+  query(query: any) {
+    this.params = query
+  }
+  header(headers: any) {
+    this.headers = headers
+  }
+
+  then(fn: () => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
+    console.log('then?')
+    const option: AxiosRequestConfig = {
+      url: this.url,
+      method: this.method,
+    }
+    if (this.data) {
+      option.data = this.data
+    }
+    if (this.params) {
+      option.params = this.params
+    }
+    if (this.headers) {
+      option.headers = this.headers
+    }
+    const response = instance.request(option)
+    return new Promise<any>((resolve, reject) => {
+      response.then(res => {
+        //业务代码 可根据需求自行处理
+        const body = res.data;
+        if (res.status !== 200) {
+
+          //特定状态码 处理特定的需求
+          if (res.status === 401) {
+            message.warn('您的账号已登出或超时，即将登出...');
+            console.log('登录异常，执行登出...');
+          }
+
+          let e = JSON.stringify(body);
+          message.warn(`请求错误：${e}`);
+          console.log(`请求错误：${e}`)
+          //数据请求错误 使用reject将错误返回
+          reject(body);
+        } else {
+          //数据请求正确 使用resolve将结果返回
+          resolve(body);
+        }
+      }).catch(error => {
+        let e = JSON.stringify(error);
+        message.warn(`网络错误：${e}`);
+        console.log(`网络错误：${e}`)
+        reject(error);
+      })
+    })
+  }
+}
+
 // 使用 request 统一调用，包括封装的get、post、put、delete等方法
 const shttp = {
   get: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('get', url, params, config),
   post: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('post', url, params, config),
   put: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('put', url, params, config),
-  delete: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
+  delete<T>(url: string) {
+    return new Request<T>(url, 'DELETE')
+  },
   patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
 };
 

@@ -1,5 +1,6 @@
 import store from '../../store';
 import { Button, notification, Space, Spin } from 'antd';
+import { SyncOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { useCallback, useRef } from 'react';
 import shttp from '../../utils/shttp';
@@ -8,9 +9,10 @@ import events from '../../utils/events';
 import TIM from 'tim-js-sdk'
 
 const IMPage: React.FC = () => {
-  const local = useLocalObservable<{ groupId: string, users: { user_id: string, time: number, cover?: string, name?: string }[], groups: { GroupId: string, joined?: boolean }[], fetchSignature: boolean, fetchGroups: boolean }>(() => ({
+  const local = useLocalObservable<{ groupId: string, fetchMuted: boolean, users: { user_id: string, time: number, cover?: string, name?: string }[], groups: { GroupId: string, joined?: boolean }[], fetchSignature: boolean, fetchGroups: boolean }>(() => ({
     fetchSignature: false,
     fetchGroups: false,
+    fetchMuted: false,
     groups: [],
     groupId: '',
     users: [],
@@ -20,8 +22,6 @@ const IMPage: React.FC = () => {
     try {
       local.fetchGroups = true
       const result = await shttp.get<{ list: { GroupId: string }[] }>('/api/v1/im/groups/remote')
-      const user = await shttp.get(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`)
-      local.users = user.data.items.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
       if (result.code === 0) {
         local.groups = result.data.list
         notification.info({ message: '成功' })
@@ -32,6 +32,20 @@ const IMPage: React.FC = () => {
       console.log(e)
     } finally {
       local.fetchGroups = false;
+    }
+  }, [])
+  const getMutedUsers = useCallback(async () => {
+    if (!local.groupId) {
+      return notification.error({ message: '没有加入群' })
+    }
+    try {
+      local.fetchMuted = true
+      const user = await shttp.get(`/api/v1/im/groups/${local.groupId}/muted`)
+      local.users = user.data.items.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
+    } catch (e) {
+      console.log(e)
+    } finally {
+      local.fetchMuted = false
     }
   }, [])
   function messager(event: any) {
@@ -88,29 +102,33 @@ const IMPage: React.FC = () => {
             console.warn('login error:', imError); // 登录失败的相关信息
           });
         }}>登录</Button>
-        <Button onClick={() => {
-          getGroups()
-        }}>所有群</Button>
+
       </Space>
       <div style={{ display: 'flex', flexDirection: 'row', }}>
         <div style={{ width: 200, padding: 5, backgroundColor: '#dfe98ae6', margin: '10px 10px 0 0' }}>
-          <div>群列表</div>
+          <div>
+            群列表 <SyncOutlined onClick={() => {
+              getGroups()
+            }} />
+          </div>
           {local.fetchGroups ? <Spin /> : <div>
             {
               local.groups.map((item) => <div
                 key={item.GroupId}
                 onClick={async () => {
-                  if (!item.joined) {
+                  if (item.joined) {
+                    item.joined = false;
+                    local.groupId = ''
+                    store.tim.quitGroup(item.GroupId);
+                    local.users = []
+                  } else if ('' !== local.groupId) {
+                    notification.error({ message: '请先退出加入的群' })
+                  } else {
                     item.joined = true;
                     local.groupId = item.GroupId
                     store.tim.joinGroup({ groupID: item.GroupId, type: 'AVChatRoom' });
                     // const result = await shttp.get<{ total: number, items: { Member_Account: string }[] }>(`/api/v1/im/group/${item.GroupId}/members`)
                     // local.users = result.data.items.map(item => ({ user_id: item.Member_Account }))
-                  } else {
-                    item.joined = false;
-                    local.groupId = ''
-                    store.tim.quitGroup(item.GroupId);
-                    local.users = []
                   }
                 }}>
                 {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
@@ -141,28 +159,46 @@ const IMPage: React.FC = () => {
               // v2.18.0起支持群消息已读回执功能，如果您发消息需要已读回执，需购买旗舰版套餐，并且创建消息时将 needReadReceipt 设置为 true
               needReadReceipt: false
             });
-            // 发送消息
-            let result = await store.tim.sendMessage(message);
-            if (result.code === 0) {
-              if (contentRef.current) {
-                const p = document.createElement('p', {})
-                p.textContent = `你 说: ${result.data.message.payload.text}`
-                contentRef.current.append(p)
+            try {
+              // 发送消息
+              let result = await store.tim.sendMessage(message);
+              if (result.code === 0) {
+                if (contentRef.current) {
+                  const p = document.createElement('p', {})
+                  p.textContent = `你 说: ${result.data.message.payload.text}`
+                  contentRef.current.append(p)
+                }
+              } else {
+                alert('发送失败')
               }
-            } else {
-              alert('发送失败')
+            } catch (e: any) {
+              console.log(e, e.code)
+              notification.warn({ message: [10016, 8001].includes(e.code) ? '发送被拒绝' : e.message })
             }
           }}>发送</Button>
         </div>
         <div style={{ width: 200, backgroundColor: '#ac8bcd', margin: '10px 0 0 10px' }}>
-          <div>成员列表</div>
+          <div>
+            群禁言列表
+            <SyncOutlined onClick={() => {
+              getMutedUsers()
+            }} />
+          </div>
+          {local.fetchMuted && <Spin />}
           {local.users.map(user => <div key={user.user_id} onClick={async () => {
-            if (user.time === 0) {
-              await shttp.post(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`, { seconds: 3600 })
-              user.time = 3600
-            } else {
-              await shttp.delete(`/api/v1/im/group/${'e6a954aa-2419-4743-b968-a971f8077bf1'}/muted`, { members: [user.user_id], seconds: 0 })
-              user.time = 0
+            console.log(user)
+            let resp
+            try {
+              if (user.time === 0) {
+                resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [user.user_id], seconds: 3600 })
+                user.time = 3600
+              } else {
+                resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [user.user_id], seconds: 0 })
+                user.time = 0
+              }
+              console.log(resp)
+            } catch (e) {
+              console.log(e)
             }
           }}>
             {user.user_id} {user.time}
