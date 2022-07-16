@@ -3,6 +3,8 @@ import { Component } from '@/types'
 
 export const ComponentItem: any = types.model({
   id: types.string,
+  parent_id: types.optional(types.string, ''),
+  tree_id: types.optional(types.string, ''),
   title: types.optional(types.string, ''),
   name: types.optional(types.string, ''),
   cover: types.optional(types.string, ''),

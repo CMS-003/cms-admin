@@ -1,0 +1,4 @@
+# 2022年7月17日03:05:11
+- Table报错key的问题
+- EditorPage修改即使不保存也发生变化的问题
+- 添加Component定义的字段: parent_id,tree_id

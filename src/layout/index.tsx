@@ -30,7 +30,7 @@ const App: React.FC = () => {
             </Breadcrumb>
             <Avatar icon={<UserOutlined />} />
           </div>
-          <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+          <div className="site-layout-background" style={{ minHeight: 360 }}>
             <Router/>
           </div>
         </Content>
