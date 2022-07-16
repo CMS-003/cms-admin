@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import EditPage from './edit'
 import { getSnapshot } from 'mobx-state-tree';
 import { Component } from '../../types'
-import { createComponent, destroyComponent } from '../../api'
+import apis from '../../api'
 
 interface DataType {
   key: string;
@@ -56,7 +56,7 @@ const columns: ColumnsType<Component> = [
     render: (_, record) => (
       <Space size="middle">
         <Button onClick={() => {
-          destroyComponent({ params: { id: record.id } })
+          apis.destroyComponent({ params: { id: record.id } })
         }}>delete</Button>
       </Space>
     ),
@@ -86,9 +86,9 @@ const ComponentPage: React.FC = () => {
         visible={local.showEditPage}
         close={() => { local.showEditPage = false }}
         data={local.data}
-        fetch={createComponent}
+        fetch={apis.createComponent}
       />
-      <Table columns={columns} pagination={{ position: ['bottomRight'] }} dataSource={data} />
+      <Table columns={columns} pagination={{ position: ['bottomRight'] }} dataSource={local.data} />
     </div>)}
     </Observer>
   );

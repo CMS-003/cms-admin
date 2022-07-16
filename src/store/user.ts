@@ -12,7 +12,11 @@ const user = types.model('app', {
     [constant.ACCESS_TOKEN]: types.optional(types.string, ''),
     [constant.REFRESH_TOKEN]: types.optional(types.string, ''),
   })
-}).actions(self => ({
+}).views(self => ({
+  getAccessToken() {
+    return self.token[constant.ACCESS_TOKEN] || ''
+  }
+})).actions(self => ({
   setAccessToken(token: string) {
     storage.setKey(constant.ACCESS_TOKEN, token);
   },

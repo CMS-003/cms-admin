@@ -37,3 +37,4 @@
   - `import 'antd/dist/antd.min.css`
 - react-router-dom@v6: BrowserRouter放最顶级,使用useNavigate跳转才有响应
 - alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired
+- react.StrictMode 重复渲染。只在开发中出现
