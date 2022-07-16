@@ -2,3 +2,6 @@
 - Table报错key的问题
 - EditorPage修改即使不保存也发生变化的问题
 - 添加Component定义的字段: parent_id,tree_id
+
+# 2022-7-17 03:48:09
+- 修改路径别名问题

@@ -29,10 +29,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -55,6 +55,8 @@
   "devDependencies": {
     "@types/event-emitter": "^0.3.3",
     "@types/loadable__component": "^5.13.4",
-    "@types/lodash": "^4.14.182"
+    "@types/lodash": "^4.14.182",
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.2.1"
   }
 }

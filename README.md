@@ -9,7 +9,7 @@
 - api与mock(axios封装,业务错误码/token/拦截器)
 - ✅ store(mobx-state-tree,user/config的model)
 - ✅ 全局types
-- utils
+- ✅ utils
 - 默认页(登录注册,错误页,无权限页,dashboard)
 - icon组件
 - ✅ 布局layout

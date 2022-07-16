@@ -7,7 +7,7 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import EditPage from './edit'
 import { getSnapshot } from 'mobx-state-tree';
 import { Component } from '../../types'
-import apis from '../../api'
+import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 
