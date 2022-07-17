@@ -15,6 +15,7 @@ function App() {
   const local = useLocalObservable(() => ({
     booting: true,
     error: false,
+    menus: []
   }))
   useEffectOnce(() => {
     (async () => {
@@ -25,6 +26,14 @@ function App() {
             navigate('/sign-in')
           } else {
             console.log(result)
+          }
+          const projectResult: any = await apis.getProjects()
+          if (projectResult.code === 0) {
+            store.project.setList(projectResult.data.items)
+          }
+          const menuResult: any = await apis.getMenu()
+          if (menuResult.code === 0) {
+            local.menus = menuResult.data
           }
         }
         local.booting = false
@@ -45,7 +54,7 @@ function App() {
           </Space>
         </div> : <Routes>
           <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/*" element={<Layout />} />
+          <Route path="/*" element={<Layout data={local.menus} />} />
         </Routes>}
       </div>
     )}</Observer>

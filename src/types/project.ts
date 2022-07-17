@@ -1,8 +1,5 @@
-
-export type Component = {
+export type Project = {
   id?: string;
-  parent_id?: string;
-  tree_id?: string;
   title?: string;
   name?: string;
   cover?: string;
@@ -10,5 +7,6 @@ export type Component = {
   available?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  accepts?: string[];
+  status?: number;
+  user_id?: string;
 }

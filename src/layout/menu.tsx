@@ -7,8 +7,9 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
+import { useEffectOnce } from 'react-use';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -48,8 +49,22 @@ const items: MenuItem[] = [
   ]),
 ];
 
-const MENU: React.FC = () => {
+function transform(tree: any) {
+  const node: any = { label: tree.title, key: tree.name, children: [] }
+  if (tree.children && tree.children.length) {
+    node.children = tree.children.map((item: any) => transform(item))
+  } else {
+    delete node.children
+  }
+  return node;
+}
+const MENU: React.FC<{ tree: any }> = (props: { tree: any }) => {
   const navigate = useNavigate()
+  const [tree, setTree] = useState([])
+  useEffectOnce(() => {
+    setTree(transform(props.tree).children)
+  })
+
   return (
     <div>
       <Menu
@@ -57,7 +72,7 @@ const MENU: React.FC = () => {
         defaultOpenKeys={['sub1']}
         mode="inline"
         theme="dark"
-        items={items}
+        items={tree}
         onClick={e => {
           navigate(e.key)
         }}

@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
 import { message } from 'antd'
+import { IMSTArray, IType, SnapshotIn, SnapshotOut } from 'mobx-state-tree'
 import store from '../store'
 
 //基础URL，axios将会自动拼接在url前

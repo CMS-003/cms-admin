@@ -28,9 +28,9 @@ const ComponentPage: React.FC = () => {
     }
   }, [])
   const addComponent = useCallback(async (params: { body: any }) => {
-    const result = await apis.createComponent(params)
+    const result = params.body.id ? await apis.updateComponent(params) : await apis.createComponent(params)
     if (result.code === 0) {
-      notification.info({ message: '添加成功' })
+      notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])

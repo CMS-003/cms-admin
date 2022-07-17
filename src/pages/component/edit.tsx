@@ -1,9 +1,48 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Form, Input, Modal, notification, Switch, Upload, Button, Select } from 'antd'
+import { Form, Input, Modal, notification, Switch, Upload, Button, Select, Spin, } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
-import { Component } from '../../types/index'
-import * as apis from '../../api'
+import apis from '../../api'
+import { debounce } from 'lodash'
+
+function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
+  const [fetching, setFetching] = useState(false);
+  const [options, setOptions] = useState([]);
+  const fetchRef = useRef(0);
+  const debounceFetcher = useMemo(() => {
+    const loadOptions = (v: any) => {
+      fetchRef.current += 1;
+      const fetchId = fetchRef.current;
+      setOptions([]);
+      setFetching(true);
+      fetchOptions(v).then((newOptions: any) => {
+        if (fetchId !== fetchRef.current) {
+          // for fetch callback order
+          return;
+        }
+
+        setOptions(newOptions);
+        setFetching(false);
+      });
+    };
+
+    return debounce(loadOptions, debounceTimeout);
+  }, [fetchOptions, debounceTimeout]);
+  return (
+    <Select
+      labelInValue
+      filterOption={false}
+      onSearch={debounceFetcher}
+      notFoundContent={fetching ? <Spin size="small" /> : null}
+      value={{ value }}
+      {...props}
+      onChange={e => {
+        props.onChange && props.onChange(e);
+      }}
+      options={options}
+    />
+  );
+}
 
 const fields = [
   {
@@ -36,6 +75,15 @@ const fields = [
     value: [],
   },
   {
+    field: 'name',
+    title: 'name',
+    type: 'string',
+    component: 'Input',
+    defaultValue: '',
+    autoFocus: false,
+    value: [],
+  },
+  {
     field: 'desc',
     title: '组件描述',
     type: 'string',
@@ -52,6 +100,7 @@ const fields = [
     defaultValue: '',
     autoFocus: false,
     value: [],
+    fetch: apis.getComponents
   },
   {
     field: 'parent_id',
@@ -61,6 +110,7 @@ const fields = [
     defaultValue: '',
     autoFocus: false,
     value: [],
+    fetch: apis.getComponents
   },
   {
     field: 'available',
@@ -125,6 +175,31 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
                 }}>
                   {item.value.map((v: any) => (<Select.Option key={v.value} value={v.value}>{v.name}</Select.Option>))}
                 </Select>
+              </Form.Item>;
+            case 'RemoteSelect':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <DebounceSelect
+                  // mode="multiple"
+                  showSearch
+                  onChoose={() => {
+
+                  }}
+                  value={data[item.field] || ''}
+                  placeholder={"请输入"}
+                  fetchOptions={async () => {
+                    if (item.fetch) {
+                      const result = await item.fetch()
+                      if (result.code === 0) {
+                        return result.data.items.map((item: any) => ({ label: item.title, value: item.id, name: item.name }))
+                      }
+                    }
+                    return []
+                  }}
+                  onChange={(value: any) => {
+                    data[item.field] = value.value
+                    console.log(data[item.field], value)
+                  }}
+                />
               </Form.Item>;
             case 'Switch':
               return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>

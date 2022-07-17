@@ -1,4 +1,4 @@
-import shttp, { BaseResultWrapper } from "../utils/shttp";
+import shttp, { BaseResultWrapper, BaseResultsWrapper } from "../utils/shttp";
 import store from '../store'
 import constant from '../constant'
 
@@ -15,4 +15,8 @@ export default {
     const result = await shttp.get<BaseResultWrapper<{}>>('/api/v1/user/profile').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
     return result
   },
+  getProjects: async <T>() => {
+    const result = await shttp.get<BaseResultsWrapper<T>>('/api/v1/user/projects').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
+    return result
+  }
 }
