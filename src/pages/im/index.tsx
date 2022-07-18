@@ -7,16 +7,78 @@ import shttp from '../../utils/shttp';
 import { useEffectOnce } from 'react-use';
 import events from '../../utils/events';
 import TIM from 'tim-js-sdk'
+import styled from 'styled-components'
+import { Menu, Item, useContextMenu, TriggerEvent } from 'react-contexify'
+import 'react-contexify/dist/ReactContexify.css';
+
+const GroupMemberAvatar = styled.img`
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+`
+
+interface IGroup {
+  GroupId: string, joined?: boolean
+}
+
+interface IMember {
+  user_id: string;
+  name?: string;
+  cover?: string;
+  seconds: number;
+}
+interface IUser {
+  user_id: string, time: number, cover?: string, name?: string
+}
 
 const IMPage: React.FC = () => {
-  const local = useLocalObservable<{ groupId: string, fetchMuted: boolean, users: { user_id: string, time: number, cover?: string, name?: string }[], groups: { GroupId: string, joined?: boolean }[], fetchSignature: boolean, fetchGroups: boolean }>(() => ({
+  const local = useLocalObservable<{
+    groupId: string,
+    signined: boolean,
+    fetchMuted: boolean,
+    fetchGroups: boolean,
+    fetchMembers: boolean,
+    fetchSignature: boolean,
+    mute_user_id: string,
+    mute_user_seconds: number,
+    willMute: boolean,
+    users: IUser[],
+    members: IMember[],
+    groups: IGroup[],
+  }>(() => ({
+    signined: false,
     fetchSignature: false,
     fetchGroups: false,
+    fetchMembers: false,
     fetchMuted: false,
+    mute_user_id: '',
+    mute_user_seconds: 0,
+    willMute: false,
     groups: [],
     groupId: '',
     users: [],
+    members: []
   }))
+  const { show } = useContextMenu({
+    id: 'MUTE',
+  })
+  const handleItemClick = async ({ event, props }: any) => {
+    let resp
+    try {
+      if (local.willMute) {
+        resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [local.mute_user_id], seconds: 3600 })
+      } else {
+        resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [local.mute_user_id], seconds: 0 })
+      }
+    } catch (e) {
+      console.log(e)
+    }
+    local.mute_user_id = '';
+    local.mute_user_seconds = 0;
+    await getMembers(local.groupId)
+    local.willMute = !local.willMute
+  };
+
   const contentRef = useRef<null | Element>(null)
   const getGroups = useCallback(async () => {
     try {
@@ -32,6 +94,19 @@ const IMPage: React.FC = () => {
       console.log(e)
     } finally {
       local.fetchGroups = false;
+    }
+  }, [])
+  const getMembers = useCallback(async (groupID: string) => {
+    if (groupID) {
+      const result = await store.tim.getGroupMemberList({ groupID, userIDList: ['ttt'], count: 30, offset: 0 })
+      console.log(result)
+      if (result.code === 0) {
+        local.members = result.data.memberList.map((member: any) => ({ user_id: member.userID, name: member.nick, cover: member.avatar, seconds: member.muteUntil }))
+      } else {
+        notification.warn({ message: '获取群成员失败' })
+      }
+    } else {
+      notification.warn({ message: '请先选择群' })
     }
   }, [])
   const getMutedUsers = useCallback(async () => {
@@ -53,10 +128,17 @@ const IMPage: React.FC = () => {
     // "TIMGroupTipElem" 修改群profile
     // "TIMGroupSystemNoticeElem" 群系统通知
     // onMessageReceived
-    if (data.length === 1 && data[0].type === "TIMTextElem") {
+    if (name === "onGroupListUpdated" && data.length === 1 && data[0].type === "TIMTextElem") {
       if (contentRef.current) {
         const p = document.createElement('p', {})
         p.textContent = `${data[0].from} 说: ${data[0].payload.text}`
+        contentRef.current.append(p)
+      }
+    }
+    if (name === "onMessageReceived") {
+      if (contentRef.current) {
+        const p = document.createElement('p', {})
+        p.textContent = `${data[0].from} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
         contentRef.current.append(p)
       }
     }
@@ -68,7 +150,7 @@ const IMPage: React.FC = () => {
     }
   })
   return (
-    <Observer>{() => (<div>
+    <Observer>{() => (<div style={{ height: 'calc(100vh - 175px)' }}>
       <Space>
         <Button type="primary" loading={local.fetchSignature} onClick={async (e) => {
           try {
@@ -91,20 +173,28 @@ const IMPage: React.FC = () => {
           if (!store.user.im_signatue) {
             return notification.error({ message: '请选获取signature' })
           }
-          let promise = store.tim.login({ userID: 'ttt', userSig: store.user.im_signatue });
-          promise.then(function (imResponse: any) {
-            console.log(imResponse.data); // 登录成功
-            if (imResponse.data.repeatLogin === true) {
-              // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
-              console.log(imResponse.data.errorInfo);
-            }
-          }).catch(function (imError: Error) {
-            console.warn('login error:', imError); // 登录失败的相关信息
-          });
-        }}>登录</Button>
-
+          if (local.signined) {
+            store.tim.logout().then((data: any) => {
+              console.log(data)
+              local.signined = false
+            })
+          } else {
+            let promise = store.tim.login({ userID: 'ttt', userSig: store.user.im_signatue });
+            promise.then(function (imResponse: any) {
+              console.log(imResponse.data); // 登录成功
+              if (imResponse.data.repeatLogin === true) {
+                // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
+                console.log(imResponse.data.errorInfo);
+              }
+              local.signined = true
+            }).catch(function (imError: Error) {
+              console.warn('login error:', imError); // 登录失败的相关信息
+            });
+          }
+        }}>{local.signined ? '退出' : '登录'}</Button>
+        <span>sig过期则重新获取 =&gt; 登录 =&gt;加入群</span>
       </Space>
-      <div style={{ display: 'flex', flexDirection: 'row', }}>
+      <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
         <div style={{ width: 200, padding: 5, backgroundColor: '#dfe98ae6', margin: '10px 10px 0 0' }}>
           <div>
             群列表 <SyncOutlined onClick={() => {
@@ -134,8 +224,8 @@ const IMPage: React.FC = () => {
                 {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
             }</div>
           }</div>
-        <div style={{ flex: 1 }}>
-          <div id="content" style={{ width: '100%', height: 500, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}></div>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'baseline', height: '100%' }}>
+          <div id="content" style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}></div>
           <textarea id="msg" style={{ width: 500, height: 150, borderRadius: 10, padding: 5, resize: 'none', display: 'block', margin: '10px 0' }}></textarea>
           <Button type="primary" size='small' onClick={async () => {
             const t: any = document.querySelector('#msg');
@@ -179,30 +269,53 @@ const IMPage: React.FC = () => {
         </div>
         <div style={{ width: 200, backgroundColor: '#ac8bcd', margin: '10px 0 0 10px' }}>
           <div>
-            群禁言列表
-            <SyncOutlined onClick={() => {
-              getMutedUsers()
-            }} />
-          </div>
-          {local.fetchMuted && <Spin />}
-          {local.users.map(user => <div key={user.user_id} onClick={async () => {
-            console.log(user)
-            let resp
-            try {
-              if (user.time === 0) {
-                resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [user.user_id], seconds: 3600 })
-                user.time = 3600
-              } else {
-                resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [user.user_id], seconds: 0 })
-                user.time = 0
+            <div>
+              群禁言列表
+              <SyncOutlined onClick={() => {
+                getMutedUsers()
+              }} />
+            </div>
+            {local.fetchMuted && <Spin />}
+            {local.users.map(user => <div key={user.user_id} onClick={async () => {
+              console.log(user)
+              let resp
+              try {
+                if (user.time === 0) {
+                  resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [user.user_id], seconds: 3600 })
+                  user.time = 3600
+                } else {
+                  resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [user.user_id], seconds: 0 })
+                  user.time = 0
+                }
+                console.log(resp)
+              } catch (e) {
+                console.log(e)
               }
-              console.log(resp)
-            } catch (e) {
-              console.log(e)
-            }
-          }}>
-            {user.user_id} {user.time}
-          </div>)}
+            }}>
+              {user.user_id} {user.time}
+            </div>)}
+          </div>
+          <div>
+            <div>
+              群成员列表
+              <SyncOutlined onClick={() => {
+                getMembers(local.groupId)
+              }} /></div>
+            {local.fetchMembers && <Spin />}
+            {local.members.map(member => <div key={member.user_id} style={{ margin: 5 }} onContextMenu={(e: TriggerEvent) => {
+              e.preventDefault();
+              // props: { user_id: memgber.user_id }
+              local.mute_user_id = member.user_id
+              local.mute_user_seconds = member.seconds
+              local.willMute = local.mute_user_seconds * 1000 < Date.now()
+              show(e)
+            }}>
+              <GroupMemberAvatar src={member.cover || ''} />{member.name || member.user_id}
+            </div>)}
+          </div>
+          <Menu id="MUTE">
+            <Item onClick={handleItemClick}>{local.willMute ? '禁言' : '取消禁言'}</Item>
+          </Menu>
         </div>
       </div>
 

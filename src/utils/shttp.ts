@@ -3,7 +3,7 @@ import { message } from 'antd'
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
-let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3335' : 'https://your.domain.com/api';
+let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:8993' : 'https://your.domain.com/api';
 
 //默认请求超时时间
 const timeout = 10000;
@@ -110,13 +110,16 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
 }
 
 interface Request<T> {
-  constructor(): Promise<this>;
+  constructor(): PromiseLike<this>;
   url: string;
   method: string;
   data?: any;
   params?: any;
   headers?: any;
   then(fn: Function): PromiseLike<BaseResultWrapper<T> & BaseResultsWrapper<T>>;
+  query(query: any): PromiseLike<this>;
+  send(data: any): PromiseLike<this>;
+  header(headers: any): PromiseLike<this>;
 }
 class Request<T> {
   constructor(url: string, method: string) {
@@ -126,12 +129,15 @@ class Request<T> {
 
   send(data: any) {
     this.data = data
+    return this;
   }
   query(query: any) {
     this.params = query
+    return this;
   }
   header(headers: any) {
     this.headers = headers
+    return this;
   }
 
   then(fn: () => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
