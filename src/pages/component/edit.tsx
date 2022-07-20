@@ -1,9 +1,14 @@
 import React, { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Form, Input, Modal, notification, Switch, Upload, Button, Select, Spin, } from 'antd'
+import { Form, Input, Modal, notification, Switch, Upload, Button, Select, Spin, message, } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
+import { Codemirror } from 'react-codemirror-ts';
 import apis from '../../api'
-import { debounce } from 'lodash'
+import _, { debounce } from 'lodash'
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/addon/edit/matchbrackets';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/3024-night.css';
 
 function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -39,6 +44,11 @@ function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, 
       onChange={e => {
         props.onChange && props.onChange(e);
       }}
+      onInputKeyDown={e => {
+        if (e.keyCode === 13) {
+          debounceFetcher('')
+        }
+      }}
       options={options}
     />
   );
@@ -55,6 +65,20 @@ const fields = [
     value: [
       { name: '根组件', value: '' },
       { name: '菜单项', value: 'MenuItem' },
+      { name: '底部菜单容器', value: 'Tabbar' },
+      { name: '底部菜单项', value: 'TabbarItem' },
+      { name: '选项卡容器', value: 'Tab' },
+      { name: '选项卡菜单项', value: 'TabItem' },
+      { name: '筛选容器', value: 'Filter' },
+      { name: '筛选行容器', value: 'FilterRow' },
+      { name: '筛选带个条件', value: 'FilterTag' },
+      { name: '热区容器', value: 'HotArea' },
+      { name: '热区按钮项', value: 'HotAreaItem' },
+      { name: '链接容器', value: 'MenuCard' },
+      { name: '链接菜单项', value: 'MenuCardItem' },
+      { name: '手选卡片', value: 'PickCard' },
+      { name: '快捷按钮', value: 'IconBtn' },
+      { name: '搜索按钮', value: 'SearchBtn' },
     ],
   },
   {
@@ -76,7 +100,7 @@ const fields = [
   },
   {
     field: 'name',
-    title: 'name',
+    title: '标识名称',
     type: 'string',
     component: 'Input',
     defaultValue: '',
@@ -130,8 +154,17 @@ const fields = [
     value: [],
     autoFocus: false,
   },
+  {
+    field: 'attrs',
+    title: '属性',
+    type: 'json',
+    component: 'Editor',
+    defaultValue: '',
+    value: [],
+    autoFocus: false,
+  },
 ]
-const lb = { span: 6 }, rb = { span: 18 }
+const lb = { span: 4 }, rb = { span: 20 }
 
 export default function EditPage({ visible, fetch, data, close, ...props }: { visible: boolean, data: any, fetch: Function, close: Function }) {
   const local = useLocalObservable<{ fetching: boolean }>(() => ({
@@ -144,9 +177,15 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
       okText="确定"
       confirmLoading={local.fetching}
       cancelText="取消"
+      style={{ maxHeight: 700 }}
       onOk={async () => {
         local.fetching = true
         try {
+          fields.forEach(item => {
+            if (item.type === 'json' && typeof data[item.field] === 'string') {
+              data[item.field] = JSON.stringify(data[item.field])
+            }
+          })
           await fetch({ body: data })
         } catch (e: any) {
           notification.error({ message: e.message })
@@ -156,11 +195,15 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
         }
       }}
       onCancel={async () => {
+        local.fetching = false
         close();
       }}
     >
       <Form>
         {fields.map(item => {
+          if (!item.defaultValue && item.type === 'json') {
+            item.defaultValue = '' + JSON.stringify(data[item.field] || {}, null, 2)
+          }
           switch (item.component) {
             case 'Input':
               return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
@@ -197,7 +240,6 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
                   }}
                   onChange={(value: any) => {
                     data[item.field] = value.value
-                    console.log(data[item.field], value)
                   }}
                 />
               </Form.Item>;
@@ -226,6 +268,26 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
                     <UploadOutlined /> 上传
                   </Button>
                 </Upload>
+              </Form.Item>
+            case 'Editor':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <Codemirror
+                  value={item.defaultValue + ''}
+                  name="attrs"
+                  // path="example"
+                  options={{
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    matchBrackets: true,
+                    theme: '3024-night',
+                    mode: 'javascript',
+                    tabSize: 2,
+                  }}
+                  className="code-mirror"
+                  onChange={(value, options) => {
+                    data[item.field] = value
+                  }}
+                />
               </Form.Item>
             default: break;
           }

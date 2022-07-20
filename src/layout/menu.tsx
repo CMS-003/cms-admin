@@ -50,7 +50,7 @@ const items: MenuItem[] = [
 ];
 
 function transform(tree: any) {
-  const node: any = { label: tree.title, key: tree.name, children: [] }
+  const node: any = { label: tree.title, key: tree._id, children: [] }
   if (tree.children && tree.children.length) {
     node.children = tree.children.map((item: any) => transform(item))
   } else {

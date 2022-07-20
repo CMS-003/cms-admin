@@ -15,3 +15,14 @@ code {
 .App {
   height: 100vh;
 }
+
+.code-mirror {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+  background-color: aliceblue;
+}
+
+.ant-modal .ant-modal-body {
+  max-height: 700px;
+  overflow-y: auto;
+}
