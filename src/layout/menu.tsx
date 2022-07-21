@@ -10,6 +10,7 @@ import { Menu } from 'antd';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use';
+import * as _ from 'lodash'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -48,9 +49,11 @@ const items: MenuItem[] = [
     getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
   ]),
 ];
+const keyPathMap: { [key: string]: string } = {}
 
 function transform(tree: any) {
   const node: any = { label: tree.title, key: tree._id, children: [] }
+  keyPathMap[tree._id] = _.get(tree, 'attrs.path', '')
   if (tree.children && tree.children.length) {
     node.children = tree.children.map((item: any) => transform(item))
   } else {
@@ -73,8 +76,8 @@ const MENU: React.FC<{ tree: any }> = (props: { tree: any }) => {
         mode="inline"
         theme="dark"
         items={tree}
-        onClick={e => {
-          navigate(e.key)
+        onClick={(e: any) => {
+          navigate(keyPathMap[e.key])
         }}
       />
     </div>

@@ -167,13 +167,25 @@ const fields = [
 const lb = { span: 4 }, rb = { span: 20 }
 
 export default function EditPage({ visible, fetch, data, close, ...props }: { visible: boolean, data: any, fetch: Function, close: Function }) {
-  const local = useLocalObservable<{ fetching: boolean }>(() => ({
+  const local = useLocalObservable<{ fetching: boolean, jsonMap: { [key: string]: string } }>(() => ({
     fetching: false,
+    jsonMap: {},
   }))
+  useEffect(() => {
+    fields.forEach(item => {
+      if (item.type === 'json') {
+        local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
+      }
+    })
+    return () => {
+      local.jsonMap = {}
+    }
+  })
   return <Observer>{() => (<Fragment>
     <Modal
       title={data.id ? '修改' : '添加'}
       visible={visible}
+      key={visible ? 1 : 2}
       okText="确定"
       confirmLoading={local.fetching}
       cancelText="取消"
@@ -183,7 +195,7 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
         try {
           fields.forEach(item => {
             if (item.type === 'json' && typeof data[item.field] === 'string') {
-              data[item.field] = JSON.stringify(data[item.field])
+              data[item.field] = JSON.parse(data[item.field])
             }
           })
           await fetch({ body: data })
@@ -201,9 +213,6 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
     >
       <Form>
         {fields.map(item => {
-          if (!item.defaultValue && item.type === 'json') {
-            item.defaultValue = '' + JSON.stringify(data[item.field] || {}, null, 2)
-          }
           switch (item.component) {
             case 'Input':
               return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
@@ -272,7 +281,9 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
             case 'Editor':
               return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
                 <Codemirror
-                  value={item.defaultValue + ''}
+                  key={item.field}
+                  autoFocus
+                  value={local.jsonMap[item.field]}
                   name="attrs"
                   // path="example"
                   options={{
