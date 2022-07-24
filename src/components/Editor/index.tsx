@@ -3,8 +3,10 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { Form, Input, Modal, notification, Switch, Upload, Button, Select, Spin, message, } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { Codemirror } from 'react-codemirror-ts';
-import apis from '../../api'
 import _, { debounce } from 'lodash'
+import apis from '@/api'
+import store from '@/store'
+import { EditorField } from '@/types'
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror/lib/codemirror.css';
@@ -54,119 +56,9 @@ function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, 
   );
 }
 
-const fields = [
-  {
-    field: 'type',
-    title: '组件类型',
-    type: 'string',
-    component: 'Select',
-    defaultValue: '',
-    autoFocus: false,
-    value: [
-      { name: '根组件', value: '' },
-      { name: '菜单项', value: 'MenuItem' },
-      { name: '底部菜单容器', value: 'Tabbar' },
-      { name: '底部菜单项', value: 'TabbarItem' },
-      { name: '选项卡容器', value: 'Tab' },
-      { name: '选项卡菜单项', value: 'TabItem' },
-      { name: '筛选容器', value: 'Filter' },
-      { name: '筛选行容器', value: 'FilterRow' },
-      { name: '筛选带个条件', value: 'FilterTag' },
-      { name: '热区容器', value: 'HotArea' },
-      { name: '热区按钮项', value: 'HotAreaItem' },
-      { name: '链接容器', value: 'MenuCard' },
-      { name: '链接菜单项', value: 'MenuCardItem' },
-      { name: '手选卡片', value: 'PickCard' },
-      { name: '快捷按钮', value: 'IconBtn' },
-      { name: '搜索按钮', value: 'SearchBtn' },
-    ],
-  },
-  {
-    field: 'id',
-    type: 'string',
-    component: '',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-  },
-  {
-    field: 'title',
-    title: '组件名称',
-    type: 'string',
-    component: 'Input',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-  },
-  {
-    field: 'name',
-    title: '标识名称',
-    type: 'string',
-    component: 'Input',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-  },
-  {
-    field: 'desc',
-    title: '组件描述',
-    type: 'string',
-    component: 'Input',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-  },
-  {
-    field: 'tree_id',
-    title: '根组件',
-    type: 'string',
-    component: 'RemoteSelect',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-    fetch: apis.getComponents
-  },
-  {
-    field: 'parent_id',
-    title: '父组件',
-    type: 'string',
-    component: 'RemoteSelect',
-    defaultValue: '',
-    autoFocus: false,
-    value: [],
-    fetch: apis.getComponents
-  },
-  {
-    field: 'available',
-    title: '是否可用',
-    type: 'boolean',
-    component: 'Switch',
-    defaultValue: false,
-    value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
-    autoFocus: false,
-  },
-  {
-    field: 'cover',
-    title: '图片',
-    type: 'string',
-    component: 'Image',
-    defaultValue: '',
-    value: [],
-    autoFocus: false,
-  },
-  {
-    field: 'attrs',
-    title: '属性',
-    type: 'json',
-    component: 'Editor',
-    defaultValue: '',
-    value: [],
-    autoFocus: false,
-  },
-]
 const lb = { span: 4 }, rb = { span: 20 }
 
-export default function EditPage({ visible, fetch, data, close, ...props }: { visible: boolean, data: any, fetch: Function, close: Function }) {
+export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: EditorField[], fetch: Function, close: Function }) {
   const local = useLocalObservable<{ fetching: boolean, jsonMap: { [key: string]: string } }>(() => ({
     fetching: false,
     jsonMap: {},
@@ -197,6 +89,12 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
             if (item.type === 'json' && typeof data[item.field] === 'string') {
               data[item.field] = JSON.parse(data[item.field])
             }
+            if (item.type === 'string' && !data[item.field]) {
+              data[item.field] = item.defaultValue || ''
+            }
+            if (item.type === 'number') {
+
+            }
           })
           await fetch({ body: data })
         } catch (e: any) {
@@ -225,7 +123,7 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
                 <Select key={item.field} value={data[item.field] || ''} onChange={(value) => {
                   data[item.field] = value
                 }}>
-                  {item.value.map((v: any) => (<Select.Option key={v.value} value={v.value}>{v.name}</Select.Option>))}
+                  {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))}
                 </Select>
               </Form.Item>;
             case 'RemoteSelect':

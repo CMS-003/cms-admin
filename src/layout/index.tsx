@@ -1,8 +1,8 @@
 import { Breadcrumb, Layout, Dropdown, Menu } from 'antd';
 import React, { useState } from 'react';
+import logo from '../logo.svg';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
-import logo from '../logo.svg';
 import MenuComponent from './menu'
 import Router from '../router'
 import store from '@/store';
@@ -14,9 +14,9 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
-        <div style={{ height: 60, display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
           <Dropdown overlay={<Menu
             style={{ backgroundColor: 'palegreen' }}
             onClick={e => {
@@ -40,13 +40,17 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
               <Breadcrumb.Item>User</Breadcrumb.Item>
               <Breadcrumb.Item>Bill</Breadcrumb.Item>
             </Breadcrumb>
-            <Avatar icon={<UserOutlined />} />
+            <Dropdown overlay={<Menu style={{ minWidth: 100 }}>
+              <Menu.Item>退出</Menu.Item>
+            </Menu>}>
+              <Avatar icon={<UserOutlined />} />
+            </Dropdown>
           </div>
-          <div className="site-layout-background" style={{ minHeight: 360 }}>
+          <div className="site-layout-background" style={{ height: '100%', display: 'flex', overflow: 'auto', flexDirection: 'column' }}>
             <Router />
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+        <div style={{ textAlign: 'center', padding: 10 }}>Ant Design ©2018 Created by Ant UED</div>
       </Layout>
     </Layout>
   );

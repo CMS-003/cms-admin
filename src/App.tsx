@@ -35,6 +35,10 @@ function App() {
           if (menuResult.code === 0) {
             local.menus = menuResult.data
           }
+          const componentTypes: any = await apis.getComponentTypes()
+          if (componentTypes.code === 0) {
+            store.component.setTypes(componentTypes.data.items)
+          }
         }
         local.booting = false
       } catch (e) {
