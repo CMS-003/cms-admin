@@ -4,7 +4,7 @@
 - ✅ shttp封装
 - ✅ 全局store设定
 - ✅ 动态菜单
-- tab标签页(路由缓存)
+- ✅ tab标签页(路由缓存)
 - ✅ path alias @
 - api与mock(axios封装,业务错误码/token/拦截器)
 - ✅ store(mobx-state-tree,user/config的model)
@@ -40,3 +40,4 @@
 - react-router-dom@v6: BrowserRouter放最顶级,使用useNavigate跳转才有响应
 - alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired
 - react.StrictMode 重复渲染。只在开发中出现
+- 开发时保存文件会触发useEffect和useEffectOnce,造成标签页重复

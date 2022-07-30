@@ -1,18 +1,23 @@
 import { Breadcrumb, Layout, Dropdown, Menu } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../logo.svg';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
 import store from '@/store';
+import { useLocation } from 'react-use';
 
 
 const { Content, Footer, Sider } = Layout;
 
 const App: React.FC<{ data: any }> = (props: { data: any }) => {
+  const location = useLocation()
   const [collapsed, setCollapsed] = useState(false);
-
+  const [breadcrumbs, setArr] = useState<string[]>([])
+  useEffect(() => {
+    setArr((location.pathname || '').split('/'))
+  }, [location.pathname])
   return (
     <Layout style={{ height: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
@@ -37,8 +42,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
         <Content style={{ margin: '0 16px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Breadcrumb style={{ margin: '16px 0' }}>
-              <Breadcrumb.Item>User</Breadcrumb.Item>
-              <Breadcrumb.Item>Bill</Breadcrumb.Item>
+              {breadcrumbs.map((pilot, index) => <Breadcrumb.Item key={index}>{pilot}</Breadcrumb.Item>)}
             </Breadcrumb>
             <Dropdown overlay={<Menu style={{ minWidth: 100 }}>
               <Menu.Item>退出</Menu.Item>
@@ -47,6 +51,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
             </Dropdown>
           </div>
           <div className="site-layout-background" style={{ height: '100%', display: 'flex', overflow: 'auto', flexDirection: 'column' }}>
+            {/* defaultActiveKey='' tabActiveKey='' panesItem={{ title: '', closable: false, key: '', path: '', content: () => <div></div> }} */}
             <Router />
           </div>
         </Content>

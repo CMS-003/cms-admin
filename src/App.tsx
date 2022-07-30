@@ -3,11 +3,13 @@ import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
+import { IType, IMSTArray } from 'mobx-state-tree'
 import { useEffectOnce } from 'react-use';
 import { Space, Spin } from 'antd'
 import apis from './api';
 import SignInPage from './pages/SignInPage'
 import store from './store'
+import { Project } from '@/types'
 
 function App() {
   const location = useLocation()
@@ -27,9 +29,9 @@ function App() {
           } else {
             console.log(result)
           }
-          const projectResult: any = await apis.getProjects()
+          const projectResult = await apis.getProjects<Project>()
           if (projectResult.code === 0) {
-            store.project.setList(projectResult.data.items)
+            store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
           }
           const menuResult: any = await apis.getMenu()
           if (menuResult.code === 0) {
@@ -38,6 +40,9 @@ function App() {
           const componentTypes: any = await apis.getComponentTypes()
           if (componentTypes.code === 0) {
             store.component.setTypes(componentTypes.data.items)
+          }
+          if (location.pathname === '/') {
+            navigate('/dashboard')
           }
         }
         local.booting = false

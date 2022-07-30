@@ -1,7 +1,7 @@
-import { Button, notification, Space, Table, Tag } from 'antd';
+import { Button, notification, Space, Table, Tag, Input, Select } from 'antd';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
-import React, { Fragment, useCallback, useState } from 'react';
+import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
 import { Component, EditorComponent } from '../../types'
 import apis from '@/api'
@@ -18,6 +18,7 @@ const ComponentPage: React.FC = () => {
       local.temp = data
     }
   }))
+  const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
     const result = await apis.getComponents()
     if (result.code === 0) {
@@ -139,12 +140,17 @@ const ComponentPage: React.FC = () => {
   return (
     <Observer>{() => (<Fragment>
       <Space style={{ marginBottom: 10, justifyContent: 'end' }}>
+        分类类型:
+        <Select defaultValue="">
+          <Select.Option value="">全部</Select.Option>
+        </Select>
+        <Input ref={ref => searchInput.current = ref} />
+        <Button type="primary" onClick={e => {
+          refresh()
+        }}>搜索</Button>
         <Button type="primary" onClick={e => {
           local.showEditPage = true
         }}>添加</Button>
-        <Button type="primary" onClick={e => {
-          refresh()
-        }}>刷新</Button>
       </Space>
       <EditPage
         visible={local.showEditPage}
