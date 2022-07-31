@@ -26,3 +26,15 @@ code {
   max-height: 700px;
   overflow-y: auto;
 }
+
+.tag-page .ant-tabs-nav-wrap {
+  background-color: #9fc1f2;
+}
+
+.tag-page .ant-tabs-content-holder {
+  height: 100%;
+}
+
+.tag-page .ant-tabs-content {
+  height: 100%;
+}

@@ -1,11 +1,10 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, notification, Space, Table } from 'antd';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
+import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { Component, EditorComponent } from '@/types'
 import apis from '@/api'
-import store from '@/store'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 
@@ -130,7 +129,7 @@ const ComponentTemplatePage: React.FC = () => {
     refresh()
   })
   return (<Observer>{() => <Fragment>
-    <Space style={{ marginBottom: 10, justifyContent: 'end' }}>
+    <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       < Button type="primary" onClick={e => {
         refresh()
       }}>刷新</Button>

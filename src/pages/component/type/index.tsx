@@ -18,7 +18,7 @@ const ComponentTypePage: React.FC = () => {
       local.temp = data
     }
   }))
-  const [fields, setFields] = useState([
+  const [fields] = useState([
     {
       field: 'title',
       title: '名称',
@@ -55,7 +55,7 @@ const ComponentTypePage: React.FC = () => {
     refresh()
   })
   return (<Observer>{() => <Fragment>
-    <Space style={{ marginBottom: 10, justifyContent: 'end' }}>
+    <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       <Button type="primary" onClick={e => {
         local.showEditPage = true
       }}>添加</Button>

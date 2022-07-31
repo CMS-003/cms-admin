@@ -8,8 +8,7 @@ import Router from '../router'
 import store from '@/store';
 import { useLocation } from 'react-use';
 
-
-const { Content, Footer, Sider } = Layout;
+const { Content, Sider } = Layout;
 
 const App: React.FC<{ data: any }> = (props: { data: any }) => {
   const location = useLocation()
@@ -39,7 +38,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
         <MenuComponent tree={props.data} />
       </Sider>
       <Layout className="site-layout">
-        <Content style={{ margin: '0 16px', display: 'flex', flexDirection: 'column' }}>
+        <Content style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Breadcrumb style={{ margin: '16px 0' }}>
               {breadcrumbs.map((pilot, index) => <Breadcrumb.Item key={index}>{pilot}</Breadcrumb.Item>)}
@@ -47,11 +46,10 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
             <Dropdown overlay={<Menu style={{ minWidth: 100 }}>
               <Menu.Item>退出</Menu.Item>
             </Menu>}>
-              <Avatar icon={<UserOutlined />} />
+              <Avatar icon={<UserOutlined />} style={{ marginRight: 10 }} />
             </Dropdown>
           </div>
           <div className="site-layout-background" style={{ height: '100%', display: 'flex', overflow: 'auto', flexDirection: 'column' }}>
-            {/* defaultActiveKey='' tabActiveKey='' panesItem={{ title: '', closable: false, key: '', path: '', content: () => <div></div> }} */}
             <Router />
           </div>
         </Content>

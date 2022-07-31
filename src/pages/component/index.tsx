@@ -5,6 +5,7 @@ import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
 import { Component, EditorComponent } from '../../types'
 import apis from '@/api'
+import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 
@@ -139,19 +140,23 @@ const ComponentPage: React.FC = () => {
   })
   return (
     <Observer>{() => (<Fragment>
-      <Space style={{ marginBottom: 10, justifyContent: 'end' }}>
-        分类类型:
-        <Select defaultValue="">
-          <Select.Option value="">全部</Select.Option>
-        </Select>
-        <Input ref={ref => searchInput.current = ref} />
-        <Button type="primary" onClick={e => {
-          refresh()
-        }}>搜索</Button>
-        <Button type="primary" onClick={e => {
-          local.showEditPage = true
-        }}>添加</Button>
-      </Space>
+      <AlignAside style={{ margin: 10 }}>
+        <Space>
+          分类类型:
+          <Select defaultValue="">
+            <Select.Option value="">全部</Select.Option>
+          </Select>
+          <Input ref={ref => searchInput.current = ref} />
+          <Button type="primary" onClick={e => {
+            refresh()
+          }}>搜索</Button>
+        </Space>
+        <Space>
+          <Button type="primary" onClick={e => {
+            local.showEditPage = true
+          }}>添加</Button>
+        </Space>
+      </AlignAside>
       <EditPage
         visible={local.showEditPage}
         close={() => { local.showEditPage = false; local.temp = {} }}

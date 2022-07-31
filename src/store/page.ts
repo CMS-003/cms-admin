@@ -1,4 +1,4 @@
-import { types, IType, ISimpleType, IMSTArray, SnapshotIn, SnapshotOut, flow } from 'mobx-state-tree'
+import { types, ISimpleType, IMSTArray } from 'mobx-state-tree'
 import storage from '../storage'
 
 const TagPage = types.model({
@@ -13,7 +13,11 @@ const TagPage = types.model({
     storage.setKey('opened-tags', items)
   },
   addTag(tag: string) {
-    self.openedTags.push(tag)
+    if (!self.openedTags.includes(tag)) {
+      self.openedTags.push(tag)
+      return true
+    }
+    return false
   },
   removeTag(tag: string) {
     const index = self.openedTags.findIndex(item => item === tag)
