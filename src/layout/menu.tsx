@@ -56,7 +56,7 @@ const MENU: React.FC<{ tree: any }> = (props: { tree: any }) => {
     }
   }, [location.pathname])
   return (
-    <div>
+    <div style={{ flex: 1 }}>
       <Menu
         defaultSelectedKeys={[selectedKey]}
         selectedKeys={[selectedKey]}

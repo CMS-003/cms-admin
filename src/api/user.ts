@@ -11,8 +11,8 @@ export default {
     store.app.setIsSignIn(true)
     return result;
   },
-  getProfile: async () => {
-    const result = await shttp.get<BaseResultWrapper<{}>>('/api/v1/user/profile').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
+  getProfile: async <T>() => {
+    const result = await shttp.get<BaseResultWrapper<T>>('/api/v1/user/profile').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
     return result
   },
   getProjects: async <T>() => {

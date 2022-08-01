@@ -1,4 +1,4 @@
-import { types } from 'mobx-state-tree'
+import { IModelType, IStateTreeNode, types, _NotCustomized, ISimpleType, IMaybe, IOptionalIType, ValidOptionalValues } from 'mobx-state-tree'
 import constant from '../constant'
 import storage from '../storage'
 
@@ -7,6 +7,7 @@ const user = types.model('app', {
     id: types.string,
     avatar: types.string,
     account: types.string,
+    nickname: types.optional(types.string, ''),
   })),
   token: types.model({
     [constant.ACCESS_TOKEN]: types.optional(types.string, ''),
@@ -22,7 +23,22 @@ const user = types.model('app', {
   },
   setRefreshToken(token: string) {
     storage.setKey(constant.REFRESH_TOKEN, token);
-  }
+  },
+  setInfo(info: ({
+    id: string;
+    avatar: string;
+    account: string;
+    nickname: string;
+  } & IStateTreeNode<IMaybe<IModelType<{
+    id: ISimpleType<string>;
+    avatar: ISimpleType<string>;
+    account: ISimpleType<string>;
+    nickname: IOptionalIType<ISimpleType<string>, ValidOptionalValues>;
+  }, {}, _NotCustomized, _NotCustomized>>>) | undefined) {
+    if (info) {
+      self.info = info
+    }
+  },
 }));
 
 export default user;

@@ -3,13 +3,13 @@ import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { IType, IMSTArray } from 'mobx-state-tree'
+import { IType, IMSTArray, IStateTreeNode } from 'mobx-state-tree'
 import { useEffectOnce } from 'react-use';
 import { Space, Spin } from 'antd'
 import apis from './api';
 import SignInPage from './pages/SignInPage'
 import store from './store'
-import { Project } from '@/types'
+import { Project, UserInfo } from '@/types'
 
 function App() {
   const location = useLocation()
@@ -23,11 +23,11 @@ function App() {
     (async () => {
       try {
         if (location.pathname !== '/sign-in') {
-          const result = await apis.getProfile()
+          const result = await apis.getProfile<UserInfo>();
           if (result.code !== 0) {
             navigate('/sign-in')
           } else {
-            console.log(result)
+            store.user.setInfo(result.data)
           }
           const projectResult = await apis.getProjects<Project>()
           if (projectResult.code === 0) {

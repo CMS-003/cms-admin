@@ -1,25 +1,20 @@
-import { Breadcrumb, Layout, Dropdown, Menu } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Layout, Dropdown, Menu } from 'antd';
+import React, { useState } from 'react';
 import logo from '../logo.svg';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
 import store from '@/store';
-import { useLocation } from 'react-use';
 
 const { Content, Sider } = Layout;
 
 const App: React.FC<{ data: any }> = (props: { data: any }) => {
-  const location = useLocation()
   const [collapsed, setCollapsed] = useState(false);
-  const [breadcrumbs, setArr] = useState<string[]>([])
-  useEffect(() => {
-    setArr((location.pathname || '').split('/'))
-  }, [location.pathname])
+
   return (
     <Layout style={{ height: '100vh' }}>
-      <Sider collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+      <Sider className="app-slider" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
         <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
           <Dropdown overlay={<Menu
             style={{ backgroundColor: 'palegreen' }}
@@ -36,26 +31,20 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
           </Dropdown>
         </div>
         <MenuComponent tree={props.data} />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
+          <Avatar icon={<UserOutlined />} />
+          <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
+        </div>
       </Sider>
       <Layout className="site-layout">
         <Content style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Breadcrumb style={{ margin: '16px 0' }}>
-              {breadcrumbs.map((pilot, index) => <Breadcrumb.Item key={index}>{pilot}</Breadcrumb.Item>)}
-            </Breadcrumb>
-            <Dropdown overlay={<Menu style={{ minWidth: 100 }}>
-              <Menu.Item>退出</Menu.Item>
-            </Menu>}>
-              <Avatar icon={<UserOutlined />} style={{ marginRight: 10 }} />
-            </Dropdown>
-          </div>
           <div className="site-layout-background" style={{ height: '100%', display: 'flex', overflow: 'auto', flexDirection: 'column' }}>
             <Router />
           </div>
         </Content>
         <div style={{ textAlign: 'center', padding: 10 }}>Ant Design ©2018 Created by Ant UED</div>
       </Layout>
-    </Layout>
+    </Layout >
   );
 };
 

@@ -15,7 +15,10 @@ code {
 .App {
   height: 100vh;
 }
-
+.app-slider .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+}
 .code-mirror {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -29,6 +32,7 @@ code {
 
 .tag-page .ant-tabs-nav-wrap {
   background-color: #9fc1f2;
+  padding: 5px 10px 0;
 }
 
 .tag-page .ant-tabs-content-holder {
