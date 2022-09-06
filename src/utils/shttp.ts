@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
 import { message } from 'antd'
+import { getSignature } from './helper'
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
@@ -20,9 +21,12 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     //配置自定义请求头
+    // x-signature
+    const signature = getSignature(config.url || '', { nonce: '123456', timestamp: Date.now() }, Object.assign({}, config.data, config.params))
     let customHeaders: AxiosRequestHeaders = {
       'Accept-Language': 'zh-CN',
       'Authorization': '',
+      'X-Signature': signature,
     };
     // TODO: token
     config.headers = customHeaders;
@@ -43,17 +47,17 @@ export interface BaseResponse {
 
 // 后台响应数据格式
 export interface BaseResultWrapper<T> {
-  code: number,
+  status: number,
   message: string,
   data?: T
 }
 
 export interface BaseResultsWrapper<T> {
-  code: number,
+  status: number,
   message: string,
   data: {
     total?: number,
-    items: T[],
+    list: T[],
     ended?: boolean,
   }
 }

@@ -31,6 +31,40 @@ interface IUser {
   user_id: string, time: number, cover?: string, name?: string
 }
 
+const GroupTipType: { [key: string]: string } = {
+  '1': '加入',
+  '2': '退出',
+  '3': '被踢出',
+  '4': '成为管理员',
+  '5': '被撤销管理员',
+  '6': '组群资料变更',
+  '7': '用户资料变更',
+  '10': '被封',
+  '11': '被解封',
+}
+
+const SystemTipType: { [key: string]: string } = {
+  '1': '申请加入',
+  '2': '申请加入被同意',
+  '3': '申请加入被拒绝',
+  '4': '被踢出群',
+  '5': '群被解散',
+  '6': '创建群',
+  '7': '邀请加群',
+  '8': '退出群',
+  '9': '被设为管理员',
+  '10': '被取消管理员',
+  '11': '群被回收',
+  '12': '收到加群邀请',
+  '13': '邀请加群，被同意',
+  '14': '邀请加群，被拒绝',
+  '15': '已读上报多终端同步',
+  '20': '群消息提醒类型设置多终端、多实例同步通知',
+  '21': '被封',
+  '22': '解封',
+  '255': '自定义通知',
+}
+
 const IMPage: React.FC = () => {
   const local = useLocalObservable<{
     groupId: string,
@@ -39,6 +73,7 @@ const IMPage: React.FC = () => {
     fetchGroups: boolean,
     fetchMembers: boolean,
     fetchSignature: boolean,
+    fetchRemoveUser: boolean,
     mute_user_id: string,
     mute_user_seconds: number,
     willMute: boolean,
@@ -51,6 +86,7 @@ const IMPage: React.FC = () => {
     fetchGroups: false,
     fetchMembers: false,
     fetchMuted: false,
+    fetchRemoveUser: false,
     mute_user_id: '',
     mute_user_seconds: 0,
     willMute: false,
@@ -83,8 +119,11 @@ const IMPage: React.FC = () => {
   const getGroups = useCallback(async () => {
     try {
       local.fetchGroups = true
-      const result = await shttp.get<{ list: { GroupId: string }[] }>('/api/v1/im/groups/remote')
-      if (result.code === 0) {
+      const result = await shttp.get<{ list: { GroupId: string, joined?: boolean }[] }>('/api/v1/im/groups/remote')
+      if (result.status === 0) {
+        result.data.list.forEach(item => {
+          item.joined = local.groupId === item.GroupId
+        })
         local.groups = result.data.list
         notification.info({ message: '成功' })
       } else {
@@ -99,8 +138,7 @@ const IMPage: React.FC = () => {
   const getMembers = useCallback(async (groupID: string) => {
     if (groupID) {
       const result = await store.tim.getGroupMemberList({ groupID, userIDList: ['ttt'], count: 30, offset: 0 })
-      console.log(result)
-      if (result.code === 0) {
+      if (result.status === 0) {
         local.members = result.data.memberList.map((member: any) => ({ user_id: member.userID, name: member.nick, cover: member.avatar, seconds: member.muteUntil }))
       } else {
         notification.warn({ message: '获取群成员失败' })
@@ -116,13 +154,27 @@ const IMPage: React.FC = () => {
     try {
       local.fetchMuted = true
       const user = await shttp.get(`/api/v1/im/groups/${local.groupId}/muted`)
-      local.users = user.data.items.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
+      local.users = user.data.list.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
     } catch (e) {
       console.log(e)
     } finally {
       local.fetchMuted = false
     }
   }, [])
+  const removeUser = useCallback(async (user_id: string) => {
+    if (!local.groupId) {
+      return notification.error({ message: '没有加入群' })
+    }
+    try {
+      local.fetchRemoveUser = true
+      await shttp.delete(`/api/v1/im/users/${user_id}`)
+      await getMembers(local.groupId);
+    } catch (e) {
+      console.log(e)
+    } finally {
+      local.fetchRemoveUser = false
+    }
+  }, []);
   function messager(event: any) {
     const { name, data } = event;
     // "TIMGroupTipElem" 修改群profile
@@ -136,9 +188,17 @@ const IMPage: React.FC = () => {
       }
     }
     if (name === "onMessageReceived") {
+      const time = new Date(data[0].time * 1000).toLocaleString();
       if (contentRef.current) {
         const p = document.createElement('p', {})
-        p.textContent = `${data[0].from} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
+        const opType = data[0].payload.operationType as string;
+        if (data[0].type === "TIMGroupTipElem") {
+          p.textContent = `用户:${data[0].payload.userIDList[0]} 类型:${GroupTipType[opType] || ''}`
+        } else if (data[0].type === "TIMGroupSystemNoticeElem") {
+          p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
+        } else {
+          p.textContent = `${data[0].from} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
+        }
         contentRef.current.append(p)
       }
     }
@@ -157,7 +217,7 @@ const IMPage: React.FC = () => {
             local.fetchSignature = true
             const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: 'ttt' })
             console.log(result)
-            if (result.code === 0) {
+            if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
               notification.info({ message: '成功' })
             } else {
@@ -224,6 +284,7 @@ const IMPage: React.FC = () => {
                 {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
             }</div>
           }</div>
+        {/* 中间内容区 */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'baseline', height: '100%' }}>
           <div id="content" style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}></div>
           <textarea id="msg" style={{ width: 500, height: 150, borderRadius: 10, padding: 5, resize: 'none', display: 'block', margin: '10px 0' }}></textarea>
@@ -252,17 +313,20 @@ const IMPage: React.FC = () => {
             try {
               // 发送消息
               let result = await store.tim.sendMessage(message);
-              if (result.code === 0) {
+              if (result.status === 0) {
                 if (contentRef.current) {
                   const p = document.createElement('p', {})
+                  p.className = 'txt-right';
                   p.textContent = `你 说: ${result.data.message.payload.text}`
                   contentRef.current.append(p)
+                  t.value = ''
                 }
               } else {
                 alert('发送失败')
               }
             } catch (e: any) {
               console.log(e, e.code)
+              // 80003 超时
               notification.warn({ message: [10016, 8001].includes(e.code) ? '发送被拒绝' : e.message })
             }
           }}>发送</Button>
@@ -315,6 +379,9 @@ const IMPage: React.FC = () => {
           </div>
           <Menu id="MUTE">
             <Item onClick={handleItemClick}>{local.willMute ? '禁言' : '取消禁言'}</Item>
+            <Item onClick={() => {
+              removeUser(local.mute_user_id);
+            }}>删除成员</Item>
           </Menu>
         </div>
       </div>

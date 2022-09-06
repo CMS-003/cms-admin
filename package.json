@@ -14,7 +14,9 @@
     "@types/react-dom": "^18.0.5",
     "antd": "^4.21.4",
     "axios": "^0.27.2",
+    "crypto-js": "^4.1.1",
     "event-emitter": "^0.3.5",
+    "lodash": "^4.17.21",
     "mobx": "^6.6.1",
     "mobx-react": "^7.5.1",
     "mobx-state-tree": "^5.1.5",
@@ -26,7 +28,7 @@
     "react-scripts": "5.0.1",
     "react-use": "^17.4.0",
     "styled-components": "^5.3.5",
-    "tim-js-sdk": "^2.20.1",
+    "tim-js-sdk": "^2.22.1",
     "typescript": "^4.7.4",
     "web-vitals": "^2.1.4"
   },
@@ -55,8 +57,10 @@
     ]
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@types/event-emitter": "^0.3.3",
     "@types/loadable__component": "^5.13.4",
+    "@types/lodash": "^4.14.184",
     "@types/styled-components": "^5.1.25",
     "i": "^0.3.7",
     "npm": "^8.14.0"
