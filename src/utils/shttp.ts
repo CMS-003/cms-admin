@@ -145,7 +145,6 @@ class Request<T> {
   }
 
   then(fn: () => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
-    console.log('then?')
     const option: AxiosRequestConfig = {
       url: this.url,
       method: this.method,

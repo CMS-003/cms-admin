@@ -216,7 +216,6 @@ const IMPage: React.FC = () => {
           try {
             local.fetchSignature = true
             const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: 'ttt' })
-            console.log(result)
             if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
               notification.info({ message: '成功' })
