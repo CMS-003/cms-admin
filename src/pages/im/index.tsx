@@ -18,7 +18,12 @@ const GroupMemberAvatar = styled.img`
 `
 
 interface IGroup {
-  GroupId: string, joined?: boolean
+  _id: string;
+  title: string;
+  status: number;
+  cover: string;
+  duanmu_enabled: boolean;
+  joined?: boolean
 }
 
 interface IMember {
@@ -119,10 +124,10 @@ const IMPage: React.FC = () => {
   const getGroups = useCallback(async () => {
     try {
       local.fetchGroups = true
-      const result = await shttp.get<{ list: { GroupId: string, joined?: boolean }[] }>('/api/v1/im/groups/remote')
+      const result = await shttp.get<{ list: IGroup[] }>('/api/v1/im/groups')
       if (result.status === 0) {
         result.data.list.forEach(item => {
-          item.joined = local.groupId === item.GroupId
+          item.joined = local.groupId === item._id;
         })
         local.groups = result.data.list
         notification.info({ message: '成功' })
@@ -137,8 +142,8 @@ const IMPage: React.FC = () => {
   }, [])
   const getMembers = useCallback(async (groupID: string) => {
     if (groupID) {
-      const result = await store.tim.getGroupMemberList({ groupID, userIDList: ['ttt'], count: 30, offset: 0 })
-      if (result.status === 0) {
+      const result = await store.tim.getGroupMemberList({ groupID, userIDList: ['34dbeff0-d8a3-11eb-bb88-bb150df49571'], count: 30, offset: 0 })
+      if (result.code === 0) {
         local.members = result.data.memberList.map((member: any) => ({ user_id: member.userID, name: member.nick, cover: member.avatar, seconds: member.muteUntil }))
       } else {
         notification.warn({ message: '获取群成员失败' })
@@ -215,7 +220,7 @@ const IMPage: React.FC = () => {
         <Button type="primary" loading={local.fetchSignature} onClick={async (e) => {
           try {
             local.fetchSignature = true
-            const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: 'ttt' })
+            const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: '34dbeff0-d8a3-11eb-bb88-bb150df49571' })
             console.log(result)
             if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
@@ -239,7 +244,7 @@ const IMPage: React.FC = () => {
               local.signined = false
             })
           } else {
-            let promise = store.tim.login({ userID: 'ttt', userSig: store.user.im_signatue });
+            let promise = store.tim.login({ userID: '34dbeff0-d8a3-11eb-bb88-bb150df49571', userSig: store.user.im_signatue });
             promise.then(function (imResponse: any) {
               console.log(imResponse.data); // 登录成功
               if (imResponse.data.repeatLogin === true) {
@@ -264,24 +269,24 @@ const IMPage: React.FC = () => {
           {local.fetchGroups ? <Spin /> : <div>
             {
               local.groups.map((item) => <div
-                key={item.GroupId}
+                key={item._id}
                 onClick={async () => {
                   if (item.joined) {
                     item.joined = false;
                     local.groupId = ''
-                    store.tim.quitGroup(item.GroupId);
+                    store.tim.quitGroup(item._id);
                     local.users = []
                   } else if ('' !== local.groupId) {
                     notification.error({ message: '请先退出加入的群' })
                   } else {
                     item.joined = true;
-                    local.groupId = item.GroupId
-                    store.tim.joinGroup({ groupID: item.GroupId, type: 'AVChatRoom' });
+                    local.groupId = item._id
+                    store.tim.joinGroup({ groupID: item._id, type: 'AVChatRoom' });
                     // const result = await shttp.get<{ total: number, items: { Member_Account: string }[] }>(`/api/v1/im/group/${item.GroupId}/members`)
                     // local.users = result.data.items.map(item => ({ user_id: item.Member_Account }))
                   }
-                }}>
-                {item.joined ? '✅' : '❌'}{item.GroupId}</div>)
+                }} data-groupid={item._id}>
+                <img src={item.cover} alt="" style={{ width: 24, height: 24 }} />{item.title}{item.joined ? '✅' : '❌'}</div>)
             }</div>
           }</div>
         {/* 中间内容区 */}
@@ -313,7 +318,7 @@ const IMPage: React.FC = () => {
             try {
               // 发送消息
               let result = await store.tim.sendMessage(message);
-              if (result.status === 0) {
+              if (result.code === 0) {
                 if (contentRef.current) {
                   const p = document.createElement('p', {})
                   p.className = 'txt-right';
