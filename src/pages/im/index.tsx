@@ -1,6 +1,6 @@
 import store from '../../store';
-import { Button, notification, Space, Spin } from 'antd';
-import { SyncOutlined } from '@ant-design/icons'
+import { Button, Input, notification, Space, Spin } from 'antd';
+import { SyncOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { useCallback, useRef } from 'react';
 import shttp from '../../utils/shttp';
@@ -10,6 +10,7 @@ import TIM from 'tim-js-sdk'
 import styled from 'styled-components'
 import { Menu, Item, useContextMenu, TriggerEvent } from 'react-contexify'
 import 'react-contexify/dist/ReactContexify.css';
+import constant from '../../constant'
 
 const GroupMemberAvatar = styled.img`
   width: 35px;
@@ -142,7 +143,7 @@ const IMPage: React.FC = () => {
   }, [])
   const getMembers = useCallback(async (groupID: string) => {
     if (groupID) {
-      const result = await store.tim.getGroupMemberList({ groupID, userIDList: ['34dbeff0-d8a3-11eb-bb88-bb150df49571'], count: 30, offset: 0 })
+      const result = await store.tim.getGroupMemberList({ groupID, userIDList: [store.app.im_user_id], count: 30, offset: 0 })
       if (result.code === 0) {
         local.members = result.data.memberList.map((member: any) => ({ user_id: member.userID, name: member.nick, cover: member.avatar, seconds: member.muteUntil }))
       } else {
@@ -202,7 +203,7 @@ const IMPage: React.FC = () => {
         } else if (data[0].type === "TIMGroupSystemNoticeElem") {
           p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
         } else {
-          p.textContent = `${data[0].from} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
+          p.textContent = `${data[0].nick} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
         }
         contentRef.current.append(p)
       }
@@ -217,10 +218,22 @@ const IMPage: React.FC = () => {
   return (
     <Observer>{() => (<div style={{ height: 'calc(100vh - 175px)' }}>
       <Space>
+        <Input addonBefore={'sdkappid'} defaultValue={store.app.im_sdk_appid} onChange={(e: any) => {
+          store.app.setIMSdkAppId(e.target.value);
+        }} />
+        <Input addonBefore={'user_id'} defaultValue={store.app.im_user_id} onChange={(e: any) => {
+          store.app.setIMUserId(e.target.value)
+        }} />
+        <Input addonBefore={'token'} defaultValue={store.user.token[constant.ACCESS_TOKEN]} onChange={(e: any) => {
+          store.user.setAccessToken(e.target.value)
+        }} />
         <Button type="primary" loading={local.fetchSignature} onClick={async (e) => {
           try {
+            if (!store.app.im_user_id) {
+              return notification.error({ message: '请先设置user_id' })
+            }
             local.fetchSignature = true
-            const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: '34dbeff0-d8a3-11eb-bb88-bb150df49571' })
+            const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: store.app.im_user_id })
             console.log(result)
             if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
@@ -238,13 +251,16 @@ const IMPage: React.FC = () => {
           if (!store.user.im_signatue) {
             return notification.error({ message: '请选获取signature' })
           }
+          if (!store.app.im_user_id) {
+            return notification.error({ message: '请先设置user_id' })
+          }
           if (local.signined) {
             store.tim.logout().then((data: any) => {
               console.log(data)
               local.signined = false
             })
           } else {
-            let promise = store.tim.login({ userID: '34dbeff0-d8a3-11eb-bb88-bb150df49571', userSig: store.user.im_signatue });
+            let promise = store.tim.login({ userID: store.app.im_user_id, userSig: store.user.im_signatue });
             promise.then(function (imResponse: any) {
               console.log(imResponse.data); // 登录成功
               if (imResponse.data.repeatLogin === true) {

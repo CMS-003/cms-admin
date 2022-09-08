@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
 import { message } from 'antd'
 import { getSignature } from './helper'
+import store from '../store'
+import constant from '../constant'
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
@@ -26,9 +28,12 @@ instance.interceptors.request.use(
     let customHeaders: AxiosRequestHeaders = {
       'Accept-Language': 'zh-CN',
       'Authorization': '',
-      'X-Signature': signature,
     };
-    // TODO: token
+    if (config.url === '/api/v1/im/user/signature') {
+      customHeaders['token'] = store.user.token[constant.ACCESS_TOKEN]
+    } else {
+      customHeaders['X-Signature'] = signature;
+    }
     config.headers = customHeaders;
     return config
   },

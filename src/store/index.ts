@@ -5,9 +5,10 @@ import IComponent from './component'
 import TIM from 'tim-js-sdk';
 import storage from '../storage';
 import events from '../utils/events';
+import constant from '../constant'
 
 let options = {
-  SDKAppID: 1400701118 // 接入时需要将 0 替换为您的云通信应用的 SDKAppID，类型为 Number
+  SDKAppID: storage.getKey('im_sdk_appid') || 0 // 接入时需要将 0 替换为您的云通信应用的 SDKAppID，类型为 Number
 };
 // 创建 SDK 实例，`TIM.create()`方法对于同一个 `SDKAppID` 只会返回同一份实例
 let tim = TIM.create(options); // SDK 实例通常用 tim 表示
@@ -148,9 +149,11 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
+  im_sdk_appid: storage.getKey('im_sdk_appid') || '',
+  im_user_id: storage.getKey('im_user_id') || ''
 });
 // 用户信息状态
-const user = IUser.create({ token: {}, im_signatue: storage.getKey('im_signature') || '' });
+const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey(constant.ACCESS_TOKEN) }, im_signatue: storage.getKey('im_signature') || '' });
 const menu = IMenu.create();
 const component = IComponent.create();
 

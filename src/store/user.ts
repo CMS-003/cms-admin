@@ -15,6 +15,7 @@ const user = types.model('app', {
   im_signatue: types.optional(types.string, ''),
 }).actions(self => ({
   setAccessToken(token: string) {
+    self.token[constant.ACCESS_TOKEN] = token;
     storage.setKey(constant.ACCESS_TOKEN, token);
   },
   setRefreshToken(token: string) {
