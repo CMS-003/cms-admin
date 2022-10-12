@@ -37,6 +37,16 @@ interface IUser {
   user_id: string, time: number, cover?: string, name?: string
 }
 
+interface IMessage {
+  seq: number;
+  text: string;
+  user_id?: string;
+  name: string;
+  cover: string;
+  type: string;
+  time: string;
+}
+
 const GroupTipType: { [key: string]: string } = {
   '1': '加入',
   '2': '退出',
@@ -86,6 +96,7 @@ const IMPage: React.FC = () => {
     users: IUser[],
     members: IMember[],
     groups: IGroup[],
+    messages: IMessage[],
   }>(() => ({
     signined: false,
     fetchSignature: false,
@@ -99,7 +110,8 @@ const IMPage: React.FC = () => {
     groups: [],
     groupId: '',
     users: [],
-    members: []
+    members: [],
+    messages: []
   }))
   const { show } = useContextMenu({
     id: 'MUTE',
@@ -125,6 +137,8 @@ const IMPage: React.FC = () => {
   const getGroups = useCallback(async () => {
     try {
       local.fetchGroups = true
+      console.log('get repeat?')
+      await shttp.get('api/v1/im/groups/remote');
       const result = await shttp.get<{ list: IGroup[] }>('/api/v1/im/groups')
       if (result.status === 0) {
         result.data.list.forEach(item => {
@@ -196,16 +210,46 @@ const IMPage: React.FC = () => {
     if (name === "onMessageReceived") {
       const time = new Date(data[0].time * 1000).toLocaleString();
       if (contentRef.current) {
-        const p = document.createElement('p', {})
+        // const p = document.createElement('p', {})
         const opType = data[0].payload.operationType as string;
         if (data[0].type === "TIMGroupTipElem") {
-          p.textContent = `用户:${data[0].payload.userIDList[0]} 类型:${GroupTipType[opType] || ''}`
+          // p.textContent = `用户:${data[0].payload.userIDList[0]} 类型:${GroupTipType[opType] || ''}`
+          local.messages.push({
+            user_id: (data[0].payload.userIDList[0] as string),
+            type: 'tip',
+            text: GroupTipType[opType],
+            seq: data[0].sequence as number,
+            name: '',
+            cover: '',
+            time,
+          })
         } else if (data[0].type === "TIMGroupSystemNoticeElem") {
-          p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
+          // p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
+          local.messages.push({
+            user_id: (data[0].payload.operatorID as string),
+            type: 'system',
+            text: SystemTipType[opType],
+            seq: data[0].sequence as number,
+            name: '',
+            cover: '',
+            time,
+          })
         } else {
-          p.textContent = `${data[0].nick} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
+          local.messages.push({
+            user_id: (data[0].payload.userIDList[0] as string),
+            type: 'text',
+            text: data[0].payload.text,
+            seq: data[0].sequence as number,
+            name: data[0].nick,
+            cover: data[0].avatar,
+            time,
+          })
+          // p.textContent = `${data[0].nick} 说: ${data[0].type === "TIMGroupSystemNoticeElem" ? data[0].payload.userDefinedField : data[0].payload.text}`
         }
-        contentRef.current.append(p)
+        // contentRef.current.append(p)
+        if (local.messages.length > 100) {
+          local.messages.shift()
+        }
       }
     }
   }
@@ -307,7 +351,18 @@ const IMPage: React.FC = () => {
           }</div>
         {/* 中间内容区 */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'baseline', height: '100%' }}>
-          <div id="content" style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}></div>
+          <div id="content" style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}>
+            {local.messages.map(msg => {
+              if (msg.type === 'text') {
+                return <p key={msg.seq}>{msg.name} 说: ${msg.text}</p>
+              } else if (msg.type === 'tip') {
+                return <p key={msg.seq}>{msg.user_id} {msg.text}</p>
+              } else if (msg.type === 'system') {
+                return <p key={msg.seq}>系统消息 {msg.user_id} {msg.text}</p>
+              }
+              return null;
+            })}
+          </div>
           <textarea id="msg" style={{ width: 500, height: 150, borderRadius: 10, padding: 5, resize: 'none', display: 'block', margin: '10px 0' }}></textarea>
           <Button type="primary" size='small' onClick={async () => {
             const t: any = document.querySelector('#msg');
@@ -334,6 +389,7 @@ const IMPage: React.FC = () => {
             try {
               // 发送消息
               let result = await store.tim.sendMessage(message);
+              console.log(result);
               if (result.code === 0) {
                 if (contentRef.current) {
                   const p = document.createElement('p', {})
