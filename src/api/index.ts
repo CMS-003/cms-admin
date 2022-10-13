@@ -1,13 +1,27 @@
 import shttp from "../utils/shttp";
 import constant from '../constant'
 import store from '../store'
-import { Component, ComponentType } from '../types'
+import { Component, ComponentType, Config } from '../types'
 import user from './user'
 
 export default {
   getMenu: async () => {
     const result: any = await shttp.get('/api/v1/user/menu');
     return result
+  },
+  getConfig: async () => {
+    const result: any = await shttp.get('/api/v1/config');
+    return result
+  },
+  createConfig: async ({ body }: { body: Config }) => {
+    const result: any = await shttp.post('/api/v1/component-templates', body);
+    return result
+
+  },
+  updateConfig: async ({ body }: { body: Config }) => {
+    const result: any = await shttp.put('/api/v1/component-templates', body);
+    return result
+
   },
   getComponentTemplates: async () => {
     const result: any = await shttp.get('/api/v1/component-templates');

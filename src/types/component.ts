@@ -1,4 +1,16 @@
 
+export type Config = {
+  id?: string;
+  name?: string;
+  cover?: string;
+  desc?: string;
+  available?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  type: string;
+  data: any;
+}
+
 export type Component = {
   id?: string;
   parent_id?: string;

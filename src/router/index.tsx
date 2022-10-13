@@ -18,6 +18,7 @@ import ComponentTypePage from '@/pages/component/type'
 import ComponentTemplatePage from '@/pages/component/template'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
+import ConfigPage from '@/pages/config';
 
 type PaneItem = {
   title?: string;
@@ -36,6 +37,12 @@ const Pages: { [key: string]: PaneItem } = {
     content: HomePage,
     closable: false,
     path: '/dashboard'
+  },
+  '/config': {
+    title: '配置管理',
+    content: ConfigPage,
+    closable: true,
+    path: '/config'
   },
   '/component/data': {
     title: '组件管理',

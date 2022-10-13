@@ -33,6 +33,9 @@
 - 请求初始化:
   - 菜单数据(重整:openedMenus,openedTabs).show bread,show tab
 
+## 添加页面步骤
+- page文件夹添加页面
+- router文件配置路由
 
 ## 问题与方案
 - 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`

@@ -18,5 +18,9 @@ export default {
   getProjects: async <T>() => {
     const result = await shttp.get<BaseResultsWrapper<T>>('/api/v1/user/projects').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
     return result
-  }
+  },
+  getApps: async <T>() => {
+    const result = await shttp.get<BaseResultsWrapper<T>>('/api/v1/user/apps').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
+    return result
+  },
 }
