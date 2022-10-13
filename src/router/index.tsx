@@ -19,6 +19,7 @@ import ComponentTemplatePage from '@/pages/component/template'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import ConfigPage from '@/pages/config';
+import ProjectPage from '@/pages/project';
 
 type PaneItem = {
   title?: string;
@@ -43,6 +44,12 @@ const Pages: { [key: string]: PaneItem } = {
     content: ConfigPage,
     closable: true,
     path: '/config'
+  },
+  '/project': {
+    title: '项目管理',
+    content: ProjectPage,
+    closable: true,
+    path: '/project'
   },
   '/component/data': {
     title: '组件管理',
@@ -191,7 +198,6 @@ const TabPanes: FC = () => {
       local.activeKey = pathname
       return
     }
-
     // 添加新tab并保存起来
     local.tagPages.push(Pages[pathname])
     local.saveTags(local.tagPages)

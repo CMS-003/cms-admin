@@ -8,17 +8,25 @@ import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
+import store from '@/store';
 
+type SelectItem = {
+  name: string;
+  value: string;
+}
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: SelectItem[], projects: SelectItem[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},
+    types: store.component.types.map(it => ({ name: it.title, value: it.name })),
+    projects: store.project.list.map(it => ({ name: it.title, value: it.id })),
     openEditor(data: Component) {
       local.showEditPage = true
       local.temp = data
     }
   }))
+
   const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
     const result = await apis.getComponents()
@@ -34,24 +42,16 @@ const ComponentPage: React.FC = () => {
       component: EditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
-      value: [
-        { name: '根组件', value: '' },
-        { name: '菜单项', value: 'MenuItem' },
-        { name: '底部菜单容器', value: 'Tabbar' },
-        { name: '底部菜单项', value: 'TabbarItem' },
-        { name: '选项卡容器', value: 'Tab' },
-        { name: '选项卡菜单项', value: 'TabItem' },
-        { name: '筛选容器', value: 'Filter' },
-        { name: '筛选行容器', value: 'FilterRow' },
-        { name: '筛选带个条件', value: 'FilterTag' },
-        { name: '热区容器', value: 'HotArea' },
-        { name: '热区按钮项', value: 'HotAreaItem' },
-        { name: '链接容器', value: 'MenuCard' },
-        { name: '链接菜单项', value: 'MenuCardItem' },
-        { name: '手选卡片', value: 'PickCard' },
-        { name: '快捷按钮', value: 'IconBtn' },
-        { name: '搜索按钮', value: 'SearchBtn' },
-      ],
+      value: local.types,
+    },
+    {
+      field: 'project_id',
+      title: '所属项目',
+      type: 'string',
+      component: EditorComponent.Select,
+      defaultValue: '',
+      autoFocus: false,
+      value: local.projects,
     },
     {
       field: 'title',
@@ -59,7 +59,7 @@ const ComponentPage: React.FC = () => {
       type: 'string',
       component: EditorComponent.Input,
       defaultValue: '',
-      autoFocus: false,
+      autoFocus: true,
       value: [],
     },
     {
@@ -84,7 +84,7 @@ const ComponentPage: React.FC = () => {
       field: 'tree_id',
       title: '根组件',
       type: 'string',
-      component: EditorComponent.Select,
+      component: EditorComponent.RemoteSelect,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -106,6 +106,15 @@ const ComponentPage: React.FC = () => {
       type: 'boolean',
       component: EditorComponent.Switch,
       defaultValue: false,
+      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
+      autoFocus: false,
+    },
+    {
+      field: 'order',
+      title: '序号',
+      type: 'number',
+      component: EditorComponent.Input,
+      defaultValue: 1,
       value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
       autoFocus: false,
     },

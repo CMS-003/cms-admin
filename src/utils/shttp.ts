@@ -22,12 +22,9 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     //配置自定义请求头
-    let customHeaders: AxiosRequestHeaders = {
-      'Accept-Language': 'zh-CN',
-      'Authorization': '',
-      'X-Token': store.user.getAccessToken()
-    };
-    config.headers = customHeaders;
+    const headers: any = config.headers;
+    headers.common['X-Token'] = store.user.getAccessToken();   
+    headers.common['Accept-Language'] = 'zh-CN';
     return config
   },
   error => {

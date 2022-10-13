@@ -23,6 +23,7 @@ const projectList = types.model({
   },
 })).actions((self) => ({
   setList(items: IMSTArray<IType<SnapshotIn<Project>, SnapshotOut<Project>, Project>>) {
+    items.unshift({ title: '全部', name: '', id: '', })
     self.list = items;
   },
   async fetch() {

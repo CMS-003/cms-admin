@@ -25,6 +25,7 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
+  project_id: storage.getKey('project_id'),
 });
 // 用户信息状态
 const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey('access_token') || '' } });

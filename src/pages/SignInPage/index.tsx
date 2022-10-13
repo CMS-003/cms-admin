@@ -1,10 +1,12 @@
 import React from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message } from 'antd'
+import { IType, IMSTArray } from 'mobx-state-tree'
 import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
 import apis from '../../api'
 import store from '../../store'
+import { Project } from '@/types'
 
 export default function SignInPage() {
   const navigate = useNavigate()
@@ -39,6 +41,14 @@ export default function SignInPage() {
               const res = await apis.SignIn({ account: local.username, pass: local.password })
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
+                const projectResult = await apis.getProjects<Project>()
+                if (projectResult.code === 0) {
+                  store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
+                }
+                const componentTypes: any = await apis.getComponentTypes()
+                if (componentTypes.code === 0) {
+                  store.component.setTypes(componentTypes.data.items)
+                }
                 navigate('/home')
               } else {
                 message.error(res.message)

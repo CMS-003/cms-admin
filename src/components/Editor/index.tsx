@@ -123,7 +123,8 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                 <Select key={item.field} value={data[item.field] || ''} onChange={(value) => {
                   data[item.field] = value
                 }}>
-                  {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))}
+                  {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}
+                  {/* {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))} */}
                 </Select>
               </Form.Item>;
             case 'RemoteSelect':

@@ -31,7 +31,6 @@ code {
 }
 
 .tag-page .ant-tabs-nav-wrap {
-  background-color: #9fc1f2;
   padding: 5px 10px 0;
 }
 
@@ -41,4 +40,5 @@ code {
 
 .tag-page .ant-tabs-content {
   height: 100%;
+  background-color: #dedede;
 }
