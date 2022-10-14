@@ -88,7 +88,13 @@ const ComponentPage: React.FC = () => {
       defaultValue: '',
       autoFocus: false,
       value: [],
-      fetch: apis.getComponents
+      fetch: async function () {
+        const response = await apis.getComponents()
+        if (response.code === 0) {
+          response.data.items.push({ title: '无', name: '', id: '' })
+        }
+        return response;
+      },
     },
     {
       field: 'parent_id',
@@ -98,7 +104,13 @@ const ComponentPage: React.FC = () => {
       defaultValue: '',
       autoFocus: false,
       value: [],
-      fetch: apis.getComponents
+      fetch: async function () {
+        const response = await apis.getComponents()
+        if (response.code === 0) {
+          response.data.items.push({ title: '无', name: '', id: '' })
+        }
+        return response;
+      },
     },
     {
       field: 'available',
@@ -115,7 +127,7 @@ const ComponentPage: React.FC = () => {
       type: 'number',
       component: EditorComponent.Input,
       defaultValue: 1,
-      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
+      value: [],
       autoFocus: false,
     },
     {

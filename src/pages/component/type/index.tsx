@@ -37,6 +37,15 @@ const ComponentTypePage: React.FC = () => {
       autoFocus: false,
       value: [],
     },
+    {
+      field: 'order',
+      title: '序号',
+      type: 'number',
+      component: EditorComponent.Input,
+      defaultValue: 1,
+      value: [],
+      autoFocus: false,
+    },
   ])
   const refresh = useCallback(async () => {
     const result = await apis.getComponentTypes()

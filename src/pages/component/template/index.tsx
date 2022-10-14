@@ -7,18 +7,20 @@ import { Component, EditorComponent } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
+import store from '@/store';
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},
+    types: store.component.types.map(item => ({ name: item.title, value: item.name })),
     openEditor(data: Component) {
-      local.showEditPage = true
       local.temp = data
+      local.showEditPage = true
     }
   }))
-  const [fields, setFields] = useState([
+  const [fields] = useState([
     {
       field: 'type',
       title: '组件类型',
@@ -26,7 +28,7 @@ const ComponentTemplatePage: React.FC = () => {
       component: EditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
-      value: []// store.component.types.forEach(item => ({ name: item.title, value: item.name })),
+      value: local.types,
     },
     {
       field: 'id',
@@ -144,7 +146,7 @@ const ComponentTemplatePage: React.FC = () => {
     <div style={{ flex: 1, overflowY: 'auto' }}>
       <Table pagination={false} rowKey="id" dataSource={local.list} >
         <Table.Column title="名称" dataIndex="title" />
-        <Table.Column title="类型" dataIndex="name" />
+        <Table.Column title="标识名称" dataIndex="name" />
         <Table.Column title="操作" key="id" render={(_, record: Component) => (
           <Space size="middle" >
             <FormOutlined onClick={

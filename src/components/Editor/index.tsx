@@ -141,7 +141,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                     if (item.fetch) {
                       const result = await item.fetch()
                       if (result.code === 0) {
-                        return result.data.items.map((item: any) => ({ label: item.title, value: item.id, name: item.name }))
+                        return result.data.items.map((item: any) => ({ label: item.title+`(${item.type || ''})`, value: item.id, name: item.name }))
                       }
                     }
                     return []
