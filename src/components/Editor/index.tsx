@@ -141,7 +141,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                     if (item.fetch) {
                       const result = await item.fetch()
                       if (result.code === 0) {
-                        return result.data.items.map((item: any) => ({ label: item.title+`(${item.type || ''})`, value: item.id, name: item.name }))
+                        return result.data.items.map((item: any) => ({ label: item.title + `(${item.type || ''})`, value: item.id, name: item.name }))
                       }
                     }
                     return []
@@ -163,13 +163,21 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                   style={{ position: 'relative' }}
                   listType="picture-card"
                   className="avatar-uploader"
-                  showUploadList={false} name="cover" onChange={(e: any) => {
-                    data[item.field] = e.file
-                    const reader = new FileReader();
-                    reader.addEventListener('load', () => { data[item.field] = reader.result });
-                    reader.readAsDataURL(e.file);
+                  action={store.app.baseURL + "/upload/image"}
+                  showUploadList={false} 
+                  name="image"
+                  onChange={(e) => {
+                    if (e.file.status === 'uploading') {
+                      console.log(e.event?.percent)
+                      // data[item.field] = e.file
+                      // const reader = new FileReader();
+                      // reader.addEventListener('load', () => { data[item.field] = reader.result });
+                      // reader.readAsDataURL(e.file as any);
+                    } else if (e.file.status === 'done') {
+                      data[item.field] = e.file.response.data.filepath;
+                    }
                   }} beforeUpload={(f) => {
-                    return false
+                    return true
                   }}>
                   <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : 'http://localhost:3334' + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                   <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>

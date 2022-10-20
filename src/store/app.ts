@@ -5,6 +5,7 @@ const app = types.model('app', {
   isSignIn: types.boolean,
   lastVisitedAt: types.Date,
   isDebug: types.boolean,
+  baseURL: types.string,
   project_id: types.optional(types.string, ''),
 }).actions(self => ({
   setIsSignIn(bool: boolean) {

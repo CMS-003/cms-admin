@@ -186,7 +186,9 @@ const ComponentPage: React.FC = () => {
         fetch={addComponent}
       />
       <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="id" dataSource={local.list}>
-        <Table.Column title="组件名称" dataIndex="title" />
+        <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
+          <span>{<img src={record.cover ? store.app.baseURL + record.cover : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} alt="" style={{ width: 24, height: 24, marginRight: 5 }} />}{title}</span>
+        )} />
         <Table.Column title="组件类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />
         <Table.Column title="可接受子组件" dataIndex="accepts" render={(accepts: string[], record, i: number) => (<span key={i} >
