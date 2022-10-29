@@ -4,7 +4,7 @@ import constant from '../constant'
 
 
 export default {
-  SignIn: async (data: { account: string, pass: string }) => {
+  SignIn: async (data: { type: string, account: string, pass: string }) => {
     const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
     store.user.setAccessToken(result[constant.ACCESS_TOKEN])
     store.user.setRefreshToken(result[constant.REFRESH_TOKEN])

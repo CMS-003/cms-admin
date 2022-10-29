@@ -27,13 +27,13 @@ const fallback = <Spin style={{
 function Intercept({ menuList, components: Components, title, path: pagePath, pageKey, ...itemProps }: Props) {
   const history = useNavigate ()
   const location = useLocation()
-  const openMenu = store.menu.getOpenedMenu()
+  const openMenu = store.router.getOpenedMenu()
   const setPath = useCallback((path: string) => {
-    store.menu.setCurrentPath(path);
-  }, [store.menu.currentPath]);
-  const setOpenKeys = useCallback((val: string) => (store.menu.setOpenKey(val)), [])
-  const setSelectedKeys = useCallback((val: string[]) => (store.menu.setSelectKey(val)), [])
-  const addOpenedMenuFn = useCallback((val: object) => (store.menu.addOpenedMenu(val)), [])
+    store.router.setCurrentPath(path);
+  }, [store.router.currentPath]);
+  const setOpenKeys = useCallback((val: string) => (store.router.setOpenKey(val)), [])
+  const setSelectedKeys = useCallback((val: string[]) => (store.router.setSelectKey(val)), [])
+  const addOpenedMenuFn = useCallback((val: object) => (store.router.addOpenedMenu(val)), [])
 
   const pushMenu = useCallback((info: string, key: string, path: string, title: string) => {
     if (!info) {

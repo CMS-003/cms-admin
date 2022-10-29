@@ -91,6 +91,9 @@ const TabPanes: FC = () => {
     activeKey: string,
     operateKey: string,
     saveTags(tagPages: PaneItem[]): void;
+    setTagPage(tagPages: PaneItem[]): void;
+    pushPage(page: PaneItem): void;
+    setActiveKey(key: string): void;
     tagPages: PaneItem[];
   }>(() => ({
     reloadPath: '',
@@ -104,6 +107,15 @@ const TabPanes: FC = () => {
       const tags = this.tagPages.map(item => item.path) as IMSTArray<ISimpleType<string>>;
       store.page.setOpenedTags(tags)
     },
+    setTagPage(pages: PaneItem[]) {
+      this.tagPages = pages
+    },
+    setActiveKey(key: string) {
+      this.activeKey = key;
+    },
+    pushPage(page: PaneItem) {
+      this.tagPages.push(page);
+    }
   }))
 
   // 从本地存储中恢复已打开的tab列表
@@ -115,15 +127,15 @@ const TabPanes: FC = () => {
           return
         }
         const pane = getKeyName(tag)
-        local.tagPages.push(pane)
+        local.pushPage(pane)
       }
     })
     if (Pages[pathname] && !store.page.openedTags.includes(pathname)) {
       const pane = getKeyName(pathname)
-      local.tagPages.push(pane)
+      local.pushPage(pane)
       store.page.addTag(pathname)
     }
-    local.activeKey = store.page.openedTags.includes(pathname) ? pathname : '/dashboard'
+    local.setActiveKey(store.page.openedTags.includes(pathname) ? pathname : '/dashboard')
   }, [local, pathname])
 
   // 初始化页面
@@ -170,7 +182,7 @@ const TabPanes: FC = () => {
   const removeAll = async (isCloseAll?: boolean) => {
     const path = local.operateKey
     const now = local.tagPages.filter(pane => pane.path === path)
-    local.tagPages = now
+    local.setTagPage(now)
     navigate(isCloseAll ? '/dashboard' : path)
   }
 
@@ -186,7 +198,7 @@ const TabPanes: FC = () => {
     };
 
     // 保存这次的路由地址
-    local.activeKey = pathname
+    local.setActiveKey(pathname)
 
     const index = local.tagPages.findIndex(
       (_: PaneItem) => _.path === pathname
@@ -195,13 +207,13 @@ const TabPanes: FC = () => {
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
       local.tagPages[index].path = newPath
-      local.activeKey = pathname
+      local.setActiveKey(pathname)
       return
     }
     // 添加新tab并保存起来
-    local.tagPages.push(Pages[pathname])
+    local.pushPage(Pages[pathname])
     local.saveTags(local.tagPages)
-    local.activeKey = pathname
+    local.setActiveKey(pathname)
   }, [local, pathname, resetTabs, search])
 
   // const isDisabled = () => local.activeKey === '/dashboard'
@@ -248,7 +260,7 @@ const TabPanes: FC = () => {
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
         onChange={(path: string): void => {
-          local.activeKey = (path)
+          local.setActiveKey(path)
         }}
         onEdit={(targetKey: string | any, action: string) => {
           action === 'remove' && remove(targetKey)

@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
 import { message } from 'antd'
 import { IMSTArray, IType, SnapshotIn, SnapshotOut } from 'mobx-state-tree'
 import store from '../store'
+import _ from 'lodash';
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
@@ -23,7 +24,6 @@ instance.interceptors.request.use(
   (config: AxiosRequestConfig) => {
     //配置自定义请求头
     const headers: any = config.headers;
-    headers.common['X-Token'] = store.user.getAccessToken();   
     headers.common['Accept-Language'] = 'zh-CN';
     return config
   },
@@ -152,6 +152,7 @@ class Request<T> {
     if (this.headers) {
       option.headers = this.headers
     }
+    _.set(option, 'headers.X-Token', store.user.getAccessToken())
     const response = instance.request(option)
     const result = await new Promise<any>((resolve, reject) => {
       response.then(res => {
