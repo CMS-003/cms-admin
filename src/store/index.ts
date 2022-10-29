@@ -1,6 +1,7 @@
 import IApp from './app'
 import IUser from './user'
 import IMenu from './menu'
+import IRouter from './router'
 import IPage from './page'
 import IComponent from './component'
 import IProject from './project'
@@ -25,7 +26,7 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
-  project_id: storage.getKey('project_id'),
+  project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态
 const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey('access_token') || '' } });
@@ -34,6 +35,7 @@ const page = IPage.create({
   openedTags: storage.getKey('opened-tags') || [],
   defaultOpened: getOpenedKeys(window.location.pathname)
 })
+const router = IRouter.create();
 const menu = IMenu.create();
 const component = IComponent.create();
 const project = IProject.create()
@@ -42,6 +44,7 @@ const store = {
   app,
   user,
   menu,
+  router,
   page,
   component,
   project,

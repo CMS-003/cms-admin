@@ -38,18 +38,22 @@ export default function SignInPage() {
           <Button id="signin" type="primary" loading={local.isFetch} block onClick={async () => {
             local.isFetch = true
             try {
-              const res = await apis.SignIn({ account: local.username, pass: local.password })
+              const res = await apis.SignIn({ type: 'account', account: local.username, pass: local.password })
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
                 const projectResult = await apis.getProjects<Project>()
                 if (projectResult.code === 0) {
                   store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
                 }
+                const menuResult: any = await apis.getMenu()
+                if (menuResult.code === 0) {
+                  store.menu.setTree(menuResult.data)
+                }
                 const componentTypes: any = await apis.getComponentTypes()
                 if (componentTypes.code === 0) {
                   store.component.setTypes(componentTypes.data.items)
                 }
-                navigate('/home')
+                navigate('/dashboard')
               } else {
                 message.error(res.message)
               }

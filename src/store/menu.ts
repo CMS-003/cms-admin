@@ -1,47 +1,36 @@
 import { types } from 'mobx-state-tree'
-import { MenuItem } from '@/types'
 
-const menuItem: any = types.model('menu', {
-  id: types.string,
-  cover: types.optional(types.string, ''),
-  alive: types.optional(types.boolean, false),
-  key: types.optional(types.string, ''),
-  order: types.maybe(types.number),
-  parent_key: types.optional(types.string, ''),
-  path: types.optional(types.string, ''),
-  parent_path: types.maybe(types.string),
-  show: types.optional(types.boolean, true),
-  children: types.array(types.late(() => menuItem)),
+const item: any = types.model('item', {
+  _id: types.string,
+  tree_id: types.optional(types.string, ''),
+  parent_id: types.optional(types.string, ''),
+  project_id: types.optional(types.string, ''),
+  title: types.optional(types.string, ''),
+  name: types.optional(types.string, ''),
+  desc: types.optional(types.string, ''),
+  status: types.optional(types.number, 1),
+  order: types.optional(types.number, 1),
+  available: types.optional(types.number, 0),
+  accepts: types.array(types.string),
+  createdAt: types.string,
+  updatedAt: types.string,
+  attrs: types.maybe(types.model({
+    path: types.optional(types.string, ''),
+  })),
+  children: types.maybe(types.array(types.late(() => item))),
 }).actions(self => ({
 
 }));
 
-const menuList = types.model({
-  list: types.array(menuItem),
-  currentPath: types.optional(types.string, ''),
-  openedMenu: types.array(menuItem),
-}).views(self=>({
-  getList() {
-    return self.list
+const menu = types.model({
+  tree: types.maybe(item),
+}).views(self => ({
+  getTree() {
+    return self.tree
   }
 })).actions((self) => ({
-  setList(list: any) {
-    self.list = list
-  },
-  setCurrentPath(path: string) {
-
-  },
-  setOpenKey(key: string) {
-
-  },
-  setSelectKey(key: string[]) {
-
-  },
-  addOpenedMenu(key: object) {
-
-  },
-  getOpenedMenu() {
-    return self.openedMenu;
+  setTree(tree: any) {
+    self.tree = tree
   },
 }))
-export default menuList;
+export default menu;
