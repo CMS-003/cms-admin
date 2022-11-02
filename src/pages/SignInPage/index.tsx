@@ -7,6 +7,13 @@ import logo from '../../logo.svg'
 import apis from '../../api'
 import store from '../../store'
 import { Project } from '@/types'
+import { AlignAround } from '@/components/style'
+import Icon_sns_alipay from '@/asserts/images/sns-alipay.svg'
+import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
+import Icon_sns_github from '@/asserts/images/sns-github.svg'
+import Icon_sns_google from '@/asserts/images/sns-google.svg'
+import Icon_sns_wechat from '@/asserts/images/sns-wechat.svg'
+import { IconSNS } from './style';
 
 export default function SignInPage() {
   const navigate = useNavigate()
@@ -16,7 +23,7 @@ export default function SignInPage() {
     password: '',
   }))
   return <Observer>{() => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
       <Form style={{ transform: 'translate(0,-100px)' }}>
         <Form.Item style={{ textAlign: 'center' }}>
           <Avatar src={logo} size={80} />
@@ -65,6 +72,14 @@ export default function SignInPage() {
           }}>登录</Button>
         </Form.Item>
       </Form>
+      <div style={{ color: '#999' }}>其他方式登录</div>
+      <AlignAround>
+        <a href="https://github.com/login/oauth/authorize?client_id=Iv1.18b7cc9332ab2184&redirect_uri=http://localhost:3334/api/v1/oauth/redirect/github&state=89757&allow_signup=false" title=""><IconSNS src={Icon_sns_github} alt="github" /></a>        
+        <IconSNS src={Icon_sns_alipay} alt="支付宝" />
+        <IconSNS src={Icon_sns_apple} alt="苹果" />
+        <IconSNS src={Icon_sns_google} alt="google" />
+        <IconSNS src={Icon_sns_wechat} alt="微信" />
+      </AlignAround>
     </div>
   )}</Observer>
 }

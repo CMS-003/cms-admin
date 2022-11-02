@@ -1,6 +1,6 @@
 
 export type Config = {
-  id?: string;
+  _id?: string;
   name?: string;
   cover?: string;
   desc?: string;

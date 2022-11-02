@@ -1,6 +1,5 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders, } from 'axios';
+import axios, { AxiosRequestConfig, } from 'axios';
 import { message } from 'antd'
-import { IMSTArray, IType, SnapshotIn, SnapshotOut } from 'mobx-state-tree'
 import store from '../store'
 import _ from 'lodash';
 
@@ -44,7 +43,7 @@ export interface BaseResponse {
 export interface BaseResultWrapper<T> {
   code: number,
   message: string,
-  data?: T
+  data: T
 }
 
 export interface BaseResultsWrapper<T> {
@@ -111,18 +110,23 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
 }
 
 interface Request<T> {
-  constructor(): Promise<this>;
+  constructor(): this;
   url: string;
   method: string;
   data?: any;
   params?: any;
   headers?: any;
-  then(fn: Function): PromiseLike<BaseResultWrapper<T> & BaseResultsWrapper<T>>;
+  then(fn?: Function): PromiseLike<BaseResultWrapper<T> & BaseResultsWrapper<T>>;
 }
 class Request<T> {
-  constructor(url: string, method: string) {
+  constructor(method: string, url: string) {
     this.url = url;
     this.method = method;
+    return this;
+  }
+
+  async getSelf() {
+    return this;
   }
 
   async send(data: any) {
@@ -138,7 +142,7 @@ class Request<T> {
     return this
   }
 
-  async then(cb: (param: Promise<T>) => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
+  async then(cb?: (param: Promise<T>) => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
     const option: AxiosRequestConfig = {
       url: this.url,
       method: this.method,
@@ -192,12 +196,12 @@ class Request<T> {
 // 使用 request 统一调用，包括封装的get、post、put、delete等方法
 const shttp = {
   get<T>(url: string) {
-    return new Request<T>(url, 'GET')
+    return new Request<BaseResultWrapper<T> & BaseResultsWrapper<T>>('get', url)
   },
   post: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('post', url, params, config),
   put: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('put', url, params, config),
   delete<T>(url: string) {
-    return new Request<T>(url, 'DELETE')
+    return new Request<BaseResultWrapper<T> & BaseResultsWrapper<T>>('delete', url)
   },
   patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
 };

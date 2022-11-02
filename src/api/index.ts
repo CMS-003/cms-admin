@@ -14,17 +14,17 @@ const apis = {
     return result
   },
   createConfig: async ({ body }: { body: Config }) => {
-    const result: any = await shttp.post('/api/v1/component-templates', body);
+    const result: any = await shttp.post('/api/v1/config', body);
     return result
 
   },
   updateConfig: async ({ body }: { body: Config }) => {
-    const result: any = await shttp.put('/api/v1/component-templates', body);
+    const result: any = await shttp.put(`/api/v1/config/${body._id}`, body);
     return result
 
   },
   getProjects: async <T>() => {
-    const result = await shttp.get<BaseResultsWrapper<T>>('/api/v1/user/projects');
+    const result = await shttp.get<T>('/api/v1/user/projects');
     return result
   },
   createProject: async ({ body }: { body: Project }) => {

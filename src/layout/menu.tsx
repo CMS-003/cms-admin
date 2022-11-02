@@ -1,4 +1,3 @@
-import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -6,28 +5,13 @@ import { useEffectOnce } from 'react-use';
 import store from '@/store'
 import * as _ from 'lodash'
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-  type?: 'group',
-): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-    type,
-  } as MenuItem;
-}
-
 const keyPathMap: { [key: string]: string } = {}
 const pathKeyMap: { [key: string]: string } = {}
 
 function transform(tree: any) {
+  if (!tree) {
+    return [];
+  }
   const node: any = { label: tree.title, key: tree._id, children: [] }
   const path = _.get(tree, 'attrs.path', '')
   keyPathMap[node.key] = path

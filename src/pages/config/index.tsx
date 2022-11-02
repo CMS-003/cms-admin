@@ -81,11 +81,20 @@ const ConfigPage: React.FC = () => {
       value: [],
       autoFocus: false,
     },
+    {
+      field: 'value',
+      title: '值',
+      type: 'json',
+      component: EditorComponent.Editor,
+      defaultValue: '{}',
+      value: [],
+      autoFocus: false,
+    },
   ])
-  const addConfig = useCallback(async (params: { body: any }) => {
-    const result = params.body.id ? await apis.updateConfig(params) : await apis.createConfig(params)
+  const editConfig = useCallback(async (params: { body: any }) => {
+    const result = params.body._id ? await apis.updateConfig(params) : await apis.createConfig(params)
     if (result.code === 0) {
-      notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
+      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])
@@ -116,9 +125,9 @@ const ConfigPage: React.FC = () => {
         close={() => { local.showEditPage = false; local.temp = {} }}
         data={local.temp}
         fields={fields}
-        fetch={addConfig}
+        fetch={editConfig}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="id" dataSource={local.list}>
+      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
         <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="配置类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />

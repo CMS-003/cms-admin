@@ -3,11 +3,12 @@ import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { IType, IMSTArray, onSnapshot, getSnapshot } from 'mobx-state-tree'
+import { IType, IMSTArray } from 'mobx-state-tree'
 import { useEffectOnce } from 'react-use';
 import { Space, Spin } from 'antd'
 import apis from './api';
 import SignInPage from './pages/SignInPage'
+import BindPage from './pages/BindPage'
 import store from './store'
 import { Project, UserInfo } from '@/types'
 
@@ -39,7 +40,19 @@ function App() {
   useEffectOnce(() => {
     (async () => {
       try {
-        if (location.pathname !== '/sign-in') {
+        // 第三方登录和跳转设置
+        const searchParams = new URLSearchParams(window.location.search.substring(1));
+        const access_token = searchParams.get('access_token') as string
+        if (access_token) {
+          store.user.setAccessToken(access_token);
+        }
+        if (searchParams.get('refresh_token')) {
+          store.user.setRefreshToken(searchParams.get('refresh_token') as string);
+        }
+        if (searchParams.get('redirect')) {
+          return window.location.href = decodeURI(searchParams.get('redirect') as string);
+        }
+        if (location.pathname !== '/sign-in' && location.pathname !== '/bind') {
           const result = await apis.getProfile<UserInfo>();
           if (result.code !== 0) {
             navigate('/sign-in')
@@ -69,6 +82,7 @@ function App() {
           </Space>
         </div> : <Routes>
           <Route path="/sign-in" element={<SignInPage />} />
+          <Route path="/bind" element={<BindPage />} />
           <Route path="/*" element={<Layout data={store.menu.tree} />} />
         </Routes>}
       </div>
