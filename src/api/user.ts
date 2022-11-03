@@ -11,12 +11,15 @@ const user = {
     store.app.setIsSignIn(true)
     return result;
   },
+  SignOut: async () => {
+    return await shttp.post('/api/v1/user/sign-out', {});
+  },
   getProfile: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/profile').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
+    const result = await shttp.get<T>('/api/v1/user/profile')
     return result
   },
   getApps: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/apps').header({ 'X-Token': store.user.token[constant.ACCESS_TOKEN] });
+    const result = await shttp.get<T>('/api/v1/user/apps')
     return result
   },
   sendCode: async <T>(data: { type: string, account: string }) => {

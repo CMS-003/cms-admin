@@ -1,18 +1,39 @@
-import { Layout, Dropdown, Menu } from 'antd';
-import React, { Fragment, useEffect, useState } from 'react';
+import { Layout, Dropdown, Menu, Popover, Button, message } from 'antd';
+import React, { useCallback, useState } from 'react';
 import logo from '../logo.svg';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
+import { useNavigate } from "react-router-dom";
 import store from '@/store';
 import { useEffectOnce } from 'react-use';
+import apis from '@/api'
 
 const { Content, Sider } = Layout;
 
 const App: React.FC<{ data: any }> = (props: { data: any }) => {
+  const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false);
+  const [logouting, setLogout] = useState(false);
   const [project_title, setProjectTitle] = useState('');
+  const logout = useCallback(async () => {
+    setLogout(true);
+    try {
+      store.user.setAccessToken('')
+      store.user.setRefreshToken('')
+      const result = await apis.SignOut()
+      if (result.code === 0) {
+        navigate('/sign-in')
+      } else {
+        message.error('退出失败')
+      }
+    } catch (e) {
+      navigate('/sign-in')
+    } finally {
+      setLogout(false)
+    }
+  }, [])
   useEffectOnce(() => {
     const project = store.project.list.find(it => it.id === store.app.project_id)
     if (project) {
@@ -45,10 +66,17 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
           </Dropdown>
         </div>
         <MenuComponent tree={props.data} />
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
-          <Avatar icon={<UserOutlined />} />
-          <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
-        </div>
+        <Popover
+          content={<Button type="link" block loading={logouting} onClick={logout}>退出</Button>}
+          title="设置"
+          trigger="hover"
+          placement="rightBottom"
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
+            <Avatar icon={<UserOutlined />} />
+            <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
+          </div>
+        </Popover>
       </Sider>
       <Layout className="site-layout">
         <Content style={{ display: 'flex', flexDirection: 'column' }}>

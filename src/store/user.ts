@@ -16,12 +16,17 @@ const user = types.model('app', {
 }).views(self => ({
   getAccessToken() {
     return self.token[constant.ACCESS_TOKEN] || ''
+  },
+  getRefreshToken() {
+    return self.token[constant.REFRESH_TOKEN] || ''
   }
 })).actions(self => ({
   setAccessToken(token: string) {
+    self.token[constant.ACCESS_TOKEN] = token;
     storage.setKey(constant.ACCESS_TOKEN, token);
   },
   setRefreshToken(token: string) {
+    self.token[constant.REFRESH_TOKEN] = token;
     storage.setKey(constant.REFRESH_TOKEN, token);
   },
   setInfo(info: ({

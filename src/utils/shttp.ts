@@ -61,19 +61,19 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
-      response = instance.get(url, { params: { ...params }, ...config });
+      response = instance.get(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
       break;
     case 'post':
-      response = instance.post(url, { ...params }, { ...config });
+      response = instance.post(url, { ...params }, { ...config, headers: { 'X-Token': store.user.getAccessToken() } });
       break;
     case 'put':
-      response = instance.put(url, { ...params }, { ...config });
+      response = instance.put(url, { ...params }, { ...config, headers: { 'X-Token': store.user.getAccessToken() } });
       break;
     case 'delete':
-      response = instance.delete(url, { params: { ...params }, ...config });
+      response = instance.delete(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
       break;
     case 'patch':
-      response = instance.patch(url, { params: { ...params }, ...config });
+      response = instance.patch(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
       break;
   }
 
