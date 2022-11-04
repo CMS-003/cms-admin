@@ -1,6 +1,7 @@
 import React from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
-import { Form, Button, Input, Avatar, message } from 'antd'
+import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
+import { MinusCircleOutlined } from '@ant-design/icons';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
@@ -9,10 +10,11 @@ import store from '../../store'
 import { Project, UserInfo } from '@/types'
 import { AlignAround } from '@/components/style'
 import Icon_sns_alipay from '@/asserts/images/sns-alipay.svg'
-import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
 import Icon_sns_github from '@/asserts/images/sns-github.svg'
 import Icon_sns_google from '@/asserts/images/sns-google.svg'
+import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
 import Icon_sns_wechat from '@/asserts/images/sns-wechat.svg'
+import Icon_sns_weibo from '@/asserts/images/sns-weibo.svg'
 import { IconSNS } from './style';
 
 export default function SignInPage() {
@@ -78,11 +80,36 @@ export default function SignInPage() {
       </Form>
       <div style={{ color: '#999' }}>其他方式登录</div>
       <AlignAround>
-        <a href="https://github.com/login/oauth/authorize?client_id=Iv1.18b7cc9332ab2184&redirect_uri=http://localhost:3334/api/v1/oauth/redirect/github&state=89757&allow_signup=false" title=""><IconSNS src={Icon_sns_github} alt="github" /></a>
-        <IconSNS src={Icon_sns_alipay} alt="支付宝" />
-        <IconSNS src={Icon_sns_apple} alt="苹果" />
         <a href="/api/v1/oauth/google" title=""><IconSNS src={Icon_sns_google} alt="google" /></a>
-        <IconSNS src={Icon_sns_wechat} alt="微信" />
+        <a href="https://github.com/login/oauth/authorize?client_id=Iv1.18b7cc9332ab2184&redirect_uri=http://localhost:3334/api/v1/oauth/redirect/github&state=89757&allow_signup=false" title=""><IconSNS src={Icon_sns_github} alt="github" /></a>
+        {/* redirect_uri要和支付宝里的配置一致 */}
+        <a href="/api/v1/oauth/alipay_pc"><IconSNS src={Icon_sns_alipay} alt="支付宝" /></a>
+
+        <Popconfirm
+          title="正在开发中..."
+          icon={<MinusCircleOutlined />}
+          okText="已阅"
+          showCancel={false}>
+          <IconSNS src={Icon_sns_wechat} alt="微信" />
+        </Popconfirm>
+
+        <Popconfirm
+          title="apple开发账号太贵，用不起"
+          icon={<MinusCircleOutlined />}
+          okText="已阅"
+          showCancel={false}>
+          <IconSNS src={Icon_sns_apple} alt="苹果" />
+        </Popconfirm>
+
+        <Popconfirm
+          title="开发者抵制微博，请换个方式"
+          icon={<MinusCircleOutlined />}
+          okText="已阅"
+          showCancel={false}
+        >
+          <IconSNS src={Icon_sns_weibo} alt="微博" />
+        </Popconfirm>
+
       </AlignAround>
     </div>
   )}</Observer>
