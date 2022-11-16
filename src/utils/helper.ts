@@ -25,7 +25,8 @@ export function decodeBase64(base64string: string): string {
     text += `${key}=${encodeURIComponent(v)}&`
   })
   text += `path=${path}&nonce=${params.nonce}&timestamp=${params.timestamp}`
-  const sign = crypto.SHA256(text).toString()
+  const hmac = crypto.HmacSHA256(text, 'KLvA)6r-?^rn');
+  const sign = hmac.toString();
   const signature = encodeBase64(JSON.stringify(Object.assign({ sign }, params)))
   return signature
 }
