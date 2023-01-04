@@ -153,7 +153,7 @@ const app = IApp.create({
   im_user_id: storage.getKey('im_user_id') || ''
 });
 // 用户信息状态
-const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey(constant.ACCESS_TOKEN) }, im_signatue: storage.getKey('im_signature') || '' });
+const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey(constant.ACCESS_TOKEN) || '' }, im_signatue: storage.getKey('im_signature') || '' });
 const menu = IMenu.create();
 const component = IComponent.create();
 
