@@ -20,14 +20,8 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
   const logout = useCallback(async () => {
     setLogout(true);
     try {
-      store.user.setAccessToken('')
-      store.user.setRefreshToken('')
-      const result = await apis.SignOut()
-      if (result.code === 0) {
-        navigate('/sign-in')
-      } else {
-        message.error('退出失败')
-      }
+      await apis.SignOut()
+      navigate('/sign-in')
     } catch (e) {
       navigate('/sign-in')
     } finally {

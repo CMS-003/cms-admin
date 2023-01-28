@@ -12,11 +12,14 @@ const user = {
     return result;
   },
   SignOut: async () => {
-    return await shttp.post('/api/v1/user/sign-out', {});
+    const result = await shttp.post('/api/v1/user/sign-out', {});
+    store.user.setAccessToken('');
+    store.user.setRefreshToken('');
+    store.app.setIsSignIn(false);
+    return result;
   },
   getProfile: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/profile')
-    return result
+    return await shttp.get<T>('/api/v1/user/profile').then()
   },
   getApps: async <T>() => {
     const result = await shttp.get<T>('/api/v1/user/apps')
@@ -26,8 +29,8 @@ const user = {
     const result = await shttp.post<T>('/api/v1/oauth/code', data);
     return result
   },
-  bind: async <T>(data: { bind_token: string, type: string, account: string, area_code?: string }) => {
-    const result = await shttp.post<T>('/api/v1/oauth/bind?bind_token=' + data.bind_token, data);
+  bind: async <T>(data: { bind_token: string, type: string, account: string, value: string }) => {
+    const result = await shttp.post<T>('/api/v1/oauth/bind?bind_token=' + data.bind_token, data).then();
     return result
   }
 }

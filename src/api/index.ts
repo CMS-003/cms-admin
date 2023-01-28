@@ -24,7 +24,7 @@ const apis = {
 
   },
   getProjects: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/projects');
+    const result = await shttp.get<T>('/api/v1/user/projects').then();
     return result
   },
   createProject: async ({ body }: { body: Project }) => {

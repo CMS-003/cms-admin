@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { message } from 'antd'
 import store from '../store'
 import _ from 'lodash';
@@ -39,6 +39,10 @@ export interface BaseResponse {
   statusText: string;
 }
 
+export interface BaseBizError {
+  code: number,
+  message: string,
+}
 // 后台响应数据格式
 export interface BaseResultWrapper<T> {
   code: number,
@@ -57,7 +61,7 @@ export interface BaseResultsWrapper<T> {
 }
 
 //核心处理代码 将返回一个promise 调用then将可获取响应的业务数据
-const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> => {
+const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}) => {
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
@@ -95,16 +99,16 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
         message.warn(`请求错误：${e}`);
         console.log(`请求错误：${e}`)
         //数据请求错误 使用reject将错误返回
-        reject(body);
+        resolve(body as BaseBizError);
       } else {
         //数据请求正确 使用resolve将结果返回
-        resolve(body);
+        resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
       }
     }).catch(error => {
       let e = JSON.stringify(error);
       message.warn(`网络错误：${e}`);
       console.log(`网络错误：${e}`)
-      reject(error);
+      resolve({ code: -1, message: error.message } as BaseBizError)
     })
   })
 }
@@ -116,7 +120,7 @@ interface Request<T> {
   data?: any;
   params?: any;
   headers?: any;
-  then(fn?: Function): PromiseLike<BaseResultWrapper<T> & BaseResultsWrapper<T>>;
+  then(fn?: Function): PromiseLike<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>;
 }
 class Request<T> {
   constructor(method: string, url: string) {
@@ -142,7 +146,7 @@ class Request<T> {
     return this
   }
 
-  async then(cb?: (param: Promise<T>) => void): Promise<BaseResultWrapper<T> & BaseResultsWrapper<T>> {
+  async then(cb?: (param: Promise<T>) => void) {
     const option: AxiosRequestConfig = {
       url: this.url,
       method: this.method,
@@ -171,37 +175,33 @@ class Request<T> {
           }
 
           let e = JSON.stringify(body);
-          message.warn(`请求错误：${e}`);
-          console.log(`请求错误：${e}`)
           //数据请求错误 使用reject将错误返回
-          reject(body);
+          resolve(body as BaseBizError);
         } else {
+          if (cb) {
+            cb(body)
+          }
           //数据请求正确 使用resolve将结果返回
-          resolve(body);
+          resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
         }
       }).catch(error => {
-        let e = JSON.stringify(error);
-        message.warn(`网络错误：${e}`);
-        console.log(`网络错误：${e}`)
-        reject(error);
+        message.warn(`网络错误：${error.message}`);
+        resolve({ code: -1, message: error.message } as BaseBizError);
       })
-    })
-    if (cb) {
-      cb(result)
-    }
-    return result
+    });
+    return result;
   }
 }
 
 // 使用 request 统一调用，包括封装的get、post、put、delete等方法
 const shttp = {
   get<T>(url: string) {
-    return new Request<BaseResultWrapper<T> & BaseResultsWrapper<T>>('get', url)
+    return new Request<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>('get', url)
   },
   post: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('post', url, params, config),
   put: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('put', url, params, config),
   delete<T>(url: string) {
-    return new Request<BaseResultWrapper<T> & BaseResultsWrapper<T>>('delete', url)
+    return new Request<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>('delete', url)
   },
   patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
 };

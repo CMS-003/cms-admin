@@ -5,7 +5,7 @@ import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { IType, IMSTArray } from 'mobx-state-tree'
 import { useEffectOnce } from 'react-use';
-import { Space, Spin } from 'antd'
+import { Space, Spin, Button } from 'antd'
 import apis from './api';
 import SignInPage from './pages/SignInPage'
 import BindPage from './pages/BindPage'
@@ -24,8 +24,19 @@ function App() {
   }))
 
   const init = useCallback(async () => {
+    local.error = false;
+    local.booting = true;
+    const result = await apis.getProfile<UserInfo>();
+    if (result.code !== 0) {
+      if (location.pathname !== '/sign-in') {
+        navigate('/sign-in')
+      }
+      return;
+    } else {
+      store.user.setInfo(result.data)
+    }
     const projectResult = await apis.getProjects<Project>()
-    if (projectResult.code === 0) {
+    if (projectResult.code === 0 && projectResult.data) {
       store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
     }
     const menuResult: any = await apis.getMenu()
@@ -53,12 +64,6 @@ function App() {
           return window.location.href = decodeURI(searchParams.get('redirect') as string);
         }
         if (location.pathname !== '/sign-in' && location.pathname !== '/bind') {
-          const result = await apis.getProfile<UserInfo>();
-          if (result.code !== 0) {
-            navigate('/sign-in')
-          } else {
-            store.user.setInfo(result.data)
-          }
           await init();
           if (location.pathname === '/') {
             navigate('/dashboard')
@@ -66,7 +71,8 @@ function App() {
         }
         local.setBooting(false)
       } catch (e) {
-        console.log(e)
+        local.error = true;
+        console.log(e, 'boot')
       }
     })();
     return () => {
@@ -76,7 +82,7 @@ function App() {
   return (
     <Observer>{() => (
       <div className="App">
-        {local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {local.error ? <Button type="primary" onClick={init}>重试</Button> : local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Space>
             <Spin spinning />加载中...
           </Space>
