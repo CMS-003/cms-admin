@@ -46,19 +46,19 @@ instance.interceptors.request.use(
 //axios返回格式
 export interface BaseResponse {
   data: any;
-  status: number;
+  status: number | string;
   statusText: string;
 }
 
 // 后台响应数据格式
 export interface BaseResultWrapper<T> {
-  status: number,
+  status: number | string,
   message: string,
   data?: T
 }
 
 export interface BaseResultsWrapper<T> {
-  status: number,
+  status: number | string,
   message: string,
   data: {
     total?: number,

@@ -150,10 +150,15 @@ const app = IApp.create({
   isDebug: false,
   lastVisitedAt: 0,
   im_sdk_appid: storage.getKey('im_sdk_appid') || '',
-  im_user_id: storage.getKey('im_user_id') || ''
+  im_user_id: '',
+  phone: storage.getKey('phone') || '',
+  password: storage.getKey('password') || '',
 });
 // 用户信息状态
-const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey(constant.ACCESS_TOKEN) || '' }, im_signatue: storage.getKey('im_signature') || '' });
+const user = IUser.create({
+  token: { [constant.ACCESS_TOKEN]: '' },
+  im_signatue: '',
+});
 const menu = IMenu.create();
 const component = IComponent.create();
 

@@ -1,5 +1,5 @@
 import store from '../../store';
-import { Button, Input, notification, Space, Spin } from 'antd';
+import { Button, Input, notification, Space, Spin, Avatar } from 'antd';
 import { SyncOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { useCallback, useRef } from 'react';
@@ -38,6 +38,7 @@ interface IUser {
 }
 
 interface IMessage {
+  id: string,
   seq: number;
   text: string;
   user_id?: string;
@@ -94,6 +95,7 @@ const IMPage: React.FC = () => {
     mute_user_seconds: number,
     willMute: boolean,
     users: IUser[],
+    mine: IUser,
     members: IMember[],
     groups: IGroup[],
     messages: IMessage[],
@@ -110,6 +112,7 @@ const IMPage: React.FC = () => {
     groups: [],
     groupId: '',
     users: [],
+    mine: { user_id: '', time: 0, name: '', cover: '' },
     members: [],
     messages: []
   }))
@@ -120,9 +123,9 @@ const IMPage: React.FC = () => {
     let resp
     try {
       if (local.willMute) {
-        resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [local.mute_user_id], seconds: 3600 })
+        resp = await shttp.post(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`, { members: [local.mute_user_id], seconds: 3600 })
       } else {
-        resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [local.mute_user_id], seconds: 0 })
+        resp = await shttp.delete(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`).send({ members: [local.mute_user_id], seconds: 0 })
       }
     } catch (e) {
       console.log(e)
@@ -132,14 +135,24 @@ const IMPage: React.FC = () => {
     await getMembers(local.groupId)
     local.willMute = !local.willMute
   };
+  const { show: recall } = useContextMenu({
+    id: 'recall'
+  });
+  const handleRecallClick = async ({ event, props }: any) => {
+    const index = local.messages.findIndex(it => it.id === props.id);
+    if (index !== -1) {
+      local.messages.splice(index, 1);
+    }
+    await shttp.post(`${store.app.getBaseHost()}/api/v1/im/groups/${props.live_id}/message/recall`, { _id: props.id }, { headers: { 'X-Signature': store.user.im_signatue } })
+  };
 
   const contentRef = useRef<null | Element>(null)
   const getGroups = useCallback(async () => {
     try {
       local.fetchGroups = true
       console.log('get repeat?')
-      await shttp.get('api/v1/im/groups/remote');
-      const result = await shttp.get<{ list: IGroup[] }>('/api/v1/im/groups')
+      await shttp.get(`${store.app.getBaseHost()}/api/v1/im/groups/remote`);
+      const result = await shttp.get<{ list: IGroup[] }>(`${store.app.getBaseHost()}/api/v1/im/groups`)
       if (result.status === 0) {
         result.data.list.forEach(item => {
           item.joined = local.groupId === item._id;
@@ -173,7 +186,7 @@ const IMPage: React.FC = () => {
     }
     try {
       local.fetchMuted = true
-      const user = await shttp.get(`/api/v1/im/groups/${local.groupId}/muted`)
+      const user = await shttp.get(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`)
       local.users = user.data.list.map((item: any) => ({ user_id: item.Member_Account, time: item.ShuttedUntil }))
     } catch (e) {
       console.log(e)
@@ -187,7 +200,7 @@ const IMPage: React.FC = () => {
     }
     try {
       local.fetchRemoveUser = true
-      await shttp.delete(`/api/v1/im/users/${user_id}`)
+      await shttp.delete(`${store.app.getBaseHost()}/api/v1/im/users/${user_id}`)
       await getMembers(local.groupId);
     } catch (e) {
       console.log(e)
@@ -215,6 +228,7 @@ const IMPage: React.FC = () => {
         if (data[0].type === "TIMGroupTipElem") {
           // p.textContent = `用户:${data[0].payload.userIDList[0]} 类型:${GroupTipType[opType] || ''}`
           local.messages.push({
+            id: '',
             user_id: (data[0].payload.userIDList[0] as string),
             type: 'tip',
             text: GroupTipType[opType],
@@ -226,6 +240,7 @@ const IMPage: React.FC = () => {
         } else if (data[0].type === "TIMGroupSystemNoticeElem") {
           // p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
           local.messages.push({
+            id: '',
             user_id: (data[0].payload.operatorID as string),
             type: 'system',
             text: SystemTipType[opType],
@@ -236,6 +251,7 @@ const IMPage: React.FC = () => {
           })
         } else {
           local.messages.push({
+            id: '',
             user_id: (data[0].payload.userIDList[0] as string),
             type: 'text',
             text: data[0].payload.text,
@@ -262,26 +278,53 @@ const IMPage: React.FC = () => {
   return (
     <Observer>{() => (<div style={{ height: 'calc(100vh - 175px)' }}>
       <Space>
-        <Input addonBefore={'sdkappid'} defaultValue={store.app.im_sdk_appid} onChange={(e: any) => {
+        <Input addonBefore={'sdkappid'} disabled={local.signined} defaultValue={store.app.im_sdk_appid} onChange={(e: any) => {
           store.app.setIMSdkAppId(e.target.value);
         }} />
-        <Input addonBefore={'user_id'} defaultValue={store.app.im_user_id} onChange={(e: any) => {
-          store.app.setIMUserId(e.target.value)
+        <Input addonBefore={'phone'} disabled={local.signined} defaultValue={store.app.phone} onChange={(e: any) => {
+          store.app.setKey('phone', e.target.value)
         }} />
-        <Input addonBefore={'token'} defaultValue={store.user.token[constant.ACCESS_TOKEN]} onChange={(e: any) => {
-          store.user.setAccessToken(e.target.value)
+        <Input addonBefore={'password'} disabled={local.signined} defaultValue={store.app.password} onChange={(e: any) => {
+          store.app.setKey('password', e.target.value)
         }} />
         <Button type="primary" loading={local.fetchSignature} onClick={async (e) => {
           try {
-            if (!store.app.im_user_id) {
-              return notification.error({ message: '请先设置user_id' })
+            if (!store.app.phone) {
+              return notification.error({ message: '请先输入phone' })
+            }
+            if (!store.app.password) {
+              return notification.error({ message: '请先输入password' })
+            }
+            const oauth: any = await shttp.post("http://localhost:8990/oauth/login", { phone: store.app.phone, password: store.app.password, code: '86', ticket: 'PIlHc8S49BpmWoHIgVMGf5N2pPUGaOikP8UQhodvFsDNimDJHpl892BA4UJGYhH5bKN/6CiKZB/YjK9b/hVUU7LSZfHGqbb+n7vtZQE+0+Z4o/Dc/1h8QNTwro/3TXNcJejS+SQeOfNJyV4iTRVxM+X1E9RT3scbFqUXDUcHIOo=' })
+            if (oauth.status === '0') {
+              store.app.setIMUserId(oauth.data.id);
+              store.user.setAccessToken('Bear ' + oauth.data.token);
+              local.mine.name = oauth.data.nickname
+              local.mine.cover = oauth.data.icon;
+            } else {
+              notification.error({ message: oauth.message })
+            }
+            if (local.signined) {
+              store.tim.logout().then(() => {
+                local.signined = false
+              })
+              return;
             }
             local.fetchSignature = true
-            const result = await shttp.post<{ usersig: string }>('/api/v1/im/user/signature', { user_id: store.app.im_user_id })
-            console.log(result)
+            const result = await shttp.post<{ usersig: string }>(`${store.app.getBaseHost()}/api/v1/im/user/signature`, { user_id: store.app.im_user_id })
             if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
-              notification.info({ message: '成功' })
+              store.tim.login({ userID: store.app.im_user_id, userSig: store.user.im_signatue }).then(function (imResponse: any) {
+                // 登录成功
+                getGroups()
+                if (imResponse.data.repeatLogin === true) {
+                  // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
+                  console.log(imResponse.data.errorInfo);
+                }
+                local.signined = true
+              }).catch(function (imError: Error) {
+                notification.error({ message: imError.message }); // 登录失败的相关信息
+              });
             } else {
               notification.error({ message: result.message })
             }
@@ -290,34 +333,8 @@ const IMPage: React.FC = () => {
           } finally {
             local.fetchSignature = false;
           }
-        }}>获取usrsig</Button>
-        <Button type="primary" onClick={e => {
-          if (!store.user.im_signatue) {
-            return notification.error({ message: '请选获取signature' })
-          }
-          if (!store.app.im_user_id) {
-            return notification.error({ message: '请先设置user_id' })
-          }
-          if (local.signined) {
-            store.tim.logout().then((data: any) => {
-              console.log(data)
-              local.signined = false
-            })
-          } else {
-            let promise = store.tim.login({ userID: store.app.im_user_id, userSig: store.user.im_signatue });
-            promise.then(function (imResponse: any) {
-              console.log(imResponse.data); // 登录成功
-              if (imResponse.data.repeatLogin === true) {
-                // 标识账号已登录，本次登录操作为重复登录。v2.5.1 起支持
-                console.log(imResponse.data.errorInfo);
-              }
-              local.signined = true
-            }).catch(function (imError: Error) {
-              console.warn('login error:', imError); // 登录失败的相关信息
-            });
-          }
-        }}>{local.signined ? '退出' : '登录'}</Button>
-        <span>sig过期则重新获取 =&gt; 登录 =&gt;加入群</span>
+        }}>{local.signined ? '退群' : '用token转IM'}</Button>
+        <span>id: {store.app.im_user_id}</span>
       </Space>
       <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
         <div style={{ width: 200, padding: 5, backgroundColor: '#dfe98ae6', margin: '10px 10px 0 0' }}>
@@ -341,9 +358,27 @@ const IMPage: React.FC = () => {
                   } else {
                     item.joined = true;
                     local.groupId = item._id
+                    local.messages = [];
                     store.tim.joinGroup({ groupID: item._id, type: 'AVChatRoom' });
-                    // const result = await shttp.get<{ total: number, items: { Member_Account: string }[] }>(`/api/v1/im/group/${item.GroupId}/members`)
-                    // local.users = result.data.items.map(item => ({ user_id: item.Member_Account }))
+                    // 最近20条
+                    const latest = await shttp.get<[{ _id: string, type: number, created_time: string, seq: number, from_account: string, user: { nickname: string, icon: string }, payload: [{ type: number, content: string }] }]>(`http://localhost:8989/live/${item._id}/messages?page_size=20`)
+                    if (latest.status === '0') {
+                      latest.data.reverse().forEach(item => {
+                        local.messages.push({
+                          id: item._id,
+                          seq: item.seq,
+                          text: item.payload.filter(it => it.type === 1).map(it => it.content).join(),
+                          user_id: item.from_account,
+                          name: item.user.nickname,
+                          cover: item.user.icon,
+                          time: item.created_time,
+                          type: 'text'
+                        })
+                      })
+                    }
+                    console.log(latest, 'latest')
+                    // const result = await shttp.get<{ total: number, items: {Member_Account: string }[] }>(`/api/v1/im/group/${item.GroupId}/members`)
+                    // local.users = result.data.items.map(item => ({user_id: item.Member_Account }))
                   }
                 }} data-groupid={item._id}>
                 <img src={item.cover} alt="" style={{ width: 24, height: 24 }} />{item.title}{item.joined ? '✅' : '❌'}</div>)
@@ -351,10 +386,22 @@ const IMPage: React.FC = () => {
           }</div>
         {/* 中间内容区 */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'baseline', height: '100%' }}>
-          <div id="content" style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }} ref={elem => contentRef.current = elem}>
+          <div
+            id="content"
+            style={{ width: '100%', flex: 1, padding: 5, overflowY: 'auto', border: '1px solid #aaa', borderRadius: 10, marginTop: 10 }}
+            ref={elem => contentRef.current = elem}
+            onContextMenu={(e: TriggerEvent) => {
+              const ele = e.target as Element
+              e.preventDefault();
+              if (ele && ele.tagName === 'P') {
+                const id = ele.getAttribute('data-id');
+                recall(e, { props: { id, live_id: local.groupId } })
+              }
+            }}
+          >
             {local.messages.map(msg => {
               if (msg.type === 'text') {
-                return <p key={msg.seq}>{msg.name} 说: ${msg.text}</p>
+                return <p data-id={msg.id} key={msg.seq}>{msg.name} 说: ${msg.text}</p>
               } else if (msg.type === 'tip') {
                 return <p key={msg.seq}>{msg.user_id} {msg.text}</p>
               } else if (msg.type === 'system') {
@@ -422,10 +469,10 @@ const IMPage: React.FC = () => {
               let resp
               try {
                 if (user.time === 0) {
-                  resp = await shttp.post(`/api/v1/im/groups/${local.groupId}/muted`, { members: [user.user_id], seconds: 3600 })
+                  resp = await shttp.post(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`, { members: [user.user_id], seconds: 3600 })
                   user.time = 3600
                 } else {
-                  resp = await shttp.delete(`/api/v1/im/groups/${local.groupId}/muted`).send({ members: [user.user_id], seconds: 0 })
+                  resp = await shttp.delete(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`).send({ members: [user.user_id], seconds: 0 })
                   user.time = 0
                 }
                 console.log(resp)
@@ -459,6 +506,12 @@ const IMPage: React.FC = () => {
             <Item onClick={() => {
               removeUser(local.mute_user_id);
             }}>删除成员</Item>
+          </Menu>
+          <Menu id="recall">
+            <Item onClick={handleRecallClick}>撤回</Item>
+            <Item onClick={() => {
+
+            }}>取消</Item>
           </Menu>
         </div>
       </div>
