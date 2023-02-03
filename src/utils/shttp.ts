@@ -29,7 +29,7 @@ instance.interceptors.request.use(
       'Accept-Language': 'zh-CN',
       'Authorization': '',
     };
-    if (config.url === '/api/v1/im/user/signature') {
+    if (config.url?.includes('/api/v1/im/user/signature')) {
       customHeaders['token'] = store.user.token[constant.ACCESS_TOKEN]
     } else {
       customHeaders['X-Signature'] = signature;

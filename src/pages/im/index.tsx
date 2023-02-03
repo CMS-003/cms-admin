@@ -119,13 +119,13 @@ const IMPage: React.FC = () => {
   const { show } = useContextMenu({
     id: 'MUTE',
   })
-  const handleItemClick = async ({ event, props }: any) => {
+  const mutedGroup = async (seconds: number) => {
     let resp
     try {
-      if (local.willMute) {
-        resp = await shttp.post(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`, { members: [local.mute_user_id], seconds: 3600 })
+      if (seconds !== 0) {
+        resp = await shttp.post(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`, { members: [local.mute_user_id], seconds })
       } else {
-        resp = await shttp.delete(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`).send({ members: [local.mute_user_id], seconds: 0 })
+        resp = await shttp.delete(`${store.app.getBaseHost()}/api/v1/im/groups/${local.groupId}/muted`).send({ members: [local.mute_user_id], seconds })
       }
     } catch (e) {
       console.log(e)
@@ -135,6 +135,15 @@ const IMPage: React.FC = () => {
     await getMembers(local.groupId)
     local.willMute = !local.willMute
   };
+  const mutedGlobal = async (seconds: number) => {
+    try {
+      const resp = await shttp.post(`${store.app.getBaseHost()}/api/v1/im/muted`, { user_id: local.mute_user_id, seconds })
+    } catch (e) {
+      console.log(e)
+    }
+    local.mute_user_id = '';
+    local.mute_user_seconds = 0;
+  }
   const { show: recall } = useContextMenu({
     id: 'recall'
   });
@@ -239,6 +248,7 @@ const IMPage: React.FC = () => {
           })
         } else if (data[0].type === "TIMGroupSystemNoticeElem") {
           // p.textContent = `系统消息: 用户${data[0].payload.operatorID} 类型:${SystemTipType[opType] || ''}`
+          console.log(data[0])
           local.messages.push({
             id: '',
             user_id: (data[0].payload.operatorID as string),
@@ -314,6 +324,8 @@ const IMPage: React.FC = () => {
             const result = await shttp.post<{ usersig: string }>(`${store.app.getBaseHost()}/api/v1/im/user/signature`, { user_id: store.app.im_user_id })
             if (result.status === 0) {
               store.user.setIMSignature(result.data.usersig)
+              console.log(store.app.im_user_id, 'userid')
+              console.log(store.user.im_signatue, 'usersig')
               store.tim.login({ userID: store.app.im_user_id, userSig: store.user.im_signatue }).then(function (imResponse: any) {
                 // 登录成功
                 getGroups()
@@ -502,7 +514,10 @@ const IMPage: React.FC = () => {
             </div>)}
           </div>
           <Menu id="MUTE">
-            <Item onClick={handleItemClick}>{local.willMute ? '禁言' : '取消禁言'}</Item>
+            <Item onClick={() => mutedGroup(3600)}>群内禁言</Item>
+            <Item onClick={() => mutedGroup(0)}>取消禁言</Item>
+            <Item onClick={() => mutedGlobal(0xffffff)}>全局禁言</Item>
+            <Item onClick={() => mutedGlobal(0)}>取消全局禁言</Item>
             <Item onClick={() => {
               removeUser(local.mute_user_id);
             }}>删除成员</Item>
