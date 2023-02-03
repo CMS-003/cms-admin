@@ -49,7 +49,11 @@ export default function BindPage() {
   }, []);
   useEffectOnce(() => {
     const searchParams = new URLSearchParams(window.location.search.substring(1));
-    local.bind_token = searchParams.get('bind_token') || '';
+    const bind_token = searchParams.get('bind_token') || '';
+    if (bind_token) {
+      local.bind_token = bind_token;
+      navigate('/bind', { replace: true });
+    }
   })
   return <Observer>{() => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -58,19 +62,19 @@ export default function BindPage() {
         <Tabs centered defaultActiveKey={local.type} onChange={type => {
           local.type = type;
         }} >
-        <Tabs.TabPane tab="账号密码" key="account">
-          <Space direction='vertical'>
-            <Input name="username" type={'text'} onChange={e => local.username = e.target.value} placeholder="用户名" addonBefore="用户名" />
-            <Input name="password" type="password" onChange={e => local.password = e.target.value} addonBefore="密码" placeholder="密码" onKeyDown={e => {
-              if (e.keyCode === 13) {
-                const btn = document.getElementById('bind')
-                if (btn) {
-                  btn.click();
+          <Tabs.TabPane tab="账号密码" key="account">
+            <Space direction='vertical'>
+              <Input name="username" type={'text'} onChange={e => local.username = e.target.value} placeholder="用户名" addonBefore="用户名" />
+              <Input name="password" type="password" onChange={e => local.password = e.target.value} addonBefore="密码" placeholder="密码" onKeyDown={e => {
+                if (e.keyCode === 13) {
+                  const btn = document.getElementById('bind')
+                  if (btn) {
+                    btn.click();
+                  }
                 }
-              }
-            }} />
-          </Space>
-        </Tabs.TabPane>
+              }} />
+            </Space>
+          </Tabs.TabPane>
           <Tabs.TabPane tab="邮箱" key="email">
             <Space direction='vertical'>
               <Input name="email" addonBefore="邮箱" onChange={e => local.email = e.target.value} placeholder="邮箱" type={'email'} />
@@ -84,10 +88,10 @@ export default function BindPage() {
                 type={'text'}
                 onChange={e => local.phone = e.target.value}
                 addonBefore={<Select defaultValue={'+86'}>
-                  <Select.Option value="+86">中国大陆(+86)</Select.Option>
+                  <Select.Option value="+86">中国</Select.Option>
                 </Select>}
-                addonAfter={<span onClick={sendCode}>{local.phone_count > 0 ? local.phone_count + 's后重试' : '获取验证码'}</span>} />
-              <Input name="验证码" type={'text'} addonBefore="验证码" />
+              />
+              <Input name="验证码" type={'text'} addonAfter={<span onClick={sendCode}>{local.phone_count > 0 ? local.phone_count + 's后重试' : '获取验证码'}</span>} />
             </Space>
           </Tabs.TabPane>
         </Tabs>

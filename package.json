@@ -34,6 +34,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
+    "build:prod": "PUBLIC_URL=https://6vq7631482.gz.bcebos.com/manage react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },

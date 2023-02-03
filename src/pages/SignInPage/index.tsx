@@ -100,16 +100,7 @@ export default function SignInPage() {
           showCancel={false}>
           <IconSNS src={Icon_sns_apple} alt="苹果" />
         </Popconfirm>
-
-        <Popconfirm
-          title="开发者抵制微博，请换个方式"
-          icon={<MinusCircleOutlined />}
-          okText="已阅"
-          showCancel={false}
-        >
-          <IconSNS src={Icon_sns_weibo} alt="微博" />
-        </Popconfirm>
-
+        <a href="/api/v1/oauth/sns/weibo/sign-in" title=""><IconSNS src={Icon_sns_weibo} alt="微博" /></a>
       </AlignAround>
     </div>
   )}</Observer>
