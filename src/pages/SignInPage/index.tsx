@@ -47,12 +47,12 @@ export default function SignInPage() {
           <Button id="signin" type="primary" loading={local.isFetch} block onClick={async () => {
             local.isFetch = true
             try {
-              const res = await apis.SignIn({ type: 'account', account: local.username, pass: local.password })
+              const res = await apis.SignIn({ type: 'account', account: local.username, value: local.password })
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
                 const result = await apis.getProfile<UserInfo>();
                 if (result.code === 0) {
-                  store.user.setInfo(result.data as any)
+                  store.user.setInfo(result.data.item as any)
                 }
                 const projectResult = await apis.getProjects<Project>()
                 if (projectResult.code === 0 && projectResult.data) {

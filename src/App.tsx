@@ -33,7 +33,7 @@ function App() {
       }
       return;
     } else {
-      store.user.setInfo(result.data)
+      store.user.setInfo(result.data.item)
     }
     const projectResult = await apis.getProjects<Project>()
     if (projectResult.code === 0 && projectResult.data) {

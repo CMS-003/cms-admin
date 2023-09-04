@@ -2,9 +2,9 @@ import { IModelType, IStateTreeNode, types, _NotCustomized, ISimpleType, IMaybe,
 import constant from '../constant'
 import storage from '../storage'
 
-const user = types.model('app', {
+const user = types.model('UserItem', {
   info: types.maybe(types.model({
-    id: types.string,
+    _id: types.string,
     avatar: types.string,
     account: types.string,
     nickname: types.optional(types.string, ''),
@@ -30,12 +30,12 @@ const user = types.model('app', {
     storage.setKey(constant.REFRESH_TOKEN, token);
   },
   setInfo(info: ({
-    id: string;
+    _id: string;
     avatar: string;
     account: string;
     nickname: string;
   } & IStateTreeNode<IMaybe<IModelType<{
-    id: ISimpleType<string>;
+    _id: ISimpleType<string>;
     avatar: ISimpleType<string>;
     account: ISimpleType<string>;
     nickname: IOptionalIType<ISimpleType<string>, ValidOptionalValues>;

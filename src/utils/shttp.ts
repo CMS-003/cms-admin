@@ -160,7 +160,7 @@ class Request<T> {
     if (this.headers) {
       option.headers = this.headers
     }
-    _.set(option, 'headers.X-Token', store.user.getAccessToken())
+    _.set(option, 'headers.Authorization',`Bearer ${store.user.getAccessToken()}`)
     const response = instance.request(option)
     const result = await new Promise<any>((resolve, reject) => {
       response.then(res => {

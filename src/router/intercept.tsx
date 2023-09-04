@@ -25,12 +25,12 @@ const fallback = <Spin style={{
 }} tip="页面加载中...." />
 
 function Intercept({ menuList, components: Components, title, path: pagePath, pageKey, ...itemProps }: Props) {
-  const history = useNavigate ()
+  // const history = useNavigate ()
   const location = useLocation()
   const openMenu = store.router.getOpenedMenu()
   const setPath = useCallback((path: string) => {
     store.router.setCurrentPath(path);
-  }, [store.router.currentPath]);
+  }, []);
   const setOpenKeys = useCallback((val: string) => (store.router.setOpenKey(val)), [])
   const setSelectedKeys = useCallback((val: string[]) => (store.router.setSelectKey(val)), [])
   const addOpenedMenuFn = useCallback((val: object) => (store.router.addOpenedMenu(val)), [])
@@ -62,7 +62,7 @@ function Intercept({ menuList, components: Components, title, path: pagePath, pa
     let openkey = ''; // getMenuParentKey(menuList, pageKey);
     setOpenKeys(openkey);
     pushMenu(findInfo, pageKey, pagePath, title);
-  }, [history, openMenu, menuList, title, pageKey, setOpenKeys, setPath, setSelectedKeys, pushMenu])
+  }, [title, location, openMenu, setPath, setSelectedKeys, pageKey, setOpenKeys, pushMenu])
 
   const init = useCallback(() => {
     setInfo()

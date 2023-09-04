@@ -6,7 +6,7 @@ import user from './user'
 
 const apis = {
   getMenu: async () => {
-    const result: any = await shttp.get('/api/v1/user/menu');
+    const result: any = await shttp.get('/api/v1/users/menu');
     return result
   },
   getConfig: async () => {
@@ -24,7 +24,7 @@ const apis = {
 
   },
   getProjects: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/projects').then();
+    const result = await shttp.get<T>('/api/v1/projects').then();
     return result
   },
   createProject: async ({ body }: { body: Project }) => {
@@ -32,7 +32,7 @@ const apis = {
     return result;
   },
   updateProject: async ({ body }: { body: Project }) => {
-    const result: any = await shttp.put('/api/v1/projects/' + body.id, body);
+    const result: any = await shttp.put('/api/v1/projects/' + body._id, body);
     return result;
   },
   getComponentTemplates: async () => {

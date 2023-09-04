@@ -1,6 +1,6 @@
 import { types } from 'mobx-state-tree'
 
-const item: any = types.model('item', {
+const item: any = types.model('MenuItem', {
   _id: types.string,
   tree_id: types.optional(types.string, ''),
   parent_id: types.optional(types.string, ''),

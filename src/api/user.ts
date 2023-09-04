@@ -4,7 +4,7 @@ import constant from '../constant'
 
 
 const user = {
-  SignIn: async (data: { type: string, account: string, pass: string }) => {
+  SignIn: async (data: { type: string, account: string, value: string }) => {
     const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
     store.user.setAccessToken(result[constant.ACCESS_TOKEN])
     store.user.setRefreshToken(result[constant.REFRESH_TOKEN])
@@ -19,7 +19,7 @@ const user = {
     return result;
   },
   getProfile: async <T>() => {
-    return await shttp.get<T>('/api/v1/user/profile').then()
+    return await shttp.get<T>('/api/v1/users/profile').then()
   },
   getApps: async <T>() => {
     const result = await shttp.get<T>('/api/v1/user/apps')

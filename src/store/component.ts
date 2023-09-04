@@ -1,8 +1,8 @@
 import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, flow } from 'mobx-state-tree'
 import { Component, ComponentType } from '@/types'
 
-export const ComponentItem: any = types.model({
-  id: types.string,
+export const ComponentItem: any = types.model('Component', {
+  _id: types.string,
   parent_id: types.optional(types.string, ''),
   tree_id: types.optional(types.string, ''),
   title: types.optional(types.string, ''),
@@ -10,7 +10,7 @@ export const ComponentItem: any = types.model({
   cover: types.optional(types.string, ''),
   desc: types.optional(types.string, ''),
   createdAt: types.maybe(types.Date),
-  updatedAt: types.maybe(types.Date),
+  // updatedAt: types.maybe(types.Date),
   accepts: types.optional(types.array(types.string), []),
 }).actions(self => ({
 
