@@ -9,6 +9,8 @@ import { Space, Spin, Button } from 'antd'
 import apis from './api';
 import SignInPage from './pages/SignInPage'
 import BindPage from './pages/BindPage'
+import SuccessPage from './pages/oauthResult/success'
+import FailPage from './pages/oauthResult/fail'
 import store from './store'
 import { Project, UserInfo } from '@/types'
 
@@ -89,6 +91,8 @@ function App() {
         </div> : <Routes>
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/bind" element={<BindPage />} />
+          <Route path="/oauth/success" element={<SuccessPage />} />
+          <Route path="/oauth/fail" element={<FailPage />} />
           <Route path="/*" element={<Layout data={store.menu.tree} />} />
         </Routes>}
       </div>

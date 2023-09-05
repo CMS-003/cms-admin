@@ -59,7 +59,7 @@ function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, 
 const lb = { span: 4 }, rb = { span: 20 }
 
 export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: EditorField[], fetch: Function, close: Function }) {
-  const local = useLocalObservable<{ fetching: boolean, jsonMap: { [key: string]: string } }>(() => ({
+  const local = useLocalObservable < { fetching: boolean, jsonMap: { [key: string]: string } } > (() => ({
     fetching: false,
     jsonMap: {},
   }))
@@ -81,7 +81,6 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
       okText="确定"
       confirmLoading={local.fetching}
       cancelText="取消"
-      style={{ maxHeight: 700 }}
       onOk={async () => {
         local.fetching = true
         try {
@@ -93,7 +92,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
               data[item.field] = item.defaultValue || ''
             }
             if (item.type === 'number') {
-
+              data[item.field] = parseInt(data[item.field])
             }
           })
           await fetch({ body: data })
@@ -115,6 +114,26 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
             case 'Input':
               return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
                 <Input value={data[item.field]} autoFocus={item.autoFocus || false} onChange={e => {
+                  data[item.field] = e.target.value
+                }} />
+              </Form.Item>;
+            case 'Number':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <Input type="number" value={data[item.field]} autoFocus={item.autoFocus || false} onChange={e => {
+                  data[item.field] = e.target.value
+                }} />
+              </Form.Item>;
+            case 'Hidden':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <Input type="hidden" value={data[item.field]} autoFocus={item.autoFocus || false} />
+              </Form.Item>;
+            case 'Read':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <Input readOnly disabled value={data[item.field]} autoFocus={item.autoFocus || false} />
+              </Form.Item>;
+            case 'Area':
+              return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+                <Input.TextArea value={data[item.field]} onChange={e => {
                   data[item.field] = e.target.value
                 }} />
               </Form.Item>;
@@ -164,7 +183,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                   listType="picture-card"
                   className="avatar-uploader"
                   action={store.app.baseURL + "/upload/image"}
-                  showUploadList={false} 
+                  showUploadList={false}
                   name="image"
                   onChange={(e) => {
                     if (e.file.status === 'uploading') {

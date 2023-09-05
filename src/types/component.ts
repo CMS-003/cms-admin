@@ -34,6 +34,10 @@ export type ComponentType = {
 export enum EditorComponent {
   Select = 'Select',
   Input = 'Input',
+  Number = 'Number',
+  Hidden= 'Hidden',
+  Area= 'Area',
+  Read= 'Read',
   Switch = 'Switch',
   RemoteSelect = 'RemoteSelect',
   Image = 'Image',

@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, notification, Space, Table } from 'antd';
+import { Button, Divider, notification, Space, Table } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash'
 import store from '@/store';
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[] }>(() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[] } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
@@ -22,26 +22,17 @@ const ComponentTemplatePage: React.FC = () => {
   }))
   const [fields] = useState([
     {
-      field: 'type',
-      title: '组件类型',
+      field: '_id',
+      title: '模板id',
       type: 'string',
-      component: EditorComponent.Select,
-      defaultValue: '',
-      autoFocus: false,
-      value: local.types,
-    },
-    {
-      field: 'id',
-      title: '',
-      type: 'string',
-      component: EditorComponent.Input,
+      component: EditorComponent.Read,
       defaultValue: '',
       autoFocus: false,
       value: [],
     },
     {
       field: 'title',
-      title: '组件名称',
+      title: '模板名称',
       type: 'string',
       component: EditorComponent.Input,
       defaultValue: '',
@@ -59,32 +50,12 @@ const ComponentTemplatePage: React.FC = () => {
     },
     {
       field: 'desc',
-      title: '组件描述',
+      title: '模板描述',
       type: 'string',
-      component: EditorComponent.Input,
+      component: EditorComponent.Area,
       defaultValue: '',
       autoFocus: false,
       value: [],
-    },
-    {
-      field: 'tree_id',
-      title: '根组件',
-      type: 'string',
-      component: EditorComponent.RemoteSelect,
-      defaultValue: '',
-      autoFocus: false,
-      value: [],
-      fetch: apis.getComponents
-    },
-    {
-      field: 'parent_id',
-      title: '父组件',
-      type: 'string',
-      component: EditorComponent.RemoteSelect,
-      defaultValue: '',
-      autoFocus: false,
-      value: [],
-      fetch: apis.getComponents
     },
     {
       field: 'available',
@@ -92,6 +63,15 @@ const ComponentTemplatePage: React.FC = () => {
       type: 'boolean',
       component: EditorComponent.Switch,
       defaultValue: false,
+      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
+      autoFocus: false,
+    },
+    {
+      field: 'order',
+      title: '序号',
+      type: 'number',
+      component: EditorComponent.Number,
+      defaultValue: 1,
       value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
       autoFocus: false,
     },
@@ -115,13 +95,13 @@ const ComponentTemplatePage: React.FC = () => {
     },
   ])
   const refresh = useCallback(async () => {
-    const result = await apis.getComponentTemplates()
+    const result = await apis.getTemplates()
     if (result.code === 0) {
       local.list = result.data.items
     }
   }, [])
-  const updateComponent = useCallback(async (params: { body: any }) => {
-    const result = await apis.updateComponent(params)
+  const editTemplate = useCallback(async (params: { body: any }) => {
+    const result = params.body._id ? await apis.updateTemplate(params) : await apis.addTemplate(params)
     if (result.code === 0) {
       notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
       await refresh()
@@ -133,6 +113,10 @@ const ComponentTemplatePage: React.FC = () => {
   return (<Observer>{() => <Fragment>
     <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       < Button type="primary" onClick={e => {
+        local.showEditPage = true
+      }}>新增</Button>
+      <Divider type="vertical" />
+      < Button type="primary" onClick={e => {
         refresh()
       }}>刷新</Button>
     </Space>
@@ -140,14 +124,14 @@ const ComponentTemplatePage: React.FC = () => {
       visible={local.showEditPage}
       close={() => { local.showEditPage = false; local.temp = {} }}
       data={local.temp}
-      fetch={updateComponent}
+      fetch={editTemplate}
       fields={fields}
     />
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="id" dataSource={local.list} >
+      <Table pagination={false} rowKey="_id" dataSource={local.list} >
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
-        <Table.Column title="操作" key="id" render={(_, record: Component) => (
+        <Table.Column title="操作" key="_id" render={(_, record: Component) => (
           <Space size="middle" >
             <FormOutlined onClick={
               () => {

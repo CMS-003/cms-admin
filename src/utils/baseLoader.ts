@@ -68,7 +68,6 @@ function createItemsLoader<T>(model: IAnyType, fn: Function, customs: { [key: st
       try {
         res = yield fn({ query, params }, type)
         let { ended } = res
-        console.log(res);
         const items = res.items || res.data
         self.isEnded = !!ended
         if (type === 'refresh') {

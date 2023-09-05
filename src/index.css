@@ -25,6 +25,9 @@ code {
   background-color: aliceblue;
 }
 
+.ant-modal {
+  width: 1000px !important;
+}
 .ant-modal .ant-modal-body {
   max-height: 700px;
   overflow-y: auto;

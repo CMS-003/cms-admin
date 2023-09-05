@@ -12,7 +12,7 @@ const user = {
     return result;
   },
   SignOut: async () => {
-    const result = await shttp.post('/api/v1/user/sign-out', {});
+    const result = await shttp.post('/api/v1/users/sign-out', {});
     store.user.setAccessToken('');
     store.user.setRefreshToken('');
     store.app.setIsSignIn(false);

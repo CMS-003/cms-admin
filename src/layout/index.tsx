@@ -51,7 +51,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
             items={store.project.list.map(project => ({
               label: project.title,
               key: project.id,
-              icon: <img src={project.cover || '/logo192.png'} alt="" style={{ width: 24, height: 24 }} />
+              icon: <img src={project.cover} alt="" style={{ width: 24, height: 24 }} />
             }))}
           />}>
             <div style={{ flexDirection: collapsed ? 'column' : 'row', color: 'white', display: 'flex', alignItems: 'center' }}>

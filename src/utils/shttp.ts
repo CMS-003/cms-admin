@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
-let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3335' : (process.env.PUBLIC_URL || '');
+let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3334' : (process.env.PUBLIC_URL || '');
 
 //默认请求超时时间
 const timeout = 10000;
@@ -65,19 +65,19 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
-      response = instance.get(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
+      response = instance.get(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
       break;
     case 'post':
-      response = instance.post(url, { ...params }, { ...config, headers: { 'X-Token': store.user.getAccessToken() } });
+      response = instance.post(url, { ...params }, { ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
       break;
     case 'put':
-      response = instance.put(url, { ...params }, { ...config, headers: { 'X-Token': store.user.getAccessToken() } });
+      response = instance.put(url, { ...params }, { ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
       break;
     case 'delete':
-      response = instance.delete(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
+      response = instance.delete(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
       break;
     case 'patch':
-      response = instance.patch(url, { params: { ...params }, ...config, headers: { 'X-Token': store.user.getAccessToken() } });
+      response = instance.patch(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
       break;
   }
 
@@ -160,7 +160,7 @@ class Request<T> {
     if (this.headers) {
       option.headers = this.headers
     }
-    _.set(option, 'headers.Authorization',`Bearer ${store.user.getAccessToken()}`)
+    _.set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
     const response = instance.request(option)
     const result = await new Promise<any>((resolve, reject) => {
       response.then(res => {
