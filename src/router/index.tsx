@@ -16,6 +16,7 @@ import HomePage from '@/pages/dashboard'
 import ComponentPage from '@/pages/component'
 import ComponentTypePage from '@/pages/component/type'
 import ComponentTemplatePage from '@/pages/template'
+import ComponentTemplateEditablePage from '@/pages/template/editable'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import ConfigPage from '@/pages/config';
@@ -69,6 +70,12 @@ const Pages: { [key: string]: PaneItem } = {
     closable: true,
     path: '/template/list'
   },
+  '/template/editable': {
+    title: '可视化编辑',
+    content: ComponentTemplateEditablePage,
+    closable: true,
+    path: '/template/editable'
+  },
   '/result/404': {
     title: '',
     content: function () {
@@ -85,7 +92,7 @@ const TabPanes: FC = () => {
   const { pathname, search } = useLocation()
   const fullPath = pathname + search
 
-  const local = useLocalObservable<{
+  const local = useLocalObservable < {
     reloadPath: string,
     isReload: boolean,
     activeKey: string,
@@ -95,7 +102,7 @@ const TabPanes: FC = () => {
     pushPage(page: PaneItem): void;
     setActiveKey(key: string): void;
     tagPages: PaneItem[];
-  }>(() => ({
+  } > (() => ({
     reloadPath: '',
     tagPages: [],
     activeKey: store.page.currentTag,
