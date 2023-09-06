@@ -33,7 +33,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "dev": "NODE_ENV=development react-app-rewired start",
+    "dev": "cross-env NODE_ENV=development react-app-rewired start",
     "build": "react-app-rewired build",
     "build:prod": "PUBLIC_URL=https://6vq7631482.gz.bcebos.com/manage react-app-rewired build",
     "test": "react-app-rewired test",
@@ -62,6 +62,7 @@
     "@types/loadable__component": "^5.13.4",
     "@types/lodash": "^4.14.182",
     "@types/styled-components": "^5.1.25",
+    "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
     "react-app-rewired": "^2.2.1"
   }
