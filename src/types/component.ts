@@ -12,7 +12,7 @@ export type Config = {
 }
 
 export type Component = {
-  id?: string;
+  _id?: string;
   parent_id?: string;
   tree_id?: string;
   title?: string;
@@ -26,7 +26,7 @@ export type Component = {
 }
 
 export type ComponentType = {
-  id: string;
+  _id: string;
   name: string;
   title: string;
 }

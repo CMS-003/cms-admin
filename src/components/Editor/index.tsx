@@ -12,7 +12,7 @@ import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/3024-night.css';
 
-function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
+function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
   const [options, setOptions] = useState([]);
   const fetchRef = useRef(0);
@@ -41,7 +41,8 @@ function DebounceSelect({ fetchOptions, onChoose, value, debounceTimeout = 800, 
       filterOption={false}
       onSearch={debounceFetcher}
       notFoundContent={fetching ? <Spin size="small" /> : null}
-      value={{ value }}
+      defaultValue={defaultValue}
+      value={value}
       {...props}
       onChange={e => {
         props.onChange && props.onChange(e);
@@ -154,13 +155,14 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                   onChoose={() => {
 
                   }}
+                  defaultValue={item.defaultValue}
                   value={data[item.field] || ''}
                   placeholder={"请输入"}
                   fetchOptions={async () => {
                     if (item.fetch) {
                       const result = await item.fetch()
                       if (result.code === 0) {
-                        return result.data.items.map((item: any) => ({ label: item.title + `(${item.type || ''})`, value: item.id, name: item.name }))
+                        return result.data.items.map((item: any) => ({ label: item.title + `(${item.type || ''})`, value: item._id, name: item.name }))
                       }
                     }
                     return []
@@ -182,8 +184,9 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
                   style={{ position: 'relative' }}
                   listType="picture-card"
                   className="avatar-uploader"
-                  action={store.app.baseURL + "/upload/image"}
+                  action={store.app.baseURL + "/api/v1/upload/image"}
                   showUploadList={false}
+                  headers={{ Authorization: 'Bearer ' + store.user.getAccessToken() }}
                   name="image"
                   onChange={(e) => {
                     if (e.file.status === 'uploading') {

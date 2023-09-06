@@ -137,7 +137,7 @@ const ConfigPage: React.FC = () => {
               local.openEditor(cloneDeep(record))
             }} />
             <DeleteOutlined onClick={async () => {
-              await apis.destroyComponent({ params: { id: record.id } })
+              await apis.destroyComponent({ params: { id: record._id } })
               await refresh()
             }} />
           </Space>

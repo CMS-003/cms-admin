@@ -8,6 +8,8 @@ const item: any = types.model('MenuItem', {
   title: types.optional(types.string, ''),
   name: types.optional(types.string, ''),
   desc: types.optional(types.string, ''),
+  icon: types.optional(types.string, ''),
+  cover: types.optional(types.string, ''),
   status: types.optional(types.number, 1),
   order: types.optional(types.number, 1),
   available: types.optional(types.number, 0),

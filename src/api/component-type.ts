@@ -11,11 +11,11 @@ const apis = {
     return result
   },
   updateComponentTypes: async ({ body }: { body: ComponentType }) => {
-    const result: any = await shttp.put(`/api/v1/component-types/${body.id}`, body)
+    const result: any = await shttp.put(`/api/v1/component-types/${body._id}`, body)
     return result
   },
   destroyComponentTypes: async ({ params }: { params: any }) => {
-    const result: any = await shttp.delete(`/api/v1/component-types/${params.id}`)
+    const result: any = await shttp.delete(`/api/v1/component-types/${params._id}`)
     return result
   },
 }

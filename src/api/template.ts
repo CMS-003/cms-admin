@@ -1,9 +1,13 @@
-import shttp, { BaseResultWrapper, BaseResultsWrapper } from "../utils/shttp";
+import shttp from "../utils/shttp";
 import { Template } from '../types'
 
 const apis = {
-  getTemplates: async () => {
-    const result: any = await shttp.get('/api/v1/templates');
+  getTemplates: async (prop: { query?: { [key: string]: any } }) => {
+    let qs = [];
+    for (let key in prop.query) {
+      qs.push(`${key}=${prop.query[key]}`)
+    }
+    const result: any = await shttp.get('/api/v1/templates?' + qs.join('&'));
     return result
   },
   addTemplate: async ({ body }: { body: Template }) => {

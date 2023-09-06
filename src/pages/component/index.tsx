@@ -9,18 +9,27 @@ import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
+import * as icons from '@ant-design/icons'
 
 type SelectItem = {
   name: string;
   value: string;
 }
+function Icon(prop: { icon: string }) {
+  const Image: any = icons[prop.icon as keyof typeof icons]
+  if (Image) {
+    return <span style={{ marginRight: 10 }}><Image /></span>
+  }
+  return null;
+}
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: SelectItem[], projects: SelectItem[] }>(() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
     types: store.component.types.map(it => ({ name: it.title, value: it.name })),
-    projects: store.project.list.map(it => ({ name: it.title, value: it.id })),
+    projects: store.project.list.map(it => ({ name: it.title, value: it._id })),
+    selectedProjectId: '',
     openEditor(data: Component) {
       local.showEditPage = true
       local.temp = data
@@ -29,12 +38,12 @@ const ComponentPage: React.FC = () => {
 
   const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
-    const result = await apis.getComponents()
+    const result = await apis.getComponents({ query: { project_id: local.selectedProjectId } })
     if (result.code === 0) {
       local.list = result.data.items
     }
-  }, [])
-  const [fields, setFields] = useState([
+  }, [local])
+  const [fields] = useState([
     {
       field: 'type',
       title: '组件类型',
@@ -81,17 +90,17 @@ const ComponentPage: React.FC = () => {
       value: [],
     },
     {
-      field: 'tree_id',
-      title: '根组件',
+      field: 'template_id',
+      title: '模板页',
       type: 'string',
       component: EditorComponent.RemoteSelect,
       defaultValue: '',
       autoFocus: false,
       value: [],
       fetch: async function () {
-        const response = await apis.getComponents()
+        const response = await apis.getTemplates({ query: {} })
         if (response.code === 0) {
-          response.data.items.push({ title: '无', name: '', id: '' })
+          response.data.items.unshift({ title: '无', name: '', id: '' })
         }
         return response;
       },
@@ -105,21 +114,12 @@ const ComponentPage: React.FC = () => {
       autoFocus: false,
       value: [],
       fetch: async function () {
-        const response = await apis.getComponents()
+        const response = await apis.getComponents({ query: {} })
         if (response.code === 0) {
           response.data.items.push({ title: '无', name: '', id: '' })
         }
         return response;
       },
-    },
-    {
-      field: 'available',
-      title: '是否可用',
-      type: 'boolean',
-      component: EditorComponent.Switch,
-      defaultValue: false,
-      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
-      autoFocus: false,
     },
     {
       field: 'order',
@@ -140,6 +140,15 @@ const ComponentPage: React.FC = () => {
       autoFocus: false,
     },
     {
+      field: 'icon',
+      title: '图标',
+      type: 'string',
+      component: EditorComponent.Input,
+      defaultValue: '',
+      value: [],
+      autoFocus: false,
+    },
+    {
       field: 'attrs',
       title: '属性',
       type: 'json',
@@ -150,9 +159,9 @@ const ComponentPage: React.FC = () => {
     },
   ])
   const addComponent = useCallback(async (params: { body: any }) => {
-    const result = params.body.id ? await apis.updateComponent(params) : await apis.createComponent(params)
+    const result = params.body._id ? await apis.updateComponent(params) : await apis.createComponent(params)
     if (result.code === 0) {
-      notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
+      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])
@@ -163,12 +172,16 @@ const ComponentPage: React.FC = () => {
     <Observer>{() => (<Fragment>
       <AlignAside style={{ margin: 10 }}>
         <Space>
-          分类类型:
-          <Select defaultValue="">
+          模板页:
+          <Select defaultValue="" onChange={v => {
+            local.selectedProjectId = v;
+            refresh()
+          }}>
             <Select.Option value="">全部</Select.Option>
+            {local.projects.map(it => <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>)}
           </Select>
           <Input ref={ref => searchInput.current = ref} />
-          <Button type="primary" onClick={e => {
+          <Button type="primary" onClick={() => {
             refresh()
           }}>搜索</Button>
         </Space>
@@ -185,9 +198,9 @@ const ComponentPage: React.FC = () => {
         fields={fields}
         fetch={addComponent}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="id" dataSource={local.list}>
+      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
         <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-          <span>{<img src={record.cover ? store.app.baseURL + record.cover : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'} alt="" style={{ width: 24, height: 24, marginRight: 5 }} />}{title}</span>
+          <span><Icon icon={record.icon as string} />{title}</span>
         )} />
         <Table.Column title="组件类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />
@@ -209,14 +222,15 @@ const ComponentPage: React.FC = () => {
               local.openEditor(cloneDeep(record))
             }} />
             <DeleteOutlined onClick={async () => {
-              await apis.destroyComponent({ params: { id: record.id } })
+              await apis.destroyComponent({ params: { _id: record._id } })
               await refresh()
             }} />
           </Space>
         )} />
       </Table>
-    </Fragment>)}
-    </Observer>
+    </Fragment>)
+    }
+    </Observer >
   );
 };
 

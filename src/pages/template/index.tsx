@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, Divider, notification, Space, Table } from 'antd';
+import { Button, Divider, notification, Space, Table, Select } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
@@ -8,12 +8,14 @@ import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
+import { AlignAside } from '@/components/style'
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[] } > (() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
+    selectedProjectId: '',
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
     openEditor(data: Component) {
       local.temp = data
@@ -29,6 +31,15 @@ const ComponentTemplatePage: React.FC = () => {
       defaultValue: '',
       autoFocus: false,
       value: [],
+    },
+    {
+      field: 'project_id',
+      title: '所属项目',
+      type: 'string',
+      component: EditorComponent.Select,
+      defaultValue: '',
+      autoFocus: false,
+      value: store.project.list.map(it => ({ name: it.title, value: it._id })),
     },
     {
       field: 'title',
@@ -95,7 +106,7 @@ const ComponentTemplatePage: React.FC = () => {
     },
   ])
   const refresh = useCallback(async () => {
-    const result = await apis.getTemplates()
+    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
     if (result.code === 0) {
       local.list = result.data.items
     }
@@ -111,15 +122,25 @@ const ComponentTemplatePage: React.FC = () => {
     refresh()
   })
   return (<Observer>{() => <Fragment>
-    <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
-      < Button type="primary" onClick={e => {
-        local.showEditPage = true
-      }}>新增</Button>
-      <Divider type="vertical" />
-      < Button type="primary" onClick={e => {
-        refresh()
-      }}>刷新</Button>
-    </Space>
+    <AlignAside>
+      <Space>
+        <Select defaultValue="" onChange={v => {
+          local.selectedProjectId = v;
+          refresh()
+        }}>
+          <Select.Option value="">全部</Select.Option>
+          {store.project.list.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
+        </Select>
+        <Button type="primary" onClick={() => {
+          refresh()
+        }}>搜索</Button>
+      </Space>
+      <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
+        < Button type="primary" onClick={e => {
+          local.showEditPage = true
+        }}>新增</Button>
+      </Space>
+    </AlignAside>
     <Editor
       visible={local.showEditPage}
       close={() => { local.showEditPage = false; local.temp = {} }}

@@ -52,14 +52,14 @@ const ComponentTypePage: React.FC = () => {
     if (result.code === 0) {
       local.list = result.data.items
     }
-  }, [])
+  }, [local])
   const addComponentType = useCallback(async (params: { body: any }) => {
-    const result = params.body.id ? await apis.updateComponentTypes(params) : await apis.addComponentTypes(params)
+    const result = params.body._id ? await apis.updateComponentTypes(params) : await apis.addComponentTypes(params)
     if (result.code === 0) {
-      notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
+      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
-  }, [])
+  }, [refresh])
   useEffectOnce(() => {
     refresh()
   })
@@ -92,7 +92,8 @@ const ComponentTypePage: React.FC = () => {
               }
             } />
             <DeleteOutlined onClick={async () => {
-              await apis.destroyComponentTypes({ params: { id: record.id } })
+              console.log(record, '?')
+              await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()
             }} />
           </Space>

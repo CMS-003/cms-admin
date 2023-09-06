@@ -2,6 +2,7 @@ import { Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use';
+import * as icons from '@ant-design/icons'
 import store from '@/store'
 import * as _ from 'lodash'
 
@@ -16,6 +17,11 @@ function transform(tree: any) {
   const path = _.get(tree, 'attrs.path', '')
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key
+  const icon: keyof typeof icons = tree.icon;
+  if (icons[icon]) {
+    const Image: any = icons[icon];
+    node.icon = <Image />
+  }
   if (tree.children && tree.children.length) {
     node.children = tree.children.map((item: any) => transform(item))
     node.key = path

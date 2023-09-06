@@ -1,10 +1,13 @@
-import shttp, { BaseResultWrapper, BaseResultsWrapper } from "../utils/shttp";
-import store from '../store'
+import shttp from "../utils/shttp";
 import { Component } from '../types'
 
 const apis = {
-  getComponents: async () => {
-    const result: any = await shttp.get('/api/v1/components').header({ 'x-project_id': store.app.project_id || '' });
+  getComponents: async ({ query }: { query?: { [key: string]: any } }) => {
+    let qs = [];
+    for (let key in query) {
+      qs.push(`${key}=${query[key]}`)
+    }
+    const result: any = await shttp.get('/api/v1/components?' + qs.join('&'));
     return result
   },
   createComponent: async ({ body }: { body: Component }) => {
@@ -12,11 +15,11 @@ const apis = {
     return result
   },
   updateComponent: async ({ body }: { body: Component }) => {
-    const result: any = await shttp.put(`/api/v1/components/${body.id}`, body)
+    const result: any = await shttp.put(`/api/v1/components/${body._id}`, body)
     return result
   },
   destroyComponent: async ({ params }: { params: any }) => {
-    const result: any = await shttp.delete(`/api/v1/components/${params.id}`)
+    const result: any = await shttp.delete(`/api/v1/components/${params._id}`)
     return result
   },
 }

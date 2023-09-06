@@ -7,8 +7,8 @@ import { IType, IMSTArray } from 'mobx-state-tree'
 import { useEffectOnce } from 'react-use';
 import { Space, Spin, Button } from 'antd'
 import apis from './api';
-import SignInPage from './pages/SignInPage'
-import BindPage from './pages/BindPage'
+import SignInPage from './pages/signin'
+import BindPage from './pages/bind'
 import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/fail'
 import store from './store'
@@ -19,16 +19,17 @@ function App() {
   const navigate = useNavigate()
   const local = useLocalObservable(() => ({
     booting: true,
+    booted: false,
     error: false,
     setBooting(b: boolean) {
       this.booting = b;
     }
   }))
-
+  const white_paths = ['/sign-in', '/bind']
   const init = useCallback(async () => {
     local.error = false;
     local.booting = true;
-    const result = await apis.getProfile<UserInfo>();
+    const result = await apis.getProfile < UserInfo > ();
     if (result.code !== 0) {
       if (location.pathname !== '/sign-in') {
         navigate('/sign-in')
@@ -37,7 +38,7 @@ function App() {
     } else {
       store.user.setInfo(result.data.item)
     }
-    const projectResult = await apis.getProjects<Project>()
+    const projectResult = await apis.getProjects < Project > ()
     if (projectResult.code === 0 && projectResult.data) {
       store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
     }
@@ -56,17 +57,19 @@ function App() {
         // 第三方登录和跳转设置
         const searchParams = new URLSearchParams(window.location.search.substring(1));
         const access_token = searchParams.get('access_token') as string
-        if (access_token) {
-          store.user.setAccessToken(access_token);
-        }
         if (searchParams.get('refresh_token')) {
           store.user.setRefreshToken(searchParams.get('refresh_token') as string);
         }
         if (searchParams.get('redirect')) {
           return window.location.href = decodeURI(searchParams.get('redirect') as string);
         }
-        if (location.pathname !== '/sign-in' && location.pathname !== '/bind') {
+        if (access_token) {
+          store.user.setAccessToken(access_token);
+          navigate(window.location.pathname)
+        }
+        if (local.booted !== true && !white_paths.includes(location.pathname)) {
           await init();
+          local.booted = true
           if (location.pathname === '/') {
             navigate('/dashboard')
           }

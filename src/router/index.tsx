@@ -15,7 +15,7 @@ import store from '@/store'
 import HomePage from '@/pages/dashboard'
 import ComponentPage from '@/pages/component'
 import ComponentTypePage from '@/pages/component/type'
-import ComponentTemplatePage from '@/pages/component/template'
+import ComponentTemplatePage from '@/pages/template'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import ConfigPage from '@/pages/config';
@@ -63,11 +63,11 @@ const Pages: { [key: string]: PaneItem } = {
     closable: true,
     path: '/component/type'
   },
-  '/component/template': {
+  '/template/list': {
     title: '模板页',
     content: ComponentTemplatePage,
     closable: true,
-    path: '/component/template'
+    path: '/template/list'
   },
   '/result/404': {
     title: '',
@@ -277,7 +277,7 @@ const TabPanes: FC = () => {
         type="editable-card"
         size="small"
       >
-        {local.tagPages.map((pane) => (
+        {local.tagPages.map((pane, i) => (
           <Tabs.TabPane
             closable={pane.closable || false}
             key={pane.path}

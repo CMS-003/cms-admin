@@ -29,7 +29,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
     }
   }, [])
   useEffectOnce(() => {
-    const project = store.project.list.find(it => it.id === store.app.project_id)
+    const project = store.project.list.find(it => it._id === store.app.project_id)
     if (project) {
       setProjectTitle(project.title);
     }
@@ -42,15 +42,17 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
             style={{}}
             onClick={e => {
               const id = e.key;
-              const project = store.project.list.find(it => it.id === id);
+              const project = store.project.list.find(it => it._id === id);
               if (project) {
-                store.app.setProjectId(e.key)
+                store.app.setProjectId(e.key);
                 setProjectTitle(project.title);
+                window.location.reload();
               }
             }}
             items={store.project.list.map(project => ({
               label: project.title,
-              key: project.id,
+              key: project._id,
+              style: { backgroundColor: project._id === store.app.project_id ? '#aaa' : '' },
               icon: <img src={project.cover} alt="" style={{ width: 24, height: 24 }} />
             }))}
           />}>

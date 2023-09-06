@@ -1,12 +1,10 @@
 import React, { useCallback } from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Button, Input, Avatar, message, Tabs, Select, Space } from 'antd'
-import { IType, IMSTArray } from 'mobx-state-tree'
 import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
 import apis from '../../api'
 import store from '../../store'
-import { Project } from '@/types'
 import { useEffectOnce } from 'react-use';
 
 export default function BindPage() {
@@ -98,7 +96,7 @@ export default function BindPage() {
         <Button id="bind" type="primary" style={{ marginTop: 15 }} loading={local.isFetch} onClick={async () => {
           local.isFetch = true
           try {
-            const res = await apis.bind<{ access_token: string, refresh_token: string }>({
+            const res = await apis.bind < { access_token: string, refresh_token: string } > ({
               bind_token: local.bind_token,
               type: local.type,
               account: local.type === 'email' ? local.email : (local.type === 'phone' ? local.area_code + '-' + local.phone : local.username),
@@ -106,15 +104,15 @@ export default function BindPage() {
             })
             if (res.code === 0) {
               store.user.setAccessToken(res.data.access_token)
-              const projectResult = await apis.getProjects<Project>()
+              const projectResult = await apis.getProjects()
               if (projectResult.code === 0) {
-                store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
+                store.project.setList(projectResult.data.items)
               }
-              const menuResult: any = await apis.getMenu()
+              const menuResult = await apis.getMenu()
               if (menuResult.code === 0) {
                 store.menu.setTree(menuResult.data)
               }
-              const componentTypes: any = await apis.getComponentTypes()
+              const componentTypes = await apis.getComponentTypes()
               if (componentTypes.code === 0) {
                 store.component.setTypes(componentTypes.data.items)
               }

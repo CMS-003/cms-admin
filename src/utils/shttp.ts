@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
-let baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3334' : (process.env.PUBLIC_URL || '');
+let baseURL = store.app.baseURL;
 
 //默认请求超时时间
 const timeout = 10000;
@@ -24,6 +24,8 @@ instance.interceptors.request.use(
     //配置自定义请求头
     const headers: any = config.headers;
     headers.common['Accept-Language'] = 'zh-CN';
+    headers.common['X-project-id'] = store.app.project_id;
+    headers.common['Authorization'] = 'Bearer ' + store.user.getAccessToken();
     return config
   },
   error => {
@@ -65,19 +67,19 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
-      response = instance.get(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
+      response = instance.get(url, { params: { ...params }, ...config, headers: {} });
       break;
     case 'post':
-      response = instance.post(url, { ...params }, { ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
+      response = instance.post(url, { ...params }, { ...config, headers: {} });
       break;
     case 'put':
-      response = instance.put(url, { ...params }, { ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
+      response = instance.put(url, { ...params }, { ...config, headers: {} });
       break;
     case 'delete':
-      response = instance.delete(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
+      response = instance.delete(url, { params: { ...params }, ...config, headers: {} });
       break;
     case 'patch':
-      response = instance.patch(url, { params: { ...params }, ...config, headers: { 'Authorization': 'Bearer ' + store.user.getAccessToken() } });
+      response = instance.patch(url, { params: { ...params }, ...config, headers: {} });
       break;
   }
 
@@ -87,6 +89,7 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
       const body = res.data;
       if (res.status !== 200) {
         if (body.code === 101010) {
+          store.user.setAccessToken('')
           return window.location.href = '/sign-in'
         }
         //特定状态码 处理特定的需求
