@@ -19,6 +19,8 @@ export const ComponentItem: any = types.model('Component', {
 const ComponentTypeItem: any = types.model({
   name: types.string,
   title: types.string,
+  cover: types.optional(types.string, ''),
+  level: types.number,
 })
 
 const componentList = types.model({
@@ -32,8 +34,8 @@ const componentList = types.model({
   setList(items: IMSTArray<IType<SnapshotIn<Component>, SnapshotOut<Component>, Component>>) {
     self.list = items;
   },
-  setTypes(items: IMSTArray<IType<SnapshotIn<ComponentType>, SnapshotOut<ComponentType>, ComponentType>>) {
-    self.types = items
+  setTypes(items: ComponentType[]) {
+    self.types = items as IMSTArray<IType<SnapshotIn<ComponentType>, SnapshotOut<ComponentType>, ComponentType>>;
   },
   async fetch() {
 

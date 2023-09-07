@@ -2,8 +2,8 @@ import shttp from "../utils/shttp";
 import { Project } from '../types'
 
 const apis = {
-  getProjects: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/projects').then();
+  getProjects: async () => {
+    const result = await shttp.get<Project>('/api/v1/projects');
     return result
   },
   createProject: async ({ body }: { body: Project }) => {

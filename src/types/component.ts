@@ -23,6 +23,7 @@ export type Component = {
   createdAt?: Date;
   updatedAt?: Date;
   accepts?: string[];
+  children?: Component[];
 }
 
 export type ComponentType = {

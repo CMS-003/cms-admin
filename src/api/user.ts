@@ -1,21 +1,13 @@
 import shttp from "../utils/shttp";
-import store from '../store'
-import constant from '../constant'
 
 
 const user = {
   SignIn: async (data: { type: string, account: string, value: string }) => {
     const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
-    store.user.setAccessToken(result[constant.ACCESS_TOKEN])
-    store.user.setRefreshToken(result[constant.REFRESH_TOKEN])
-    store.app.setIsSignIn(true)
     return result;
   },
   SignOut: async () => {
     const result = await shttp.post('/api/v1/users/sign-out', {});
-    store.user.setAccessToken('');
-    store.user.setRefreshToken('');
-    store.app.setIsSignIn(false);
     return result;
   },
   getProfile: async <T>() => {

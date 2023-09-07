@@ -1,9 +1,9 @@
-import shttp, { BaseResultWrapper, BaseResultsWrapper } from "../utils/shttp";
+import shttp from "../utils/shttp";
 import { ComponentType } from '../types'
 
 const apis = {
   getComponentTypes: async () => {
-    const result: any = await shttp.get(`/api/v1/component-types`)
+    const result = await shttp.get<ComponentType>(`/api/v1/component-types`)
     return result
   },
   addComponentTypes: async ({ body }: { body: ComponentType }) => {

@@ -104,18 +104,7 @@ export default function BindPage() {
             })
             if (res.code === 0) {
               store.user.setAccessToken(res.data.access_token)
-              const projectResult = await apis.getProjects()
-              if (projectResult.code === 0) {
-                store.project.setList(projectResult.data.items)
-              }
-              const menuResult = await apis.getMenu()
-              if (menuResult.code === 0) {
-                store.menu.setTree(menuResult.data)
-              }
-              const componentTypes = await apis.getComponentTypes()
-              if (componentTypes.code === 0) {
-                store.component.setTypes(componentTypes.data.items)
-              }
+              await store.getBoot();
               navigate('/dashboard')
             } else {
               message.error(res.message)

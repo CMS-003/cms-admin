@@ -199,7 +199,7 @@ class Request<T> {
 // 使用 request 统一调用，包括封装的get、post、put、delete等方法
 const shttp = {
   get<T>(url: string) {
-    return new Request<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>('get', url)
+    return new Request<(BaseResultWrapper<T> & BaseResultsWrapper<T>)>('get', url)
   },
   post: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('post', url, params, config),
   put: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('put', url, params, config),

@@ -26,6 +26,7 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
+  imageLines: ['http://localhost:3334'],
   baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.PUBLIC_URL || 'http://localhost:3334/'),
   project_id: storage.getKey('project_id') || '',
 });
@@ -41,6 +42,21 @@ const menu = IMenu.create();
 const component = IComponent.create();
 const project = IProject.create()
 
+async function getBoot() {
+  await new Promise((resolve, reject) => {
+    import('../api').then(async ({ default: apis }: any) => {
+      console.log(apis)
+      const bootData = await apis.getBoot();
+      store.project.setList(bootData.projects.items)
+      store.menu.setTree(bootData.tree.items[0])
+      store.component.setTypes(bootData.types.items)
+      resolve(true)
+    }).catch(() => {
+      reject()
+    })
+  })
+
+}
 const store = {
   app,
   user,
@@ -49,6 +65,7 @@ const store = {
   page,
   component,
   project,
+  getBoot,
 }
 
 export default store;

@@ -76,7 +76,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
   })
   return <Observer>{() => (<Fragment>
     <Modal
-      title={data.id ? '修改' : '添加'}
+      title={data._id ? '修改' : '添加'}
       visible={visible}
       key={visible ? 1 : 2}
       okText="确定"

@@ -22,7 +22,7 @@ const ProjectPage: React.FC = () => {
     }
   }))
   const refresh = useCallback(async () => {
-    const result = await apis.getProjects < Project > ()
+    const result = await apis.getProjects()
     if (result.code === 0 && result.data) {
       local.list = result.data.items
       store.project.setList(result.data.items as IMSTArray<IType<Project, Project, Project>>);

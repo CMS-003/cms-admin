@@ -27,6 +27,7 @@ type PaneItem = {
   path: string,
   closable?: boolean;
   content?: any;
+  t?: number;
 }
 
 function getKeyName(key: string): PaneItem {
@@ -172,7 +173,7 @@ const TabPanes: FC = () => {
     navigate(nextPath)
   }
 
-  // 刷新当前 tab
+  // TODO: 刷新当前 tab
   const refreshTab = (): void => {
     local.isReload = true
     setTimeout(() => {
@@ -183,6 +184,11 @@ const TabPanes: FC = () => {
     setTimeout(() => {
       local.reloadPath = ''
     }, 500)
+    const i = local.tagPages.findIndex(page => page.path === local.activeKey);
+    const page = local.tagPages[i];
+    if (i > -1 && page) {
+      page.t = Date.now()
+    }
   }
 
   // 关闭其他或关闭所有
@@ -271,7 +277,9 @@ const TabPanes: FC = () => {
         }}
         onEdit={(targetKey: string | any, action: string) => {
           action === 'remove' && remove(targetKey)
+          local.saveTags(local.tagPages)
         }}
+
         onTabClick={(targetKey: string) => {
           if (targetKey === local.activeKey) {
             return;
@@ -309,7 +317,7 @@ const TabPanes: FC = () => {
             }
           >
             {local.reloadPath !== pane.path ? (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content path={pane.path} /></div>
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content path={pane.path} t={pane.t} store={store} key={pane.path}/></div>
             ) : (
               <CenterXY>
                 <Alert message="刷新中..." type="info" />

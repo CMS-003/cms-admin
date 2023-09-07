@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, notification, Space, Table } from 'antd';
+import { Button, Image, notification, Space, Table } from 'antd';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
@@ -7,9 +7,12 @@ import { Component, EditorComponent } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
+import store from '@/store';
+import { IType, IMSTArray } from 'mobx-state-tree'
+import { ComponentType } from '@/types/component.js';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] }>(() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
@@ -38,6 +41,15 @@ const ComponentTypePage: React.FC = () => {
       value: [],
     },
     {
+      field: 'cover',
+      title: '图片',
+      type: 'string',
+      component: EditorComponent.Image,
+      defaultValue: '',
+      autoFocus: false,
+      value: [],
+    },
+    {
       field: 'order',
       title: '序号',
       type: 'number',
@@ -46,11 +58,21 @@ const ComponentTypePage: React.FC = () => {
       value: [],
       autoFocus: false,
     },
+    {
+      field: 'status',
+      title: '状态',
+      type: 'number',
+      component: EditorComponent.Select,
+      defaultValue: 1,
+      value: [{ value: 1, name: '正常' }, { value: 2, name: '弃用' }],
+      autoFocus: false,
+    },
   ])
   const refresh = useCallback(async () => {
     const result = await apis.getComponentTypes()
     if (result.code === 0) {
       local.list = result.data.items
+      store.component.setTypes(result.data.items as IMSTArray<IType<ComponentType, ComponentType, ComponentType>>)
     }
   }, [local])
   const addComponentType = useCallback(async (params: { body: any }) => {
@@ -82,7 +104,9 @@ const ComponentTypePage: React.FC = () => {
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
       <Table pagination={false} rowKey="id" dataSource={local.list} >
-        <Table.Column title="名称" dataIndex="title" />
+        <Table.Column title="名称" dataIndex="title" render={(title, record: Component) => (
+          <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
+        )} />
         <Table.Column title="类型" dataIndex="name" />
         <Table.Column title="操作" key="id" render={(_, record: Component) => (
           <Space size="middle" >

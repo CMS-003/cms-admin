@@ -54,18 +54,7 @@ export default function SignInPage() {
                 if (result.code === 0) {
                   store.user.setInfo(result.data.item as any)
                 }
-                const projectResult = await apis.getProjects<Project>()
-                if (projectResult.code === 0 && projectResult.data) {
-                  store.project.setList(projectResult.data.items as IMSTArray<IType<Project, Project, Project>>)
-                }
-                const menuResult: any = await apis.getMenu()
-                if (menuResult.code === 0) {
-                  store.menu.setTree(menuResult.data)
-                }
-                const componentTypes: any = await apis.getComponentTypes()
-                if (componentTypes.code === 0) {
-                  store.component.setTypes(componentTypes.data.items)
-                }
+                await store.getBoot();
                 navigate('/dashboard')
               } else {
                 message.error(res.message)
