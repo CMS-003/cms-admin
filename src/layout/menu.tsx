@@ -9,7 +9,7 @@ import * as _ from 'lodash'
 const keyPathMap: { [key: string]: string } = {}
 const pathKeyMap: { [key: string]: string } = {}
 
-function transform(tree: any) {
+export function transform(tree: any) {
   if (!tree) {
     return [];
   }

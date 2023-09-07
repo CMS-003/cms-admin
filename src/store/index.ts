@@ -50,8 +50,8 @@ async function getBoot() {
       store.menu.setTree(bootData.tree.children[0])
       store.component.setTypes(bootData.types.items)
       resolve(true)
-    }).catch(() => {
-      reject()
+    }).catch((e) => {
+      reject(e)
     })
   })
 

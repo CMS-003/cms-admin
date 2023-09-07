@@ -1,5 +1,4 @@
 import { types } from 'mobx-state-tree'
-import { MenuItem } from '@/types'
 
 const route: any = types.model('route', {
   id: types.string,

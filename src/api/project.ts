@@ -1,20 +1,20 @@
 import shttp from "../utils/shttp";
-import { Project } from '../types'
+import { IProject } from '../types'
 
 const apis = {
   getProjects: async () => {
-    const result = await shttp.get<Project>('/api/v1/projects');
+    const result = await shttp.get<IProject>('/api/v1/projects');
     return result
   },
-  createProject: async ({ body }: { body: Project }) => {
+  createProject: async ({ body }: { body: IProject }) => {
     const result: any = await shttp.post('/api/v1/projects', body);
     return result;
   },
-  updateProject: async ({ body }: { body: Project }) => {
+  updateProject: async ({ body }: { body: IProject }) => {
     const result: any = await shttp.put('/api/v1/projects/' + body._id, body);
     return result;
   },
-  destroyProject: async ({ body }: { body: Partial<Project> }) => {
+  destroyProject: async ({ body }: { body: Partial<IProject> }) => {
     await shttp.delete(`/api/v1/projects/${body._id}`);
   }
 }

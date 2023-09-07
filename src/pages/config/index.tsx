@@ -3,18 +3,18 @@ import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
-import { Component, EditorComponent } from '../../types'
+import { IComponent, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},
-    openEditor(data: Component) {
+    openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
     }
@@ -31,7 +31,7 @@ const ConfigPage: React.FC = () => {
       field: 'type',
       title: '配置类型',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -40,7 +40,7 @@ const ConfigPage: React.FC = () => {
       field: 'title',
       title: '配置名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -49,7 +49,7 @@ const ConfigPage: React.FC = () => {
       field: 'name',
       title: '标识名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -58,7 +58,7 @@ const ConfigPage: React.FC = () => {
       field: 'desc',
       title: '配置描述',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -67,7 +67,7 @@ const ConfigPage: React.FC = () => {
       field: 'available',
       title: '是否可用',
       type: 'boolean',
-      component: EditorComponent.Switch,
+      component: IEditorComponent.Switch,
       defaultValue: false,
       value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
       autoFocus: false,
@@ -76,7 +76,7 @@ const ConfigPage: React.FC = () => {
       field: 'cover',
       title: '图片',
       type: 'string',
-      component: EditorComponent.Image,
+      component: IEditorComponent.Image,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -85,7 +85,7 @@ const ConfigPage: React.FC = () => {
       field: 'value',
       title: '值',
       type: 'json',
-      component: EditorComponent.Editor,
+      component: IEditorComponent.Editor,
       defaultValue: '{}',
       value: [],
       autoFocus: false,
@@ -131,7 +131,7 @@ const ConfigPage: React.FC = () => {
         <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="配置类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />
-        <Table.Column title="操作" key="id" render={(_, record: Component) => (
+        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
           <Space size="middle">
             <FormOutlined onClick={() => {
               local.openEditor(cloneDeep(record))

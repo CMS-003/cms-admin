@@ -3,7 +3,7 @@ import { Button, Divider, notification, Space, Table, Select } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
-import { Component, EditorComponent } from '@/types'
+import { IComponent, IEditorComponent } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
@@ -11,13 +11,13 @@ import store from '@/store';
 import { AlignAside } from '@/components/style'
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
     selectedProjectId: '',
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
-    openEditor(data: Component) {
+    openEditor(data: IComponent) {
       local.temp = data
       local.showEditPage = true
     }
@@ -27,7 +27,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: '_id',
       title: '模板id',
       type: 'string',
-      component: EditorComponent.Read,
+      component: IEditorComponent.Read,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -36,7 +36,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'project_id',
       title: '所属项目',
       type: 'string',
-      component: EditorComponent.Select,
+      component: IEditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
       value: store.project.list.map(it => ({ name: it.title, value: it._id })),
@@ -45,7 +45,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'title',
       title: '模板名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -54,7 +54,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'name',
       title: '标识名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -63,7 +63,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'desc',
       title: '模板描述',
       type: 'string',
-      component: EditorComponent.Area,
+      component: IEditorComponent.Area,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -72,7 +72,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'available',
       title: '是否可用',
       type: 'boolean',
-      component: EditorComponent.Switch,
+      component: IEditorComponent.Switch,
       defaultValue: false,
       value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
       autoFocus: false,
@@ -81,7 +81,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'order',
       title: '序号',
       type: 'number',
-      component: EditorComponent.Number,
+      component: IEditorComponent.Number,
       defaultValue: 1,
       value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
       autoFocus: false,
@@ -90,7 +90,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'cover',
       title: '图片',
       type: 'string',
-      component: EditorComponent.Image,
+      component: IEditorComponent.Image,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -99,7 +99,7 @@ const ComponentTemplatePage: React.FC = () => {
       field: 'attrs',
       title: '属性',
       type: 'json',
-      component: EditorComponent.Editor,
+      component: IEditorComponent.Editor,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -152,7 +152,7 @@ const ComponentTemplatePage: React.FC = () => {
       <Table pagination={false} rowKey="_id" dataSource={local.list} >
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
-        <Table.Column title="操作" key="_id" render={(_, record: Component) => (
+        <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <FormOutlined onClick={
               () => {

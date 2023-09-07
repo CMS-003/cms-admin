@@ -1,5 +1,5 @@
 
-export type UserInfo = {
+export type IUser = {
   id: string;
   account: string;
   avatar: string;

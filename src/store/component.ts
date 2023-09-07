@@ -1,5 +1,5 @@
 import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, flow } from 'mobx-state-tree'
-import { Component, ComponentType } from '@/types'
+import { IComponent, IComponentType } from '@/types'
 
 export const ComponentItem: any = types.model('Component', {
   _id: types.string,
@@ -28,15 +28,15 @@ const componentList = types.model({
   list: types.array(ComponentItem),
   types: types.array(ComponentTypeItem),
 }).views(self => ({
-  getList(): Component[] {
+  getList(): IComponent[] {
     return self.list.toJSON();
   },
 })).actions((self) => ({
-  setList(items: IMSTArray<IType<SnapshotIn<Component>, SnapshotOut<Component>, Component>>) {
+  setList(items: IMSTArray<IType<SnapshotIn<IComponent>, SnapshotOut<IComponent>, IComponent>>) {
     self.list = items;
   },
-  setTypes(items: ComponentType[]) {
-    self.types = items as IMSTArray<IType<SnapshotIn<ComponentType>, SnapshotOut<ComponentType>, ComponentType>>;
+  setTypes(items: IComponentType[]) {
+    self.types = items as IMSTArray<IType<SnapshotIn<IComponentType>, SnapshotOut<IComponentType>, IComponentType>>;
   },
   async fetch() {
 

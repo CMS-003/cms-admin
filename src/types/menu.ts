@@ -1,4 +1,4 @@
-export interface MenuItem {
+export interface IMenuItem {
   id: number
   icon: string
   alive: string
@@ -7,22 +7,22 @@ export interface MenuItem {
   parent_key: string
   path: string
   title: string
-  children?: MenuItem[]
+  children?: IMenuItem[]
   parent_path?: string
   show?: boolean | string
   [key: string]: any
 }
 
-export interface OpenedMenu {
+export interface IOpenedMenu {
   key: string
   path: string
   title: string
 }
 
-export interface MenuState {
-  openedMenu: OpenedMenu[]
+export interface IMenuState {
+  openedMenu: IOpenedMenu[]
   openMenuKey: string[]
   selectMenuKey: string[]
-  menuList: MenuItem[],
+  menuList: IMenuItem[],
   currentPath: string
 }

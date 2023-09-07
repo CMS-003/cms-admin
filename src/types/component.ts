@@ -1,5 +1,5 @@
 
-export type Config = {
+export type IConfig = {
   _id?: string;
   name?: string;
   cover?: string;
@@ -11,28 +11,29 @@ export type Config = {
   data: any;
 }
 
-export type Component = {
+export type IComponent = {
   _id?: string;
   parent_id?: string;
   tree_id?: string;
   title?: string;
   name?: string;
+  type?: string;
   cover?: string;
   desc?: string;
   available?: string;
   createdAt?: Date;
   updatedAt?: Date;
   accepts?: string[];
-  children?: Component[];
+  children?: IComponent[];
 }
 
-export type ComponentType = {
+export type IComponentType = {
   _id: string;
   name: string;
   title: string;
 }
 
-export enum EditorComponent {
+export enum IEditorComponent {
   Select = 'Select',
   Input = 'Input',
   Number = 'Number',
@@ -44,11 +45,11 @@ export enum EditorComponent {
   Image = 'Image',
   Editor = 'Editor',
 }
-export type EditorField = {
+export type IEditorField = {
   field: string;
   title: string;
   type: string;
-  component: EditorComponent;
+  component: IEditorComponent;
   defaultValue: string | boolean | number;
   autoFocus?: boolean;
   value: { value: string | number, name: string }[];

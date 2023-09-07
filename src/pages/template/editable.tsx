@@ -1,30 +1,40 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
 import { Button, Space, Select, Image } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
-import { Component, Template } from '@/types'
+import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
 import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto } from '@/components/style'
 import { Wrap, Card } from './style';
+import Auto from '../../groups/auto'
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
-  const local = useLocalObservable < { temp: Component, edit_template_id: string, templates: Template[], components: Component[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable<{
+    temp: IComponent,
+    edit_template_id: string,
+    templates: ITemplate[],
+    types: { name: string, value: string }[],
+    selectedProjectId: string,
+    TemplatePage: null | ITemplate
+  }>(() => ({
     templates: [],
-    components: [],
     temp: {},
     selectedProjectId: '',
     edit_template_id: '',
     types: [],
+    TemplatePage: null,
   }))
   const refresh = useCallback(async () => {
     const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
     if (result.code === 0) {
       local.templates = result.data.items
       if (local.templates.length) {
-        local.edit_template_id = local.templates[0]._id;
+        if (!local.edit_template_id) {
+          local.edit_template_id = local.templates[0]._id;
+        }
         const components = await apis.getTemplateComponents(local.templates[0]._id)
-        local.components = components.data.children;
+        local.TemplatePage = components.data;
       }
     }
   }, [])
@@ -39,7 +49,6 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
       <Space>
         <Select value={local.edit_template_id} onChange={v => {
           local.edit_template_id = v;
-          refresh()
         }}>
           {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
         </Select>
@@ -60,7 +69,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
         </Wrap>
       </FullWidthAuto>
       <FullWidthAuto style={{ height: '100%' }}>
-        {local.components.map(com => (<div key={com._id}>{com.title}</div>))}
+        <Auto template={local.TemplatePage} />
       </FullWidthAuto>
     </FullWidth>
   </Fragment>}</Observer>);

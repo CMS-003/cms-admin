@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
 import apis from '../../api'
 import store from '../../store'
-import { Project, UserInfo } from '@/types'
+import { IUser } from '@/types'
 import { AlignAround } from '@/components/style'
 import Icon_sns_alipay from '@/asserts/images/sns-alipay.svg'
 import Icon_sns_github from '@/asserts/images/sns-github.svg'
@@ -48,9 +48,10 @@ export default function SignInPage() {
             local.isFetch = true
             try {
               const res = await apis.SignIn({ type: 'account', account: local.username, value: local.password })
+              console.log(res)
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
-                const result = await apis.getProfile<UserInfo>();
+                const result = await apis.getProfile<IUser>();
                 if (result.code === 0) {
                   store.user.setInfo(result.data.item as any)
                 }
@@ -60,7 +61,8 @@ export default function SignInPage() {
                 message.error(res.message)
               }
             } catch (e: any) {
-              message.error(e.message)
+              console.log(e)
+              // message.error(e.message)
             } finally {
               local.isFetch = false
             }

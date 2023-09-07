@@ -3,7 +3,7 @@ import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
-import { Component, EditorComponent } from '../../types'
+import { IComponent, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
@@ -23,14 +23,14 @@ function Icon(prop: { icon: string }) {
   return null;
 }
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
     types: store.component.types.map(it => ({ name: it.title, value: it.name })),
     projects: store.project.list.map(it => ({ name: it.title, value: it._id })),
     selectedProjectId: '',
-    openEditor(data: Component) {
+    openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
     }
@@ -48,7 +48,7 @@ const ComponentPage: React.FC = () => {
       field: 'type',
       title: '组件类型',
       type: 'string',
-      component: EditorComponent.Select,
+      component: IEditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
       value: local.types,
@@ -57,7 +57,7 @@ const ComponentPage: React.FC = () => {
       field: 'project_id',
       title: '所属项目',
       type: 'string',
-      component: EditorComponent.Select,
+      component: IEditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
       value: local.projects,
@@ -66,7 +66,7 @@ const ComponentPage: React.FC = () => {
       field: 'title',
       title: '组件名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: true,
       value: [],
@@ -75,7 +75,7 @@ const ComponentPage: React.FC = () => {
       field: 'name',
       title: '标识名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -84,7 +84,7 @@ const ComponentPage: React.FC = () => {
       field: 'desc',
       title: '组件描述',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -93,7 +93,7 @@ const ComponentPage: React.FC = () => {
       field: 'template_id',
       title: '模板页',
       type: 'string',
-      component: EditorComponent.RemoteSelect,
+      component: IEditorComponent.RemoteSelect,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -109,7 +109,7 @@ const ComponentPage: React.FC = () => {
       field: 'parent_id',
       title: '父组件',
       type: 'string',
-      component: EditorComponent.RemoteSelect,
+      component: IEditorComponent.RemoteSelect,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -125,7 +125,7 @@ const ComponentPage: React.FC = () => {
       field: 'order',
       title: '序号',
       type: 'number',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: 1,
       value: [],
       autoFocus: false,
@@ -134,7 +134,7 @@ const ComponentPage: React.FC = () => {
       field: 'cover',
       title: '图片',
       type: 'string',
-      component: EditorComponent.Image,
+      component: IEditorComponent.Image,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -143,7 +143,7 @@ const ComponentPage: React.FC = () => {
       field: 'icon',
       title: '图标',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -152,7 +152,7 @@ const ComponentPage: React.FC = () => {
       field: 'attrs',
       title: '属性',
       type: 'json',
-      component: EditorComponent.Editor,
+      component: IEditorComponent.Editor,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -216,7 +216,7 @@ const ComponentPage: React.FC = () => {
             })
           }
         </span >)} />
-        <Table.Column title="操作" key="id" render={(_, record: Component) => (
+        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
           <Space size="middle">
             <FormOutlined onClick={() => {
               local.openEditor(cloneDeep(record))

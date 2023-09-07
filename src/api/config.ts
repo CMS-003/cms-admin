@@ -1,17 +1,17 @@
 import shttp from "../utils/shttp";
-import { Config } from '../types'
+import { IConfig } from '../types'
 
 const config = {
   getConfig: async () => {
-    const result = await shttp.get<Config>('/api/v1/configs');
+    const result = await shttp.get<IConfig>('/api/v1/configs');
     return result
   },
-  createConfig: async ({ body }: { body: Config }) => {
-    const result = await shttp.post<Config>('/api/v1/configs', body);
+  createConfig: async ({ body }: { body: IConfig }) => {
+    const result = await shttp.post<IConfig>('/api/v1/configs', body);
     return result
   },
-  updateConfig: async ({ body }: { body: Config }) => {
-    const result = await shttp.put<Config>(`/api/v1/configs/${body._id}`, body);
+  updateConfig: async ({ body }: { body: IConfig }) => {
+    const result = await shttp.put<IConfig>(`/api/v1/configs/${body._id}`, body);
     return result
   },
 }

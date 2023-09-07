@@ -12,7 +12,7 @@ import BindPage from './pages/bind'
 import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/fail'
 import store from './store'
-import { Project, UserInfo } from '@/types'
+import { IUser } from '@/types'
 
 function App() {
   const location = useLocation()
@@ -29,7 +29,7 @@ function App() {
   const init = useCallback(async () => {
     local.error = false;
     local.booting = true;
-    const result = await apis.getProfile < UserInfo > ();
+    const result = await apis.getProfile < IUser > ();
     if (result.code !== 0) {
       if (location.pathname !== '/sign-in') {
         navigate('/sign-in')

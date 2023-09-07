@@ -1,9 +1,11 @@
+import { IComponent } from "./component"
+
 export * from "./user"
 export * from "./menu"
 export * from "./component"
 export * from "./project"
 
-export type Template = {
+export type ITemplate = {
   _id: string;
   project_id: string;
   title: string;
@@ -15,4 +17,5 @@ export type Template = {
   attrs: object;
   available: boolean;
   order: number;
+  children?: IComponent[]
 }

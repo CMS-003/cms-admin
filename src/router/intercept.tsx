@@ -5,14 +5,14 @@ import Error from "../pages/error";
 import { Spin } from "antd";
 import store from "../store";
 import { useNavigate, useLocation  } from "react-router-dom";
-import { MenuItem } from "../types";
+import { IMenuItem } from "../types";
 
 
 interface Props {
   path?: string
   title?: string
   pageKey: string
-  menuList: Array<MenuItem>
+  menuList: Array<IMenuItem>
   [key: string]: any
 }
 

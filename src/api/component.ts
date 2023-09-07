@@ -1,5 +1,5 @@
 import shttp from "../utils/shttp";
-import { Component } from '../types'
+import { IComponent } from '../types'
 
 const apis = {
   getComponents: async ({ query }: { query?: { [key: string]: any } }) => {
@@ -10,11 +10,11 @@ const apis = {
     const result: any = await shttp.get('/api/v1/components?' + qs.join('&'));
     return result
   },
-  createComponent: async ({ body }: { body: Component }) => {
+  createComponent: async ({ body }: { body: IComponent }) => {
     const result: any = await shttp.post('/api/v1/components', body);
     return result
   },
-  updateComponent: async ({ body }: { body: Component }) => {
+  updateComponent: async ({ body }: { body: IComponent }) => {
     const result: any = await shttp.put(`/api/v1/components/${body._id}`, body)
     return result
   },

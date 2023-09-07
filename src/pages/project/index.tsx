@@ -4,7 +4,7 @@ import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import EditPage from '@/components/Editor'
-import { Project, EditorComponent } from '../../types'
+import { IProject, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
@@ -12,11 +12,11 @@ import { cloneDeep } from 'lodash'
 import store from '@/store';
 
 const ProjectPage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: Project, openEditor: Function, list: Project[] } > (() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] } > (() => ({
     showEditPage: false,
     list: [],
     temp: {},
-    openEditor(data: Project) {
+    openEditor(data: IProject) {
       local.showEditPage = true
       local.temp = data
     }
@@ -25,7 +25,7 @@ const ProjectPage: React.FC = () => {
     const result = await apis.getProjects()
     if (result.code === 0 && result.data) {
       local.list = result.data.items
-      store.project.setList(result.data.items as IMSTArray<IType<Project, Project, Project>>);
+      store.project.setList(result.data.items as IMSTArray<IType<IProject, IProject, IProject>>);
     }
   }, [])
   const [fields] = useState([
@@ -33,7 +33,7 @@ const ProjectPage: React.FC = () => {
       field: 'title',
       title: '名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -42,7 +42,7 @@ const ProjectPage: React.FC = () => {
       field: 'name',
       title: '标识',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -51,7 +51,7 @@ const ProjectPage: React.FC = () => {
       field: 'desc',
       title: '描述',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -60,7 +60,7 @@ const ProjectPage: React.FC = () => {
       field: 'cover',
       title: '图片',
       type: 'string',
-      component: EditorComponent.Image,
+      component: IEditorComponent.Image,
       defaultValue: '',
       value: [],
       autoFocus: false,
@@ -69,7 +69,7 @@ const ProjectPage: React.FC = () => {
       field: 'status',
       title: '状态',
       type: 'number',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: 1,
       value: [],
       autoFocus: false,
@@ -110,7 +110,7 @@ const ProjectPage: React.FC = () => {
         <Table.Column title="" dataIndex="cover" render={cover => cover ? <Image src={"http://localhost:3334" + cover} /> : null} />
         <Table.Column title="项目名称" dataIndex="title" />
         <Table.Column title="标识" dataIndex="name" />
-        <Table.Column title="操作" key="id" render={(_, record: Project) => (
+        <Table.Column title="操作" key="id" render={(_, record: IProject) => (
           <Space size="middle">
             <FormOutlined onClick={() => {
               local.openEditor(cloneDeep(record))

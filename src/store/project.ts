@@ -1,5 +1,5 @@
 import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, flow } from 'mobx-state-tree'
-import { Project } from '@/types'
+import { IProject } from '@/types'
 
 export const ProjectItem: any = types.model('ProjectItem', {
   _id: types.string,
@@ -18,13 +18,13 @@ export const ProjectItem: any = types.model('ProjectItem', {
 const projectList = types.model({
   list: types.array(ProjectItem),
 }).views(self => ({
-  getList(): Project[] {
+  getList(): IProject[] {
     return self.list.toJSON();
   },
 })).actions((self) => ({
-  setList(items: Project[]) {
+  setList(items: IProject[]) {
     // items.unshift({ title: '全部', name: '', _id: '', })
-    self.list = items as IMSTArray<IType<SnapshotIn<Project>, SnapshotOut<Project>, Project>>;
+    self.list = items as IMSTArray<IType<SnapshotIn<IProject>, SnapshotOut<IProject>, IProject>>;
   },
   async fetch() {
 

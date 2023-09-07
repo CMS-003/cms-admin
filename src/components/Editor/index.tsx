@@ -6,7 +6,7 @@ import { Codemirror } from 'react-codemirror-ts';
 import _, { debounce } from 'lodash'
 import apis from '@/api'
 import store from '@/store'
-import { EditorField } from '@/types'
+import { IEditorField } from '@/types'
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/addon/edit/matchbrackets';
 import 'codemirror/lib/codemirror.css';
@@ -59,7 +59,7 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
 
 const lb = { span: 4 }, rb = { span: 20 }
 
-export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: EditorField[], fetch: Function, close: Function }) {
+export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
   const local = useLocalObservable < { fetching: boolean, jsonMap: { [key: string]: string } } > (() => ({
     fetching: false,
     jsonMap: {},

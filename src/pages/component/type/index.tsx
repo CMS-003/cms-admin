@@ -3,20 +3,20 @@ import { Button, Image, notification, Space, Table } from 'antd';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
-import { Component, EditorComponent } from '@/types'
+import { IComponent, IEditorComponent } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
 import { IType, IMSTArray } from 'mobx-state-tree'
-import { ComponentType } from '@/types/component.js';
+import { IComponentType } from '@/types/component.js';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: Component, openEditor: Function, list: Component[] } > (() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},
-    openEditor(data: Component) {
+    openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
     }
@@ -26,7 +26,7 @@ const ComponentTypePage: React.FC = () => {
       field: 'title',
       title: '名称',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: []
@@ -35,7 +35,7 @@ const ComponentTypePage: React.FC = () => {
       field: 'name',
       title: '类型',
       type: 'string',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -44,7 +44,7 @@ const ComponentTypePage: React.FC = () => {
       field: 'cover',
       title: '图片',
       type: 'string',
-      component: EditorComponent.Image,
+      component: IEditorComponent.Image,
       defaultValue: '',
       autoFocus: false,
       value: [],
@@ -53,7 +53,7 @@ const ComponentTypePage: React.FC = () => {
       field: 'order',
       title: '序号',
       type: 'number',
-      component: EditorComponent.Input,
+      component: IEditorComponent.Input,
       defaultValue: 1,
       value: [],
       autoFocus: false,
@@ -62,7 +62,7 @@ const ComponentTypePage: React.FC = () => {
       field: 'status',
       title: '状态',
       type: 'number',
-      component: EditorComponent.Select,
+      component: IEditorComponent.Select,
       defaultValue: 1,
       value: [{ value: 1, name: '正常' }, { value: 2, name: '弃用' }],
       autoFocus: false,
@@ -72,7 +72,7 @@ const ComponentTypePage: React.FC = () => {
     const result = await apis.getComponentTypes()
     if (result.code === 0) {
       local.list = result.data.items
-      store.component.setTypes(result.data.items as IMSTArray<IType<ComponentType, ComponentType, ComponentType>>)
+      store.component.setTypes(result.data.items as IMSTArray<IType<IComponentType, IComponentType, IComponentType>>)
     }
   }, [local])
   const addComponentType = useCallback(async (params: { body: any }) => {
@@ -104,11 +104,11 @@ const ComponentTypePage: React.FC = () => {
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
       <Table pagination={false} rowKey="id" dataSource={local.list} >
-        <Table.Column title="名称" dataIndex="title" render={(title, record: Component) => (
+        <Table.Column title="名称" dataIndex="title" render={(title, record: IComponent) => (
           <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
         )} />
         <Table.Column title="类型" dataIndex="name" />
-        <Table.Column title="操作" key="id" render={(_, record: Component) => (
+        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <FormOutlined onClick={
               () => {
