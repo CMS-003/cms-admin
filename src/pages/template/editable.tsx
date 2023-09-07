@@ -9,11 +9,12 @@ import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto } from '@/components
 import { Wrap, Card } from './style';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
-  const local = useLocalObservable < { temp: Component, templates: Template[], components: Component[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable < { temp: Component, edit_template_id: string, templates: Template[], components: Component[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
     templates: [],
     components: [],
     temp: {},
     selectedProjectId: '',
+    edit_template_id: '',
     types: [],
   }))
   const refresh = useCallback(async () => {
@@ -21,8 +22,9 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     if (result.code === 0) {
       local.templates = result.data.items
       if (local.templates.length) {
+        local.edit_template_id = local.templates[0]._id;
         const components = await apis.getTemplateComponents(local.templates[0]._id)
-        local.components = components.data.items;
+        local.components = components.data.children;
       }
     }
   }, [])
@@ -35,8 +37,8 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
   return (<Observer>{() => <Fragment>
     <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       <Space>
-        <Select defaultValue={local.templates.length ? local.templates[0]._id : ''} onChange={v => {
-          local.selectedProjectId = v;
+        <Select value={local.edit_template_id} onChange={v => {
+          local.edit_template_id = v;
           refresh()
         }}>
           {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
