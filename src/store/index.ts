@@ -45,7 +45,6 @@ const project = IProject.create()
 async function getBoot() {
   await new Promise((resolve, reject) => {
     import('../api').then(async ({ default: apis }: any) => {
-      console.log(apis)
       const bootData = await apis.getBoot();
       store.project.setList(bootData.projects.items)
       store.menu.setTree(bootData.tree.items[0])

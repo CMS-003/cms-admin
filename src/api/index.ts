@@ -8,13 +8,12 @@ import componentType from './component-type'
 import { Component } from "@/types";
 
 const apis = {
-  getMenu: async () => {
-    const result: any = await shttp.get('/api/v1/users/menu');
-    return result
+  getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10) => {
+    return await shttp.get<Component>(`/api/v2/templates/${template_id}/components?page=${page}&size=${size}`);
   },
   getBoot: async () => {
     // component-type,projects,admin template
-    const templateResult = await shttp.get<Component>('/api/v2/templates/admin/components');
+    const templateResult = await apis.getTemplateComponents('admin');
     const typesResult = await componentType.getComponentTypes();
     const projectsResult = await project.getProjects();
     return {

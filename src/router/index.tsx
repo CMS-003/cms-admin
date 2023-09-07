@@ -27,7 +27,6 @@ type PaneItem = {
   path: string,
   closable?: boolean;
   content?: any;
-  t?: number;
 }
 
 function getKeyName(key: string): PaneItem {
@@ -187,7 +186,7 @@ const TabPanes: FC = () => {
     const i = local.tagPages.findIndex(page => page.path === local.activeKey);
     const page = local.tagPages[i];
     if (i > -1 && page) {
-      page.t = Date.now()
+
     }
   }
 
@@ -317,12 +316,15 @@ const TabPanes: FC = () => {
             }
           >
             {local.reloadPath !== pane.path ? (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content path={pane.path} t={pane.t} store={store} key={pane.path}/></div>
+              <div key={pane.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content key={pane.path} path={pane.path} store={store} /></div>
             ) : (
-              <CenterXY>
+              <CenterXY key={pane.path}>
                 <Alert message="刷新中..." type="info" />
               </CenterXY>
             )}
+            <CenterXY>
+                <Alert message="刷新中..." type="info" />
+              </CenterXY>
           </Tabs.TabPane>
         ))}
       </Tabs>

@@ -17,6 +17,7 @@ export const ComponentItem: any = types.model('Component', {
 }));
 
 const ComponentTypeItem: any = types.model({
+  _id: types.string,
   name: types.string,
   title: types.string,
   cover: types.optional(types.string, ''),
