@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
-import { Button, Space, Select, Image } from 'antd';
+import { Button, Space, Select, Image, Divider, Switch } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
@@ -10,14 +10,16 @@ import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
-  const local = useLocalObservable<{
+  const local = useLocalObservable < {
+    mode: string,
     temp: IComponent,
     edit_template_id: string,
     templates: ITemplate[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
     TemplatePage: null | ITemplate
-  }>(() => ({
+  } > (() => ({
+    mode: 'edit',
     templates: [],
     temp: {},
     selectedProjectId: '',
@@ -53,26 +55,29 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
         </Select>
       </Space>
+      <Divider type="vertical" />
       <Space>
         < Button type="primary" onClick={e => {
           refresh()
         }}>刷新</Button>
       </Space>
+      <Divider type="vertical" />
+      <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
     </AlignAside>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
       <FullWidthAuto style={{ flex: '80px 0 0' }}>
         <Wrap>
-          {store.component.types.filter(item => item.level === 1).map(item => (<Card key={item._id}>
+          {store.component.types.filter(item => item.level === 1).map(item => (<Card draggable key={item._id}>
             <Image style={{ width: 24, height: 24 }} src={store.app.imageLine + item.cover} preview={false} />
             <div>{item.title}</div>
           </Card>))}
         </Wrap>
       </FullWidthAuto>
       <FullWidthAuto style={{ height: '100%' }}>
-        <Auto template={local.TemplatePage} />
+        <Auto template={local.TemplatePage} mode={local.mode} />
       </FullWidthAuto>
     </FullWidth>
-  </Fragment>}</Observer>);
+  </Fragment >}</Observer >);
 };
 
 export default ComponentTemplatePage;

@@ -172,7 +172,7 @@ class Request<T> {
         if (res.status !== 200) {
 
           //特定状态码 处理特定的需求
-          if (res.status === 401) {
+          if (this.data.code === 101010) {
             message.warn('您的账号已登出或超时，即将登出...');
             console.log('登录异常，执行登出...');
           }
