@@ -13,17 +13,17 @@ export type IConfig = {
 
 export type IComponent = {
   _id?: string;
-  parent_id?: string;
-  tree_id?: string;
-  title?: string;
-  name?: string;
-  type?: string;
-  cover?: string;
-  desc?: string;
+  parent_id: string;
+  tree_id: string;
+  title: string;
+  name: string;
+  type: string;
+  cover: string;
+  icon?: string;
+  desc: string;
   available?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  accepts?: string[];
   children?: IComponent[];
 }
 

@@ -12,10 +12,10 @@ import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
     showEditPage: false,
     list: [],
-    temp: {},
+    temp: null,
     openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
@@ -96,7 +96,7 @@ const ComponentTypePage: React.FC = () => {
     </Space>
     <Editor
       visible={local.showEditPage}
-      close={() => { local.showEditPage = false; local.temp = {} }}
+      close={() => { local.showEditPage = false; local.temp = null }}
       data={local.temp}
       fetch={addComponentType}
       fields={fields}

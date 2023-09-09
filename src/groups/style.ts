@@ -9,9 +9,12 @@ export const EditWrap = styled.div`
     border-color: #1890ff;
   }
   &.dragover {
-    background-color: yellow;
+    background-color: green;
   }
-`; 
+  &.cantdrag {
+    background-color: red;
+  }
+`;
 
 export const ScrollWrap = styled.div`
   display: flex;

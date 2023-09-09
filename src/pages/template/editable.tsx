@@ -5,23 +5,23 @@ import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
-import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto } from '@/components/style'
+import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
-  const local = useLocalObservable < {
+  const local = useLocalObservable<{
     mode: string,
-    temp: IComponent,
+    temp: IComponent | null,
     edit_template_id: string,
     templates: ITemplate[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
     TemplatePage: null | ITemplate
-  } > (() => ({
+  }>(() => ({
     mode: 'edit',
     templates: [],
-    temp: {},
+    temp: null,
     selectedProjectId: '',
     edit_template_id: '',
     types: [],
@@ -47,34 +47,47 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     refresh()
   })
   return (<Observer>{() => <Fragment>
-    <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
-      <Space>
-        <Select value={local.edit_template_id} onChange={v => {
-          local.edit_template_id = v;
-        }}>
-          {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
-        </Select>
-      </Space>
-      <Divider type="vertical" />
-      <Space>
-        < Button type="primary" onClick={e => {
-          refresh()
-        }}>刷新</Button>
-      </Space>
-      <Divider type="vertical" />
-      <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
-    </AlignAside>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
-      <FullWidthAuto style={{ flex: '80px 0 0' }}>
+      <FullWidthAuto style={{ flex: '120px 0 0' }}>
         <Wrap>
-          {store.component.types.filter(item => item.level === 1).map(item => (<Card draggable key={item._id}>
-            <Image style={{ width: 24, height: 24 }} src={store.app.imageLine + item.cover} preview={false} />
+          {store.component.types.map(item => (<Card draggable key={item._id}>
+            <Image style={{ width: 24, height: 24 }} src={store.app.imageLine + item.cover} preview={false}
+              onDragStartCapture={() => {
+                store.app.setDragType(item.name);
+              }}
+              onDragEndCapture={() => {
+                store.app.setDragType('')
+              }}
+            />
             <div>{item.title}</div>
           </Card>))}
         </Wrap>
       </FullWidthAuto>
       <FullWidthAuto style={{ height: '100%' }}>
-        <Auto template={local.TemplatePage} mode={local.mode} />
+        <FullHeight>
+          <FullHeightFix>
+            <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
+              <Space>
+                <Select value={local.edit_template_id} onChange={v => {
+                  local.edit_template_id = v;
+                }}>
+                  {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
+                </Select>
+              </Space>
+              <Divider type="vertical" />
+              <Space>
+                < Button type="primary" onClick={e => {
+                  refresh()
+                }}>刷新</Button>
+              </Space>
+              <Divider type="vertical" />
+              <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
+            </AlignAside>
+          </FullHeightFix>
+          <FullWidthAuto>
+            <Auto template={local.TemplatePage} mode={local.mode} />
+          </FullWidthAuto>
+        </FullHeight>
       </FullWidthAuto>
     </FullWidth>
   </Fragment >}</Observer >);

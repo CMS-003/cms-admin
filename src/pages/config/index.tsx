@@ -3,17 +3,17 @@ import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
-import { IComponent, IEditorComponent } from '../../types'
+import { IComponent, IConfig, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IConfig[] }>(() => ({
     showEditPage: false,
     list: [],
-    temp: {},
+    temp: null,
     openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
@@ -122,7 +122,7 @@ const ConfigPage: React.FC = () => {
       </AlignAside>
       <EditPage
         visible={local.showEditPage}
-        close={() => { local.showEditPage = false; local.temp = {} }}
+        close={() => { local.showEditPage = false; local.temp = null }}
         data={local.temp}
         fields={fields}
         fetch={editConfig}

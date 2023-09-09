@@ -11,10 +11,10 @@ import store from '@/store';
 import { AlignAside } from '@/components/style'
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
     showEditPage: false,
     list: [],
-    temp: {},
+    temp: null,
     selectedProjectId: '',
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
     openEditor(data: IComponent) {
@@ -143,7 +143,7 @@ const ComponentTemplatePage: React.FC = () => {
     </AlignAside>
     <Editor
       visible={local.showEditPage}
-      close={() => { local.showEditPage = false; local.temp = {} }}
+      close={() => { local.showEditPage = false; local.temp = null }}
       data={local.temp}
       fetch={editTemplate}
       fields={fields}

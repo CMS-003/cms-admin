@@ -23,10 +23,10 @@ function Icon(prop: { icon: string }) {
   return null;
 }
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string }>(() => ({
     showEditPage: false,
     list: [],
-    temp: {},
+    temp: null,
     types: store.component.types.map(it => ({ name: it.title, value: it.name })),
     projects: store.project.list.map(it => ({ name: it.title, value: it._id })),
     selectedProjectId: '',
@@ -193,7 +193,7 @@ const ComponentPage: React.FC = () => {
       </AlignAside>
       <EditPage
         visible={local.showEditPage}
-        close={() => { local.showEditPage = false; local.temp = {} }}
+        close={() => { local.showEditPage = false; local.temp = null }}
         data={local.temp}
         fields={fields}
         fetch={addComponent}
