@@ -8,6 +8,28 @@ import store from '@/store';
 import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
+import { ComponentItem } from '@/store/component';
+import { IModelType, IMSTArray, SnapshotIn, SnapshotOut, IAnyType, IType, ModelCreationType } from 'mobx-state-tree';
+
+function getDiff(t: ITemplate | IComponent | null) {
+  if (!t) {
+    return [];
+  }
+  const results: { _id?: string, diff: boolean }[] = [];
+  if (t.children) {
+    t.children.forEach((child) => {
+      const diff = child.diff()
+      // const diff = (child as IComponent & { diff: Function }).diff();
+      if (diff) {
+        console.log(t, child.$origin, child.title)
+      }
+      results.push({ _id: child._id, diff })
+      const subResults = getDiff(child);
+      results.push(...subResults)
+    })
+  }
+  return results;
+}
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
   const local = useLocalObservable<{
@@ -17,7 +39,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     templates: ITemplate[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
-    TemplatePage: null | ITemplate
+    TemplatePage: null | (ITemplate),
   }>(() => ({
     mode: 'edit',
     templates: [],
@@ -35,8 +57,10 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
         if (!local.edit_template_id) {
           local.edit_template_id = local.templates[0]._id;
         }
-        const components = await apis.getTemplateComponents(local.templates[0]._id)
-        local.TemplatePage = components.data;
+        const resp = await apis.getTemplateComponents(local.templates[0]._id)
+        const { children, ...template } = resp.data
+        const components = children.map(child => ComponentItem.create(child))
+        local.TemplatePage = { ...template, children: components }
       }
     }
   }, [])
@@ -87,6 +111,14 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           <FullWidthAuto>
             <Auto template={local.TemplatePage} mode={local.mode} />
           </FullWidthAuto>
+          <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
+            <Button type="primary" onClick={() => {
+              if (local.TemplatePage?.children) {
+                local.TemplatePage.children[0].setAttr('title', 'test');
+              }
+              console.log(getDiff(local.TemplatePage))
+            }}>保存</Button>
+          </FullHeightFix>
         </FullHeight>
       </FullWidthAuto>
     </FullWidth>

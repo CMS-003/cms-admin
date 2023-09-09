@@ -25,6 +25,9 @@ export type IComponent = {
   createdAt?: Date;
   updatedAt?: Date;
   children?: IComponent[];
+  diff: Function;
+  setAttr: Function;
+  $origin?: object;
 }
 
 export type IComponentType = {
@@ -37,9 +40,9 @@ export enum IEditorComponent {
   Select = 'Select',
   Input = 'Input',
   Number = 'Number',
-  Hidden= 'Hidden',
-  Area= 'Area',
-  Read= 'Read',
+  Hidden = 'Hidden',
+  Area = 'Area',
+  Read = 'Read',
   Switch = 'Switch',
   RemoteSelect = 'RemoteSelect',
   Image = 'Image',

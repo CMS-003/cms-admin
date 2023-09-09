@@ -98,8 +98,7 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
     local.editComponent = props
   }, [])
   useEffect(() => {
-    console.log(template?.children)
-    if(template) {
+    if (template) {
       // TODO: IEditComponent
     }
   }, [template])

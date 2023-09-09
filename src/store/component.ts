@@ -1,4 +1,4 @@
-import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, getSnapshot } from 'mobx-state-tree'
+import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, getSnapshot, IModelType, IAnyModelType } from 'mobx-state-tree'
 import { IComponent, IComponentType } from '@/types'
 import _, { } from 'lodash'
 
@@ -20,21 +20,25 @@ function deepEqual(a: any, b: any) {
   return true;
 }
 
-export const ComponentItem: any = types.model('Component', {
+type ComponentItemKeys = 'title' | 'name'
+
+export const ComponentItem = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
   $new: types.optional(types.boolean, false),
   $delete: types.optional(types.boolean, false),
-  _id: types.string,
+  _id: types.optional(types.string, ''),
+  type: types.optional(types.string, ''),
   parent_id: types.optional(types.string, ''),
   tree_id: types.optional(types.string, ''),
   title: types.optional(types.string, ''),
   name: types.optional(types.string, ''),
   cover: types.optional(types.string, ''),
   desc: types.optional(types.string, ''),
-  createdAt: types.maybe(types.Date),
+  // createdAt: types.maybe(types.Date),
   // updatedAt: types.maybe(types.Date),
   accepts: types.optional(types.array(types.string), []),
+  children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
   toJSON() {
     const data = getSnapshot(self);
@@ -44,12 +48,15 @@ export const ComponentItem: any = types.model('Component', {
   diff() {
     return !deepEqual(self.$origin, self.toJSON()) || self.$delete === true || self.$new === true;
   },
+  setAttr(key: ComponentItemKeys, value: any) {
+    self[key] = value;
+  },
   afterCreate() {
     self.$origin = self.toJSON() as any;
   }
 }));
 
-const ComponentTypeItem: any = types.model({
+const ComponentTypeItem = types.model({
   _id: types.string,
   name: types.string,
   title: types.string,
@@ -66,11 +73,11 @@ const componentList = types.model({
     return self.list.toJSON();
   },
 })).actions((self) => ({
-  setList(items: IMSTArray<IType<SnapshotIn<IComponent>, SnapshotOut<IComponent>, IComponent>>) {
-    self.list = items;
+  setList(items: IComponent[]) {
+    self.list = items as IMSTArray<typeof ComponentItem>;
   },
   setTypes(items: IComponentType[]) {
-    self.types = items as IMSTArray<IType<SnapshotIn<IComponentType>, SnapshotOut<IComponentType>, IComponentType>>;
+    self.types = items as IMSTArray<typeof ComponentTypeItem>;
   },
   canDrop(from: string, to: string) {
     const type = self.types.find(it => it.name === to);
@@ -78,7 +85,6 @@ const componentList = types.model({
       return false;
     }
     const result = type.accepts.length === 0 || type.accepts.includes(from);
-    console.log(from, to, result)
     return result;
   },
   async fetch() {

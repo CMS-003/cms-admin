@@ -44,3 +44,4 @@
 - alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired
 - react.StrictMode 重复渲染。只在开发中出现
 - 开发时保存文件会触发useEffect和useEffectOnce,造成标签页重复
+- getSnapshot的参数是model创建的，useLocalObservable转object用到的是toJS
