@@ -4,6 +4,9 @@ import { toJS } from 'mobx'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { EditWrap } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
+import { AlignAside } from '@/components/style'
+import { Input } from 'antd'
+import { CloseOutlined } from '@ant-design/icons'
 import "react-contexify/dist/ReactContexify.css";
 
 import Menu from './Menu'
@@ -54,7 +57,7 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
             contextMenu.show({
               id: 'group_menu',
               event: e,
-              props: toJS(self)
+              props: self
             });
           }}
           onDragOver={local.onDragOver}
@@ -112,8 +115,19 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
       <TemplatePage template={template} mode={mode} />
     </div>
-    {local.editComponent && <div style={{ width: 250 }}>
-      {local.editComponent.title}
+    {local.editComponent && <div style={{ width: 250, padding: '0 10px', backgroundColor: 'wheat' }}>
+      <AlignAside>
+        <span>属性修改</span>
+        <CloseOutlined onClick={() => {
+          store.app.setEditComponentId('')
+          local.editComponent = null
+        }} />
+      </AlignAside>
+      <Input addonBefore="标题" defaultValue={local.editComponent.title} onChange={e => {
+        if (local.editComponent) {
+          local.editComponent.setAttr('title', e.target.value);
+        }
+      }} />
     </div>}
   </div>)}</Observer>
 }

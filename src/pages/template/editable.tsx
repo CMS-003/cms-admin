@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect } from 'react';
-import { Button, Space, Select, Image, Divider, Switch } from 'antd';
+import { Button, Space, Select, Image, Divider, Switch, Spin, message } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
@@ -9,23 +9,23 @@ import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto, FullHeight, FullHei
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
 import { ComponentItem } from '@/store/component';
-import { IModelType, IMSTArray, SnapshotIn, SnapshotOut, IAnyType, IType, ModelCreationType } from 'mobx-state-tree';
+import { LoadingOutlined } from '@ant-design/icons';
 
 function getDiff(t: ITemplate | IComponent | null) {
   if (!t) {
     return [];
   }
-  const results: { _id?: string, diff: boolean }[] = [];
+  const results: IComponent[] = [];
   if (t.children) {
     t.children.forEach((child) => {
       const diff = child.diff()
-      // const diff = (child as IComponent & { diff: Function }).diff();
       if (diff) {
-        console.log(t, child.$origin, child.title)
+        results.push((child as IComponent).toJSON())
       }
-      results.push({ _id: child._id, diff })
       const subResults = getDiff(child);
-      results.push(...subResults)
+      if (subResults.length) {
+        results.push(...subResults)
+      }
     })
   }
   return results;
@@ -34,6 +34,8 @@ function getDiff(t: ITemplate | IComponent | null) {
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
   const local = useLocalObservable<{
     mode: string,
+    loading: boolean,
+    fetching: boolean,
     temp: IComponent | null,
     edit_template_id: string,
     templates: ITemplate[],
@@ -42,6 +44,8 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     TemplatePage: null | (ITemplate),
   }>(() => ({
     mode: 'edit',
+    loading: true,
+    fetching: false,
     templates: [],
     temp: null,
     selectedProjectId: '',
@@ -50,18 +54,25 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     TemplatePage: null,
   }))
   const refresh = useCallback(async () => {
-    const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
-    if (result.code === 0) {
-      local.templates = result.data.items
-      if (local.templates.length) {
-        if (!local.edit_template_id) {
-          local.edit_template_id = local.templates[0]._id;
+    local.loading = true;
+    try {
+      const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
+      if (result.code === 0) {
+        local.templates = result.data.items
+        if (local.templates.length) {
+          if (!local.edit_template_id) {
+            local.edit_template_id = local.templates[0]._id;
+          }
+          const resp = await apis.getTemplateComponents(local.templates[0]._id)
+          const { children, ...template } = resp.data
+          const components = children.map(child => ComponentItem.create(child))
+          local.TemplatePage = { ...template, children: components }
         }
-        const resp = await apis.getTemplateComponents(local.templates[0]._id)
-        const { children, ...template } = resp.data
-        const components = children.map(child => ComponentItem.create(child))
-        local.TemplatePage = { ...template, children: components }
       }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      local.loading = false;
     }
   }, [])
   useEffect(() => {
@@ -109,14 +120,24 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
             </AlignAside>
           </FullHeightFix>
           <FullWidthAuto>
-            <Auto template={local.TemplatePage} mode={local.mode} />
+            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<LoadingOutlined />} tip="加载中..." /> : <Auto template={local.TemplatePage} mode={local.mode} />}
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
-            <Button type="primary" onClick={() => {
-              if (local.TemplatePage?.children) {
-                local.TemplatePage.children[0].setAttr('title', 'test');
+            <Button type="primary" onClick={async () => {
+              const diff = getDiff(local.TemplatePage);
+              if (diff.length) {
+                try {
+                  local.fetching = true
+                  await apis.batchUpdateComponent({ body: diff })
+                  await refresh()
+                } catch (e) {
+                  console.log(e)
+                } finally {
+                  local.fetching = false
+                }
+              } else {
+                message.warn('数据无变化')
               }
-              console.log(getDiff(local.TemplatePage))
             }}>保存</Button>
           </FullHeightFix>
         </FullHeight>

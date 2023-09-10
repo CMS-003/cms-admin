@@ -22,6 +22,9 @@ const apis = {
     const result: any = await shttp.delete(`/api/v1/components/${params._id}`)
     return result
   },
+  batchUpdateComponent: async ({ body }: { body: any }) => {
+    return await shttp.post(`/api/v1/components/batch`, body)
+  }
 }
 
 export default apis;

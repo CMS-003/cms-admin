@@ -27,6 +27,9 @@ export type IComponent = {
   children?: IComponent[];
   diff: Function;
   setAttr: Function;
+  toJSON: Function;
+  $delete: boolean;
+  $new: boolean;
   $origin?: object;
 }
 
