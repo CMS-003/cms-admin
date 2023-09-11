@@ -3,7 +3,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
-import { Input } from 'antd'
+import { Input, message } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
@@ -80,6 +80,10 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
+      const type = store.component.types.find(it => it.name === store.app.dragingType)
+      if(type && type.level!==1) {
+        return message.warn('非一级组件不能直接放到模板页')
+      }
       const t = template as ITemplate;
       const child = ComponentItem.create({
         _id: '',
