@@ -8,16 +8,16 @@ const MenuItem = styled.div`
   cursor: pointer;
   padding: 5px 10px;
   &:hover {
-    background-color: rgba(0,0,0,0.5);
+    background-color: #29ace9aa;
     color: #000;
   }
 `
-export default function ComponentMenuItem({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   const icon: keyof typeof icons = self.icon as any;
   const Image: any = icons[icon];
   return <div>
     <MenuItem>{Image ? <Image /> : null} {self.title}</MenuItem>
-    <div style={{ textIndent: 20 }}>
+    <div style={{ textIndent: 10 * level }}>
       {children}
     </div>
   </div>

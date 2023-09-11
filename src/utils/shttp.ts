@@ -67,19 +67,19 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
   let response: Promise<BaseResponse>;
   switch (method) {
     case 'get':
-      response = instance.get(url, { params: { ...params }, ...config, headers: {} });
+      response = instance.get(url, { params, ...config, headers: {} });
       break;
     case 'post':
-      response = instance.post(url, { ...params }, { ...config, headers: {} });
+      response = instance.post(url, params, { ...config, headers: {} });
       break;
     case 'put':
-      response = instance.put(url, { ...params }, { ...config, headers: {} });
+      response = instance.put(url, params, { ...config, headers: {} });
       break;
     case 'delete':
-      response = instance.delete(url, { params: { ...params }, ...config, headers: {} });
+      response = instance.delete(url, { params, ...config, headers: {} });
       break;
     case 'patch':
-      response = instance.patch(url, { params: { ...params }, ...config, headers: {} });
+      response = instance.patch(url, { params, ...config, headers: {} });
       break;
   }
 

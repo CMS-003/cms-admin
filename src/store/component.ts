@@ -1,8 +1,41 @@
-import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, getSnapshot, IModelType, IAnyModelType } from 'mobx-state-tree'
+import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
 import { IComponent, IComponentType } from '@/types'
 import _, { } from 'lodash'
+import { v4 } from 'uuid'
 
+function validateDate(str: string) {
+  const date = Date.parse(str);
+  if (isNaN(date)) throw new Error("Invalid date");
+
+  return new Date(date);
+}
+
+export const IsoDate = types.custom({
+  name: "IsoDate",
+  fromSnapshot(value: string) {
+    return validateDate(value);
+  },
+  toSnapshot(value) {
+    return value.toISOString();
+  },
+  isTargetType(maybeDate) {
+    return maybeDate instanceof Date;
+  },
+  getValidationMessage(snapshot) {
+    // If we don't throw an error here when the snapshot is faulty (e.g. null),
+    // things like types.maybeNull(IsoDate) will not work properly
+    try {
+      validateDate(snapshot);
+      return "";
+    } catch (error: any) {
+      return error.message;
+    }
+  }
+});
 function deepEqual(a: any, b: any) {
+  if (_.isEmpty(a) && !_.isEmpty(b)) {
+    return false;
+  }
   for (let k in a) {
     let equal = true;
     if (_.isPlainObject(a[k])) {
@@ -25,34 +58,69 @@ type ComponentItemKeys = 'title' | 'name'
 export const ComponentItem = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
-  $new: types.optional(types.boolean, false),
-  $delete: types.optional(types.boolean, false),
   _id: types.optional(types.string, ''),
   type: types.optional(types.string, ''),
+  template_id: types.optional(types.string, ''),
+  project_id: types.optional(types.string, ''),
   parent_id: types.optional(types.string, ''),
   tree_id: types.optional(types.string, ''),
   title: types.optional(types.string, ''),
   name: types.optional(types.string, ''),
+  icon: types.optional(types.string, ''),
   cover: types.optional(types.string, ''),
   desc: types.optional(types.string, ''),
-  // createdAt: types.maybe(types.Date),
-  // updatedAt: types.maybe(types.Date),
+  order: types.optional(types.number, 1),
+  status: types.optional(types.number, 1),
+  createdAt: types.maybe(IsoDate),
+  updatedAt: types.maybe(IsoDate),
   accepts: types.optional(types.array(types.string), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
   toJSON() {
     const data = getSnapshot(self);
-    return _.omit(data, ['data', 'children', '$new', '$delete', '$origin'])
+    return _.omit(data, ['data', 'children', '$origin'])
+  },
+  diff() {
+    if (!deepEqual(self.$origin, this.toJSON())) {
+      return true;
+    }
+    return false;
   },
 })).actions(self => ({
-  diff() {
-    return !deepEqual(self.$origin, self.toJSON()) || self.$delete === true || self.$new === true;
-  },
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
   },
+  appendChild(type: string) {
+    self.children.push(ComponentItem.create({
+      $origin: {},
+      _id: '',
+      tree_id: self.tree_id,
+      parent_id: self._id,
+      project_id: self.project_id,
+      template_id: self.template_id,
+      type,
+      title: '无',
+      name: '',
+      icon: '',
+      cover: '',
+      desc: '',
+      order: self.children.length,
+      status: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      accepts: self.toJSON().accepts,
+      children: [],
+    }))
+  },
   afterCreate() {
-    self.$origin = self.toJSON() as any;
+    if (self._id) {
+      self.$origin = self.toJSON() as any;
+    } else {
+      self._id = v4();
+      if (!self.tree_id) {
+        self.tree_id = self._id;
+      }
+    }
   }
 }));
 

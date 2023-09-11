@@ -17,5 +17,5 @@ export type ITemplate = {
   attrs: object;
   available: boolean;
   order: number;
-  children?: IComponent[]
+  children: IComponent[]
 }

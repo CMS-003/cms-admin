@@ -21,22 +21,25 @@ export type IComponent = {
   cover: string;
   icon?: string;
   desc: string;
-  available?: string;
+  order: number;
+  status: number;
   createdAt?: Date;
   updatedAt?: Date;
+  accepts?: string[];
+
   children?: IComponent[];
+  $origin?: object;
   diff: Function;
   setAttr: Function;
+  appendChild: Function;
   toJSON: Function;
-  $delete: boolean;
-  $new: boolean;
-  $origin?: object;
 }
 
 export type IComponentType = {
   _id: string;
   name: string;
   title: string;
+  accepts: string[];
 }
 
 export enum IEditorComponent {
