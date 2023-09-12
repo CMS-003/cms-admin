@@ -12,7 +12,7 @@ export type IConfig = {
 }
 
 export type IComponent = {
-  _id?: string;
+  _id: string;
   parent_id: string;
   tree_id: string;
   title: string;
@@ -27,11 +27,12 @@ export type IComponent = {
   updatedAt?: Date;
   accepts?: string[];
 
-  children?: IComponent[];
+  children: IComponent[];
   $origin?: object;
   diff: Function;
   setAttr: Function;
   appendChild: Function;
+  swap: Function;
   toJSON: Function;
 }
 

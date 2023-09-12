@@ -24,10 +24,10 @@ export const EditWrap = styled.div`
     border-color: #1890ff;
   }
   &.dragover {
-    background-color: #29ace988;
+    background-color: #ded200;
   }
   &.cantdrag {
-    background-color: red;
+    background-color: #df3540;
   }
 `;
 

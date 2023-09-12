@@ -112,6 +112,17 @@ export const ComponentItem = types.model('Component', {
       children: [],
     }))
   },
+  swap(oldIndex: number, newIndex: number) {
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const [removed] = self.children.splice(oldIndex, 1);
+    const old = getSnapshot(removed);
+    self.children.splice(newIndex, 0, ComponentItem.create(old as IComponent));
+    self.children.forEach((child, i) => {
+      child.setAttr('order', i);
+    })
+  },
   afterCreate() {
     if (self._id) {
       self.$origin = self.toJSON() as any;

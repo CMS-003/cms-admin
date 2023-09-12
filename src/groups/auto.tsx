@@ -4,9 +4,11 @@ import { EditWrap, TemplateBox, EditItem } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
 import { Input, message } from 'antd'
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, DragOutlined } from '@ant-design/icons'
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
+import SortList from '@/components/SortList/';
+import VisualBox from '@/components/VisualBox/';
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
@@ -58,10 +60,22 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
-            {self.children && self.children.map((child: IComponent) => <Component mode={mode} self={child} key={child._id} {...({ level: _.get(props, 'level', 1) + 1 })} />)}
+            <SortList
+              sort={(oldIndex: number, newIndex: number) => {
+                self.swap(oldIndex, newIndex);
+              }}
+              droppableId={self._id}
+              items={self.children}
+              itemStyle={{ display: 'flex', alignItems: 'center' }}
+              mode={mode}
+              handler={<VisualBox visible={mode === 'edit'}>
+                <DragOutlined />
+              </VisualBox>}
+              renderItem={({ item }: { item: IComponent }) => <Component mode={mode} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+            />
           </Com>
         </EditWrap>
       )}
@@ -81,7 +95,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
       e.stopPropagation();
       local.isDragOver = false;
       const type = store.component.types.find(it => it.name === store.app.dragingType)
-      if(type && type.level!==1) {
+      if (type && type.level !== 1) {
         return message.warn('非一级组件不能直接放到模板页')
       }
       const t = template as ITemplate;
@@ -124,9 +138,23 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
         onDrop={local.onDrop}
         className={local.isDragOver ? "focus" : ""}
       >
-        {template.children.map(child => (
-          <Component self={child} key={child._id} mode={mode} {...props} />
-        ))}
+        <SortList
+          sort={(oldIndex: number, newIndex: number) => {
+            const [old] = template.children.splice(oldIndex, 1);
+            template.children.splice(newIndex, 0, old);
+            template.children.forEach((child, i) => {
+              child.setAttr('order', i);
+            });
+          }}
+          droppableId={template._id}
+          items={template.children}
+          itemStyle={{ display: 'flex', alignItems: 'center' }}
+          mode={mode}
+          handler={<VisualBox visible={mode === 'edit'}>
+            <DragOutlined />
+          </VisualBox>}
+          renderItem={({ item }: { item: IComponent }) => <Component self={item} key={item._id} mode={mode} {...props} />}
+        />
       </TemplateBox>
     )}</Observer>
   } else if (template) {
@@ -137,7 +165,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
 }
 
 export default function Page({ template, mode, ...props }: { props?: any, mode: string, template: ITemplate | null }) {
-  const local = useLocalObservable < { editComponent: IComponent | null } > (() => ({
+  const local = useLocalObservable<{ editComponent: IComponent | null }>(() => ({
     editComponent: null,
   }))
 
