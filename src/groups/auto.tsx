@@ -12,12 +12,16 @@ import VisualBox from '@/components/VisualBox/';
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
+import Tab from './Tab'
+import TabItem from './TabItem'
 import store from '@/store'
 import _ from 'lodash'
 
 const BaseComponent = {
   Menu,
   MenuItem,
+  Tab,
+  TabItem,
 }
 
 function Component({ self, children, mode, ...props }: { self: IComponent, children?: any, mode: string, props?: any }) {
@@ -71,6 +75,7 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
               items={self.children}
               itemStyle={{ display: 'flex', alignItems: 'center' }}
               mode={mode}
+              direction={self.type === 'Tab' ? 'horizontal' : 'vertical'}
               handler={<VisualBox visible={mode === 'edit'}>
                 <DragOutlined />
               </VisualBox>}
@@ -136,7 +141,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
         onDragOver={local.onDragOver}
         onDragLeave={local.onDragLeave}
         onDrop={local.onDrop}
-        className={local.isDragOver ? "focus" : ""}
+        className={local.isDragOver ? "dragover" : ""}
       >
         <SortList
           sort={(oldIndex: number, newIndex: number) => {
@@ -185,7 +190,7 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
       <TemplatePage template={template} mode={mode} />
     </div>
-    {local.editComponent && <div style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat' }}>
+    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat' }}>
       <AlignAside>
         <span>属性修改</span>
         <CloseOutlined onClick={() => {
@@ -210,10 +215,19 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
         <Input addonBefore="_id" readOnly value={local.editComponent._id} />
       </EditItem>
       <EditItem>
-        <Input addonBefore="status" type="number" value={local.editComponent.status} />
+        <Input addonBefore="status" type="number" value={local.editComponent.status} onChange={e => {
+          if (local.editComponent) {
+            local.editComponent.setAttr('status', parseInt(e.target.value));
+          }
+        }} />
       </EditItem>
       <EditItem>
         <Input addonBefore="name" value={local.editComponent.name} />
+      </EditItem>
+      <EditItem>
+        <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
+          local.editComponent?.setAttr('icon', e.target.value);
+        }} />
       </EditItem>
     </div>}
   </div>)}</Observer>

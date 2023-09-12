@@ -7,11 +7,12 @@ export const TemplateBox = styled.div`
   border: 1px solid #29ace9;
   box-shadow: #29ace9 4px 4px 16px 3px;
   min-height: 480px;
-  &.focus {
-    background-color: #29ace988
+  &.dragover {
+    background-color: #ded200
   }
 `
 export const EditWrap = styled.div`
+  flex: 1;
   &.edit {
     padding: 5px;
     box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;

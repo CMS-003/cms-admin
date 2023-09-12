@@ -17,7 +17,7 @@ const getItemStyle = (isDragging: boolean, draggableStyle: DraggingStyle | NotDr
   ...draggableStyle
 });
 
-const getListStyle = (isDraggingOver: boolean) => ({});
+// const getListStyle = (isDraggingOver: boolean) => ({});
 
 export default function SortList({ handler, items, droppableId, mode, direction = 'vertical', sort, listStyle = {}, itemStyle = {}, renderItem, ...restProps }: {
   handler: any;
@@ -49,12 +49,12 @@ export default function SortList({ handler, items, droppableId, mode, direction 
         );
         await sort(result.source.index, result.destination.index)
       }}>
-      <Droppable droppableId={droppableId} direction={"vertical"} isDropDisabled={mode === 'preview'}>
+      <Droppable droppableId={droppableId} direction={direction} isDropDisabled={mode === 'preview'}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={listStyle}
+            style={direction === 'horizontal' ? { display: 'flex', flexDirection: 'row' } : {}}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>

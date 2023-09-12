@@ -85,14 +85,14 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
       <FullWidthAuto style={{ flex: '120px 0 0' }}>
         <Wrap>
-          {store.component.types.map(item => (<Card draggable key={item._id}>
-            <Image style={{ width: 24, height: 24 }} src={store.app.imageLine + item.cover} preview={false}
-              onDragStartCapture={() => {
-                store.app.setDragType(item.name);
-              }}
-              onDragEndCapture={() => {
-                store.app.setDragType('')
-              }}
+          {store.component.types.map(item => (<Card draggable key={item._id}
+            onDragStartCapture={() => {
+              store.app.setDragType(item.name);
+            }}
+            onDragEndCapture={() => {
+              store.app.setDragType('')
+            }}>
+            <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
             />
             <div>{item.title}</div>
           </Card>))}
