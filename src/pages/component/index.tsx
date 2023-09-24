@@ -157,6 +157,15 @@ const ComponentPage: React.FC = () => {
       value: [],
       autoFocus: false,
     },
+    {
+      field: 'style',
+      title: '样式',
+      type: 'json',
+      component: IEditorComponent.Editor,
+      defaultValue: '',
+      value: [],
+      autoFocus: false,
+    },
   ])
   const addComponent = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateComponent(params) : await apis.createComponent(params)

@@ -9,19 +9,21 @@ import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
 import VisualBox from '@/components/VisualBox/';
+import store from '@/store'
+import _ from 'lodash'
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
 import Tab from './Tab'
 import TabItem from './TabItem'
-import store from '@/store'
-import _ from 'lodash'
+import Layout from './Layout'
 
 const BaseComponent = {
   Menu,
   MenuItem,
   Tab,
   TabItem,
+  Layout,
 }
 
 function Component({ self, children, mode, ...props }: { self: IComponent, children?: any, mode: string, props?: any }) {
@@ -228,6 +230,14 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
         <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
           local.editComponent?.setAttr('icon', e.target.value);
         }} />
+      </EditItem>
+      <EditItem>
+        attr
+        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.attrs)} />
+      </EditItem>
+      <EditItem>
+        样式
+        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.style)} />
       </EditItem>
     </div>}
   </div>)}</Observer>

@@ -104,6 +104,15 @@ const ComponentTemplatePage: React.FC = () => {
       value: [],
       autoFocus: false,
     },
+    {
+      field: 'style',
+      title: '样式',
+      type: 'json',
+      component: IEditorComponent.Editor,
+      defaultValue: '',
+      value: [],
+      autoFocus: false,
+    },
   ])
   const refresh = useCallback(async () => {
     const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })

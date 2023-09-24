@@ -26,6 +26,8 @@ export type IComponent = {
   createdAt?: Date;
   updatedAt?: Date;
   accepts?: string[];
+  style?: Object;
+  attrs?: Object;
 
   children: IComponent[];
   $origin?: object;

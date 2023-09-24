@@ -12,14 +12,14 @@ import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
+  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] } > (() => ({
     showEditPage: false,
     list: [],
     temp: null,
     openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
-    }
+    },
   }))
   const [fields] = useState([
     {
@@ -88,7 +88,7 @@ const ComponentTypePage: React.FC = () => {
   return (<Observer>{() => <Fragment>
     <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       <Button type="primary" onClick={e => {
-        local.showEditPage = true
+        local.openEditor({})
       }}>添加</Button>
       < Button type="primary" onClick={e => {
         refresh()
@@ -103,12 +103,12 @@ const ComponentTypePage: React.FC = () => {
     />
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="id" dataSource={local.list} >
+      <Table pagination={false} rowKey="_id" dataSource={local.list} >
         <Table.Column title="名称" dataIndex="title" render={(title, record: IComponent) => (
           <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
         )} />
         <Table.Column title="类型" dataIndex="name" />
-        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
+        <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <FormOutlined onClick={
               () => {
