@@ -12,7 +12,7 @@ import { cloneDeep } from 'lodash'
 import store from '@/store';
 
 const ProjectPage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] } > (() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},
@@ -106,11 +106,10 @@ const ProjectPage: React.FC = () => {
         fields={fields}
         fetch={editProject}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="id" dataSource={local.list}>
-        <Table.Column title="" dataIndex="cover" render={cover => cover ? <Image src={"http://localhost:3334" + cover} /> : null} />
-        <Table.Column title="项目名称" dataIndex="title" />
+      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
+        <Table.Column title="项目名称" dataIndex="title" render={(title, record: IProject) => <Fragment>{record.cover ? <Image src={"http://localhost:3334" + record.cover} /> : null} {title}</Fragment>} />
         <Table.Column title="标识" dataIndex="name" />
-        <Table.Column title="操作" key="id" render={(_, record: IProject) => (
+        <Table.Column title="操作" key="_id" render={(_, record: IProject) => (
           <Space size="middle">
             <FormOutlined onClick={() => {
               local.openEditor(cloneDeep(record))

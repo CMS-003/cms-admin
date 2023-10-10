@@ -1,12 +1,6 @@
 import styled from 'styled-components'
 
 export const TemplateBox = styled.div`
-  margin-top: 30px;
-  padding: 10px;
-  width: 400px;
-  border: 1px solid #29ace9;
-  box-shadow: #29ace9 4px 4px 16px 3px;
-  min-height: 480px;
   &.dragover {
     background-color: #ded200
   }

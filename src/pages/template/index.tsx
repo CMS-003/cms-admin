@@ -123,7 +123,7 @@ const ComponentTemplatePage: React.FC = () => {
   const editTemplate = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateTemplate(params) : await apis.addTemplate(params)
     if (result.code === 0) {
-      notification.info({ message: params.body.id ? '修改成功' : '添加成功' })
+      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])

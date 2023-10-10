@@ -15,6 +15,7 @@ export type ITemplate = {
   type: string;
   path: string;
   attrs: object;
+  style: object;
   available: boolean;
   order: number;
   children: IComponent[]

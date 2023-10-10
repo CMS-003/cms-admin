@@ -51,7 +51,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
           close();
         }}
       >
-        <Content data={toJS(data)} fields={fields} fetch={fetch} />
+        <Content data={data} fields={fields} fetch={fetch} />
       </Modal>
     </Fragment>)
   }}</Observer>

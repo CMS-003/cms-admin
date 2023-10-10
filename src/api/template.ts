@@ -16,7 +16,7 @@ const apis = {
   },
   updateTemplate: async ({ body }: { body: ITemplate }) => {
     const { _id, ...data } = body;
-    const result: any = await shttp.post('/api/v1/templates/' + _id, data);
+    const result: any = await shttp.put('/api/v1/templates/' + _id, data);
     return result;
   },
 }

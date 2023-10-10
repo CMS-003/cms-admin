@@ -26,7 +26,7 @@ export default function SortList({ handler, items, droppableId, mode, direction 
   items: any[];
   itemStyle: Object;
   direction?: Direction;
-  listStyle?: Object;
+  listStyle?: any;
   renderItem: Function;
   mode: String;
   children?: Element;
@@ -54,7 +54,7 @@ export default function SortList({ handler, items, droppableId, mode, direction 
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={direction === 'horizontal' ? { display: 'flex', flexDirection: 'row' } : {}}
+            style={{ ...listStyle, display: 'flex', flexDirection: direction === 'horizontal' ? 'row' : 'column' }}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>

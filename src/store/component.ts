@@ -73,6 +73,13 @@ export const ComponentItem = types.model('Component', {
   status: types.optional(types.number, 1),
   createdAt: types.maybe(IsoDate),
   updatedAt: types.maybe(IsoDate),
+  style: types.maybe(types.model({
+    display: types.optional(types.string, ''),
+  })),
+  attrs: types.maybe(types.model({
+    path: types.optional(types.string, ''),
+    selected_id: types.optional(types.string, '')
+  })),
   accepts: types.optional(types.array(types.string), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
