@@ -1,6 +1,6 @@
 import { ITemplate, IComponent } from '@/types'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { EditWrap, TemplateBox, EditItem } from './style'
+import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
 import { Input, message } from 'antd'
@@ -8,7 +8,6 @@ import { CloseOutlined, DragOutlined } from '@ant-design/icons'
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
-import VisualBox from '@/components/VisualBox/';
 import store from '@/store'
 import _ from 'lodash'
 
@@ -17,6 +16,7 @@ import MenuItem from './MenuItem'
 import Tab from './Tab'
 import TabItem from './TabItem'
 import Layout from './Layout'
+import { toJS } from 'mobx';
 
 const BaseComponent = {
   Menu,
@@ -26,7 +26,7 @@ const BaseComponent = {
   Layout,
 }
 
-function Component({ self, children, mode, ...props }: { self: IComponent, children?: any, mode: string, props?: any }) {
+export function Component({ self, children, mode, handler, ...props }: { self: IComponent, children?: any, mode: string, handler?: any, props?: any }) {
   const local = useLocalObservable(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
@@ -68,6 +68,9 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
           onDrop={local.onDrop}
           className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
+          {mode === 'edit' && <Handler {...handler}>
+            <DragOutlined />
+          </Handler>}
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
             <SortList
               sort={(oldIndex: number, newIndex: number) => {
@@ -78,10 +81,7 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
               itemStyle={{ display: 'flex', alignItems: 'center' }}
               mode={mode}
               direction={self.type === 'Tab' ? 'horizontal' : 'vertical'}
-              handler={<VisualBox visible={mode === 'edit'}>
-                <DragOutlined />
-              </VisualBox>}
-              renderItem={({ item }: { item: IComponent }) => <Component mode={mode} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
         </EditWrap>
@@ -89,7 +89,7 @@ function Component({ self, children, mode, ...props }: { self: IComponent, child
     </Observer>
   } else {
     return <div>
-      未识别:{self.type}
+      {self.type}!
     </div>
   }
 }
@@ -139,31 +139,38 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
   if (template && template.children) {
     const props = { level: 0 }
     return <Observer>{() => (
-      <TemplateBox
-        onDragOver={local.onDragOver}
-        onDragLeave={local.onDragLeave}
-        onDrop={local.onDrop}
-        className={local.isDragOver ? "dragover" : ""}
-      >
-        <SortList
-          sort={(oldIndex: number, newIndex: number) => {
-            const [old] = template.children.splice(oldIndex, 1);
-            template.children.splice(newIndex, 0, old);
-            template.children.forEach((child, i) => {
-              child.setAttr('order', i);
-            });
-          }}
-          droppableId={template._id}
-          items={template.children}
-          itemStyle={{ display: 'flex', alignItems: 'center' }}
-          mode={mode}
-          handler={<VisualBox visible={mode === 'edit'}>
-            <DragOutlined />
-          </VisualBox>}
-          renderItem={({ item }: { item: IComponent }) => <Component self={item} key={item._id} mode={mode} {...props} />}
-        />
-      </TemplateBox>
-    )}</Observer>
+      <div style={{
+        marginTop: '5%',
+        height: '90%',
+        minWidth: 400,
+        boxShadow: '#29ace9 4px 4px 16px 3px',
+      }}>
+        <TemplateBox
+          onDragOver={local.onDragOver}
+          onDragLeave={local.onDragLeave}
+          onDrop={local.onDrop}
+          className={local.isDragOver ? "dragover" : ""}
+          style={toJS(template.style)}
+        >
+          <SortList
+            listStyle={{ height: '100%' }}
+            sort={(oldIndex: number, newIndex: number) => {
+              const [old] = template.children.splice(oldIndex, 1);
+              template.children.splice(newIndex, 0, old);
+              template.children.forEach((child, i) => {
+                child.setAttr('order', i);
+              });
+            }}
+            droppableId={template._id}
+            items={template.children}
+            itemStyle={{ display: 'flex', alignItems: 'flex-start' }}
+            mode={mode}
+            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} {...props} handler={handler} />}
+          />
+        </TemplateBox>
+      </div>
+    )
+    }</Observer >
   } else if (template) {
     return <div>Empty Page</div>
   } else {
@@ -194,7 +201,7 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
     </div>
     {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat' }}>
       <AlignAside>
-        <span>属性修改</span>
+        <span>属性修改({local.editComponent.type})</span>
         <CloseOutlined onClick={() => {
           store.app.setEditComponentId('')
           local.editComponent = null

@@ -9,18 +9,7 @@ const reorder = (list: any, startIndex: number, endIndex: number) => {
   return result;
 };
 
-const getItemStyle = (isDragging: boolean, draggableStyle: DraggingStyle | NotDraggingStyle | undefined) => ({
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "",
-  padding: 0,
-  // styles we need to apply on draggables
-  ...draggableStyle
-});
-
-// const getListStyle = (isDraggingOver: boolean) => ({});
-
-export default function SortList({ handler, items, droppableId, mode, direction = 'vertical', sort, listStyle = {}, itemStyle = {}, renderItem, ...restProps }: {
-  handler: any;
+export default function SortList({ items, droppableId, mode, direction = 'vertical', sort, listStyle = {}, itemStyle = {}, renderItem, ...restProps }: {
   sort: Function;
   droppableId: string;
   items: any[];
@@ -58,22 +47,32 @@ export default function SortList({ handler, items, droppableId, mode, direction 
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...(handler ? {} : provided.dragHandleProps)}
-                    style={{
-                      ...(getItemStyle(
-                        snapshot.isDragging,
-                        provided.draggableProps.style
-                      )),
-                      ...itemStyle
-                    }}>
-                    {handler && <div style={{ textIndent: 0 }}{...provided.dragHandleProps}>{handler}</div>}
-                    {renderItem({ item, index, ...restProps })}
-                  </div>
-                )}
+                {(provided, snapshot) => {
+                  let transform = (provided.draggableProps.style as any).transform;
+                  if (snapshot.isDragging) {
+                    if (transform) {
+                      transform = transform.replace(/\(.+\,/, "(0,");
+                    }
+                  }
+                  const style = {
+                    ...provided.draggableProps.style,
+                    transform,
+                    background: snapshot.isDragging ? 'lightgreen' : ''
+                  };
+                  return (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...(provided.dragHandleProps)}
+                      style={{
+                        ...style,
+                        ...itemStyle,
+                        ...item.style,
+                      }}>
+                      {renderItem({ item, index, handler: provided.dragHandleProps, ...restProps })}
+                    </div>
+                  )
+                }}
               </Draggable>
             ))}
             {provided.placeholder}

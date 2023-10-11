@@ -6,10 +6,11 @@ export const TemplateBox = styled.div`
   }
 `
 export const EditWrap = styled.div`
+  position: relative;
   flex: 1;
   &.edit {
-    padding: 5px;
     box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
+    padding: 5px 5px 5px 15px;
   }
   &.delete {
     background-color: #333;
@@ -41,4 +42,10 @@ export const ScrollWrap = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+`;
+
+export const Handler = styled.div`
+  position: absolute;
+  left: -7px;
+  top: -10px;
 `;
