@@ -7,8 +7,10 @@ export const TabItemWrap = styled.div`
   min-height: 300px;
 
   &.edit {
-    box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
     padding: 5px 5px 5px 15px;
+  }
+  &.edit:hover {
+    box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
   }
   &.delete {
     background-color: #333;
