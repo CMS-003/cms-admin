@@ -25,7 +25,6 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
 }) {
   return <Observer>{() => {
     return <DragDropContext
-      // isDragDisabled={mode === 'preview'} 
       onDragStart={() => {
       }} onDragEnd={async (result) => {
         if (!result.destination) {
@@ -43,7 +42,7 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={{ ...listStyle, display: 'flex', flexDirection: direction === 'horizontal' ? 'row' : 'column' }}
+            style={{ display: 'flex', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex || 'auto' }}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>
@@ -63,11 +62,12 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      // {...(provided.dragHandleProps)}
+                      // 设置整块拖动 {...(provided.dragHandleProps)}
                       style={{
+                        // flex 解决嵌套时的样式问题
+                        flex: Object.fromEntries(item.style).flex || '',
                         ...style,
                         ...itemStyle,
-                        ...item.style,
                       }}>
                       {renderItem({ item, index, handler: provided.dragHandleProps, ...restProps })}
                     </div>

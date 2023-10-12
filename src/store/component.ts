@@ -33,24 +33,7 @@ export const IsoDate = types.custom({
   }
 });
 function deepEqual(a: any, b: any) {
-  if (_.isEmpty(a) && !_.isEmpty(b)) {
-    return false;
-  }
-  for (let k in a) {
-    let equal = true;
-    if (_.isPlainObject(a[k])) {
-      if (_.isEmpty(a[k]) && !_.isEmpty(b[k])) {
-        return false
-      }
-      equal = deepEqual(a[k], b[k]);
-    } else {
-      equal = _.isEqual(a[k], b[k]);
-    }
-    if (!equal) {
-      return false;
-    }
-  }
-  return true;
+  return _.isEqual(a, b);
 }
 
 type ComponentItemKeys = 'title' | 'name'
@@ -73,9 +56,7 @@ export const ComponentItem = types.model('Component', {
   status: types.optional(types.number, 1),
   createdAt: types.maybe(IsoDate),
   updatedAt: types.maybe(IsoDate),
-  style: types.maybe(types.model({
-    display: types.optional(types.string, ''),
-  })),
+  style: types.map(types.union(types.string, types.number)),
   attrs: types.maybe(types.model({
     path: types.optional(types.string, ''),
     selected_id: types.optional(types.string, '')
@@ -96,6 +77,13 @@ export const ComponentItem = types.model('Component', {
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
+  },
+  setStyle(key: string, value: string | number | null) {
+    if (value === null) {
+      self.style.delete(key)
+    } else {
+      self.style.set(key, value)
+    }
   },
   appendChild(type: string) {
     self.children.push(ComponentItem.create({

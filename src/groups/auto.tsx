@@ -16,6 +16,7 @@ import MenuItem from './MenuItem'
 import Tab from './Tab'
 import TabItem from './TabItem'
 import Layout from './Layout'
+import SearchBtn from './SearchBtn'
 import { toJS } from 'mobx';
 
 const BaseComponent = {
@@ -24,6 +25,7 @@ const BaseComponent = {
   Tab,
   TabItem,
   Layout,
+  SearchBtn,
 }
 
 export function Component({ self, children, mode, handler, ...props }: { self: IComponent, children?: any, mode: string, handler?: any, props?: any }) {
@@ -53,6 +55,8 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
     return <Observer>
       {() => (
         <EditWrap
+          data-component-id={self._id}
+          data-component={JSON.stringify(self.style)}
           onContextMenu={e => {
             e.preventDefault();
             e.stopPropagation();
@@ -73,6 +77,7 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
           </Handler>}
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
             <SortList
+              listStyle={Object.fromEntries(self.style)}
               sort={(oldIndex: number, newIndex: number) => {
                 self.swap(oldIndex, newIndex);
               }}
@@ -153,7 +158,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
           style={toJS(template.style)}
         >
           <SortList
-            listStyle={{ height: '100%' }}
+            listStyle={{}}
             sort={(oldIndex: number, newIndex: number) => {
               const [old] = template.children.splice(oldIndex, 1);
               template.children.splice(newIndex, 0, old);
@@ -244,7 +249,23 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
       </EditItem>
       <EditItem>
         样式
-        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.style)} />
+        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
+          try {
+            const style = JSON.parse(e.target.value)
+            const keys = Array.from(local.editComponent?.style).map((v: any) => v[0])
+            const new_keys = Object.keys(style);
+            for (let k in style) {
+              local.editComponent?.setStyle(k, style[k])
+            }
+            _.difference(keys, new_keys).forEach(k => {
+              local.editComponent?.setStyle(k, null)
+            })
+          } catch (e) {
+
+          } finally {
+
+          }
+        }} />
       </EditItem>
     </div>}
   </div>)}</Observer>

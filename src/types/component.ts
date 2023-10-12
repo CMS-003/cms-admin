@@ -26,13 +26,14 @@ export type IComponent = {
   createdAt?: Date;
   updatedAt?: Date;
   accepts?: string[];
-  style?: Object;
+  style?: any;
   attrs?: any;
 
   children: IComponent[];
   $origin?: object;
   diff: Function;
   setAttr: Function;
+  setStyle: Function;
   appendChild: Function;
   swap: Function;
   toJSON: Function;

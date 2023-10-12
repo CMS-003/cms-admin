@@ -8,7 +8,7 @@ const Layout = styled.div`
   min-height: 18px;
 `
 export default function ComponentLayout({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  return <Layout>
+  return <Layout style={Object.fromEntries(self.style)} id={self._id}>
     {children}
   </Layout>
 }
