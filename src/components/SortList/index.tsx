@@ -48,9 +48,11 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
               <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>
                 {(provided, snapshot) => {
                   let transform = (provided.draggableProps.style as any).transform;
-                  if (snapshot.isDragging) {
-                    if (transform) {
+                  if (snapshot.isDragging && transform) {
+                    if (direction === 'vertical') {
                       transform = transform.replace(/\(.+\,/, "(0,");
+                    } else {
+                      transform = transform.replace(/\,.+\)/, ",0)");
                     }
                   }
                   const style = {

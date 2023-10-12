@@ -52,6 +52,7 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
   }))
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
+    const direction = self.type === 'Tab' || self.style.get('flexDirection') === 'row' ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
         <EditWrap
@@ -85,7 +86,7 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
               items={self.children}
               itemStyle={{ display: 'flex', alignItems: 'center' }}
               mode={mode}
-              direction={self.type === 'Tab' ? 'horizontal' : 'vertical'}
+              direction={direction}
               renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
