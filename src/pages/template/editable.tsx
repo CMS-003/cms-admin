@@ -63,7 +63,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           if (!local.edit_template_id) {
             local.edit_template_id = local.templates[0]._id;
           }
-          const resp = await apis.getTemplateComponents(local.templates[0]._id)
+          const resp = await apis.getTemplateComponents(local.edit_template_id)
           const { children, ...template } = resp.data
           const components = children.map(child => ComponentItem.create(child))
           local.TemplatePage = { ...template, children: components }
@@ -105,6 +105,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               <Space>
                 <Select value={local.edit_template_id} onChange={v => {
                   local.edit_template_id = v;
+                  refresh()
                 }}>
                   {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
                 </Select>

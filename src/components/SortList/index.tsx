@@ -66,12 +66,12 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
                       {...provided.draggableProps}
                       // 设置整块拖动 {...(provided.dragHandleProps)}
                       style={{
-                        // flex 解决嵌套时的样式问题
-                        flex: Object.fromEntries(item.style).flex || '',
                         ...style,
                         ...itemStyle,
+                        // flex 解决嵌套时的样式问题
+                        flex: Object.fromEntries(item.style).flex || '',
                       }}>
-                      {renderItem({ item, index, handler: provided.dragHandleProps, ...restProps })}
+                      {renderItem({ item, index, isDragging: snapshot.isDragging, handler: provided.dragHandleProps, ...restProps })}
                     </div>
                   )
                 }}

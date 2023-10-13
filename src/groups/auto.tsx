@@ -28,7 +28,7 @@ const BaseComponent = {
   SearchBtn,
 }
 
-export function Component({ self, children, mode, handler, ...props }: { self: IComponent, children?: any, mode: string, handler?: any, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, props?: any }) {
   const local = useLocalObservable(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
@@ -71,9 +71,9 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
-          {mode === 'edit' && <Handler {...handler}>
+          {mode === 'edit' && <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
             <DragOutlined />
           </Handler>}
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
@@ -84,15 +84,16 @@ export function Component({ self, children, mode, handler, ...props }: { self: I
               }}
               droppableId={self._id}
               items={self.children}
-              itemStyle={{ display: 'flex', alignItems: 'center' }}
+              itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={direction}
               renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
         </EditWrap>
-      )}
-    </Observer>
+      )
+      }
+    </Observer >
   } else {
     return <div>
       {self.type}!
@@ -246,11 +247,11 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
       </EditItem>
       <EditItem>
         attr
-        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.attrs)} />
+        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.attrs)} />
       </EditItem>
       <EditItem>
         样式
-        <Input.TextArea defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
+        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
           try {
             const style = JSON.parse(e.target.value)
             const keys = Array.from(local.editComponent?.style).map((v: any) => v[0])

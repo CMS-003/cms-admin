@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 
 export const TemplateBox = styled.div`
+  min-height: 300px;
   &.dragover {
     background-color: #ded200
   }
@@ -13,6 +14,9 @@ export const EditWrap = styled.div`
   }
   &.edit:hover {
     box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
+  }
+  &.edit:hover > div {
+    visibility: visible;
   }
   &.delete {
     background-color: #333;
@@ -50,4 +54,5 @@ export const Handler = styled.div`
   position: absolute;
   left: -7px;
   top: -10px;
+  visibility: hidden;
 `;
