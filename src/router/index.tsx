@@ -92,7 +92,7 @@ const TabPanes: FC = () => {
   const { pathname, search } = useLocation()
   const fullPath = pathname + search
 
-  const local = useLocalObservable < {
+  const local = useLocalObservable<{
     reloadPath: string,
     isReload: boolean,
     activeKey: string,
@@ -102,7 +102,7 @@ const TabPanes: FC = () => {
     pushPage(page: PaneItem): void;
     setActiveKey(key: string): void;
     tagPages: PaneItem[];
-  } > (() => ({
+  }>(() => ({
     reloadPath: '',
     tagPages: [],
     activeKey: store.page.currentTag,
@@ -293,6 +293,7 @@ const TabPanes: FC = () => {
       >
         {local.tagPages.map((pane, i) => (
           <Tabs.TabPane
+            style={{ height: '100%' }}
             closable={pane.closable || false}
             key={pane.path}
             tab={
@@ -322,9 +323,6 @@ const TabPanes: FC = () => {
                 <Alert message="刷新中..." type="info" />
               </CenterXY>
             )}
-            <CenterXY>
-                <Alert message="刷新中..." type="info" />
-              </CenterXY>
           </Tabs.TabPane>
         ))}
       </Tabs>
