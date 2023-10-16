@@ -87,25 +87,24 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
     response.then(res => {
       //业务代码 可根据需求自行处理
       const body = res.data;
-      if (res.status !== 200) {
+      if (res.status === 200) {
         if (body.code === 101010) {
           store.user.setAccessToken('')
           return window.location.href = '/sign-in'
         }
-        //特定状态码 处理特定的需求
-        if (res.status === 401) {
-          message.warn('您的账号已登出或超时，即将登出...');
-          console.log('登录异常，执行登出...');
-        }
+        //数据请求正确 使用resolve将结果返回
+        resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
 
+      } else if (res.status === 401) {
+        //特定状态码 处理特定的需求
+        message.warn('您的账号已登出或超时，即将登出...');
+        console.log('登录异常，执行登出...');
+      } else {
         let e = JSON.stringify(body);
         message.warn(`请求错误：${e}`);
         console.log(`请求错误：${e}`)
         //数据请求错误 使用reject将错误返回
         resolve(body as BaseBizError);
-      } else {
-        //数据请求正确 使用resolve将结果返回
-        resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
       }
     }).catch(error => {
       let e = JSON.stringify(error);

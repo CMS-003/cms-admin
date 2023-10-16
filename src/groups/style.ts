@@ -9,6 +9,9 @@ export const TemplateBox = styled.div`
 export const EditWrap = styled.div`
   position: relative;
   flex: 1;
+  &.preview > div {
+    height: 100%;
+  }
   &.edit {
     padding: 5px 5px 5px 15px;
   }

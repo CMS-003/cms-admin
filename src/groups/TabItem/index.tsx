@@ -50,13 +50,13 @@ export default function TabItem({ self, mode, children }: { self: IComponent, mo
   }))
   return <Observer>
     {() => (
-      <TabItemWrap
+      mode === 'edit' ? <TabItemWrap
         className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         onDragOver={local.onDragOver}
         onDragLeave={local.onDragLeave}
         onDrop={local.onDrop} >
         {children}
-      </TabItemWrap>
+      </TabItemWrap> : children
     )}
   </Observer>
 }

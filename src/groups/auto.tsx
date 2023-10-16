@@ -15,15 +15,22 @@ import Menu from './Menu'
 import MenuItem from './MenuItem'
 import Tab from './Tab'
 import TabItem from './TabItem'
+import Filter from './Filter'
+import FilterRow from './FilterRow'
+import FilterTag from './FilterTag'
 import Layout from './Layout'
 import SearchBtn from './SearchBtn'
 import { toJS } from 'mobx';
+import { Fragment } from 'react';
 
 const BaseComponent = {
   Menu,
   MenuItem,
   Tab,
   TabItem,
+  Filter,
+  FilterRow,
+  FilterTag,
   Layout,
   SearchBtn,
 }
@@ -50,18 +57,19 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
       }
     }
   }))
+  if (self.status === 0 && mode === 'preview') {
+    return null;
+  }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
     const direction = self.type === 'Tab' || self.style.get('flexDirection') === 'row' ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
-        <EditWrap
-          data-component-id={self._id}
-          data-component={JSON.stringify(self.style)}
+        mode === 'edit' ? <EditWrap
+          data-component-id={self.type + '-' + self._id}
           onContextMenu={e => {
             e.preventDefault();
             e.stopPropagation();
-            if (mode === 'preview') return;
             contextMenu.show({
               id: 'group_menu',
               event: e,
@@ -73,9 +81,9 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           onDrop={local.onDrop}
           className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
-          {mode === 'edit' && <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
+          <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
             <DragOutlined />
-          </Handler>}
+          </Handler>
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
             <SortList
               listStyle={Object.fromEntries(self.style)}
@@ -91,6 +99,11 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
             />
           </Com>
         </EditWrap>
+          : <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
+            <Fragment>
+              {self.children.map(child => (<Component mode={mode} self={child} key={child._id} {...({ level: 2 })} />))}
+            </Fragment>
+          </Com>
       )
       }
     </Observer >
@@ -159,7 +172,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
           className={local.isDragOver ? "dragover" : ""}
           style={toJS(template.style)}
         >
-          <SortList
+          {mode === 'edit' ? <SortList
             listStyle={{}}
             sort={(oldIndex: number, newIndex: number) => {
               const [old] = template.children.splice(oldIndex, 1);
@@ -170,10 +183,10 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
             }}
             droppableId={template._id}
             items={template.children}
-            itemStyle={{ display: 'flex', alignItems: 'flex-start' }}
+            itemStyle={{ display: 'flex' }}
             mode={mode}
             renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} {...props} handler={handler} />}
-          />
+          /> : (template.children.map(child => <Component self={child} key={child._id} mode={mode} {...props} />))}
         </TemplateBox>
       </div>
     )

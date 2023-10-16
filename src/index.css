@@ -45,3 +45,7 @@ code {
   height: 100%;
   background-color: #dedede;
 }
+
+.ant-tabs-tabpane {
+  height: 100%;
+}
