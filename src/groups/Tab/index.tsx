@@ -7,6 +7,7 @@ import { Component } from '../auto'
 import SortList from '@/components/SortList/';
 import TabItem from "../TabItem";
 import styled from "styled-components";
+import { contextMenu } from 'react-contexify';
 
 const TabWrap = styled.div`
   height: 100%;
@@ -37,7 +38,16 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
           defaultActiveKey={self.attrs.get('selected_id')}
           tabBarExtraContent={{ right: Image ? <Image /> : <BarsOutlined /> }}
           items={self.children.map((child, i) => ({
-            label: <TabItemWrap>
+            label: <TabItemWrap
+              onContextMenu={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                contextMenu.show({
+                  id: 'group_menu',
+                  event: e,
+                  props: child
+                });
+              }}>
               <LeftOutlined hidden={mode === 'preview'} onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
