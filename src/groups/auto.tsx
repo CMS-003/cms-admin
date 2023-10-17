@@ -10,6 +10,9 @@ import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
 import store from '@/store'
 import _ from 'lodash'
+import { useCallback } from 'react';
+import apis from '@/api'
+import { useEffectOnce } from 'react-use';
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
@@ -19,6 +22,7 @@ import Filter from './Filter'
 import FilterRow from './FilterRow'
 import FilterTag from './FilterTag'
 import Layout from './Layout'
+import PickCard from './Card'
 import SearchBtn from './SearchBtn'
 import { toJS } from 'mobx';
 import { Fragment } from 'react';
@@ -32,6 +36,7 @@ const BaseComponent = {
   FilterRow,
   FilterTag,
   Layout,
+  PickCard,
   SearchBtn,
 }
 
@@ -114,26 +119,30 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
   }
 }
 
-function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: string }) {
-  const local = useLocalObservable(() => ({
+export function TemplatePage({ template_id, mode, }: { template_id: string, mode: string }) {
+  const local = useLocalObservable<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any }>(() => ({
+    loading: true,
+    template: null,
     isDragOver: false,
     onDrop: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
+      if (mode === 'preview') {
+        return;
+      }
       const type = store.component.types.find(it => it.name === store.app.dragingType)
       if (type && type.level !== 1) {
         return message.warn('非一级组件不能直接放到模板页')
       }
-      const t = template as ITemplate;
       const child = ComponentItem.create({
         _id: '',
         parent_id: '',
         tree_id: '',
         type: store.app.dragingType,
         status: 1,
-        order: t.children.length,
-        template_id: t._id,
+        order: local.template?.children.length,
+        template_id: local.template?._id,
         title: '无',
         name: '',
         cover: '',
@@ -143,7 +152,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
         accepts: [],
         children: [],
       });
-      t.children.push(child);
+      local.template?.children.push(child)
     },
     onDragLeave: () => {
       local.isDragOver = false;
@@ -156,50 +165,63 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
       }
     }
   }))
-  if (template && template.children) {
-    const props = { level: 0 }
-    return <Observer>{() => (
-      <div style={{
-        marginTop: '5%',
-        height: '90%',
+  const refresh = useCallback(async () => {
+    local.loading = true;
+    try {
+      const resp = await apis.getTemplateComponents(template_id)
+      const { children, ...template } = resp.data
+      const components = children.map(child => ComponentItem.create(child))
+      local.template = { ...template, children: components }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      local.loading = false;
+    }
+  }, [])
+  useEffectOnce(() => {
+    refresh()
+  })
+  return <Observer>{() => {
+    if (local.loading) {
+      return <span>loading...</span>
+    } else if (local.template) {
+      return <div style={{
+        height: '100%',
         minWidth: 400,
         maxWidth: 1000,
-        boxShadow: '#29ace9 4px 4px 16px 3px',
       }}>
         <TemplateBox
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={local.isDragOver ? "dragover" : ""}
-          style={toJS(template.style)}
+          className={`${mode} ${local.isDragOver ? "dragover" : ""}`}
+          style={toJS(local.template?.style)}
         >
           {mode === 'edit' ? <SortList
             listStyle={{}}
             sort={(oldIndex: number, newIndex: number) => {
-              const [old] = template.children.splice(oldIndex, 1);
-              template.children.splice(newIndex, 0, old);
-              template.children.forEach((child, i) => {
+              const [old] = (local.template as ITemplate).children.splice(oldIndex, 1);
+              local.template?.children.splice(newIndex, 0, old);
+              local.template?.children.forEach((child, i) => {
                 child.setAttr('order', i);
               });
             }}
-            droppableId={template._id}
-            items={template.children}
+            droppableId={(local.template as ITemplate)._id}
+            items={(local.template as ITemplate).children}
             itemStyle={{ display: 'flex' }}
             mode={mode}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} {...props} handler={handler} />}
-          /> : (template.children.map(child => <Component self={child} key={child._id} mode={mode} {...props} />))}
+            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} handler={handler} />}
+          /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} />))}
         </TemplateBox>
       </div>
-    )
-    }</Observer >
-  } else if (template) {
-    return <div>Empty Page</div>
-  } else {
-    return <div>Page NotFound</div>
+    } else {
+      return <div>Page NotFound</div>
+    }
   }
+  }</Observer >
 }
 
-export default function Page({ template, mode, ...props }: { props?: any, mode: string, template: ITemplate | null }) {
+export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
   const local = useLocalObservable<{ editComponent: IComponent | null }>(() => ({
     editComponent: null,
   }))
@@ -215,10 +237,10 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
     <ContextMenuItem onClick={(e: any) => test(e, e.props)}>添加子视图</ContextMenuItem>
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%' }}>
+  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', padding: 10, border: '1px solid #ccc', boxShadow: 'inset rgb(41, 172, 233) 0px 0px 8px 0px' }}>
     <GroupMenu />
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
-      <TemplatePage template={template} mode={mode} />
+      <TemplatePage template_id={template_id} mode={mode} />
     </div>
     {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat' }}>
       <AlignAside>
@@ -273,7 +295,7 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
               local.editComponent?.setAttrs(k, null)
             })
           } catch (e) {
-            
+
           } finally {
 
           }

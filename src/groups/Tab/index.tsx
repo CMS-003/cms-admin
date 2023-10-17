@@ -8,6 +8,8 @@ import SortList from '@/components/SortList/';
 import TabItem from "../TabItem";
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
+import { Fragment } from "react";
+import { TemplatePage } from '../auto'
 
 const TabWrap = styled.div`
   height: 100%;
@@ -66,19 +68,22 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
             </TabItemWrap>,
             key: child._id,
             children: (
-              mode === 'edit' ? <TabItem self={child} mode={mode}>
-                <SortList
-                  sort={(oldIndex: number, newIndex: number) => {
-                    self.swap(oldIndex, newIndex);
-                  }}
-                  droppableId={self._id}
-                  items={child.children}
-                  itemStyle={{ display: 'flex', alignItems: 'center' }}
-                  mode={mode}
-                  direction={'vertical'}
-                  renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
-                />
-              </TabItem> : <Component mode={mode} self={child} key={child._id} />
+              child.attrs.get('content_type') === 'template' ? (<Fragment>
+                <TemplatePage mode={'preview'} template_id={child.attrs.get('template_id')} />
+              </Fragment>) :
+                mode === 'edit' ? <TabItem self={child} mode={mode}>
+                  <SortList
+                    sort={(oldIndex: number, newIndex: number) => {
+                      self.swap(oldIndex, newIndex);
+                    }}
+                    droppableId={self._id}
+                    items={child.children}
+                    itemStyle={{ display: 'flex', alignItems: 'center' }}
+                    mode={mode}
+                    direction={'vertical'}
+                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
+                  />
+                </TabItem> : <Component mode={mode} self={child} key={child._id} />
             )
           }))}
         >

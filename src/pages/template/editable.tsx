@@ -41,7 +41,6 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     templates: ITemplate[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
-    TemplatePage: null | (ITemplate),
   }>(() => ({
     mode: 'edit',
     loading: true,
@@ -51,7 +50,6 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     selectedProjectId: '',
     edit_template_id: '',
     types: [],
-    TemplatePage: null,
   }))
   const refresh = useCallback(async () => {
     local.loading = true;
@@ -64,10 +62,6 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           if (!local.edit_template_id) {
             local.edit_template_id = local.templates[0]._id;
           }
-          const resp = await apis.getTemplateComponents(local.edit_template_id)
-          const { children, ...template } = resp.data
-          const components = children.map(child => ComponentItem.create(child))
-          local.TemplatePage = { ...template, children: components }
         }
       }
     } catch (e) {
@@ -121,25 +115,25 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
             </AlignAside>
           </FullHeightFix>
-          <FullWidthAuto>
-            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<LoadingOutlined />} tip="加载中..." /> : <Auto template={local.TemplatePage} mode={local.mode} />}
+          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center' }}>
+            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<LoadingOutlined />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
             <Button type="primary" onClick={async () => {
-              const diff = getDiff(local.TemplatePage);
-              if (diff.length) {
-                try {
-                  local.fetching = true
-                  await apis.batchUpdateComponent({ body: diff })
-                  await refresh()
-                } catch (e) {
-                  console.log(e)
-                } finally {
-                  local.fetching = false
-                }
-              } else {
-                message.warn('数据无变化')
-              }
+              // const diff = getDiff(local.TemplatePage);
+              // if (diff.length) {
+              //   try {
+              //     local.fetching = true
+              //     await apis.batchUpdateComponent({ body: diff })
+              //     await refresh()
+              //   } catch (e) {
+              //     console.log(e)
+              //   } finally {
+              //     local.fetching = false
+              //   }
+              // } else {
+              //   message.warn('数据无变化')
+              // }
             }}>保存</Button>
           </FullHeightFix>
         </FullHeight>

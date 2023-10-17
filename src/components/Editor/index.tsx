@@ -19,7 +19,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
     return (<Fragment>
       <Modal
         title={data._id ? '修改' : '添加'}
-        visible={visible}
+        open={visible}
         key={visible ? 1 : 2}
         okText="确定"
         confirmLoading={local.fetching}

@@ -1,9 +1,12 @@
 import styled from 'styled-components'
 
 export const TemplateBox = styled.div`
-  min-height: 300px;
-  &.dragover {
+  height: 100%;
+  &.edit.dragover {
     background-color: #ded200
+  }
+  &.preview.dragover {
+    background-color: #aaa;
   }
 `
 export const EditWrap = styled.div`

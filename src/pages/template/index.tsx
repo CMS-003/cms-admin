@@ -3,7 +3,7 @@ import { Button, Divider, notification, Space, Table, Select } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
-import { IComponent, IEditorComponent } from '@/types'
+import { IComponent, IEditorComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
@@ -11,13 +11,13 @@ import store from '@/store';
 import { AlignAside } from '@/components/style'
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: { name: string, value: string }[], selectedProjectId: string } > (() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,
     selectedProjectId: '',
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
-    openEditor(data: IComponent) {
+    openEditor(data: ITemplate) {
       local.temp = data
       local.showEditPage = true
     }
@@ -146,6 +146,7 @@ const ComponentTemplatePage: React.FC = () => {
       </Space>
       <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
         < Button type="primary" onClick={e => {
+          local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
           local.showEditPage = true
         }}>新增</Button>
       </Space>
