@@ -237,12 +237,12 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     <ContextMenuItem onClick={(e: any) => test(e, e.props)}>添加子视图</ContextMenuItem>
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', padding: 10, border: '1px solid #ccc', boxShadow: 'inset rgb(41, 172, 233) 0px 0px 8px 0px' }}>
+  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'flex-start' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', border: '1px solid #ccc',  boxShadow: 'inset rgb(41, 172, 233) 0px 0px 8px 0px' }}>
       <TemplatePage template_id={template_id} mode={mode} />
     </div>
-    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat' }}>
+    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
       <AlignAside>
         <span>属性修改({local.editComponent.type})</span>
         <CloseOutlined onClick={() => {
