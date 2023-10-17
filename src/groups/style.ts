@@ -9,6 +9,8 @@ export const TemplateBox = styled.div`
 export const EditWrap = styled.div`
   position: relative;
   flex: 1;
+  width: 100%;
+
   &.preview > div {
     height: 100%;
   }
@@ -55,7 +57,7 @@ export const ScrollWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
-  left: -7px;
-  top: -10px;
+  left: -3px;
+  top: -7px;
   visibility: hidden;
 `;

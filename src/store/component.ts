@@ -57,10 +57,7 @@ export const ComponentItem = types.model('Component', {
   createdAt: types.maybe(IsoDate),
   updatedAt: types.maybe(IsoDate),
   style: types.map(types.union(types.string, types.number)),
-  attrs: types.maybe(types.model({
-    path: types.optional(types.string, ''),
-    selected_id: types.optional(types.string, '')
-  })),
+  attrs: types.map(types.union(types.string, types.number)),
   accepts: types.optional(types.array(types.string), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
@@ -77,6 +74,13 @@ export const ComponentItem = types.model('Component', {
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
+  },
+  setAttrs(key: string, value: string | number | null) {
+    if (value === null) {
+      self.attrs.delete(key)
+    } else {
+      self.attrs.set(key, value)
+    }
   },
   setStyle(key: string, value: string | number | null) {
     if (value === null) {

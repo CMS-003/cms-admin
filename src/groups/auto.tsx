@@ -163,6 +163,7 @@ function TemplatePage({ template, mode, }: { template: ITemplate | null, mode: s
         marginTop: '5%',
         height: '90%',
         minWidth: 400,
+        maxWidth: 1000,
         boxShadow: '#29ace9 4px 4px 16px 3px',
       }}>
         <TemplateBox
@@ -260,7 +261,23 @@ export default function Page({ template, mode, ...props }: { props?: any, mode: 
       </EditItem>
       <EditItem>
         attr
-        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.attrs)} />
+        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.attrs, null, 2)} onChange={e => {
+          try {
+            const attrs = JSON.parse(e.target.value)
+            const keys = Array.from(local.editComponent?.attrs).map((v: any) => v[0])
+            const new_keys = Object.keys(attrs);
+            for (let k in attrs) {
+              local.editComponent?.setAttrs(k, attrs[k])
+            }
+            _.difference(keys, new_keys).forEach(k => {
+              local.editComponent?.setAttrs(k, null)
+            })
+          } catch (e) {
+            
+          } finally {
+
+          }
+        }} />
       </EditItem>
       <EditItem>
         样式

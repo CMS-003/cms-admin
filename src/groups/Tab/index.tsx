@@ -34,7 +34,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
     {() => (
       <TabWrap>
         <Tabs
-          defaultActiveKey={self.attrs.selected_id}
+          defaultActiveKey={self.attrs.get('selected_id')}
           tabBarExtraContent={{ right: Image ? <Image /> : <BarsOutlined /> }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap>

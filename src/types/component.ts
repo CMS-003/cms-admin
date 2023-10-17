@@ -33,6 +33,7 @@ export type IComponent = {
   $origin?: object;
   diff: Function;
   setAttr: Function;
+  setAttrs: Function;
   setStyle: Function;
   appendChild: Function;
   swap: Function;

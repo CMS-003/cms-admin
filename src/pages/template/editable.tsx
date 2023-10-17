@@ -59,6 +59,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
       const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
       if (result.code === 0) {
         local.templates = result.data.items
+        store.app.setEditComponentId('')
         if (local.templates.length) {
           if (!local.edit_template_id) {
             local.edit_template_id = local.templates[0]._id;
