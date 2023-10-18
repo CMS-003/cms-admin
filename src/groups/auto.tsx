@@ -23,7 +23,9 @@ import FilterRow from './FilterRow'
 import FilterTag from './FilterTag'
 import Layout from './Layout'
 import PickCard from './Card'
+import RandomCard from './Random'
 import SearchBtn from './SearchBtn'
+import IconBtn from './Button'
 import { toJS } from 'mobx';
 import { Fragment } from 'react';
 import events from '@/utils/event';
@@ -38,7 +40,9 @@ const BaseComponent = {
   FilterTag,
   Layout,
   PickCard,
+  RandomCard,
   SearchBtn,
+  IconBtn,
 }
 
 function getDiff(t: ITemplate | IComponent | null) {

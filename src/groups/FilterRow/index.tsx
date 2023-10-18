@@ -31,7 +31,13 @@ export default function ComponentFilterRow({ self, mode, children }: { self: ICo
             itemStyle={{ display: 'flex', alignItems: 'center', }}
             mode={mode}
             direction={'horizontal'}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
+            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} {...({
+              onSelect: (id: string) => {
+                self.children.forEach(child => {
+                  child.setAttr('$selected', child._id === id ? true : false)
+                })
+              }
+            })} />}
           />
           <PlusCircleOutlined onClick={() => {
             self.appendChild('FilterTag')

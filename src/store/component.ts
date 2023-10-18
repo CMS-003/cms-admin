@@ -41,6 +41,7 @@ type ComponentItemKeys = 'title' | 'name'
 export const ComponentItem = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
+  $selected: types.optional(types.boolean, false),
   _id: types.optional(types.string, ''),
   type: types.optional(types.string, ''),
   template_id: types.optional(types.string, ''),
@@ -63,7 +64,7 @@ export const ComponentItem = types.model('Component', {
 }).views(self => ({
   toJSON() {
     const data = getSnapshot(self);
-    return _.omit(data, ['data', 'children', '$origin'])
+    return _.omit(data, ['data', 'children', '$origin', '$selected'])
   },
   diff() {
     if (!deepEqual(self.$origin, this.toJSON())) {

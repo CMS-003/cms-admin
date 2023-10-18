@@ -1,6 +1,8 @@
+
 import { IComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
+import { SyncOutlined } from '@ant-design/icons'
 
 const Header = styled.div`
  font-weight: 600;
@@ -21,6 +23,7 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
       </Header>
       <Content>
 
+        <div style={{ textAlign: 'center', padding: '5px 0' }}><SyncOutlined /></div>
       </Content>
     </div>
   )

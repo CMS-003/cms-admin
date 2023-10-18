@@ -31,6 +31,7 @@ export type IComponent = {
 
   children: IComponent[];
   $origin?: object;
+  $selected?: boolean;
   diff: Function;
   setAttr: Function;
   setAttrs: Function;
