@@ -1,5 +1,5 @@
 import { Observer } from 'mobx-react-lite'
-import { DragDropContext, Droppable, Draggable, DraggingStyle, NotDraggingStyle, DropResult, Direction } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult, Direction } from "react-beautiful-dnd";
 
 const reorder = (list: any, startIndex: number, endIndex: number) => {
   const result = Array.from(list);
@@ -50,9 +50,9 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
                   let transform = (provided.draggableProps.style as any).transform;
                   if (snapshot.isDragging && transform) {
                     if (direction === 'vertical') {
-                      transform = transform.replace(/\(.+\,/, "(0,");
+                      transform = transform.replace(/\(.+,/, "(0,");
                     } else {
-                      transform = transform.replace(/\,.+\)/, ",0)");
+                      transform = transform.replace(/,.+\)/, ",0)");
                     }
                   }
                   const style = {

@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { message } from 'antd'
 import store from '../store'
 import _ from 'lodash';
@@ -175,8 +175,6 @@ class Request<T> {
             message.warn('您的账号已登出或超时，即将登出...');
             console.log('登录异常，执行登出...');
           }
-
-          let e = JSON.stringify(body);
           //数据请求错误 使用reject将错误返回
           resolve(body as BaseBizError);
         } else {

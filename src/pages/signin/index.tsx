@@ -2,7 +2,6 @@ import React from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
 import { MinusCircleOutlined } from '@ant-design/icons';
-import { IType, IMSTArray } from 'mobx-state-tree'
 import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
 import apis from '../../api'

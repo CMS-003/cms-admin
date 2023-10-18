@@ -1,4 +1,4 @@
-import { Button, notification, Space, Table, Tag, Input, Select } from 'antd';
+import { Button, notification, Space, Table, Input, Select } from 'antd';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
@@ -26,7 +26,7 @@ const ConfigPage: React.FC = () => {
       local.list = result.data.items
     }
   }, [])
-  const [fields, setFields] = useState([
+  const [fields] = useState([
     {
       field: 'type',
       title: '配置类型',

@@ -1,7 +1,7 @@
 import { Button, notification, Space, Table, Image } from 'antd';
 import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
-import React, { Fragment, useCallback, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useState } from 'react';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import EditPage from '@/components/Editor'
 import { IProject, IEditorComponent } from '../../types'

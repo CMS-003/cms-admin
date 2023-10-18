@@ -3,15 +3,14 @@ import styled from 'styled-components'
 import { Component } from '../auto'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import SortList from '@/components/SortList'
-import { Fragment } from 'react'
 import { Observer } from 'mobx-react'
+import { ScrollWrap } from '../style'
 
 const Wrap = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
-  width: 100%;
   overflow-x: auto;
   &::-webkit-scrollbar {
     display: none;
@@ -38,9 +37,9 @@ export default function ComponentFilterRow({ self, mode, children }: { self: ICo
             self.appendChild('FilterTag')
           }} />
         </div> : (
-          <Fragment>
+          <ScrollWrap>
             {self.children.map(child => <Component self={child} mode={mode} key={child._id} />)}
-          </Fragment>
+          </ScrollWrap>
         )}
       </Wrap>
     )}

@@ -3,7 +3,6 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { Modal, notification, } from 'antd'
 import { IEditorField } from '@/types'
 import Content from './content'
-import { toJS } from 'mobx'
 
 export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
   const local = useLocalObservable < { fetching: boolean } > (() => ({

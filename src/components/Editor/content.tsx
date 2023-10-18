@@ -1,10 +1,9 @@
-import React, { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
+import { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Form, Input, Modal, notification, Switch, Upload, Button, Select, Spin, message, } from 'antd'
+import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
 import { UploadOutlined } from '@ant-design/icons'
 import { Codemirror } from 'react-codemirror-ts';
-import _, { debounce } from 'lodash'
-import apis from '@/api'
+import { debounce } from 'lodash'
 import store from '@/store'
 import { IEditorField } from '@/types'
 import 'codemirror/mode/javascript/javascript';

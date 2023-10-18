@@ -26,6 +26,7 @@ import PickCard from './Card'
 import SearchBtn from './SearchBtn'
 import { toJS } from 'mobx';
 import { Fragment } from 'react';
+import events from '@/utils/event';
 
 const BaseComponent = {
   Menu,
@@ -38,6 +39,26 @@ const BaseComponent = {
   Layout,
   PickCard,
   SearchBtn,
+}
+
+function getDiff(t: ITemplate | IComponent | null) {
+  if (!t) {
+    return [];
+  }
+  const results: IComponent[] = [];
+  if (t.children) {
+    t.children.forEach((child) => {
+      const diff = child.diff()
+      if (diff) {
+        results.push((child as IComponent).toJSON())
+      }
+      const subResults = getDiff(child);
+      if (subResults.length) {
+        results.push(...subResults)
+      }
+    })
+  }
+  return results;
 }
 
 export function Component({ self, children, mode, isDragging, handler, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, props?: any }) {
@@ -178,19 +199,40 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
       local.loading = false;
     }
   }, [])
+  const eventHandle = useCallback(async (id: string) => {
+    if (id === template_id) {
+      const diff = getDiff(local.template);
+      if (diff.length) {
+        try {
+          await apis.batchUpdateComponent({ body: diff })
+          await refresh()
+        } catch (e) {
+          console.log(e)
+        } finally {
+          events.emit('finished')
+        }
+      } else {
+        message.warn('数据无变化')
+      }
+    }
+  }, [])
   useEffectOnce(() => {
     refresh()
+    events.on('editable', eventHandle)
+    return () => {
+      events.off('editable', eventHandle);
+    }
   })
-  return <Observer>{() => {
-    if (local.loading) {
-      return <span>loading...</span>
-    } else if (local.template) {
-      return <div style={{
-        height: '100%',
-        minWidth: 400,
-        maxWidth: 1000,
-      }}>
-        <TemplateBox
+  return <div style={{
+    height: '100%',
+    maxWidth: 480,
+    minWidth: 400,
+  }}>
+    <Observer>{() => {
+      if (local.loading) {
+        return <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
+      } else if (local.template) {
+        return <TemplateBox
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
@@ -213,12 +255,12 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
             renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} handler={handler} />}
           /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} />))}
         </TemplateBox>
-      </div>
-    } else {
-      return <div>Page NotFound</div>
+      } else {
+        return <div>Page NotFound</div>
+      }
     }
-  }
-  }</Observer >
+    }</Observer >
+  </div>
 }
 
 export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
@@ -237,9 +279,9 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     <ContextMenuItem onClick={(e: any) => test(e, e.props)}>添加子视图</ContextMenuItem>
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', }}>
+  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', border: '1px solid #ccc',  boxShadow: 'inset rgb(41, 172, 233) 0px 0px 8px 0px' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
       <TemplatePage template_id={template_id} mode={mode} />
     </div>
     {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>

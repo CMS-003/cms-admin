@@ -16,6 +16,9 @@ const TabWrap = styled.div`
   & > div {
     height: 100%;
   }
+  & > .ant-tabs-top > .ant-tabs-nav {
+    margin: 0;
+  }
 `
 const TabItemWrap = styled.div`
   display: flex;

@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, Divider, notification, Space, Table, Select } from 'antd';
+import { Button, notification, Space, Table, Select } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'

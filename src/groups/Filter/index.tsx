@@ -1,7 +1,6 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
 import { IComponent } from '@/types/component'
 import _ from 'lodash'
-import styled from 'styled-components'
 import SortList from '@/components/SortList/';
 import { Component } from '../auto'
 import { PlusCircleOutlined } from '@ant-design/icons'

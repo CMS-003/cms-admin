@@ -1,4 +1,4 @@
-import { types, IType, IMSTArray, SnapshotIn, SnapshotOut, flow } from 'mobx-state-tree'
+import { types, IType, IMSTArray, SnapshotIn, SnapshotOut } from 'mobx-state-tree'
 import { IProject } from '@/types'
 
 export const ProjectItem: any = types.model('ProjectItem', {

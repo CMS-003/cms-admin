@@ -1,4 +1,4 @@
-import { Layout, Dropdown, Menu, Popover, Button, message } from 'antd';
+import { Layout, Dropdown, Menu, Popover, Button } from 'antd';
 import React, { useCallback, useState } from 'react';
 import logo from '../logo.svg';
 import { UserOutlined } from '@ant-design/icons';

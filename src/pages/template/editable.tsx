@@ -1,35 +1,15 @@
-import React, { Fragment, useCallback, useEffect } from 'react';
-import { Button, Space, Select, Image, Divider, Switch, Spin, message } from 'antd';
+import { Fragment, useCallback, useEffect } from 'react';
+import { Button, Space, Select, Image, Divider, Switch, Spin } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
-import { AlignAside, FullWidth, FullWidthFix, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
+import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
-import { ComponentItem } from '@/store/component';
 import { LoadingOutlined } from '@ant-design/icons';
-
-function getDiff(t: ITemplate | IComponent | null) {
-  if (!t) {
-    return [];
-  }
-  const results: IComponent[] = [];
-  if (t.children) {
-    t.children.forEach((child) => {
-      const diff = child.diff()
-      if (diff) {
-        results.push((child as IComponent).toJSON())
-      }
-      const subResults = getDiff(child);
-      if (subResults.length) {
-        results.push(...subResults)
-      }
-    })
-  }
-  return results;
-}
+import events from '@/utils/event';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
   const local = useLocalObservable<{
@@ -75,6 +55,9 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
   }, [t])
   useEffectOnce(() => {
     refresh()
+    events.on('finished', () => {
+      local.fetching = false;
+    })
   })
   return (<Observer>{() => <Fragment>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
@@ -120,20 +103,8 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
             <Button type="primary" onClick={async () => {
-              // const diff = getDiff(local.TemplatePage);
-              // if (diff.length) {
-              //   try {
-              //     local.fetching = true
-              //     await apis.batchUpdateComponent({ body: diff })
-              //     await refresh()
-              //   } catch (e) {
-              //     console.log(e)
-              //   } finally {
-              //     local.fetching = false
-              //   }
-              // } else {
-              //   message.warn('数据无变化')
-              // }
+              local.fetching = true
+              events.emit('editable', local.edit_template_id)
             }}>保存</Button>
           </FullHeightFix>
         </FullHeight>
