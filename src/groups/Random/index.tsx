@@ -10,10 +10,12 @@ const Header = styled.div`
  padding: 5px;
  color: #555;
 `
+const Wrap = styled.div`
+border-radius: 10px;
+background-color: #eee;
+`
 const Content = styled.div`
-  min-height: 150px;
-  border-radius: 10px;
-  background-color: #eee;
+  min-height: 120px;
 `
 export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
   return <Observer>{() => (
@@ -21,10 +23,12 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
       <Header>
         {self.title}
       </Header>
-      <Content>
+      <Wrap>
+        <Content>
 
+        </Content>
         <div style={{ textAlign: 'center', padding: '5px 0' }}><SyncOutlined /></div>
-      </Content>
+      </Wrap>
     </div>
   )
   }</Observer >
