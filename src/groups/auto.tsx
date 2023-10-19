@@ -114,7 +114,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
             <DragOutlined />
           </Handler>
-          <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
+          <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
             <SortList
               listStyle={Object.fromEntries(self.style)}
               sort={(oldIndex: number, newIndex: number) => {
@@ -129,7 +129,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
             />
           </Com>
         </EditWrap>
-          : <Com self={self} mode={mode} level={_.get(props, 'level', 1)}>
+          : <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
             <Fragment>
               {self.children.map(child => (<Component mode={mode} self={child} key={child._id} {...({ level: 2 })} />))}
             </Fragment>
