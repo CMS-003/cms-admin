@@ -1,6 +1,14 @@
 import { IComponent } from '@/types/component'
-import { Observer } from 'mobx-react'
+import { PlusOutlined } from '@ant-design/icons'
+import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
+import { Center } from '@/components/style'
+import ResourceModal from '@/components/ResourceModal'
+import { IResource } from '@/types/resource'
+import _ from 'lodash'
+import { Fragment } from 'react'
+import { Image } from 'antd'
+import { ScrollWrap } from '../style'
 
 const Header = styled.div`
  font-weight: 600;
@@ -13,15 +21,60 @@ const Content = styled.div`
   border-radius: 10px;
   background-color: #eee;
 `
+
+const ItemWrap = styled.div`
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  height: 150px;
+  margin: 10px 5px 0 10px;
+`
+
+const ItemTitle = styled.div`
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  display: -webkit-box; 
+  -webkit-box-orient: vertical; 
+  -webkit-line-clamp: 2;
+  height: 34px;
+  line-height: 1.2;
+  margin: 5px 0;
+`
 export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+  const local = useLocalObservable(() => ({
+    show: false,
+    close() {
+      local.show = false;
+    },
+    open() {
+      local.show = true;
+    }
+  }))
   return <Observer>{() => (
     <div style={Object.fromEntries(self.style)}>
       <Header>
         {self.title}
       </Header>
       <Content>
-
+        <ScrollWrap style={{ height: '100%' }}>
+          {self.resources?.map(item => (<Fragment key={item._id}>
+            <ItemWrap>
+              <div style={{ width: 150, height: 120, backgroundImage: `url(${"http://192.168.0.124:8097" + item.cover})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
+              <ItemTitle >{item.title}</ItemTitle>
+            </ItemWrap>
+          </Fragment>))}
+        </ScrollWrap>
       </Content>
+      {local.show && <ResourceModal onClose={() => {
+        local.close()
+      }} onAdd={(d: IResource) => {
+        self.addResource(_.pick(d, ['_id', 'title', 'cover']))
+      }} />}
+      {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
+        local.open()
+      }}>
+        添加资源<PlusOutlined />
+      </Center>}
     </div>
   )
   }</Observer >

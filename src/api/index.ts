@@ -4,6 +4,7 @@ import config from './config'
 import component from './component'
 import project from './project'
 import template from './template'
+import resource from './resource'
 import componentType from './component-type'
 import { IComponent, IComponentType, ITemplate } from "@/types";
 import _ from 'lodash'
@@ -49,6 +50,7 @@ const apis = {
   ...template,
   ...componentType,
   ...user,
+  ...resource,
 }
 
 export default apis;

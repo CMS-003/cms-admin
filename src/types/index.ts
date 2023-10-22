@@ -4,6 +4,7 @@ export * from "./user"
 export * from "./menu"
 export * from "./component"
 export * from "./project"
+export * from "./resource"
 
 export type ITemplate = {
   _id: string;

@@ -1,5 +1,5 @@
 import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
-import { IComponent, IComponentType } from '@/types'
+import { IComponent, IComponentType, IResource } from '@/types'
 import _, { } from 'lodash'
 import { v4 } from 'uuid'
 
@@ -60,6 +60,11 @@ export const ComponentItem = types.model('Component', {
   style: types.map(types.union(types.string, types.number)),
   attrs: types.map(types.union(types.string, types.number)),
   accepts: types.optional(types.array(types.string), []),
+  resources: types.optional(types.array(types.model({
+    _id: types.string,
+    title: types.optional(types.string, ''),
+    cover: types.optional(types.string, ''),
+  })), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
   toJSON() {
@@ -111,6 +116,15 @@ export const ComponentItem = types.model('Component', {
       accepts: self.toJSON().accepts,
       children: [],
     }))
+  },
+  addResource(data: IResource) {
+    self.resources.push(data)
+  },
+  remResource(_id: string) {
+    const index = self.resources.findIndex(item => item._id === _id);
+    if (index > -1) {
+      self.resources.splice(index, 1)
+    }
   },
   swap(oldIndex: number, newIndex: number) {
     if (oldIndex === newIndex) {

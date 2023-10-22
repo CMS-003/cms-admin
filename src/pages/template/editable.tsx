@@ -98,7 +98,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
             </AlignAside>
           </FullHeightFix>
-          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center' }}>
+          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
             {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<LoadingOutlined />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

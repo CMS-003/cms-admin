@@ -283,12 +283,12 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     <ContextMenuItem onClick={(e: any) => test(e, e.props)}>添加子视图</ContextMenuItem>
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', }}>
     <GroupMenu />
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
       <TemplatePage template_id={template_id} mode={mode} />
     </div>
-    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
+    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
       <AlignAside>
         <span>属性修改({local.editComponent.type})</span>
         <CloseOutlined onClick={() => {
@@ -326,6 +326,13 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
           local.editComponent?.setAttr('icon', e.target.value);
         }} />
+      </EditItem>
+      <EditItem>
+        resources
+        {local.editComponent.resources?.map(resource => (<Fragment>
+          <Input readOnly value={resource._id} addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }} />} />
+          <Input value={resource.title} />
+        </Fragment>))}
       </EditItem>
       <EditItem>
         attr

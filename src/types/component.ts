@@ -1,3 +1,4 @@
+import { IResource } from "./resource";
 
 export type IConfig = {
   _id?: string;
@@ -28,8 +29,10 @@ export type IComponent = {
   accepts?: string[];
   style?: any;
   attrs?: any;
+  resources?: IResource[];
 
   children: IComponent[];
+  data?: IResource[];
   $origin?: object;
   $selected?: boolean;
   diff: Function;
@@ -37,6 +40,8 @@ export type IComponent = {
   setAttrs: Function;
   setStyle: Function;
   appendChild: Function;
+  addResource: Function;
+  remResource: Function;
   swap: Function;
   toJSON: Function;
 }

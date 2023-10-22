@@ -11,6 +11,10 @@ align-items: center;
 justify-content: center;
 `;
 
+export const Center = styled.div`
+  text-align: center;
+`
+
 export const AlignAside = styled.div`
 display: flex;
 justify-content: space-between;
