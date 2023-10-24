@@ -43,6 +43,7 @@ export type IComponent = {
   addResource: Function;
   remResource: Function;
   swap: Function;
+  swapResource: Function;
   toJSON: Function;
 }
 

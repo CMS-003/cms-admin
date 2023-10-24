@@ -126,6 +126,14 @@ export const ComponentItem = types.model('Component', {
       self.resources.splice(index, 1)
     }
   },
+  swapResource(oldIndex: number, newIndex: number) {
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const [removed] = self.resources.splice(oldIndex, 1);
+    const old = getSnapshot(removed);
+    self.resources.splice(newIndex, 0, old);
+  },
   swap(oldIndex: number, newIndex: number) {
     if (oldIndex === newIndex) {
       return;

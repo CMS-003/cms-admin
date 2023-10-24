@@ -1,4 +1,4 @@
-import { ITemplate, IComponent } from '@/types'
+import { ITemplate, IComponent, IResource } from '@/types'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
@@ -29,6 +29,7 @@ import IconBtn from './Button'
 import { toJS } from 'mobx';
 import { Fragment } from 'react';
 import events from '@/utils/event';
+import styled from 'styled-components';
 
 const BaseComponent = {
   Menu,
@@ -267,6 +268,15 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
   </div>
 }
 
+const ScrollWrap = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  margin: 10px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`
+
 export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
   const local = useLocalObservable<{ editComponent: IComponent | null }>(() => ({
     editComponent: null,
@@ -288,92 +298,110 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
       <TemplatePage template_id={template_id} mode={mode} />
     </div>
-    {local.editComponent && <div key={local.editComponent._id} style={{ width: 300, padding: '0 10px', overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
-      <AlignAside>
+    {local.editComponent && <div key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
+      <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({local.editComponent.type})</span>
         <CloseOutlined onClick={() => {
           store.app.setEditComponentId('')
           local.editComponent = null
         }} />
       </AlignAside>
-      <EditItem>
-        <Input addonBefore="标题" defaultValue={local.editComponent.title} onChange={e => {
-          if (local.editComponent) {
-            local.editComponent.setAttr('title', e.target.value);
-          }
-        }} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="描述" value={local.editComponent.desc} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="parent_id" readOnly value={local.editComponent.parent_id} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="_id" readOnly value={local.editComponent._id} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="status" type="number" value={local.editComponent.status} onChange={e => {
-          if (local.editComponent) {
-            local.editComponent.setAttr('status', parseInt(e.target.value));
-          }
-        }} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="name" value={local.editComponent.name} />
-      </EditItem>
-      <EditItem>
-        <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
-          local.editComponent?.setAttr('icon', e.target.value);
-        }} />
-      </EditItem>
-      <EditItem>
-        resources
-        {local.editComponent.resources?.map(resource => (<Fragment>
-          <Input readOnly value={resource._id} addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }} />} />
-          <Input value={resource.title} />
-        </Fragment>))}
-      </EditItem>
-      <EditItem>
-        attr
-        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.attrs, null, 2)} onChange={e => {
-          try {
-            const attrs = JSON.parse(e.target.value)
-            const keys = Array.from(local.editComponent?.attrs).map((v: any) => v[0])
-            const new_keys = Object.keys(attrs);
-            for (let k in attrs) {
-              local.editComponent?.setAttrs(k, attrs[k])
+      <ScrollWrap>
+        <EditItem>
+          <Input addonBefore="标题" defaultValue={local.editComponent.title} onChange={e => {
+            if (local.editComponent) {
+              local.editComponent.setAttr('title', e.target.value);
             }
-            _.difference(keys, new_keys).forEach(k => {
-              local.editComponent?.setAttrs(k, null)
-            })
-          } catch (e) {
-
-          } finally {
-
-          }
-        }} />
-      </EditItem>
-      <EditItem>
-        样式
-        <Input.TextArea style={{ minHeight: 300 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
-          try {
-            const style = JSON.parse(e.target.value)
-            const keys = Array.from(local.editComponent?.style).map((v: any) => v[0])
-            const new_keys = Object.keys(style);
-            for (let k in style) {
-              local.editComponent?.setStyle(k, style[k])
+          }} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="描述" value={local.editComponent.desc} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="parent_id" readOnly value={local.editComponent.parent_id} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="_id" readOnly value={local.editComponent._id} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="status" type="number" value={local.editComponent.status} onChange={e => {
+            if (local.editComponent) {
+              local.editComponent.setAttr('status', parseInt(e.target.value));
             }
-            _.difference(keys, new_keys).forEach(k => {
-              local.editComponent?.setStyle(k, null)
-            })
-          } catch (e) {
+          }} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="name" value={local.editComponent.name} />
+        </EditItem>
+        <EditItem>
+          <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
+            local.editComponent?.setAttr('icon', e.target.value);
+          }} />
+        </EditItem>
+        <EditItem>
+          resources
+          <SortList
+            key={local.editComponent.resources?.length}
+            sort={(oldIndex: number, newIndex: number) => {
+              local.editComponent && local.editComponent.swapResource(oldIndex, newIndex);
+            }}
+            droppableId={local.editComponent._id}
+            items={(local.editComponent.resources as any)}
+            itemStyle={{ display: 'flex', alignItems: 'center' }}
+            mode={mode}
+            direction={'vertical'}
+            renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <DragOutlined {...handler2} />
+                <div>
+                  <Input readOnly value={resource._id} addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }} />} />
+                  <Input value={resource.title} />
+                </div>
+              </div>
+            </Fragment>}
+          />
+        </EditItem>
+        <EditItem>
+          attr
+          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.attrs, null, 2)} onChange={e => {
+            try {
+              const attrs = JSON.parse(e.target.value)
+              const keys = Array.from(local.editComponent?.attrs).map((v: any) => v[0])
+              const new_keys = Object.keys(attrs);
+              for (let k in attrs) {
+                local.editComponent?.setAttrs(k, attrs[k])
+              }
+              _.difference(keys, new_keys).forEach(k => {
+                local.editComponent?.setAttrs(k, null)
+              })
+            } catch (e) {
 
-          } finally {
+            } finally {
 
-          }
-        }} />
-      </EditItem>
+            }
+          }} />
+        </EditItem>
+        <EditItem>
+          样式
+          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
+            try {
+              const style = JSON.parse(e.target.value)
+              const keys = Array.from(local.editComponent?.style).map((v: any) => v[0])
+              const new_keys = Object.keys(style);
+              for (let k in style) {
+                local.editComponent?.setStyle(k, style[k])
+              }
+              _.difference(keys, new_keys).forEach(k => {
+                local.editComponent?.setStyle(k, null)
+              })
+            } catch (e) {
+
+            } finally {
+
+            }
+          }} />
+        </EditItem>
+      </ScrollWrap>
     </div>}
   </div>)}</Observer>
 }

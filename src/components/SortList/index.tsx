@@ -69,7 +69,7 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
                         ...style,
                         ...itemStyle,
                         // flex 解决嵌套时的样式问题
-                        flex: Object.fromEntries(item.style).flex || '',
+                        flex: item.style && Object.fromEntries(item.style).flex || '',
                       }}>
                       {renderItem({ item, index, isDragging: snapshot.isDragging, handler: provided.dragHandleProps, ...restProps })}
                     </div>

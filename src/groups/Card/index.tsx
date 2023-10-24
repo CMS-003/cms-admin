@@ -8,7 +8,6 @@ import { IResource } from '@/types/resource'
 import _ from 'lodash'
 import { Fragment } from 'react'
 import { Image } from 'antd'
-import { ScrollWrap } from '../style'
 
 const Header = styled.div`
  font-weight: 600;
@@ -20,14 +19,30 @@ const Content = styled.div`
   min-height: 150px;
   border-radius: 10px;
   background-color: #eee;
+  padding: 10px;
 `
-
+const ScrollWrap = styled.div`
+  display: flex;
+  flex: 1;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-x: auto;
+  box-sizing: border-box;
+  height: 100%;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  &>div:first-child {
+    margin-left: 0;
+  }
+`;
 const ItemWrap = styled.div`
   width: 150px;
   display: flex;
   flex-direction: column;
   height: 150px;
-  margin: 10px 5px 0 10px;
+  margin-left: 10px;
 `
 
 const ItemTitle = styled.div`
@@ -56,10 +71,10 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
         {self.title}
       </Header>
       <Content>
-        <ScrollWrap style={{ height: '100%' }}>
+        <ScrollWrap>
           {self.resources?.map(item => (<Fragment key={item._id}>
             <ItemWrap>
-              <div style={{ width: 150, height: 120, backgroundImage: `url(${"http://192.168.0.124:8097" + item.cover})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
+              <div style={{ width: 150, height: 120, backgroundImage: `url(${"https://6vq7631482.imdo.co" + (item.cover || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
               <ItemTitle >{item.title}</ItemTitle>
             </ItemWrap>
           </Fragment>))}
