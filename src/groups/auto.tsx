@@ -4,7 +4,7 @@ import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
 import { Input, message } from 'antd'
-import { CloseOutlined, DragOutlined } from '@ant-design/icons'
+import { CloseOutlined, CopyOutlined, DragOutlined } from '@ant-design/icons'
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
@@ -13,6 +13,7 @@ import _ from 'lodash'
 import { useCallback } from 'react';
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
@@ -351,12 +352,13 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
             mode={mode}
             direction={'vertical'}
             renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <DragOutlined {...handler2} />
-                <div>
-                  <Input readOnly value={resource._id} addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }} />} />
-                  <Input value={resource.title} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                <DragOutlined {...handler2} style={{ marginRight: 5 }} />
+                <Input
+                  value={resource.title}
+                  addonBefore={<CopyToClipboard text={resource._id as string}><CopyOutlined title={resource._id} onClick={() => { }} /></CopyToClipboard>}
+                  addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }}
+                  />} />
               </div>
             </Fragment>}
           />
