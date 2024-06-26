@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useState } from 'react';
 import { Button, notification, Space, Table, Select } from 'antd';
 import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
-import Editor from '@/components/Editor'
+import Editor from '@/components/FormEditor'
 import { IComponent, IEditorComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
@@ -115,7 +115,7 @@ const ComponentTemplatePage: React.FC = () => {
     },
   ])
   const refresh = useCallback(async () => {
-    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId, type: 'page' } })
+    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId, type: 'form' } })
     if (result.code === 0) {
       local.list = result.data.items
     }
@@ -130,7 +130,7 @@ const ComponentTemplatePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <Fragment>
+  return (<Observer>{() => <div style={{ padding: '0 10px' }}>
     <AlignAside>
       <Space>
         <Select defaultValue="" onChange={v => {
@@ -146,7 +146,7 @@ const ComponentTemplatePage: React.FC = () => {
       </Space>
       <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
         < Button type="primary" onClick={e => {
-          local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
+          local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: 'form', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
           local.showEditPage = true
         }}>新增</Button>
       </Space>
@@ -156,7 +156,6 @@ const ComponentTemplatePage: React.FC = () => {
       close={() => { local.showEditPage = false; local.temp = null }}
       data={local.temp}
       fetch={editTemplate}
-      fields={fields}
     />
     <div style={{ flex: 1, overflowY: 'auto' }}>
       <Table pagination={false} rowKey="_id" dataSource={local.list} >
@@ -173,7 +172,7 @@ const ComponentTemplatePage: React.FC = () => {
         )} />
       </Table>
     </div>
-  </Fragment>}</Observer>);
+  </div>}</Observer>);
 };
 
 export default ComponentTemplatePage;

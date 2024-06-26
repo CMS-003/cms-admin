@@ -19,6 +19,10 @@ const apis = {
     const result: any = await shttp.put('/api/v1/templates/' + _id, data);
     return result;
   },
+  getTemplateFields: async (template_id: String) => {
+    const result: any = await shttp.get(`/api/v1/templates/${template_id}/fields`);
+    return result;
+  },
 }
 
 export default apis

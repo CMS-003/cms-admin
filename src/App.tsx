@@ -28,7 +28,7 @@ function App() {
   const init = useCallback(async () => {
     local.error = false;
     local.booting = true;
-    const result = await apis.getProfile < IUser > ();
+    const result = await apis.getProfile<IUser>();
     if (result.code !== 0) {
       if (location.pathname !== '/sign-in') {
         navigate('/sign-in')
@@ -58,6 +58,9 @@ function App() {
         if (local.booted !== true && !white_paths.includes(location.pathname)) {
           await init();
           local.booted = true
+          if (!store.user.isLogin()) {
+            return navigate('/sign-in')
+          }
           if (location.pathname === '/') {
             navigate('/dashboard')
           }

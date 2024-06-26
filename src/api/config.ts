@@ -14,5 +14,9 @@ const config = {
     const result = await shttp.put<IConfig>(`/api/v1/configs/${body._id}`, body);
     return result
   },
+  deleteConfig: async ({ body }: { body: Partial<IConfig> }) => {
+    const result = await shttp.delete<IConfig>(`/api/v1/configs/${body._id}`);
+    return result
+  }
 }
 export default config;

@@ -15,8 +15,8 @@ const ConfigPage: React.FC = () => {
     list: [],
     temp: null,
     openEditor(data: IComponent) {
+      local.temp = data || {}
       local.showEditPage = true
-      local.temp = data
     }
   }))
   const searchInput: any = useRef(null)
@@ -116,7 +116,7 @@ const ConfigPage: React.FC = () => {
         </Space>
         <Space>
           <Button type="primary" onClick={e => {
-            local.showEditPage = true
+            local.openEditor()
           }}>添加</Button>
         </Space>
       </AlignAside>
@@ -131,13 +131,13 @@ const ConfigPage: React.FC = () => {
         <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="配置类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />
-        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
+        <Table.Column title="操作" key="id" render={(_, record: IConfig) => (
           <Space size="middle">
             <FormOutlined onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
             <DeleteOutlined onClick={async () => {
-              await apis.destroyComponent({ params: { id: record._id } })
+              await apis.deleteConfig({ body: record })
               await refresh()
             }} />
           </Space>

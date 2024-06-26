@@ -14,6 +14,9 @@ const user = types.model('UserItem', {
     [constant.REFRESH_TOKEN]: types.optional(types.string, ''),
   })
 }).views(self => ({
+  isLogin() {
+    return !!self.info;
+  },
   getAccessToken() {
     return self.token[constant.ACCESS_TOKEN] || ''
   },

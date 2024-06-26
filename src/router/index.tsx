@@ -16,6 +16,7 @@ import HomePage from '@/pages/dashboard'
 import ComponentPage from '@/pages/component'
 import ComponentTypePage from '@/pages/component/type'
 import ComponentTemplatePage from '@/pages/template'
+import ComponentFormPage from '@/pages/template/form'
 import ComponentTemplateEditablePage from '@/pages/template/editable'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
@@ -64,11 +65,17 @@ const Pages: { [key: string]: PaneItem } = {
     closable: true,
     path: '/component/type'
   },
-  '/template/list': {
+  '/template/form': {
+    title: '表单页',
+    content: ComponentFormPage,
+    closable: true,
+    path: '/template/form'
+  },
+  '/template/page': {
     title: '模板页',
     content: ComponentTemplatePage,
     closable: true,
-    path: '/template/list'
+    path: '/template/page'
   },
   '/template/editable': {
     title: '可视化编辑',
