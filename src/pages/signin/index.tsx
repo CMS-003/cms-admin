@@ -70,10 +70,10 @@ export default function SignInPage() {
       </Form>
       <div style={{ color: '#999' }}>其他方式登录</div>
       <AlignAround>
-        <a href="http://localhost:3334/api/v1/oauth/sns/google/" title=""><IconSNS src={Icon_sns_google} alt="google" /></a>
-        <a href="http://localhost:3334/api/v1/oauth/sns/github/" title=""><IconSNS src={Icon_sns_github} alt="github" /></a>
+        <a href="/api/v1/oauth/sns/google/" title=""><IconSNS src={Icon_sns_google} alt="google" /></a>
+        <a href="/api/v1/oauth/sns/github/" title=""><IconSNS src={Icon_sns_github} alt="github" /></a>
         {/* redirect_uri要和支付宝里的配置一致 */}
-        <a href="http://localhost:3334/api/v1/oauth/sns/alipay/"><IconSNS src={Icon_sns_alipay} alt="支付宝" /></a>
+        <a href="/api/v1/oauth/sns/alipay/"><IconSNS src={Icon_sns_alipay} alt="支付宝" /></a>
 
         <Popconfirm
           title="正在开发中..."

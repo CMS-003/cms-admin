@@ -59,9 +59,8 @@ function App() {
           await init();
           local.booted = true
           if (!store.user.isLogin()) {
-            return navigate('/sign-in')
-          }
-          if (location.pathname === '/') {
+            navigate('/sign-in')
+          } else if (location.pathname === '/') {
             navigate('/dashboard')
           }
         }

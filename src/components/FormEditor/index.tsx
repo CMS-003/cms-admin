@@ -12,7 +12,6 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
   }))
   const init = useCallback(async (d: any) => {
     local.fetching = true;
-    console.log(data, '?')
     if (d && d._id) {
       const resp = await apis.getTemplateFields(d._id);
       console.log(resp)
@@ -26,14 +25,13 @@ export default function EditPage({ visible, fetch, data, close, ...props }: { vi
     init(data);
   }, [data])
   return <Observer>{() => {
-    if (!data) {
+    if (!data || !visible) {
       return null;
     }
     return (<Fragment>
       <Modal
         title={data._id ? '修改' : '添加'}
-        open={visible}
-        key={visible ? 1 : 2}
+        open={true}
         okText="确定"
         confirmLoading={local.fetching}
         cancelText="取消"
