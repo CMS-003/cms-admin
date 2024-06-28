@@ -50,7 +50,7 @@ export default function BindPage() {
     const bind_token = searchParams.get('bind_token') || '';
     if (bind_token) {
       local.bind_token = bind_token;
-      navigate('/bind', { replace: true });
+      navigate('/oauth/bind', { replace: true });
     }
   })
   return <Observer>{() => (
@@ -96,7 +96,7 @@ export default function BindPage() {
         <Button id="bind" type="primary" style={{ marginTop: 15 }} loading={local.isFetch} onClick={async () => {
           local.isFetch = true
           try {
-            const res = await apis.bind < { access_token: string, refresh_token: string } > ({
+            const res = await apis.bind<{ access_token: string, refresh_token: string }>({
               bind_token: local.bind_token,
               type: local.type,
               account: local.type === 'email' ? local.email : (local.type === 'phone' ? local.area_code + '-' + local.phone : local.username),

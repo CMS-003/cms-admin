@@ -7,7 +7,7 @@ import { useEffectOnce } from 'react-use';
 import { Space, Spin, Button } from 'antd'
 import apis from './api';
 import SignInPage from './pages/signin'
-import BindPage from './pages/bind'
+import BindPage from './pages/oauthResult/bind'
 import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/fail'
 import store from './store'
@@ -24,7 +24,7 @@ function App() {
       this.booting = b;
     }
   }))
-  const white_paths = ['/sign-in', '/bind']
+  const white_paths = ['/sign-in', '/oauth/success', '/oauth/fail', '/oauth/bind']
   const init = useCallback(async () => {
     local.error = false;
     local.booting = true;
@@ -83,7 +83,7 @@ function App() {
           </Space>
         </div> : <Routes>
           <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/bind" element={<BindPage />} />
+          <Route path="/oauth/bind" element={<BindPage />} />
           <Route path="/oauth/success" element={<SuccessPage />} />
           <Route path="/oauth/fail" element={<FailPage />} />
           <Route path="/*" element={<Layout data={store.menu.tree} />} />
