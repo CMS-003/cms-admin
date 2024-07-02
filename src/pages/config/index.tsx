@@ -102,7 +102,7 @@ const ConfigPage: React.FC = () => {
     refresh()
   })
   return (
-    <Observer>{() => (<Fragment>
+    <Observer>{() => (<div style={{ padding: '0 10px' }}>
       <AlignAside style={{ margin: 10 }}>
         <Space>
           分类类型:
@@ -143,7 +143,7 @@ const ConfigPage: React.FC = () => {
           </Space>
         )} />
       </Table>
-    </Fragment>)}
+    </div>)}
     </Observer>
   );
 };

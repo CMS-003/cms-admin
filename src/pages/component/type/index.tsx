@@ -12,7 +12,7 @@ import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable < { showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] } > (() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,
@@ -85,7 +85,7 @@ const ComponentTypePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <Fragment>
+  return (<Observer>{() => <div style={{ padding: '0 10px' }}>
     <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       <Button type="primary" onClick={e => {
         local.openEditor({})
@@ -124,7 +124,7 @@ const ComponentTypePage: React.FC = () => {
         )} />
       </Table>
     </div>
-  </Fragment>}</Observer>);
+  </div>}</Observer>);
 };
 
 export default ComponentTypePage;

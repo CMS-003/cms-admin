@@ -74,7 +74,7 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
         <ScrollWrap>
           {self.resources?.map(item => (<Fragment key={item._id}>
             <ItemWrap>
-              <div style={{ width: 150, height: 120, backgroundImage: `url(${"https://6vq7631482.imdo.co" + (item.cover || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
+              <div style={{ width: 150, height: 120, backgroundImage: `url(${"https://u67631x482.vicp.fun" + (item.cover || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
               <ItemTitle >{item.title}</ItemTitle>
             </ItemWrap>
           </Fragment>))}

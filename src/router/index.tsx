@@ -2,12 +2,13 @@ import React, {
   FC,
   useEffect,
   useCallback,
+  Fragment,
 } from 'react'
 import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, Alert, Dropdown, Menu } from 'antd'
 
-import { SyncOutlined } from '@ant-design/icons'
+import { SyncOutlined, ReloadOutlined, CloseOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ISimpleType, IMSTArray } from 'mobx-state-tree'
 import store from '@/store'
@@ -104,31 +105,31 @@ const TabPanes: FC = () => {
     isReload: boolean,
     activeKey: string,
     operateKey: string,
-    saveTags(tagPages: PaneItem[]): void;
-    setTagPage(tagPages: PaneItem[]): void;
-    pushPage(page: PaneItem): void;
+    saveTags(panels: PaneItem[]): void;
+    setPanel(panels: PaneItem[]): void;
+    pushPanel(page: PaneItem): void;
     setActiveKey(key: string): void;
-    tagPages: PaneItem[];
+    panels: PaneItem[];
   }>(() => ({
     reloadPath: '',
-    tagPages: [],
+    panels: [],
     activeKey: store.page.currentTag,
-    isReload: false,
+    isReload: true,
     operateKey: '',
-    saveTags(tagPages: PaneItem[]) {
-      this.tagPages = tagPages
+    saveTags(panels: PaneItem[]) {
+      this.panels = panels
       // 记录当前打开的tab
-      const tags = this.tagPages.map(item => item.path) as IMSTArray<ISimpleType<string>>;
+      const tags = this.panels.map(item => item.path) as IMSTArray<ISimpleType<string>>;
       store.page.setOpenedTags(tags)
     },
-    setTagPage(pages: PaneItem[]) {
-      this.tagPages = pages
+    setPanel(pages: PaneItem[]) {
+      this.panels = pages
     },
     setActiveKey(key: string) {
       this.activeKey = key;
     },
-    pushPage(page: PaneItem) {
-      this.tagPages.push(page);
+    pushPanel(page: PaneItem) {
+      this.panels.push(page);
     }
   }))
 
@@ -136,17 +137,17 @@ const TabPanes: FC = () => {
   const resetTabs = useCallback((): void => {
     store.page.openedTags.forEach(tag => {
       if (Pages[tag]) {
-        if (-1 !== local.tagPages.findIndex(pane => pane.path === tag)) {
+        if (-1 !== local.panels.findIndex(pane => pane.path === tag)) {
           // 重复render处理
           return
         }
         const pane = getKeyName(tag)
-        local.pushPage(pane)
+        local.pushPanel(pane)
       }
     })
     if (Pages[pathname] && !store.page.openedTags.includes(pathname)) {
       const pane = getKeyName(pathname)
-      local.pushPage(pane)
+      local.pushPanel(pane)
       store.page.addTag(pathname)
     }
     local.setActiveKey(store.page.openedTags.includes(pathname) ? pathname : '/dashboard')
@@ -159,16 +160,16 @@ const TabPanes: FC = () => {
 
   // 移除tab
   const remove = (targetKey: string): void => {
-    const delIndex = local.tagPages.findIndex(
+    const delIndex = local.panels.findIndex(
       (item: PaneItem) => item.path === targetKey
     )
-    local.tagPages.splice(delIndex, 1)
+    local.panels.splice(delIndex, 1)
     if (targetKey !== pathname) {
       return
     }
     // 删除当前tab，地址往前推
     const nextPath = store.page.openedTags[delIndex - 1] || store.page.openedTags[delIndex - 1] || '/dashboard'
-    local.saveTags(local.tagPages)
+    local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {
     //   remove(tabKey)
@@ -179,7 +180,7 @@ const TabPanes: FC = () => {
     navigate(nextPath)
   }
 
-  // TODO: 刷新当前 tab
+  // 刷新当前 tab
   const refreshTab = (): void => {
     local.isReload = true
     setTimeout(() => {
@@ -190,19 +191,12 @@ const TabPanes: FC = () => {
     setTimeout(() => {
       local.reloadPath = ''
     }, 500)
-    const i = local.tagPages.findIndex(page => page.path === local.activeKey);
-    const page = local.tagPages[i];
-    if (i > -1 && page) {
-
-    }
   }
 
   // 关闭其他或关闭所有
   const removeAll = async (isCloseAll?: boolean) => {
-    const path = local.operateKey
-    const now = local.tagPages.filter(pane => pane.path === path)
-    local.setTagPage(now)
-    navigate(isCloseAll ? '/dashboard' : path)
+    const remain_panels = isCloseAll ? [] : local.panels.filter(pane => pane.path === local.operateKey)
+    local.setPanel(remain_panels)
   }
 
   useEffect(() => {
@@ -219,19 +213,19 @@ const TabPanes: FC = () => {
     // 保存这次的路由地址
     local.setActiveKey(pathname)
 
-    const index = local.tagPages.findIndex(
+    const index = local.panels.findIndex(
       (_: PaneItem) => _.path === pathname
     )
 
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
-      local.tagPages[index].path = newPath
+      local.panels[index].path = newPath
       local.setActiveKey(pathname)
       return
     }
     // 添加新tab并保存起来
-    local.pushPage(Pages[pathname])
-    local.saveTags(local.tagPages)
+    local.pushPanel(Pages[pathname])
+    local.saveTags(local.panels)
     local.setActiveKey(pathname)
   }, [local, pathname, resetTabs, search])
 
@@ -242,19 +236,24 @@ const TabPanes: FC = () => {
       items={[
         {
           key: 'refresh',
-          // icon: <ReloadOutlined />,
+          icon: <ReloadOutlined />,
           label: '刷新',
           disabled: false,
         },
         {
           key: 'close',
-          // icon: <CloseOutlined />,
+          icon: <CloseOutlined />,
           label: '关闭',
         },
         {
           key: 'closeOther',
-          // icon: <CloseOutlined />,
+          icon: <CloseOutlined />,
           label: '关闭其他',
+        },
+        {
+          key: 'closeAll',
+          icon: <CloseOutlined />,
+          label: '关闭所有',
         },
       ]}
       onClick={e => {
@@ -264,7 +263,9 @@ const TabPanes: FC = () => {
         } else if (e.key === 'close') {
           remove(local.activeKey)
         } else if (e.key === 'closeOther') {
-          removeAll()
+          removeAll(false)
+        } else if (e.key === 'closeAll') {
+          removeAll(true)
         }
       }}
     />
@@ -283,56 +284,47 @@ const TabPanes: FC = () => {
         }}
         onEdit={(targetKey: string | any, action: string) => {
           action === 'remove' && remove(targetKey)
-          local.saveTags(local.tagPages)
+          local.saveTags(local.panels)
         }}
-
+        renderTabBar={(props, DefaultTabBar) => (
+          <DefaultTabBar {...props} >
+            {node => (<Dropdown
+              overlay={menu}
+              placement="bottomLeft"
+              trigger={['contextMenu']}
+            >
+              <span onContextMenu={(e) => {
+                local.operateKey = node.key as string;
+                e.preventDefault()
+              }}>
+                {node}
+              </span>
+            </Dropdown>)}
+          </DefaultTabBar>
+        )}
         onTabClick={(targetKey: string) => {
           if (targetKey === local.activeKey) {
             return;
           }
-          const { path } = local.tagPages.filter(
+          const { path } = local.panels.filter(
             (item: PaneItem) => item.path === targetKey
           )[0]
           navigate(path)
         }}
         type="editable-card"
         size="small"
-      >
-        {local.tagPages.map((pane, i) => (
-          <Tabs.TabPane
-            style={{ height: '100%' }}
-            closable={pane.closable || false}
-            key={pane.path}
-            tab={
-              <Dropdown
-                overlay={menu}
-                placement="bottomLeft"
-                trigger={['contextMenu']}
-              >
-                <span onContextMenu={(e) => {
-                  e.preventDefault()
-                  local.operateKey = pane.path
-                }}>
-                  {local.isReload &&
-                    pane.path === fullPath &&
-                    pane.path !== '/403' && (
-                      <SyncOutlined title="刷新" spin={local.isReload} />
-                    )}
-                  {pane.title}
-                </span>
-              </Dropdown>
-            }
-          >
-            {local.reloadPath !== pane.path ? (
-              <div key={pane.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content key={pane.path} path={pane.path} store={store} /></div>
-            ) : (
-              <CenterXY key={pane.path}>
-                <Alert message="刷新中..." type="info" />
-              </CenterXY>
-            )}
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+        items={local.panels.map((pane, i) => ({
+          key: pane.path,
+          label: pane.title,
+          children: local.reloadPath !== pane.path ? (
+            <div key={pane.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content key={pane.path} path={pane.path} store={store} /></div>
+          ) : (
+            <CenterXY key={pane.path}>
+              <Alert message="刷新中..." type="info" />
+            </CenterXY>
+          )
+        }))}
+      />
     )}</Observer>
   )
 }

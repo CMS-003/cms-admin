@@ -178,7 +178,7 @@ const ComponentPage: React.FC = () => {
     refresh()
   })
   return (
-    <Observer>{() => (<Fragment>
+    <Observer>{() => (<div style={{ padding: '0 10px' }}>
       <AlignAside style={{ margin: 10 }}>
         <Space>
           模板页:
@@ -237,7 +237,7 @@ const ComponentPage: React.FC = () => {
           </Space>
         )} />
       </Table>
-    </Fragment>)
+    </div>)
     }
     </Observer >
   );
