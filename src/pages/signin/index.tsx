@@ -90,7 +90,7 @@ export default function SignInPage() {
           showCancel={false}>
           <IconSNS src={Icon_sns_apple} alt="苹果" />
         </Popconfirm>
-        <a href="http://localhost:3334/api/v1/oauth/sns/weibo/" title=""><IconSNS src={Icon_sns_weibo} alt="微博" /></a>
+        <a href="/api/v1/oauth/sns/weibo/" title=""><IconSNS src={Icon_sns_weibo} alt="微博" /></a>
       </AlignAround>
     </div>
   )}</Observer>

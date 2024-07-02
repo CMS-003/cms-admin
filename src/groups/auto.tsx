@@ -70,11 +70,12 @@ function getDiff(t: ITemplate | IComponent | null) {
 export function Component({ self, children, mode, isDragging, handler, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, props?: any }) {
   const local = useLocalObservable(() => ({
     isDragOver: false,
+    isMouseOver: false,
     onDrop: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
-      if (store.component.canDrop(store.app.dragingType, self.type)) {
+      if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
         self.appendChild(store.app.dragingType)
       }
     },
@@ -87,6 +88,9 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
       if (!local.isDragOver) {
         local.isDragOver = true;
       }
+    },
+    setIsMouseOver(is: boolean) {
+      local.isMouseOver = is;
     }
   }))
   if (self.status === 0 && mode === 'preview') {
@@ -108,10 +112,16 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
               props: self
             });
           }}
+          onMouseEnter={() => {
+            local.setIsMouseOver(true);
+          }}
+          onMouseLeave={() => {
+            local.setIsMouseOver(false);
+          }}
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? '.hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
           <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
             <DragOutlined />
@@ -147,7 +157,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
 }
 
 export function TemplatePage({ template_id, mode, }: { template_id: string, mode: string }) {
-  const local = useLocalObservable<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any }>(() => ({
+  const local = useLocalObservable<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any, remComponent: Function }>(() => ({
     loading: true,
     template: null,
     isDragOver: false,
@@ -190,6 +200,19 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
       if (!local.isDragOver) {
         local.isDragOver = true;
       }
+    },
+    remComponent: (id: string) => {
+      if (local.template) {
+        const index = local.template?.children.findIndex(c => c._id === id) as number;
+        console.log(index)
+        if (index !== -1 && local.template) {
+          local.template.children.splice(index, 1);
+        } else {
+          local.template?.children.forEach(c => {
+            c.removeChild(id)
+          })
+        }
+      }
     }
   }))
   const refresh = useCallback(async () => {
@@ -222,11 +245,19 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
       }
     }
   }, [])
+  const eventRemoveComponent = useCallback(async (id: string) => {
+    local.remComponent(id)
+
+  }, []);
   useEffectOnce(() => {
     refresh()
     events.on('editable', eventHandle)
+    events.on('remove_component', eventRemoveComponent)
     return () => {
-      events.off('editable', eventHandle);
+      if (events) {
+        events.off('editable', eventHandle);
+        events.off('remove_component', eventRemoveComponent)
+      }
     }
   })
   return <div style={{
@@ -254,6 +285,7 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
                 child.setAttr('order', i);
               });
             }}
+            key={local.template?.children.length}
             droppableId={(local.template as ITemplate)._id}
             items={(local.template as ITemplate).children}
             itemStyle={{ display: 'flex' }}
@@ -288,10 +320,21 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
       store.app.setEditComponentId(e.props._id);
       local.editComponent = e.props
     }}>编辑</ContextMenuItem>
-    <ContextMenuItem onClick={(e: any) => {
-      e.props.setAttr('status', 0)
+    <ContextMenuItem onClick={(e: { props?: IComponent }) => {
+      if (e.props) {
+        if (e.props.$new) {
+          events && events.emit('remove_component', e.props._id);
+        } else {
+          e.props.setAttr('status', 0)
+        }
+      }
     }}>删除</ContextMenuItem>
-    <ContextMenuItem onClick={(e: any) => test(e, e.props)}>添加子视图</ContextMenuItem>
+    {/* <ContextMenuItem onClick={(e: any) => {
+      // ComponentItem.create({})
+      e.props.appendChild('type')
+      store.app.setEditComponentId(e.props._id);
+      local.editComponent = e.props
+    }}>添加子视图</ContextMenuItem> */}
   </ContextMenu>);
 
   return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', }}>

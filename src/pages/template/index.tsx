@@ -47,7 +47,7 @@ const ComponentTemplatePage: React.FC = () => {
       type: 'string',
       component: IEditorComponent.Input,
       defaultValue: '',
-      autoFocus: false,
+      autoFocus: true,
       value: [],
     },
     {
@@ -130,7 +130,7 @@ const ComponentTemplatePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <Fragment>
+  return (<Observer>{() => <div style={{ padding: '0 10px' }}>
     <AlignAside>
       <Space>
         <Select defaultValue="" onChange={v => {
@@ -173,7 +173,7 @@ const ComponentTemplatePage: React.FC = () => {
         )} />
       </Table>
     </div>
-  </Fragment>}</Observer>);
+  </div>}</Observer>);
 };
 
 export default ComponentTemplatePage;

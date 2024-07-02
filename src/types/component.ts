@@ -33,6 +33,7 @@ export type IComponent = {
 
   children: IComponent[];
   data?: IResource[];
+  $new?: boolean;
   $origin?: object;
   $selected?: boolean;
   diff: Function;
@@ -40,6 +41,7 @@ export type IComponent = {
   setAttrs: Function;
   setStyle: Function;
   appendChild: Function;
+  removeChild: Function;
   addResource: Function;
   remResource: Function;
   swap: Function;

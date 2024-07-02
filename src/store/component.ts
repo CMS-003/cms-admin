@@ -42,6 +42,7 @@ export const ComponentItem = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
   $selected: types.optional(types.boolean, false),
+  $new: types.optional(types.boolean, false),
   _id: types.optional(types.string, ''),
   type: types.optional(types.string, ''),
   template_id: types.optional(types.string, ''),
@@ -69,7 +70,7 @@ export const ComponentItem = types.model('Component', {
 }).views(self => ({
   toJSON() {
     const data = getSnapshot(self);
-    return _.omit(data, ['data', 'children', '$origin', '$selected'])
+    return _.omit(data, ['data', 'children', '$origin', '$selected', '$new'])
   },
   diff() {
     if (!deepEqual(self.$origin, this.toJSON())) {
@@ -96,6 +97,10 @@ export const ComponentItem = types.model('Component', {
     }
   },
   appendChild(type: string) {
+    let attrs: any = {};
+    if (type === 'MenuItem') {
+      attrs.path = '/page'
+    }
     self.children.push(ComponentItem.create({
       $origin: {},
       _id: '',
@@ -104,6 +109,7 @@ export const ComponentItem = types.model('Component', {
       project_id: self.project_id,
       template_id: self.template_id,
       type,
+      attrs,
       title: '无',
       name: '',
       icon: '',
@@ -116,6 +122,16 @@ export const ComponentItem = types.model('Component', {
       accepts: self.toJSON().accepts,
       children: [],
     }))
+  },
+  removeChild(_id: string) {
+    const i = self.children.findIndex(c => c._id === _id);
+    if (i !== -1) {
+      self.children.splice(i, 1);
+    } else {
+      self.children.forEach(c => {
+        c.removeChild(_id);
+      })
+    }
   },
   addResource(data: IResource) {
     self.resources.push(data)
@@ -149,6 +165,7 @@ export const ComponentItem = types.model('Component', {
     if (self._id) {
       self.$origin = self.toJSON() as any;
     } else {
+      self.$new = true;
       self._id = v4();
       if (!self.tree_id) {
         self.tree_id = self._id;

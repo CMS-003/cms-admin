@@ -20,10 +20,10 @@ export const EditWrap = styled.div`
   &.edit {
     padding: 5px 5px 5px 15px;
   }
-  &.edit:hover {
+  &.edit.hover {
     box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
   }
-  &.edit:hover > div {
+  &.edit.hover > div {
     visibility: visible;
   }
   &.delete {
