@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Tabs, Alert, Dropdown, Menu } from 'antd'
+import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 
 import { SyncOutlined, ReloadOutlined, CloseOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react'
@@ -16,16 +16,13 @@ import store from '@/store'
 import HomePage from '@/pages/dashboard'
 import ComponentPage from '@/pages/component'
 import ComponentTypePage from '@/pages/component/type'
-import ComponentTemplatePage from '@/pages/template'
-import ComponentFormPage from '@/pages/template/form'
-import ComponentTemplateEditablePage from '@/pages/template/editable'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import ConfigPage from '@/pages/config';
 import ProjectPage from '@/pages/project';
-import UserBindPage from '@/pages/user/bind';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
+import Loadable from 'react-loadable';
 
 type PaneItem = {
   title?: string;
@@ -37,6 +34,31 @@ type PaneItem = {
 function getKeyName(key: string): PaneItem {
   return Pages[key] || null
 }
+
+function LoadingPage() {
+  return <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+    <Spin spinning />
+  </div>
+}
+
+const LoadableUserBind = Loadable({
+  loader: () => import('@/pages/user/bind'),
+  loading: LoadingPage,
+});
+const LoadableEditable = Loadable({
+  loader: () => import('@/pages/template/editable'),
+  loading: LoadingPage,
+});
+const LoadableTemplateForm = Loadable({
+  loader: () => import('@/pages/template/form'),
+  loading: LoadingPage,
+});
+
+const LoadableTemplatePage = Loadable({
+  loader: () => import('@/pages/template'),
+  loading: LoadingPage,
+});
+
 
 const Pages: { [key: string]: PaneItem } = {
   '/dashboard': {
@@ -83,19 +105,19 @@ const Pages: { [key: string]: PaneItem } = {
   },
   '/template/form': {
     title: '表单页',
-    content: ComponentFormPage,
+    content: () => <LoadableTemplateForm />,
     closable: true,
     path: '/template/form'
   },
   '/template/page': {
     title: '模板页',
-    content: ComponentTemplatePage,
+    content: () => <LoadableTemplatePage />,
     closable: true,
     path: '/template/page'
   },
   '/template/editable': {
     title: '可视化编辑',
-    content: ComponentTemplateEditablePage,
+    content: () => <LoadableEditable />,
     closable: true,
     path: '/template/editable'
   },
@@ -109,7 +131,7 @@ const Pages: { [key: string]: PaneItem } = {
   },
   '/user/bind': {
     title: '第三方账号绑定',
-    content: UserBindPage,
+    content: () => <LoadableUserBind />,
     closable: true,
     path: '/user/bind'
   }
