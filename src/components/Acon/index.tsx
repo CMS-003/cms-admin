@@ -1,4 +1,5 @@
 import {
+  HomeOutlined,
   DeleteOutlined,
   FormOutlined,
   UploadOutlined,
@@ -16,9 +17,16 @@ import {
   MinusCircleOutlined,
   LoadingOutlined,
   ReloadOutlined,
+  RadiusSettingOutlined,
+  FolderOutlined,
+  AppstoreOutlined,
+  FileTextOutlined,
+  InsertRowLeftOutlined,
+  ProjectOutlined,
 } from '@ant-design/icons'
 
 const icons = {
+  HomeOutlined,
   DeleteOutlined,
   FormOutlined,
   UploadOutlined,
@@ -36,6 +44,12 @@ const icons = {
   MinusCircleOutlined,
   LoadingOutlined,
   ReloadOutlined,
+  RadiusSettingOutlined,
+  FolderOutlined,
+  AppstoreOutlined,
+  FileTextOutlined,
+  InsertRowLeftOutlined,
+  ProjectOutlined,
 }
 
 export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
