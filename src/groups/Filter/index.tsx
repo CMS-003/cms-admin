@@ -3,7 +3,7 @@ import { IComponent } from '@/types/component'
 import _ from 'lodash'
 import SortList from '@/components/SortList/';
 import { Component } from '../auto'
-import { PlusCircleOutlined } from '@ant-design/icons'
+import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 
 export default function ComponentFilter({ self, mode, children, ...props }: { self: IComponent, mode: string, children?: any, props?: any }) {
@@ -25,7 +25,7 @@ export default function ComponentFilter({ self, mode, children, ...props }: { se
               renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
             <div>
-              <PlusCircleOutlined size={48} onClick={() => {
+              <Acon icon='PlusCircleOutlined' size={48} onClick={() => {
                 self.appendChild('FilterRow')
               }} />
             </div>

@@ -8,8 +8,8 @@ import store from '@/store';
 import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
-import { LoadingOutlined } from '@ant-design/icons';
 import events from '@/utils/event';
+import Acon from '@/components/Acon';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
   const local = useLocalObservable<{
@@ -99,7 +99,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
             </AlignAside>
           </FullHeightFix>
           <FullWidthAuto style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
-            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<LoadingOutlined />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
+            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
             <Button type="primary" onClick={async () => {

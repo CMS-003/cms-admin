@@ -1,5 +1,4 @@
 import { Button, notification, Space, Table, Input, Select } from 'antd';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
@@ -8,6 +7,7 @@ import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
+import Acon from '@/components/Acon';
 
 const ConfigPage: React.FC = () => {
   const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IConfig[] }>(() => ({
@@ -133,10 +133,10 @@ const ConfigPage: React.FC = () => {
         <Table.Column title="分类类型" dataIndex="type" />
         <Table.Column title="操作" key="id" render={(_, record: IConfig) => (
           <Space size="middle">
-            <FormOutlined onClick={() => {
+            <Acon icon='FormOutlined' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <DeleteOutlined onClick={async () => {
+            <Acon icon='DeleteOutlined' onClick={async () => {
               await apis.deleteConfig({ body: record })
               await refresh()
             }} />

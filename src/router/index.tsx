@@ -8,21 +8,18 @@ import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 
-import { SyncOutlined, ReloadOutlined, CloseOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ISimpleType, IMSTArray } from 'mobx-state-tree'
 import store from '@/store'
 
 import HomePage from '@/pages/dashboard'
-import ComponentPage from '@/pages/component'
-import ComponentTypePage from '@/pages/component/type'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
-import ConfigPage from '@/pages/config';
 import ProjectPage from '@/pages/project';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
 import Loadable from 'react-loadable';
+import Acon from '@/components/Acon';
 
 type PaneItem = {
   title?: string;
@@ -41,6 +38,14 @@ function LoadingPage() {
   </div>
 }
 
+const LoadableConfigPage = Loadable({
+  loader: () => import('@/pages/config'),
+  loading: LoadingPage,
+});
+const LoadableProjectPage = Loadable({
+  loader: () => import('@/pages/project'),
+  loading: LoadingPage,
+});
 const LoadableUserBind = Loadable({
   loader: () => import('@/pages/user/bind'),
   loading: LoadingPage,
@@ -59,6 +64,15 @@ const LoadableTemplatePage = Loadable({
   loading: LoadingPage,
 });
 
+const LoadableComponentPage = Loadable({
+  loader: () => import('@/pages/component'),
+  loading: LoadingPage,
+});
+
+const LoadableComponentTypePage = Loadable({
+  loader: () => import('@/pages/component/type'),
+  loading: LoadingPage,
+});
 
 const Pages: { [key: string]: PaneItem } = {
   '/dashboard': {
@@ -81,25 +95,25 @@ const Pages: { [key: string]: PaneItem } = {
   },
   '/config': {
     title: '配置管理',
-    content: ConfigPage,
+    content: () => <LoadableConfigPage />,
     closable: true,
     path: '/config'
   },
   '/project': {
     title: '项目管理',
-    content: ProjectPage,
+    content: () => <LoadableProjectPage />,
     closable: true,
     path: '/project'
   },
   '/component/data': {
     title: '组件管理',
-    content: ComponentPage,
+    content: () => <LoadableComponentPage />,
     closable: true,
     path: '/component/data'
   },
   '/component/type': {
     title: '组件类型',
-    content: ComponentTypePage,
+    content: () => <LoadableComponentTypePage />,
     closable: true,
     path: '/component/type'
   },
@@ -279,23 +293,23 @@ const TabPanes: FC = () => {
       items={[
         {
           key: 'refresh',
-          icon: <ReloadOutlined />,
+          icon: <Acon icon="ReloadOutlined" />,
           label: '刷新',
           disabled: false,
         },
         {
           key: 'close',
-          icon: <CloseOutlined />,
+          icon: <Acon icon="CloseOutlined" />,
           label: '关闭',
         },
         {
           key: 'closeOther',
-          icon: <CloseOutlined />,
+          icon: <Acon icon="CloseOutlined" />,
           label: '关闭其他',
         },
         {
           key: 'closeAll',
-          icon: <CloseOutlined />,
+          icon: <Acon icon="CloseOutlined" />,
           label: '关闭所有',
         },
       ]}

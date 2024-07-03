@@ -1,5 +1,4 @@
 import { Button, notification, Space, Table, Image } from 'antd';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useState } from 'react';
 import { IType, IMSTArray } from 'mobx-state-tree'
@@ -10,6 +9,7 @@ import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
+import Acon from '@/components/Acon';
 
 const ProjectPage: React.FC = () => {
   const local = useLocalObservable<{ showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] }>(() => ({
@@ -111,10 +111,10 @@ const ProjectPage: React.FC = () => {
         <Table.Column title="标识" dataIndex="name" />
         <Table.Column title="操作" key="_id" render={(_, record: IProject) => (
           <Space size="middle">
-            <FormOutlined onClick={() => {
+            <Acon icon='FormOutlined' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <DeleteOutlined onClick={async () => {
+            <Acon icon='DeleteOutlined' onClick={async () => {
               await apis.destroyProject({ body: { _id: record._id } })
               await refresh()
             }} />

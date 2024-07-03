@@ -1,5 +1,5 @@
 import { IComponent } from '@/types/component'
-import { PlusOutlined } from '@ant-design/icons'
+import Acon from '@/components/Acon'
 import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import { Center } from '@/components/style'
@@ -88,7 +88,7 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
       {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
         local.open()
       }}>
-        添加资源<PlusOutlined />
+        添加资源<Acon icon='PlusOutlined' />
       </Center>}
     </div>
   )

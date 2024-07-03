@@ -1,7 +1,6 @@
 import React from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
-import { MinusCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import logo from '../../logo.svg'
 import apis from '../../api'
@@ -15,6 +14,7 @@ import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
 import Icon_sns_wechat from '@/asserts/images/sns-wechat.svg'
 import Icon_sns_weibo from '@/asserts/images/sns-weibo.svg'
 import { IconSNS } from './style';
+import Acon from '@/components/Acon';
 
 export default function SignInPage() {
   const navigate = useNavigate()
@@ -77,7 +77,7 @@ export default function SignInPage() {
 
         <Popconfirm
           title="正在开发中..."
-          icon={<MinusCircleOutlined />}
+          icon={<Acon icon='MinusCircleOutlined' />}
           okText="已阅"
           showCancel={false}>
           <IconSNS src={Icon_sns_wechat} alt="微信" />
@@ -85,7 +85,7 @@ export default function SignInPage() {
 
         <Popconfirm
           title="apple开发账号太贵，用不起"
-          icon={<MinusCircleOutlined />}
+          icon={<Acon icon='MinusCircleOutlined' />}
           okText="已阅"
           showCancel={false}>
           <IconSNS src={Icon_sns_apple} alt="苹果" />

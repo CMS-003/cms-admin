@@ -1,6 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, Image, notification, Space, Table } from 'antd';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent } from '@/types'
@@ -10,6 +9,7 @@ import { cloneDeep } from 'lodash'
 import store from '@/store';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';
+import Acon from '@/components/Acon';
 
 const ComponentTypePage: React.FC = () => {
   const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
@@ -110,12 +110,12 @@ const ComponentTypePage: React.FC = () => {
         <Table.Column title="类型" dataIndex="name" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <FormOutlined onClick={
+            <Acon icon='FormOutlined' onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <DeleteOutlined onClick={async () => {
+            <Acon icon='DeleteOutlined' onClick={async () => {
               console.log(record, '?')
               await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()

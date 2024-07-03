@@ -2,9 +2,9 @@ import { Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use';
-import * as icons from '@ant-design/icons'
+import Acon from '@/components/Acon';
 import store from '@/store'
-import * as _ from 'lodash'
+import { get } from 'lodash'
 
 const keyPathMap: { [key: string]: string } = {}
 const pathKeyMap: { [key: string]: string } = {}
@@ -14,14 +14,10 @@ export function transform(tree: any) {
     return [];
   }
   const node: any = { label: tree.title, key: tree._id, children: [] }
-  const path = _.get(tree, 'attrs.path', '')
+  const path = get(tree, 'attrs.path', '')
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key
-  const icon: keyof typeof icons = tree.icon;
-  if (icons[icon]) {
-    const Image: any = icons[icon];
-    node.icon = <Image />
-  }
+  node.icon = <Acon icon={tree.icon} />
   if (tree.children && tree.children.length) {
     node.children = tree.children.map((item: any) => transform(item))
     node.key = path

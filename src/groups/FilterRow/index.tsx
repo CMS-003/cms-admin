@@ -1,7 +1,7 @@
 import { IComponent } from '@/types/component'
 import styled from 'styled-components'
 import { Component } from '../auto'
-import { PlusCircleOutlined } from '@ant-design/icons'
+import Acon from '@/components/Acon'
 import SortList from '@/components/SortList'
 import { Observer } from 'mobx-react'
 import { ScrollWrap } from '../style'
@@ -33,7 +33,7 @@ export default function ComponentFilterRow({ self, mode, children }: { self: ICo
             direction={'horizontal'}
             renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
           />
-          <PlusCircleOutlined onClick={() => {
+          <Acon icon='PlusCircleOutlined' onClick={() => {
             self.appendChild('FilterTag')
           }} />
         </div> : (

@@ -1,6 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, notification, Space, Table, Select } from 'antd';
-import { FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent, ITemplate } from '@/types'
@@ -9,6 +8,7 @@ import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
 import { AlignAside } from '@/components/style'
+import Acon from '@/components/Acon';
 
 const ComponentTemplatePage: React.FC = () => {
   const local = useLocalObservable<{ showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
@@ -164,7 +164,7 @@ const ComponentTemplatePage: React.FC = () => {
         <Table.Column title="标识名称" dataIndex="name" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <FormOutlined onClick={
+            <Acon icon="FormOutlined" onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }

@@ -1,5 +1,6 @@
-const { override, addWebpackAlias, addDecoratorsLegacy, overrideDevServer } = require('customize-cra');
-const path = require('path')
+const { override, addWebpackAlias, addDecoratorsLegacy, overrideDevServer, addWebpackPlugin } = require('customize-cra');
+const path = require('path');
+const analyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   webpack: override(
@@ -7,6 +8,7 @@ module.exports = {
       "@": path.resolve(__dirname, 'src'),
     }),
     addDecoratorsLegacy(),
+    // addWebpackPlugin(new analyzer()),
   ),
   devServer: overrideDevServer(config => {
     config.proxy = {

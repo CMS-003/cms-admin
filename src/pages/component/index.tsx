@@ -1,5 +1,4 @@
 import { Button, notification, Space, Table, Tag, Input, Select } from 'antd';
-import { DeleteOutlined, FormOutlined } from '@ant-design/icons'
 import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
@@ -9,19 +8,13 @@ import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
-import * as icons from '@ant-design/icons'
+import Acon from '@/components/Acon';
 
 type SelectItem = {
   name: string;
   value: string;
 }
-function Icon(prop: { icon: string }) {
-  const Image: any = icons[prop.icon as keyof typeof icons]
-  if (Image) {
-    return <span style={{ marginRight: 10 }}><Image /></span>
-  }
-  return null;
-}
+
 const ComponentPage: React.FC = () => {
   const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string }>(() => ({
     showEditPage: false,
@@ -209,7 +202,7 @@ const ComponentPage: React.FC = () => {
       />
       <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
         <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-          <span><Icon icon={record.icon as string} />{title}</span>
+          <span><Acon icon={record.icon as string} />{title}</span>
         )} />
         <Table.Column title="组件类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />
@@ -227,10 +220,10 @@ const ComponentPage: React.FC = () => {
         </span >)} />
         <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
           <Space size="middle">
-            <FormOutlined onClick={() => {
+            <Acon icon='FormOutlined' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <DeleteOutlined onClick={async () => {
+            <Acon icon='DeleteOutlined' onClick={async () => {
               await apis.destroyComponent({ params: { _id: record._id } })
               await refresh()
             }} />

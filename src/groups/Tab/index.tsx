@@ -1,8 +1,7 @@
 import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IComponent } from '@/types/component';
-import { BarsOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
-import * as icons from '@ant-design/icons'
+import Acon from '@/components/Acon'
 import { Component } from '../auto'
 import SortList from '@/components/SortList/';
 import TabItem from "../TabItem";
@@ -34,14 +33,12 @@ const TabItemWrap = styled.div`
 `
 
 export default function TagPage({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
-  const icon: keyof typeof icons = self.icon as any;
-  const Image: any = icons[icon];
   return <Observer>
     {() => (
       <TabWrap>
         <Tabs
           defaultActiveKey={self.attrs.get('selected_id')}
-          tabBarExtraContent={{ right: Image ? <Image /> : <BarsOutlined /> }}
+          tabBarExtraContent={{ right: <Acon icon={self.icon as string} /> || <Acon icon='BarsOutlined' /> }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
               onContextMenu={e => {
@@ -53,7 +50,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
                   props: child
                 });
               }}>
-              <LeftOutlined hidden={mode === 'preview'} onClick={(e) => {
+              <Acon icon='LeftOutlined' hidden={mode === 'preview'} onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 if (i > 0) {
@@ -61,7 +58,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
                 }
               }} />
               {child.title}
-              <RightOutlined hidden={mode === 'preview'} onClick={(e) => {
+              <Acon icon='RightOutlined' hidden={mode === 'preview'} onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 if (i < self.children.length - 1) {

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
+import Acon from '../Acon'
 import { Codemirror } from 'react-codemirror-ts';
 import { debounce } from 'lodash'
 import store from '@/store'
@@ -167,7 +167,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }}>
                 <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : 'http://localhost:3334' + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                  <UploadOutlined /> 上传
+                  <Acon icon='UploadOutlined' /> 上传
                 </Button>
               </Upload>
             </Form.Item>

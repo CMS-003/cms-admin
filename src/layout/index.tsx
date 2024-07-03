@@ -1,7 +1,6 @@
 import { Layout, Dropdown, Menu, Popover, Button } from 'antd';
 import React, { useCallback, useState } from 'react';
 import logo from '../logo.svg';
-import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
@@ -9,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import store from '@/store';
 import { useEffectOnce } from 'react-use';
 import apis from '@/api'
+import Acon from '@/components/Acon';
 
 const { Content, Sider } = Layout;
 
@@ -70,7 +70,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
         >
           <Link to={'/user/bind'}>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
-              <Avatar icon={<UserOutlined />} />
+              <Avatar icon={<Acon icon='UserOutlined' />} />
               <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
             </div>
           </Link>

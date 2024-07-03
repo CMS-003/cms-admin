@@ -4,7 +4,7 @@ import { Fragment, useCallback, useRef } from "react";
 import { useEffectOnce } from "react-use";
 import apis from "@/api";
 import { IResource } from "@/types/resource";
-import { PlusOutlined } from "@ant-design/icons";
+import Acon from "../Acon";
 
 export default function ResourceModal({ onAdd, onClose }: { onAdd: Function, onClose: Function }) {
   const local = useLocalObservable<{ resources: IResource[], page: number, fetch: boolean, setFetch: Function, setResources: Function, q: string }>(() => ({
@@ -59,7 +59,7 @@ export default function ResourceModal({ onAdd, onClose }: { onAdd: Function, onC
           <Table style={{ height: '100%' }} loading={local.fetch} pagination={false} rowKey="_id" dataSource={local.resources}>
             <Table.Column title="项目名称" dataIndex="title" render={(title, record: IResource) => <Fragment>{record.cover ? <Image src={"http://192.168.0.124:8097" + record.cover} /> : null} {title}</Fragment>} />
             <Table.Column title="操作" key="_id" render={(_, record: IResource) => (
-              <PlusOutlined onClick={() => {
+              <Acon icon='PlusOutlined' onClick={() => {
                 onAdd({ _id: record._id, title: record.title, cover: record.poster || record.thumbnail })
               }} />
             )} />

@@ -1,7 +1,7 @@
 import React from 'react'
 import { IComponent } from '@/types/component'
 import styled from 'styled-components'
-import * as icons from '@ant-design/icons'
+import Acon from '@/components/Acon'
 
 const MenuItem = styled.div`
   color: #333;
@@ -13,10 +13,8 @@ const MenuItem = styled.div`
   }
 `
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  const icon: keyof typeof icons = self.icon as any;
-  const Image: any = icons[icon];
   return <div>
-    <MenuItem>{Image ? <Image /> : null} {self.title}</MenuItem>
+    <MenuItem><Acon icon={self.icon as string} /> {self.title}</MenuItem>
     <div style={{ textIndent: 10 * level }}>
       {children}
     </div>

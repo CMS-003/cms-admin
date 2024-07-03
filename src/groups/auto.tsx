@@ -4,7 +4,7 @@ import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
 import { Input, message } from 'antd'
-import { CloseOutlined, CopyOutlined, DragOutlined } from '@ant-design/icons'
+import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
@@ -124,7 +124,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? '.hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
           <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
-            <DragOutlined />
+            <Acon icon='DragOutlined' />
           </Handler>
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
             <SortList
@@ -345,7 +345,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     {local.editComponent && <div key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({local.editComponent.type})</span>
-        <CloseOutlined onClick={() => {
+        <Acon icon='CloseOutlined' onClick={() => {
           store.app.setEditComponentId('')
           local.editComponent = null
         }} />
@@ -396,11 +396,11 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
             direction={'vertical'}
             renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                <DragOutlined {...handler2} style={{ marginRight: 5 }} />
+                <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
                 <Input
                   value={resource.title}
-                  addonBefore={<CopyToClipboard text={resource._id as string}><CopyOutlined title={resource._id} onClick={() => { }} /></CopyToClipboard>}
-                  addonAfter={<CloseOutlined onClick={() => { local.editComponent?.remResource(resource._id) }}
+                  addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' title={resource._id} onClick={() => { }} /></CopyToClipboard>}
+                  addonAfter={<Acon icon='CloseOutlined' onClick={() => { local.editComponent?.remResource(resource._id) }}
                   />} />
               </div>
             </Fragment>}
