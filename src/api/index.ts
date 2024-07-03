@@ -3,6 +3,7 @@ import user from './user'
 import config from './config'
 import component from './component'
 import project from './project'
+import sns from './sns'
 import template from './template'
 import resource from './resource'
 import componentType from './component-type'
@@ -51,6 +52,7 @@ const apis = {
   ...componentType,
   ...user,
   ...resource,
+  ...sns,
 }
 
 export default apis;

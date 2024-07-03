@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
 import { Observer, useLocalObservable } from 'mobx-react';
@@ -39,7 +39,7 @@ function App() {
     }
     await store.getBoot();
   }, [])
-  useEffectOnce(() => {
+  useEffect(() => {
     (async () => {
       try {
         // 第三方登录和跳转设置
@@ -55,7 +55,7 @@ function App() {
           store.user.setAccessToken(access_token);
           navigate(window.location.pathname)
         }
-        if (local.booted !== true && !white_paths.includes(location.pathname)) {
+        if (!local.booted) {
           await init();
           local.booted = true
           if (!store.user.isLogin()) {
@@ -73,7 +73,7 @@ function App() {
     return () => {
 
     }
-  })
+  }, [location.pathname])
   return (
     <Observer>{() => (
       <div className="App">

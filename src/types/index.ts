@@ -21,3 +21,10 @@ export type ITemplate = {
   order: number;
   children: IComponent[]
 }
+
+export type ISNS = {
+  _id?: string;
+  sns_id?: string;
+  sns_type: string;
+  status: number;
+}

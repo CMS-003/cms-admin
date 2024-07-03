@@ -23,6 +23,9 @@ import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import ConfigPage from '@/pages/config';
 import ProjectPage from '@/pages/project';
+import UserBindPage from '@/pages/user/bind';
+import OAuthSuccessPage from '@/pages/oauthResult/success';
+import OAuthFailPage from '@/pages/oauthResult/fail';
 
 type PaneItem = {
   title?: string;
@@ -41,6 +44,18 @@ const Pages: { [key: string]: PaneItem } = {
     content: HomePage,
     closable: false,
     path: '/dashboard'
+  },
+  '/oauth/success': {
+    title: '授权成功',
+    closable: true,
+    content: OAuthSuccessPage,
+    path: '/oauth/success'
+  },
+  '/oauth/fail': {
+    title: '授权失败',
+    closable: true,
+    content: OAuthFailPage,
+    path: '/oauth/fail'
   },
   '/config': {
     title: '配置管理',
@@ -92,6 +107,12 @@ const Pages: { [key: string]: PaneItem } = {
     closable: true,
     path: '/result/404'
   },
+  '/user/bind': {
+    title: '第三方账号绑定',
+    content: UserBindPage,
+    closable: true,
+    path: '/user/bind'
+  }
 }
 
 // 多页签组件
