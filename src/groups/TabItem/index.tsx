@@ -1,5 +1,5 @@
 import { IComponent } from "@/types"
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
 
@@ -23,7 +23,7 @@ export const TabItemWrap = styled.div`
   }
 `
 export default function TabItem({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
-  const local = useLocalObservable(() => ({
+  const local = useLocalStore(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
       e.preventDefault();

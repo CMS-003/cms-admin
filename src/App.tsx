@@ -1,9 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
-import { Observer, useLocalObservable } from 'mobx-react';
+import { Observer, useLocalStore } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffectOnce } from 'react-use';
 import { Space, Spin, Button } from 'antd'
 import apis from './api';
 import SignInPage from './pages/signin'
@@ -16,7 +15,7 @@ import { IUser } from '@/types'
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const local = useLocalObservable(() => ({
+  const local = useLocalStore(() => ({
     booting: true,
     booted: false,
     error: false,

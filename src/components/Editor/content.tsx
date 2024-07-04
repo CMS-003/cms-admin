@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer, useLocalStore } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
 import Acon from '../Acon'
 import { Codemirror } from 'react-codemirror-ts';
@@ -59,7 +59,7 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
 const lb = { span: 4 }, rb = { span: 20 }
 
 export default function EditPage({ fetch, fields, data, ...props }: { data: any, fields: IEditorField[], fetch: Function, }) {
-  const local = useLocalObservable<{ jsonMap: { [key: string]: string } }>(() => ({
+  const local = useLocalStore<{ jsonMap: { [key: string]: string } }>(() => ({
     jsonMap: {},
   }))
   useEffect(() => {

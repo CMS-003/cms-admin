@@ -8,28 +8,34 @@ import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer, useLocalStore } from 'mobx-react'
 import { ISimpleType, IMSTArray } from 'mobx-state-tree'
 import store from '@/store'
 
 import HomePage from '@/pages/dashboard'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
-import ProjectPage from '@/pages/project';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
 import Loadable from 'react-loadable';
 import Acon from '@/components/Acon';
 
-type PaneItem = {
+type IPanel = {
   title?: string;
   path: string,
   closable?: boolean;
-  content?: any;
+  Content?: any;
 }
 
-function getKeyName(key: string): PaneItem {
-  return Pages[key] || null
+function getKeyName(key: string): IPanel {
+  return Pages[key] || {
+    title: '404',
+    Content: function () {
+      return <ErrorPage status="404" subTitle="?" errTitle="Not Found" />
+    },
+    closable: true,
+    path: key
+  }
 }
 
 function LoadingPage() {
@@ -74,70 +80,70 @@ const LoadableComponentTypePage = Loadable({
   loading: LoadingPage,
 });
 
-const Pages: { [key: string]: PaneItem } = {
+const Pages: { [key: string]: IPanel } = {
   '/dashboard': {
     title: '首页',
-    content: HomePage,
+    Content: HomePage,
     closable: false,
     path: '/dashboard'
   },
   '/oauth/success': {
     title: '授权成功',
     closable: true,
-    content: OAuthSuccessPage,
+    Content: OAuthSuccessPage,
     path: '/oauth/success'
   },
   '/oauth/fail': {
     title: '授权失败',
     closable: true,
-    content: OAuthFailPage,
+    Content: OAuthFailPage,
     path: '/oauth/fail'
   },
   '/config': {
     title: '配置管理',
-    content: () => <LoadableConfigPage />,
+    Content: () => <LoadableConfigPage />,
     closable: true,
     path: '/config'
   },
   '/project': {
     title: '项目管理',
-    content: () => <LoadableProjectPage />,
+    Content: () => <LoadableProjectPage />,
     closable: true,
     path: '/project'
   },
   '/component/data': {
     title: '组件管理',
-    content: () => <LoadableComponentPage />,
+    Content: () => <LoadableComponentPage />,
     closable: true,
     path: '/component/data'
   },
   '/component/type': {
     title: '组件类型',
-    content: () => <LoadableComponentTypePage />,
+    Content: () => <LoadableComponentTypePage />,
     closable: true,
     path: '/component/type'
   },
   '/template/form': {
     title: '表单页',
-    content: () => <LoadableTemplateForm />,
+    Content: () => <LoadableTemplateForm />,
     closable: true,
     path: '/template/form'
   },
   '/template/page': {
     title: '模板页',
-    content: () => <LoadableTemplatePage />,
+    Content: () => <LoadableTemplatePage />,
     closable: true,
     path: '/template/page'
   },
   '/template/editable': {
     title: '可视化编辑',
-    content: () => <LoadableEditable />,
+    Content: () => <LoadableEditable />,
     closable: true,
     path: '/template/editable'
   },
   '/result/404': {
     title: '',
-    content: function () {
+    Content: function () {
       return <ErrorPage status="404" subTitle="?" errTitle="Not Found" />
     },
     closable: true,
@@ -145,7 +151,7 @@ const Pages: { [key: string]: PaneItem } = {
   },
   '/user/bind': {
     title: '第三方账号绑定',
-    content: () => <LoadableUserBind />,
+    Content: () => <LoadableUserBind />,
     closable: true,
     path: '/user/bind'
   }
@@ -156,41 +162,38 @@ const TabPanes: FC = () => {
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const fullPath = pathname + search
-
-  const local = useLocalObservable<{
-    reloadPath: string,
-    isReload: boolean,
-    activeKey: string,
-    operateKey: string,
-    saveTags(panels: PaneItem[]): void;
-    setPanel(panels: PaneItem[]): void;
-    pushPanel(page: PaneItem): void;
-    setActiveKey(key: string): void;
-    panels: PaneItem[];
+  const local = useLocalStore<{
+    activeKey: string;
+    pushPanel(pane: IPanel): void;
+    setActiveKey(arg0: string): void;
+    saveTags(panels: IPanel[]): void;
+    isReload: boolean;
+    reloadPath: string;
+    operateKey: string;
+    setPanel(remain_panels: IPanel[]): void;
+    panels: IPanel[]
   }>(() => ({
     reloadPath: '',
     panels: [],
     activeKey: store.page.currentTag,
     isReload: true,
     operateKey: '',
-    saveTags(panels: PaneItem[]) {
-      this.panels = panels
+    saveTags(panels: IPanel[]) {
+      local.panels = panels
       // 记录当前打开的tab
-      const tags = this.panels.map(item => item.path) as IMSTArray<ISimpleType<string>>;
+      const tags = local.panels.map((item: IPanel) => item.path) as IMSTArray<ISimpleType<string>>;
       store.page.setOpenedTags(tags)
     },
-    setPanel(pages: PaneItem[]) {
-      this.panels = pages
+    setPanel(pages: IPanel[]) {
+      local.panels = pages
     },
     setActiveKey(key: string) {
-      this.activeKey = key;
+      local.activeKey = key;
     },
-    pushPanel(page: PaneItem) {
+    pushPanel(page: IPanel) {
       this.panels.push(page);
     }
-  }))
-
-  // 从本地存储中恢复已打开的tab列表
+  }));
   const resetTabs = useCallback((): void => {
     store.page.openedTags.forEach(tag => {
       if (Pages[tag]) {
@@ -218,7 +221,7 @@ const TabPanes: FC = () => {
   // 移除tab
   const remove = (targetKey: string): void => {
     const delIndex = local.panels.findIndex(
-      (item: PaneItem) => item.path === targetKey
+      (item: IPanel) => item.path === targetKey
     )
     local.panels.splice(delIndex, 1)
     if (targetKey !== pathname) {
@@ -271,7 +274,7 @@ const TabPanes: FC = () => {
     local.setActiveKey(pathname)
 
     const index = local.panels.findIndex(
-      (_: PaneItem) => _.path === pathname
+      (_: IPanel) => _.path === pathname
     )
 
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
@@ -364,19 +367,19 @@ const TabPanes: FC = () => {
             return;
           }
           const { path } = local.panels.filter(
-            (item: PaneItem) => item.path === targetKey
+            (item: IPanel) => item.path === targetKey
           )[0]
           navigate(path)
         }}
         type="editable-card"
         size="small"
-        items={local.panels.map((pane, i) => ({
-          key: pane.path,
-          label: pane.title,
-          children: local.reloadPath !== pane.path ? (
-            <div key={pane.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><pane.content key={pane.path} path={pane.path} store={store} /></div>
+        items={local.panels.map((Panel, i) => ({
+          key: Panel.path,
+          label: Panel.title,
+          children: local.reloadPath !== Panel.path ? (
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} store={store} /></div>
           ) : (
-            <CenterXY key={pane.path}>
+            <CenterXY key={Panel.path}>
               <Alert message="刷新中..." type="info" />
             </CenterXY>
           )

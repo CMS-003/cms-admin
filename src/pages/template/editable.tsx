@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin } from 'antd';
-import { Observer, useLocalObservable } from 'mobx-react';
+import { Observer, useLocalStore } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
@@ -12,7 +12,7 @@ import events from '@/utils/event';
 import Acon from '@/components/Acon';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
-  const local = useLocalObservable<{
+  const local = useLocalStore<{
     mode: string,
     loading: boolean,
     fetching: boolean,

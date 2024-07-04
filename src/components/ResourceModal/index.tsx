@@ -1,5 +1,5 @@
 import { Modal, Table, Space, Image, Button, Input, InputRef } from "antd";
-import { Observer, useLocalObservable } from "mobx-react";
+import { Observer, useLocalStore } from "mobx-react";
 import { Fragment, useCallback, useRef } from "react";
 import { useEffectOnce } from "react-use";
 import apis from "@/api";
@@ -7,7 +7,7 @@ import { IResource } from "@/types/resource";
 import Acon from "../Acon";
 
 export default function ResourceModal({ onAdd, onClose }: { onAdd: Function, onClose: Function }) {
-  const local = useLocalObservable<{ resources: IResource[], page: number, fetch: boolean, setFetch: Function, setResources: Function, q: string }>(() => ({
+  const local = useLocalStore<{ resources: IResource[], page: number, fetch: boolean, setFetch: Function, setResources: Function, q: string }>(() => ({
     resources: [],
     page: 1,
     q: '',

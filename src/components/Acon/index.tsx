@@ -23,6 +23,7 @@ import {
   FileTextOutlined,
   InsertRowLeftOutlined,
   ProjectOutlined,
+  SnippetsOutlined,
 } from '@ant-design/icons'
 
 const icons = {
@@ -50,6 +51,7 @@ const icons = {
   FileTextOutlined,
   InsertRowLeftOutlined,
   ProjectOutlined,
+  SnippetsOutlined,
 }
 
 export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {

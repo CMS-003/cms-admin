@@ -1,5 +1,5 @@
 import { Button, notification, Space, Table, Image } from 'antd';
-import { Observer, useLocalObservable } from 'mobx-react';
+import { Observer, useLocalStore } from 'mobx-react';
 import React, { Fragment, useCallback, useState } from 'react';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import EditPage from '@/components/Editor'
@@ -12,7 +12,7 @@ import store from '@/store';
 import Acon from '@/components/Acon';
 
 const ProjectPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] }>(() => ({
+  const local = useLocalStore<{ showEditPage: boolean, temp: IProject, openEditor: Function, list: IProject[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: {},

@@ -1,5 +1,5 @@
 import { ITemplate, IComponent, IResource } from '@/types'
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer, useLocalStore } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside } from '@/components/style'
@@ -68,7 +68,7 @@ function getDiff(t: ITemplate | IComponent | null) {
 }
 
 export function Component({ self, children, mode, isDragging, handler, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, props?: any }) {
-  const local = useLocalObservable(() => ({
+  const local = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
     onDrop: (e: any) => {
@@ -157,7 +157,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
 }
 
 export function TemplatePage({ template_id, mode, }: { template_id: string, mode: string }) {
-  const local = useLocalObservable<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any, remComponent: Function }>(() => ({
+  const local = useLocalStore<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any, remComponent: Function }>(() => ({
     loading: true,
     template: null,
     isDragOver: false,
@@ -311,7 +311,7 @@ const ScrollWrap = styled.div`
 `
 
 export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
-  const local = useLocalObservable<{ editComponent: IComponent | null }>(() => ({
+  const local = useLocalStore<{ editComponent: IComponent | null }>(() => ({
     editComponent: null,
   }))
 

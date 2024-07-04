@@ -1,6 +1,6 @@
 import { IComponent } from '@/types/component'
 import Acon from '@/components/Acon'
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
 import { Center } from '@/components/style'
 import ResourceModal from '@/components/ResourceModal'
@@ -56,7 +56,7 @@ const ItemTitle = styled.div`
   margin: 5px 0;
 `
 export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
-  const local = useLocalObservable(() => ({
+  const local = useLocalStore(() => ({
     show: false,
     close() {
       local.show = false;
