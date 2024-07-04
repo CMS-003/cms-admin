@@ -63,14 +63,16 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
         </div>
         <MenuComponent tree={props.data} flag={props.flag} />
         <Popover
-          content={<Button type="link" block loading={logouting} onClick={logout}>退出</Button>}
+          content={<Button type="text" block loading={logouting} onClick={logout}>退出</Button>}
           title="设置"
           trigger="hover"
           placement="rightBottom"
         >
           <Link to={'/user/bind'}>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
-              <Avatar icon={<Acon icon='UserOutlined' />} />
+              <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Acon icon='UserOutlined' />
+              </div>
               <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
             </div>
           </Link>

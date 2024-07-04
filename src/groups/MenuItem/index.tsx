@@ -15,7 +15,7 @@ const MenuItem = styled.div`
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <div>
     <MenuItem><Acon icon={self.icon as string} /> {self.title}</MenuItem>
-    <div style={{ textIndent: 10 * level }}>
+    <div style={{ textIndent: 3 * level }}>
       {children}
     </div>
   </div>

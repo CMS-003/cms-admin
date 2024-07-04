@@ -12,8 +12,8 @@ export function transform(tree: any) {
   if (!tree) {
     return [];
   }
-  const node: any = { label: tree.title, key: tree._id, children: [] }
-  const path = get(tree, 'attrs.path', '')
+  const path = tree.attrs.get('path')
+  const node: any = { label: tree.title, key: path || tree._id, children: [] }
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key
   node.icon = <Acon icon={tree.icon} />
