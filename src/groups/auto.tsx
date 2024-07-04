@@ -157,7 +157,16 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
 }
 
 export function TemplatePage({ template_id, mode, }: { template_id: string, mode: string }) {
-  const local = useLocalStore<{ template: ITemplate | null, isDragOver: boolean, loading: boolean, onDragOver: any, onDragLeave: any, onDrop: any, remComponent: Function }>(() => ({
+  const local = useLocalStore<{
+    template: ITemplate | null,
+    isDragOver: boolean,
+    loading: boolean,
+    setLoading: (is: boolean) => void,
+    onDragOver: any,
+    onDragLeave: any,
+    onDrop: any,
+    remComponent: Function
+  }>(() => ({
     loading: true,
     template: null,
     isDragOver: false,
@@ -201,6 +210,9 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
         local.isDragOver = true;
       }
     },
+    setLoading: (is: boolean) => {
+      local.loading = is;
+    },
     remComponent: (id: string) => {
       if (local.template) {
         const index = local.template?.children.findIndex(c => c._id === id) as number;
@@ -216,7 +228,7 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
     }
   }))
   const refresh = useCallback(async () => {
-    local.loading = true;
+    local.setLoading(true)
     try {
       const resp = await apis.getTemplateComponents(template_id)
       const { children, ...template } = resp.data
@@ -225,40 +237,11 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
     } catch (e) {
       console.log(e)
     } finally {
-      local.loading = false;
+      local.setLoading(false);
     }
   }, [])
-  const eventHandle = useCallback(async (id: string) => {
-    if (id === template_id) {
-      const diff = getDiff(local.template);
-      if (diff.length) {
-        try {
-          await apis.batchUpdateComponent({ body: diff })
-          await refresh()
-        } catch (e) {
-          console.log(e)
-        } finally {
-          events.emit('finished')
-        }
-      } else {
-        message.warn('数据无变化')
-      }
-    }
-  }, [])
-  const eventRemoveComponent = useCallback(async (id: string) => {
-    local.remComponent(id)
-
-  }, []);
   useEffectOnce(() => {
     refresh()
-    events.on('editable', eventHandle)
-    events.on('remove_component', eventRemoveComponent)
-    return () => {
-      if (events) {
-        events.off('editable', eventHandle);
-        events.off('remove_component', eventRemoveComponent)
-      }
-    }
   })
   return <div style={{
     height: '100%',
@@ -311,9 +294,142 @@ const ScrollWrap = styled.div`
 `
 
 export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
-  const local = useLocalStore<{ editComponent: IComponent | null }>(() => ({
+  const local = useLocalStore<{
+    editComponent: IComponent | null
+    template: ITemplate | null,
+    isDragOver: boolean,
+    loading: boolean,
+    setLoading: (is: boolean) => void,
+    onDragOver: any,
+    onDragLeave: any,
+    onDrop: any,
+    remComponent: Function
+  }>(() => ({
     editComponent: null,
+    loading: true,
+    template: null,
+    isDragOver: false,
+    onDrop: (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      local.isDragOver = false;
+      if (mode === 'preview') {
+        return;
+      }
+      const type = store.component.types.find(it => it.name === store.app.dragingType)
+      if (type && type.level !== 1) {
+        return message.warn('非一级组件不能直接放到模板页')
+      }
+      const child = ComponentItem.create({
+        _id: '',
+        parent_id: '',
+        tree_id: '',
+        type: store.app.dragingType,
+        status: 1,
+        order: local.template?.children.length,
+        template_id: local.template?._id,
+        title: '无',
+        name: '',
+        cover: '',
+        desc: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accepts: [],
+        children: [],
+      });
+      local.template?.children.push(child)
+    },
+    onDragLeave: () => {
+      local.isDragOver = false;
+    },
+    onDragOver: (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!local.isDragOver) {
+        local.isDragOver = true;
+      }
+    },
+    setLoading: (is: boolean) => {
+      local.loading = is;
+    },
+    remComponent: (id: string) => {
+      if (local.template) {
+        const index = local.template?.children.findIndex(c => c._id === id) as number;
+        console.log(index)
+        if (index !== -1 && local.template) {
+          local.template.children.splice(index, 1);
+        } else {
+          local.template?.children.forEach(c => {
+            c.removeChild(id)
+          })
+        }
+      }
+    }
   }))
+  const refresh = useCallback(async () => {
+    local.setLoading(true)
+    try {
+      const resp = await apis.getTemplateComponents(template_id)
+      const { children, ...template } = resp.data
+      const components = children.map(child => ComponentItem.create(child))
+      local.template = { ...template, children: components }
+      // 更新编辑中的数据
+      if (local.editComponent) {
+        const stack = components.map(c => c);
+        while (stack.length) {
+          const curr = stack.shift();
+          if (curr && curr._id === local.editComponent._id) {
+            local.editComponent = curr;
+            break;
+          } else if (curr?.children.length) {
+            curr.children.forEach(child => {
+              stack.push(child);
+            })
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      local.setLoading(false);
+    }
+  }, [])
+  const eventHandle = useCallback(async (id: string) => {
+    if (id === template_id) {
+      const diff = getDiff(local.template);
+      if (diff.length) {
+        try {
+          await apis.batchUpdateComponent({ body: diff })
+          await refresh()
+          if (local.template?.name === 'admin') {
+            store.menu.setTree(local.template?.children[0])
+            store.menu.setFlag(Date.now());
+          }
+        } catch (e) {
+          console.log(e)
+        } finally {
+          events.emit('finished')
+        }
+      } else {
+        message.warn('数据无变化')
+      }
+    }
+  }, [])
+  const eventRemoveComponent = useCallback(async (id: string) => {
+    local.remComponent(id)
+
+  }, []);
+  useEffectOnce(() => {
+    refresh()
+    events.on('editable', eventHandle)
+    events.on('remove_component', eventRemoveComponent)
+    return () => {
+      if (events) {
+        events.off('editable', eventHandle);
+        events.off('remove_component', eventRemoveComponent)
+      }
+    }
+  })
 
   const GroupMenu = (props: any) => (<ContextMenu id='group_menu'>
     <ContextMenuItem onClick={async (e: any) => {
@@ -340,7 +456,45 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
   return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', }}>
     <GroupMenu />
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
-      <TemplatePage template_id={template_id} mode={mode} />
+      <div style={{
+        height: '100%',
+        maxWidth: 480,
+        minWidth: 400,
+      }}>
+        <Observer>{() => {
+          if (local.loading) {
+            return <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
+          } else if (local.template) {
+            return <TemplateBox
+              onDragOver={local.onDragOver}
+              onDragLeave={local.onDragLeave}
+              onDrop={local.onDrop}
+              className={`${mode} ${local.isDragOver ? "dragover" : ""}`}
+              style={toJS(local.template?.style)}
+            >
+              {mode === 'edit' ? <SortList
+                listStyle={{}}
+                sort={(oldIndex: number, newIndex: number) => {
+                  const [old] = (local.template as ITemplate).children.splice(oldIndex, 1);
+                  local.template?.children.splice(newIndex, 0, old);
+                  local.template?.children.forEach((child, i) => {
+                    child.setAttr('order', i);
+                  });
+                }}
+                key={local.template?.children.length}
+                droppableId={(local.template as ITemplate)._id}
+                items={(local.template as ITemplate).children}
+                itemStyle={{ display: 'flex' }}
+                mode={mode}
+                renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} handler={handler} />}
+              /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} />))}
+            </TemplateBox>
+          } else {
+            return <div>Page NotFound</div>
+          }
+        }
+        }</Observer >
+      </div>
     </div>
     {local.editComponent && <div key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>

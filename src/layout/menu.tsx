@@ -1,7 +1,6 @@
 import { Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useEffectOnce } from 'react-use';
 import Acon from '@/components/Acon';
 import store from '@/store'
 import { get } from 'lodash'
@@ -20,21 +19,20 @@ export function transform(tree: any) {
   node.icon = <Acon icon={tree.icon} />
   if (tree.children && tree.children.length) {
     node.children = tree.children.map((item: any) => transform(item))
-    node.key = path
   } else {
     delete node.children
   }
   return node;
 }
 
-const MENU: React.FC<{ tree: any }> = (props: { tree: any }) => {
+const MENU: React.FC<{ tree: any, flag: number }> = (props: { tree: any, flag: number }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [tree, setTree] = useState([])
   const [selectedKey, setKey] = useState(location.pathname)
-  useEffectOnce(() => {
+  useEffect(() => {
     setTree(transform(props.tree).children)
-  })
+  }, [props.flag])
   useEffect(() => {
     // 路由变化自动选中菜单
     if (pathKeyMap[location.pathname]) {

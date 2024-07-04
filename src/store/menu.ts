@@ -1,31 +1,9 @@
 import { types } from 'mobx-state-tree'
-
-const item: any = types.model('MenuItem', {
-  _id: types.string,
-  tree_id: types.optional(types.string, ''),
-  parent_id: types.optional(types.string, ''),
-  project_id: types.optional(types.string, ''),
-  title: types.optional(types.string, ''),
-  name: types.optional(types.string, ''),
-  desc: types.optional(types.string, ''),
-  icon: types.optional(types.string, ''),
-  cover: types.optional(types.string, ''),
-  status: types.optional(types.number, 1),
-  order: types.optional(types.number, 1),
-  available: types.optional(types.number, 0),
-  accepts: types.array(types.string),
-  createdAt: types.string,
-  updatedAt: types.string,
-  attrs: types.maybe(types.model({
-    path: types.optional(types.string, ''),
-  })),
-  children: types.maybe(types.array(types.late(() => item))),
-}).actions(self => ({
-
-}));
+import { ComponentItem } from './component';
 
 const menu = types.model({
-  tree: types.maybe(item),
+  tree: types.maybe(ComponentItem),
+  flag: types.optional(types.number, Date.now()),
 }).views(self => ({
   getTree() {
     return self.tree
@@ -34,5 +12,8 @@ const menu = types.model({
   setTree(tree: any) {
     self.tree = tree
   },
+  setFlag(flag: number) {
+    self.flag = flag
+  }
 }))
 export default menu;

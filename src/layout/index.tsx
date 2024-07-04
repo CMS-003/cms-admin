@@ -12,7 +12,7 @@ import Acon from '@/components/Acon';
 
 const { Content, Sider } = Layout;
 
-const App: React.FC<{ data: any }> = (props: { data: any }) => {
+const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: number }) => {
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false);
   const [logouting, setLogout] = useState(false);
@@ -61,7 +61,7 @@ const App: React.FC<{ data: any }> = (props: { data: any }) => {
             </div>
           </Dropdown>
         </div>
-        <MenuComponent tree={props.data} />
+        <MenuComponent tree={props.data} flag={props.flag} />
         <Popover
           content={<Button type="link" block loading={logouting} onClick={logout}>退出</Button>}
           title="设置"

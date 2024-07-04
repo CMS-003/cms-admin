@@ -24,6 +24,7 @@ import {
   InsertRowLeftOutlined,
   ProjectOutlined,
   SnippetsOutlined,
+  SafetyOutlined,
 } from '@ant-design/icons'
 
 const icons = {
@@ -52,12 +53,13 @@ const icons = {
   InsertRowLeftOutlined,
   ProjectOutlined,
   SnippetsOutlined,
+  SafetyOutlined,
 }
 
-export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
+export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, style?: React.CSSProperties, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
   const Image: any = icons[prop.icon as keyof typeof icons]
   if (Image) {
-    return <span style={{ marginRight: 10 }}><Image /></span>
+    return <span style={prop.style || { margin: 10 }} onClick={prop.onClick}><Image /></span>
   }
   return null;
 }

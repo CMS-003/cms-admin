@@ -171,6 +171,7 @@ const TabPanes: FC = () => {
     reloadPath: string;
     operateKey: string;
     setPanel(remain_panels: IPanel[]): void;
+    setByIndex: Function;
     panels: IPanel[]
   }>(() => ({
     reloadPath: '',
@@ -186,6 +187,9 @@ const TabPanes: FC = () => {
     },
     setPanel(pages: IPanel[]) {
       local.panels = pages
+    },
+    setByIndex(index: number, key: keyof IPanel, value: IPanel) {
+      local.panels[index][key] = value;
     },
     setActiveKey(key: string) {
       local.activeKey = key;
@@ -266,7 +270,7 @@ const TabPanes: FC = () => {
     }
     store.page.setCurrentTag(pathname)
     // 当前的路由和上一次的一样，无效的新tab，return
-    if (pathname === local.activeKey || !Pages[pathname]) {
+    if (pathname === local.activeKey) {
       return
     };
 
@@ -279,12 +283,13 @@ const TabPanes: FC = () => {
 
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
-      local.panels[index].path = newPath
+      local.setByIndex(index, 'path', newPath)
       local.setActiveKey(pathname)
       return
     }
     // 添加新tab并保存起来
-    local.pushPanel(Pages[pathname])
+    const Page = getKeyName(pathname);
+    local.pushPanel(Page)
     local.saveTags(local.panels)
     local.setActiveKey(pathname)
   }, [local, pathname, resetTabs, search])
