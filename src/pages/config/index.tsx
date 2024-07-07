@@ -10,10 +10,11 @@ import { cloneDeep } from 'lodash'
 import Acon from '@/components/Acon';
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalStore<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IConfig[] }>(() => ({
+  const local = useLocalStore<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, type: string, list: IConfig[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,
+    type: '',
     openEditor(data: IComponent) {
       local.temp = data || {}
       local.showEditPage = true
@@ -21,7 +22,7 @@ const ConfigPage: React.FC = () => {
   }))
   const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
-    const result = await apis.getConfig()
+    const result = await apis.getConfig({ type: local.type })
     if (result.code === 0) {
       local.list = result.data.items
     }
@@ -106,8 +107,12 @@ const ConfigPage: React.FC = () => {
       <AlignAside style={{ margin: 10 }}>
         <Space>
           分类类型:
-          <Select defaultValue="">
+          <Select defaultValue="" onSelect={type => {
+            local.type = type;
+          }}>
             <Select.Option value="">全部</Select.Option>
+            <Select.Option value="sns">sns</Select.Option>
+            <Select.Option value="config">config</Select.Option>
           </Select>
           <Input ref={ref => searchInput.current = ref} />
           <Button type="primary" onClick={e => {
@@ -127,10 +132,10 @@ const ConfigPage: React.FC = () => {
         fields={fields}
         fetch={editConfig}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
-        <Table.Column title="配置名称" dataIndex="title" />
-        <Table.Column title="配置类型" dataIndex="name" />
+      <Table style={{ height: '100%' }} pagination={false} rowKey="_id" dataSource={local.list}>
         <Table.Column title="分类类型" dataIndex="type" />
+        <Table.Column title="配置类型" dataIndex="name" />
+        <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="操作" key="id" render={(_, record: IConfig) => (
           <Space size="middle">
             <Acon icon='FormOutlined' onClick={() => {
