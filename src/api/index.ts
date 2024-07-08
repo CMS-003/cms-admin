@@ -7,8 +7,9 @@ import sns from './sns'
 import template from './template'
 import resource from './resource'
 import componentType from './component-type'
-import { IComponent, IComponentType, ITemplate } from "@/types";
+import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
 import _ from 'lodash'
+import qs from 'qs'
 
 function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) {
   if (map[child.type]) {
@@ -44,6 +45,9 @@ const apis = {
       types: typesResult.data,
       projects: projectsResult.data,
     }
+  },
+  getLogs: async (query: object) => {
+    return await shttp.get<ILog>(`/api/v1/logs/system?${qs.stringify(query)}`)
   },
   ...config,
   ...component,

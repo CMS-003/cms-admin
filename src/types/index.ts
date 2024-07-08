@@ -28,3 +28,11 @@ export type ISNS = {
   sns_type: string;
   status: number;
 }
+
+export type ILog = {
+  _id: string;
+  type: string;
+  group: string;
+  content: string;
+  createdAt: Date;
+}

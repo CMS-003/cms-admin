@@ -79,6 +79,10 @@ const LoadableComponentTypePage = Loadable({
   loader: () => import('@/pages/component/type'),
   loading: LoadingPage,
 });
+const LoadableLogSystem = Loadable({
+  loader: () => import('@/pages/log/system'),
+  loading: LoadingPage,
+});
 
 const Pages: { [key: string]: IPanel } = {
   '/dashboard': {
@@ -140,6 +144,12 @@ const Pages: { [key: string]: IPanel } = {
     Content: () => <LoadableEditable />,
     closable: true,
     path: '/template/editable'
+  },
+  '/log/system': {
+    title: '系统日志',
+    Content: () => <LoadableLogSystem />,
+    closable: true,
+    path: '/log/system'
   },
   '/result/404': {
     title: '',
