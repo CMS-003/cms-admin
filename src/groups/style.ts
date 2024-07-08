@@ -21,7 +21,7 @@ export const EditWrap = styled.div`
     padding: 5px 5px 5px 5px;
   }
   &.edit.hover {
-    box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
+    // box-shadow: inset rgb(198 202 204) 3px 4px 10px 4px;
   }
   &.edit.hover > div {
     visibility: visible;
@@ -60,7 +60,7 @@ export const ScrollWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
-  left: -3px;
+  left: -11px;
   top: -7px;
   visibility: hidden;
 `;

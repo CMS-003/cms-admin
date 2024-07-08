@@ -8,14 +8,14 @@ const MenuItem = styled.div`
   cursor: pointer;
   padding: 5px 10px;
   &:hover {
-    background-color: #29ace9aa;
+    background-color: #71ace3;
     color: #000;
   }
 `
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <div>
     <MenuItem><Acon icon={self.icon as string} /> {self.title}</MenuItem>
-    <div style={{ textIndent: 3 * level }}>
+    <div style={{ marginLeft: 3 * level }}>
       {children}
     </div>
   </div>

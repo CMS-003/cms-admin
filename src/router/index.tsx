@@ -311,23 +311,23 @@ const TabPanes: FC = () => {
       items={[
         {
           key: 'refresh',
-          icon: <Acon icon="ReloadOutlined" />,
+          // icon: <Acon icon="ReloadOutlined" />,
           label: '刷新',
           disabled: false,
         },
         {
           key: 'close',
-          icon: <Acon icon="CloseOutlined" />,
+          // icon: <Acon icon="CloseOutlined" />,
           label: '关闭',
         },
         {
           key: 'closeOther',
-          icon: <Acon icon="CloseOutlined" />,
+          // icon: <Acon icon="CloseOutlined" />,
           label: '关闭其他',
         },
         {
           key: 'closeAll',
-          icon: <Acon icon="CloseOutlined" />,
+          // icon: <Acon icon="CloseOutlined" />,
           label: '关闭所有',
         },
       ]}
