@@ -66,6 +66,8 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
     fields.forEach(item => {
       if (item.type === 'json') {
         local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
+      } else {
+        local.jsonMap[item.field] = data[item.field];
       }
     })
     return () => {
@@ -173,6 +175,12 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
             </Form.Item>
           case 'Editor':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+              <Select defaultValue={item.type} onChange={type => {
+                item.type = type;
+              }}>
+                <Select.Option value="html">html</Select.Option>
+                <Select.Option value="json">json</Select.Option>
+              </Select>
               <Codemirror
                 key={item.field}
                 autoFocus
@@ -184,7 +192,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                   lineWrapping: true,
                   matchBrackets: true,
                   theme: '3024-night',
-                  mode: 'javascript',
+                  mode: item.type === 'html' ? 'html' : 'javascript',
                   tabSize: 2,
                 }}
                 className="code-mirror"
