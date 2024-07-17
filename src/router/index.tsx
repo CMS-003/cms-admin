@@ -83,6 +83,10 @@ const LoadableLogSystem = Loadable({
   loader: () => import('@/pages/log/system'),
   loading: LoadingPage,
 });
+const LoadableVerification = Loadable({
+  loader: () => import('@/pages/log/verification'),
+  loading: LoadingPage,
+});
 
 const Pages: { [key: string]: IPanel } = {
   '/dashboard': {
@@ -150,6 +154,12 @@ const Pages: { [key: string]: IPanel } = {
     Content: () => <LoadableLogSystem />,
     closable: true,
     path: '/log/system'
+  },
+  '/log/verification-code': {
+    title: ' 验证码',
+    Content: () => <LoadableVerification />,
+    closable: true,
+    path: '/log/verification-code'
   },
   '/result/404': {
     title: '',

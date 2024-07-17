@@ -75,7 +75,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
               <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Acon icon='UserOutlined' />
               </div>
-              <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
+              <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.nickname}</span>
             </div>
           </Link>
         </Popover>

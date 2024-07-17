@@ -178,6 +178,11 @@ class Request<T> {
           }
           //数据请求错误 使用reject将错误返回
           resolve(body as BaseBizError);
+        } else if (res.data.code === 101010 && window.location.pathname !== '/sign-in') {
+          message.warn('您的账号已登出或超时，即将登出...');
+          console.log('登录异常，执行登出...');
+          window.location.href = '/sign-in'
+          resolve(body as BaseBizError);
         } else {
           if (cb) {
             cb(body)

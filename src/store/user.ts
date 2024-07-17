@@ -6,7 +6,7 @@ const user = types.model('UserItem', {
   info: types.maybe(types.model({
     _id: types.string,
     avatar: types.string,
-    account: types.string,
+    name: types.string,
     nickname: types.optional(types.string, ''),
   })),
   token: types.model({
@@ -15,7 +15,7 @@ const user = types.model('UserItem', {
   })
 }).views(self => ({
   isLogin() {
-    return !!self.info;
+    return !!self.token[constant.ACCESS_TOKEN];
   },
   getAccessToken() {
     return self.token[constant.ACCESS_TOKEN] || ''
@@ -35,12 +35,12 @@ const user = types.model('UserItem', {
   setInfo(info: ({
     _id: string;
     avatar: string;
-    account: string;
+    name: string;
     nickname: string;
   } & IStateTreeNode<IMaybe<IModelType<{
     _id: ISimpleType<string>;
     avatar: ISimpleType<string>;
-    account: ISimpleType<string>;
+    name: ISimpleType<string>;
     nickname: IOptionalIType<ISimpleType<string>, ValidOptionalValues>;
   }, {}, _NotCustomized, _NotCustomized>>>) | undefined) {
     if (info) {

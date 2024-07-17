@@ -58,7 +58,7 @@ const icons = {
 
 export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, style?: React.CSSProperties, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
   const Image: any = icons[prop.icon as keyof typeof icons]
-  if (Image) {
+  if (Image && !prop.hidden) {
     return <span style={prop.style || { margin: 10 }} onClick={prop.onClick}><Image /></span>
   }
   return null;
