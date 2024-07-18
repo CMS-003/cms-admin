@@ -11,7 +11,7 @@
 - ✅ 全局types
 - ✅ utils
 - ✅ 默认页(登录注册,错误页,无权限页,dashboard)
-- icon组件
+- ✅ Acon组件
 - ✅ 布局layout
 - ✅ 模板页实时修改渲染
 - 权限控制
