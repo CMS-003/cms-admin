@@ -121,7 +121,7 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? '.hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
           <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
             <Acon icon='DragOutlined' />

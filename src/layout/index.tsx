@@ -36,7 +36,9 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
   })
   return (
     <Layout style={{ height: '100vh' }}>
-      <Sider className="app-slider" collapsible collapsed={collapsed} onCollapse={value => setCollapsed(value)}>
+      <Sider className="app-slider" collapsible collapsed={collapsed} onCollapse={value => {
+        setCollapsed(value)
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
           <Dropdown overlay={<Menu
             style={{}}
@@ -61,7 +63,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
             </div>
           </Dropdown>
         </div>
-        <MenuComponent tree={props.data} flag={props.flag} />
+        <MenuComponent tree={props.data} collapsed={collapsed} flag={props.flag} />
         <Popover
           content={<Button type="text" block loading={logouting} onClick={logout}>退出</Button>}
           title="设置"
@@ -73,7 +75,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
               <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Acon icon='UserOutlined' />
               </div>
-              <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.account}</span>
+              <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.nickname}</span>
             </div>
           </Link>
         </Popover>

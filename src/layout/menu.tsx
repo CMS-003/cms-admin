@@ -4,11 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Acon from '@/components/Acon';
 import store from '@/store'
 import { get } from 'lodash'
+import { Observer } from 'mobx-react';
 
 const keyPathMap: { [key: string]: string } = {}
 const pathKeyMap: { [key: string]: string } = {}
 
-export function transform(tree: any) {
+export function transform(tree: any, collapsed = true) {
   if (!tree) {
     return [];
   }
@@ -17,29 +18,32 @@ export function transform(tree: any) {
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key
   node.icon = <Acon icon={tree.icon} />
+  if (collapsed) {
+    node.label = null;
+  }
   if (tree.children && tree.children.length) {
-    node.children = tree.children.map((item: any) => transform(item))
+    node.children = tree.children.map((item: any) => transform(item, collapsed))
   } else {
     delete node.children
   }
   return node;
 }
 
-const MENU: React.FC<{ tree: any, flag: number }> = (props: { tree: any, flag: number }) => {
+const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: { tree: any, collapsed: boolean, flag: number }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [tree, setTree] = useState([])
   const [selectedKey, setKey] = useState(location.pathname)
   useEffect(() => {
-    setTree(transform(props.tree).children)
-  }, [props.flag])
+    setTree(transform(props.tree, props.collapsed).children)
+  }, [props.collapsed, props.flag])
   useEffect(() => {
     // 路由变化自动选中菜单
     if (pathKeyMap[location.pathname]) {
       setKey(pathKeyMap[location.pathname])
     }
   }, [location.pathname])
-  return (
+  return <Observer>{() => (
     <div style={{ flex: 1 }}>
       <Menu
         defaultSelectedKeys={[selectedKey]}
@@ -53,7 +57,7 @@ const MENU: React.FC<{ tree: any, flag: number }> = (props: { tree: any, flag: n
         }}
       />
     </div>
-  );
+  )}</Observer>;
 };
 
 export default MENU;

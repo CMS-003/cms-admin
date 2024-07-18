@@ -77,7 +77,6 @@ export default function SignInPage() {
 
         <Popconfirm
           title="正在开发中..."
-          icon={<Acon icon='MinusCircleOutlined' />}
           okText="已阅"
           showCancel={false}>
           <IconSNS src={Icon_sns_wechat} alt="微信" />
@@ -85,7 +84,6 @@ export default function SignInPage() {
 
         <Popconfirm
           title="apple开发账号太贵，用不起"
-          icon={<Acon icon='MinusCircleOutlined' />}
           okText="已阅"
           showCancel={false}>
           <IconSNS src={Icon_sns_apple} alt="苹果" />

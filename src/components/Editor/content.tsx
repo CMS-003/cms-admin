@@ -66,6 +66,8 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
     fields.forEach(item => {
       if (item.type === 'json') {
         local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
+      } else {
+        local.jsonMap[item.field] = data[item.field];
       }
     })
     return () => {
@@ -167,12 +169,18 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }}>
                 <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : 'http://localhost:3334' + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                  <Acon icon='UploadOutlined' /> 上传
+                  <Acon icon='UploadOutlined' style={{}} /> 上传
                 </Button>
               </Upload>
             </Form.Item>
           case 'Editor':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+              <Select defaultValue={item.type} onChange={type => {
+                item.type = type;
+              }}>
+                <Select.Option value="html">html</Select.Option>
+                <Select.Option value="json">json</Select.Option>
+              </Select>
               <Codemirror
                 key={item.field}
                 autoFocus
@@ -184,7 +192,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                   lineWrapping: true,
                   matchBrackets: true,
                   theme: '3024-night',
-                  mode: 'javascript',
+                  mode: item.type === 'html' ? 'html' : 'javascript',
                   tabSize: 2,
                 }}
                 className="code-mirror"
