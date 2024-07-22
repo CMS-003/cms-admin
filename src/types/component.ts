@@ -78,3 +78,12 @@ export type IEditorField = {
   value: { value: string | number, name: string }[];
   fetch?: Function;
 }
+export type IWidget = {
+  _id: string;
+  title: string;
+  cover: string;
+  desc: string;
+  status: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

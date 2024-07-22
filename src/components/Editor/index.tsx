@@ -4,7 +4,7 @@ import { Modal, notification, } from 'antd'
 import { IEditorField } from '@/types'
 import Content from './content'
 
-export default function EditPage({ visible, fetch, fields, data, close, ...props }: { visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
+export default function EditPage({ isAdd, visible, fetch, fields, data, close, ...props }: { isAdd?: boolean, visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
   const local = useLocalStore<{ fetching: boolean }>(() => ({
     fetching: false,
   }))
@@ -17,7 +17,7 @@ export default function EditPage({ visible, fetch, fields, data, close, ...props
     }
     return (<Fragment>
       <Modal
-        title={data._id ? '修改' : '添加'}
+        title={isAdd || !data._id ? '添加' : '修改'}
         open={visible}
         key={visible ? 1 : 2}
         okText="确定"

@@ -2,5 +2,7 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
   "javascript.validate.enable": true,
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "editor.fontSize": 12,
+  "editor.fontFamily": "'Fira Code','Monaco'"
 }

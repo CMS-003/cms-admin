@@ -7,6 +7,8 @@ import sns from './sns'
 import template from './template'
 import resource from './resource'
 import componentType from './component-type'
+import widget from './widget'
+import table from './table'
 import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
 import _ from 'lodash'
 import qs from 'qs'
@@ -57,6 +59,8 @@ const apis = {
   ...user,
   ...resource,
   ...sns,
+  ...widget,
+  ...table,
 }
 
 export default apis;

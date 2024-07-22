@@ -5,6 +5,7 @@ export * from "./menu"
 export * from "./component"
 export * from "./project"
 export * from "./resource"
+export * from "./table"
 
 export type ITemplate = {
   _id: string;

@@ -5,6 +5,7 @@ import IRouter from './router'
 import IPage from './page'
 import IComponent from './component'
 import IProject from './project'
+import IWidget from './widget'
 import constant from '../constant'
 import storage from '../storage'
 
@@ -27,7 +28,7 @@ const app = IApp.create({
   isDebug: false,
   lastVisitedAt: 0,
   imageLines: ['http://localhost:3334'],
-  baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : (process.env.PUBLIC_URL || 'http://localhost:3334/'),
+  baseURL: process.env.NODE_ENV === 'development' ? '/' : (process.env.PUBLIC_URL || 'http://localhost:3334/'),
   project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态
@@ -40,7 +41,8 @@ const page = IPage.create({
 const router = IRouter.create();
 const menu = IMenu.create();
 const component = IComponent.create();
-const project = IProject.create()
+const project = IProject.create();
+const widget = IWidget.create();
 
 async function getBoot() {
   await new Promise((resolve, reject) => {
@@ -64,6 +66,7 @@ const store = {
   page,
   component,
   project,
+  widget,
   getBoot,
 }
 
