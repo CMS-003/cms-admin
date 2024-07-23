@@ -45,7 +45,7 @@ export default function SortList({ items, droppableId, mode, direction = 'vertic
             style={{ display: 'flex', width: '100%', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex || 'auto' }}
           >
             {items.map((item: any, index: number) => (
-              <Draggable key={item._id} draggableId={item._id} isDragDisabled={mode === 'preview'} index={index}>
+              <Draggable key={item._id} draggableId={item._id || item.id} isDragDisabled={mode === 'preview'} index={index}>
                 {(provided, snapshot) => {
                   let transform = (provided.draggableProps.style as any).transform;
                   if (snapshot.isDragging && transform) {

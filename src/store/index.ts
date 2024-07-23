@@ -28,7 +28,7 @@ const app = IApp.create({
   isDebug: false,
   lastVisitedAt: 0,
   imageLines: ['http://localhost:3334'],
-  baseURL: process.env.NODE_ENV === 'development' ? '/' : (process.env.PUBLIC_URL || 'http://localhost:3334/'),
+  baseURL: process.env.NODE_ENV === 'development' ? '' : (process.env.PUBLIC_URL || 'http://localhost:3334'),
   project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态

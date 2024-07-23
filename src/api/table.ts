@@ -6,8 +6,8 @@ const apis = {
     const result = await shttp.get<ITableDetail>(`/api/v1/tables/views`)
     return result
   },
-  getTable: async (table: string) => {
-    const result = await shttp.get<ITable>(`/api/tables/${table}`);
+  getTableFields: async (table: string) => {
+    const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/tables/${table}/fields`);
     return result;
   },
   getTableViews: async (table: string) => {

@@ -162,7 +162,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                     // reader.addEventListener('load', () => { data[item.field] = reader.result });
                     // reader.readAsDataURL(e.file as any);
                   } else if (e.file.status === 'done') {
-                    data[item.field] = e.file.response.data.filepath;
+                    data[item.field] = e.file.response.data;
                   }
                 }} beforeUpload={(f) => {
                   return true

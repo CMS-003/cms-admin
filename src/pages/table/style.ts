@@ -5,12 +5,12 @@ export const TableCard = styled.div`
   width: 200px;
   min-height: 250px;
   margin: 10px;
-  padding: 5px;
+  padding: 8px;
   background-color: #d4d4d4;
-color: #3885aa;
+color: #0896db;
 `
 export const TableTitle = styled.div`
-  height: 40px;
+  height: 32px;
 `
 export const SubTitle = styled.h2`
   font-size: 12px;

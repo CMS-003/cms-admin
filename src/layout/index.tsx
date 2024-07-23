@@ -1,6 +1,6 @@
 import { Layout, Dropdown, Menu, Popover, Button } from 'antd';
 import React, { useCallback, useState } from 'react';
-import logo from '../logo.svg';
+import logo from '@/asserts/images/logo.svg';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'

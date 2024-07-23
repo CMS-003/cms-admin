@@ -7,11 +7,18 @@ export type ITableDetail = {
   forms: { id: string; name: string }[];
   lists: { id: string; name: string }[];
 }
+export type ITableWidget = {
+  id: string;
+  field: string;
+  title: string;
+  value: any;
+  optionValue: any;
+}
 export type ITableView = {
   _id: string;
   name: string;
   type: string;
   table: string;
   order: number;
-  widgets: { id: string; field: string; value: any; optionValue: any }[];
+  widgets: ITableWidget[];
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
 import { useNavigate } from "react-router-dom";
-import logo from '../../logo.svg'
+import logo from '@/asserts/images/logo.svg'
 import apis from '../../api'
 import store from '../../store'
 import { IUser } from '@/types'
@@ -14,7 +14,6 @@ import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
 import Icon_sns_wechat from '@/asserts/images/sns-wechat.svg'
 import Icon_sns_weibo from '@/asserts/images/sns-weibo.svg'
 import { IconSNS } from './style';
-import Acon from '@/components/Acon';
 
 export default function SignInPage() {
   const navigate = useNavigate()

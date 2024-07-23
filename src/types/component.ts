@@ -83,7 +83,6 @@ export type IWidget = {
   title: string;
   cover: string;
   desc: string;
+  order: number;
   status: number;
-  createdAt: Date;
-  updatedAt: Date;
 }

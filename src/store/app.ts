@@ -10,6 +10,7 @@ const app = types.model('app', {
   project_id: types.optional(types.string, ''),
   editing_component_id: types.optional(types.string, ''),
   dragingType: types.optional(types.string, ''),
+  dragingWidgetType: types.optional(types.string, ''),
 }).views(self => ({
   get imageLine() {
     return self.imageLines[0]
@@ -27,6 +28,9 @@ const app = types.model('app', {
   },
   setDragType(type: string) {
     self.dragingType = type;
+  },
+  setDragWidgetType(type: string) {
+    self.dragingWidgetType = type;
   },
 }));
 

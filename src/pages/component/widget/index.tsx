@@ -118,11 +118,13 @@ const WidgetPage: React.FC = () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Popconfirm title="确定要删除吗?" okText="确定" showCancel={false}>
-              <Acon icon='DeleteOutlined' onClick={async () => {
-                // await apis.destroyWidget({ params: { _id: record._id } })
-                // await refresh()
-              }} />
+            <Popconfirm title="确定要删除吗?" okText="确定" showCancel={false}
+              onConfirm={async () => {
+                await apis.destroyWidget({ params: { _id: record._id } })
+                await refresh()
+              }}
+            >
+              <Acon icon='DeleteOutlined' />
             </Popconfirm>
           </Space>
         )} />

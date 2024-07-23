@@ -6,8 +6,7 @@ export const WidgetType = types.model('WidgetType', {
   title: types.optional(types.string, ''),
   cover: types.optional(types.string, ''),
   desc: types.optional(types.string, ''),
-  createdAt: types.Date,
-  updatedAt: types.Date,
+  order: types.optional(types.number, 1),
   status: types.optional(types.number, 1),
 });
 

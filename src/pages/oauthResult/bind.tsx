@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { Observer, useLocalStore } from 'mobx-react-lite'
 import { Button, Input, Avatar, message, Tabs, Select, Space } from 'antd'
 import { useNavigate } from "react-router-dom";
-import logo from '../../logo.svg'
+import logo from '@/asserts/images/logo.svg'
 import apis from '../../api'
 import store from '../../store'
 import { useEffectOnce } from 'react-use';

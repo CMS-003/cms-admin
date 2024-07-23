@@ -17,6 +17,11 @@ module.exports = {
         changeOrigin: true,
         // pathRewrite: { '^/api': '/' }
       },
+      '/upload/': {
+        target: 'http://127.0.0.1:3334',
+        changeOrigin: true,
+        // pathRewrite: { '^/api': '/' }
+      },
     }
     return config;
   })
