@@ -231,7 +231,7 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
     local.setLoading(true)
     try {
       const resp = await apis.getTemplateComponents(template_id)
-      const { children, ...template } = resp.data
+      const { children, ...template } = resp.data as ITemplate;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
     } catch (e) {
@@ -370,7 +370,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     local.setLoading(true)
     try {
       const resp = await apis.getTemplateComponents(template_id)
-      const { children, ...template } = resp.data
+      const { children, ...template } = resp.data as ITemplate;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
       // 更新编辑中的数据

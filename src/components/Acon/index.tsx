@@ -27,6 +27,7 @@ import {
   SafetyOutlined,
   ProductOutlined,
   DatabaseOutlined,
+  FileSearchOutlined,
 } from '@ant-design/icons'
 
 const icons = {
@@ -58,6 +59,7 @@ const icons = {
   SafetyOutlined,
   ProductOutlined,
   DatabaseOutlined,
+  FileSearchOutlined,
 }
 
 export default function Acon(prop: { icon: string, size?: number, title?: string, hidden?: boolean, style?: React.CSSProperties, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {

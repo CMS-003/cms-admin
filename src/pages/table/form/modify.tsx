@@ -6,12 +6,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import _ from 'lodash';
 import apis from '@/api';
 import store from '@/store';
-import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight } from '@/components/style';
+import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround } from '@/components/style';
 import styled from 'styled-components';
 import SortList from '@/components/SortList';
 import { Transform } from '@/groups/widgets';
 import { toJS } from 'mobx';
-import { Select, Input, } from 'antd';
+import { Select, Input, Button } from 'antd';
+import VisualBox from '@/components/VisualBox';
+import Acon from '@/components/Acon';
 
 const WidgetWrap = styled.div`
   margin: 5px 10px;
@@ -24,7 +26,7 @@ const WidgetWrap = styled.div`
 `
 const Handler = styled.div`
   &:hover {
-    background-color: grey;
+    background-color: #c6c6c6;
   }
 `
 const AttrItem = styled.div`
@@ -33,16 +35,22 @@ const AttrItem = styled.div`
 `
 export default function FormModifyPage() {
   const local: {
+    isLoading: boolean,
     table: string,
+    id: string,
     error: boolean,
     editWidget: ITableWidget | null,
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
+    name: string,
     widgets: ITableWidget[],
     fields: { field: string, type: string }[]
   } = useLocalObservable(() => ({
+    isLoading: false,
     table: '',
+    id: new URL(window.location.href).searchParams.get('id') || '',
+    name: '视图名称',
     fields: [],
     widgets: [],
     editWidget: null,
@@ -54,34 +62,36 @@ export default function FormModifyPage() {
     onDrop() {
       if (store.app.dragingWidgetType) {
         let value: any = '';
-        let optionValue: any = '';
+        let refer: any = '';
         switch (store.app.dragingWidgetType) {
           case 'input':
             value = '';
             break;
           case 'checkbox':
             value = '';
-            optionValue = [
+            refer = [
               { value: 'apple', name: '苹果', },
               { value: 'banana', name: '香蕉', },
             ];
             break;
           case 'radio':
             value = '';
-            optionValue = [{ value: 'apple', name: '苹果' }, { value: 'banana', name: '香蕉' }];
+            refer = [{ value: 'apple', name: '苹果' }, { value: 'banana', name: '香蕉' }];
             break;
           default: break;
         }
         local.widgets.push({
           field: '',
-          title: '标题',
-          id: store.app.dragingWidgetType,
+          label: '字段',
+          widget: store.app.dragingWidgetType,
           value,
-          optionValue,
+          source: 'var',
+          refer,
+          explain: '',
         });
         local.widgets = toJS(local.widgets)
       }
-    }
+    },
   }));
   const init = useCallback(async () => {
     if (store.widget.list.length === 0) {
@@ -93,6 +103,28 @@ export default function FormModifyPage() {
     const resp = await apis.getTableFields(local.table);
     if (resp.code === 0) {
       local.fields = resp.data;
+    }
+    if (local.id) {
+      const resp = await apis.getTableViewDetail({ table: local.table, id: local.id });
+      if (resp.code === 0) {
+        local.name = resp.data.name
+        local.widgets = resp.data.widgets
+      }
+    }
+  }, []);
+  const saveView = useCallback(async () => {
+    if (local.id) {
+      await apis.updateTableView(local.id, { table: local.table, name: local.name, widgets: local.widgets });
+    } else {
+      const respResult = await apis.addTableView({
+        type: 'form',
+        table: local.table,
+        name: local.name,
+        widgets: local.widgets,
+      });
+      if (respResult.code === 0 && respResult.data) {
+        local.id = respResult.data._id
+      }
     }
   }, []);
   useEffectOnce(() => {
@@ -140,40 +172,62 @@ export default function FormModifyPage() {
         }}
         onDrop={local.onDrop}
       >
-        <SortList
-          droppableId={local.table || '_'}
-          items={local.widgets}
-          sort={(oldIndex: number, newIndex: number) => {
-            // (oldIndex, newIndex);
-          }}
-          mode={'preview'}
-          listStyle={{}}
-          itemStyle={{}}
-          renderItem={({ item, handler }: { item: ITableWidget, handler: HTMLObjectElement }) => (
-            <Handler key={item.id} onClick={() => {
-              local.editWidget = item;
-            }}>
-              <FullWidth>
-                <FullWidthFix style={{ minWidth: 50 }}>{item.title}</FullWidthFix>
-                <FullWidthAuto>
-                  <Transform widget={item} />
-                </FullWidthAuto>
-              </FullWidth>
-            </Handler>
-          )}
-        />
+        <FullHeight>
+          <FullHeightAuto style={{ backgroundColor: '#1990ff1f' }}>
+            <Input addonBefore="视图标题" defaultValue={local.name} onChange={e => {
+              local.name = e.target.value;
+            }} />
+            <SortList
+              droppableId={local.table || '_'}
+              items={local.widgets}
+              sort={(oldIndex: number, newIndex: number) => {
+                // (oldIndex, newIndex);
+              }}
+              ukey="widget"
+              mode={'preview'}
+              listStyle={{}}
+              itemStyle={{ padding: 6 }}
+              renderItem={({ item, handler }: { item: ITableWidget, handler: HTMLObjectElement }) => (
+                <Handler key={item.widget}>
+                  <FullWidth onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(e.nativeEvent.currentTarget)
+                    local.editWidget = item;
+                  }}>
+                    <FullWidthFix style={{ minWidth: 50 }}>{item.label}</FullWidthFix>
+                    <FullWidthAuto>
+                      <Transform widget={item} />
+                    </FullWidthAuto>
+                  </FullWidth>
+                </Handler>
+              )}
+            />
+          </FullHeightAuto>
+          <AlignAround style={{ padding: 10 }}>
+            <Button type='primary' disabled={local.isLoading} onClick={async () => {
+              local.isLoading = true;
+              await saveView();
+              local.isLoading = false;
+            }}>保存</Button>
+          </AlignAround>
+        </FullHeight>
+
       </FullWidthAuto>
       {
-        local.editWidget && (<FullHeight style={{ padding: 5, width: 250 }} key={local.editWidget.id}>
-          <p>属性列表</p>
+        local.editWidget && (<FullHeight style={{ padding: 5, width: 250 }} key={local.editWidget.widget}>
+          <AlignAside>
+            <span>属性列表</span>
+            <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+          </AlignAside>
           <FullWidth>
             <FullWidthFix style={{ width: 50 }}>
               标签:
             </FullWidthFix>
             <FullWidthAuto>
-              <Input style={{ width: '100%' }} defaultValue={local.editWidget.title} onChange={e => {
+              <Input style={{ width: '100%' }} defaultValue={local.editWidget.label} onChange={e => {
                 if (local.editWidget) {
-                  local.editWidget.title = e.target.value;
+                  local.editWidget.label = e.target.value;
                 }
               }} />
             </FullWidthAuto>
@@ -193,29 +247,32 @@ export default function FormModifyPage() {
                 }}
               >
                 {local.fields.map(field => (
-                  <Select.Option value={field.field}>{field.field}</Select.Option>
+                  <Select.Option key={field.field} value={field.field}>{field.field}</Select.Option>
                 ))}
               </Select>
             </FullWidthAuto>
           </FullWidth>
-          <FullWidth>
-            <FullWidthFix style={{ width: 50 }}>
-              多选/复选:
-            </FullWidthFix>
-            <FullWidthAuto>
-              <Input.TextArea defaultValue={JSON.stringify(local.editWidget.optionValue, null, 2)} onChange={e => {
-                try {
-                  e.target.style.border = '1px solid grey';
-                  const arr = JSON.parse(e.target.value);
-                  if (_.isArray(arr) && local.editWidget) {
-                    local.editWidget.optionValue = arr.map(it => _.omit(it, ['checked']));
+          <VisualBox visible={['checkbox', 'radio'].includes(local.editWidget.widget)}>
+            <FullWidth>
+              <FullWidthFix style={{ width: 50 }}>
+                多选/复选:
+              </FullWidthFix>
+              <FullWidthAuto>
+                <Input.TextArea defaultValue={JSON.stringify(local.editWidget.refer, null, 2)} onChange={e => {
+                  try {
+                    e.target.style.border = '1px solid grey';
+                    const arr = JSON.parse(e.target.value);
+                    if (_.isArray(arr) && local.editWidget) {
+                      local.editWidget.refer = arr.map(it => _.omit(it, ['checked']));
+                    }
+                  } catch (err) {
+                    e.target.style.border = '1px solid red';
                   }
-                } catch (err) {
-                  e.target.style.border = '1px solid red';
-                }
-              }} />
-            </FullWidthAuto>
-          </FullWidth>
+                }} />
+              </FullWidthAuto>
+            </FullWidth>
+          </VisualBox>
+
         </FullHeight>)
       }
     </FullWidth>

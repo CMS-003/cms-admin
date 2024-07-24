@@ -13,7 +13,7 @@ const Widgets = {
 }
 
 export function Transform({ widget }: { widget: ITableWidget }) {
-  const Comp = Widgets[widget.id as keyof typeof Widgets];
+  const Comp = Widgets[widget.widget as keyof typeof Widgets];
   if (Comp) {
     return <Observer>{() => {
       return <Comp widget={widget} />

@@ -102,7 +102,7 @@ export default function BindPage() {
               account: local.type === 'email' ? local.email : (local.type === 'phone' ? local.area_code + '-' + local.phone : local.username),
               value: local.type === 'email' ? local.email_code : (local.type === 'phone' ? local.phone_code : local.password)
             })
-            if (res.code === 0) {
+            if (res.code === 0 && res.data) {
               store.user.setAccessToken(res.data.access_token)
               await store.getBoot();
               navigate('/dashboard')

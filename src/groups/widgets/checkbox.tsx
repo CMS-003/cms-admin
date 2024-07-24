@@ -5,7 +5,7 @@ import { Observer } from 'mobx-react';
 
 export default function Widget({ widget }: { widget: ITableWidget }) {
   return <Observer>{() => {
-    return ((widget.optionValue || []).map((item: { value: number | string, name: string, checked: boolean }) => (
+    return ((widget.refer || []).map((item: { value: number | string, name: string, checked: boolean }) => (
       <Fragment>
         <Checkbox value={item.value} checked={item.checked} onChange={e => {
           item.checked = e.target.checked;

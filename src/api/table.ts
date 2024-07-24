@@ -1,5 +1,5 @@
 import shttp from "../utils/shttp";
-import { ITable, ITableDetail, ITableView } from '../types'
+import { ITable, ITableDetail, ITableView, ITableWidget, IWidget } from '../types'
 
 const apis = {
   getTables: async () => {
@@ -15,16 +15,16 @@ const apis = {
     return result
   },
   getTableViewDetail: async (params: { table: string, id: string }) => {
-    const result = await shttp.get<ITable>(`/api/v1/tables/${params.table}/views/${params.id}`)
+    const result = await shttp.get<ITableView>(`/api/v1/tables/${params.table}/views/${params.id}`)
     return result
   },
-  addTableView: async (body: { table: string, type: string }) => {
-    const result: any = await shttp.post(`/api/v1/tables/${body.table}/views`, body)
+  addTableView: async (body: { table: string, name: string, type: string, widgets: ITableWidget[] }) => {
+    const result = await shttp.post<ITableView>(`/api/v1/tables/views`, body)
     return result
   },
-  updateTableView: async (body: ITableView) => {
-    const { _id, table, ...data } = body;
-    const result: any = await shttp.put(`/api/v1/tables/${table}/views/${_id}`, data);
+  updateTableView: async (id: string, body: Partial<ITableView>) => {
+    const { table, ...data } = body;
+    const result: any = await shttp.put<ITableView>(`/api/v1/tables/${table}/views/${id}`, data);
     return result;
   },
   destroyTableView: async ({ _id, table }: { _id: string, table: string }) => {

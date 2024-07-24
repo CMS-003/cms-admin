@@ -4,15 +4,17 @@ export type ITable = {
 }
 export type ITableDetail = {
   name: string;
-  forms: { id: string; name: string }[];
-  lists: { id: string; name: string }[];
+  forms: { _id: string; name: string }[];
+  lists: { _id: string; name: string }[];
 }
 export type ITableWidget = {
-  id: string;
+  widget: string;
   field: string;
-  title: string;
+  label: string;
+  source: string;
   value: any;
-  optionValue: any;
+  refer: any;
+  explain: string;
 }
 export type ITableView = {
   _id: string;

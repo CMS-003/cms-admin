@@ -49,7 +49,7 @@ export interface BaseBizError {
 export interface BaseResultWrapper<T> {
   code: number,
   message: string,
-  data: T
+  data?: T,
 }
 
 export interface BaseResultsWrapper<T> {
@@ -83,7 +83,7 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
       break;
   }
 
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<BaseResultWrapper<T>>((resolve, reject) => {
     response.then(res => {
       //业务代码 可根据需求自行处理
       const body = res.data;
@@ -104,13 +104,13 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
         message.warn(`请求错误：${e}`);
         console.log(`请求错误：${e}`)
         //数据请求错误 使用reject将错误返回
-        resolve(body as BaseBizError);
+        resolve(body);
       }
     }).catch(error => {
       let e = JSON.stringify(error);
       message.warn(`网络错误：${e}`);
       console.log(`网络错误：${e}`)
-      resolve({ code: -1, message: error.message } as BaseBizError)
+      resolve({ code: -1, message: error.message })
     })
   })
 }

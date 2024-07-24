@@ -5,6 +5,8 @@ import { ITable, ITableDetail } from '@/types/table';
 import { TableCard, TableTitle, SubTitle } from './style'
 import apis from '@/api';
 import Acon from '@/components/Acon';
+import { AlignAside } from '@/components/style';
+import { useEffectOnce } from 'react-use';
 
 export default function Page() {
   const navigate = useNavigate()
@@ -20,7 +22,7 @@ export default function Page() {
       local.tables = resp.data.items;
     }
   }, []);
-  useEffect(() => {
+  useEffectOnce(() => {
     refresh();
   })
   return <Observer>{() => (<div>
@@ -31,11 +33,30 @@ export default function Page() {
           navigate('/tables/form/modify?table=' + table.name);
         }} /></SubTitle>
         {table.forms.map(view => (
-          <span>{view.name}</span>
+          <AlignAside key={view._id} style={{ borderBottom: '1px solid #e4e4e4' }}>
+            <span>{view.name}</span>
+            <div>
+              <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                navigate(`/tables/form/modify?table=${table.name}&id=${view._id}`);
+              }} />
+              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} />
+            </div>
+          </AlignAside>
         ))}
-        <SubTitle>列表视图</SubTitle>
+        <br />
+        <SubTitle>列表视图 <Acon icon='PlusCircleOutlined' onClick={() => {
+          navigate('/tables/list/modify?table=' + table.name);
+        }} /></SubTitle>
         {table.lists.map(view => (
-          <span>{view.name}</span>
+          <AlignAside key={view._id} style={{ borderBottom: '1px solid #e4e4e4' }}>
+            <span>{view.name}</span>
+            <div>
+              <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                navigate(`/tables/list/modify?table=${table.name}&id=${view._id}`);
+              }} />
+              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} />
+            </div>
+          </AlignAside>
         ))}
       </TableCard>
     ))}
