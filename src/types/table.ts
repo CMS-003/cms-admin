@@ -23,4 +23,5 @@ export type ITableView = {
   table: string;
   order: number;
   widgets: ITableWidget[];
+  data?: any;
 }

@@ -89,7 +89,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
           refer,
           explain: '',
         });
-        local.widgets = toJS(local.widgets)
+        // local.widgets = toJS(local.widgets)
       }
     },
   }));
@@ -118,7 +118,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       await apis.updateTableView(local.id, { table: local.table, name: local.name, widgets: local.widgets });
     } else {
       const respResult = await apis.addTableView({
-        type: 'form',
+        type: 'list',
         table: local.table,
         name: local.name,
         widgets: local.widgets,
@@ -178,12 +178,14 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
             <Input addonBefore="视图标题" defaultValue={local.name} onChange={e => {
               local.name = e.target.value;
             }} />
+            <div>搜索栏</div>
             <SortList
-              droppableId={local.table || '_'}
-              items={local.widgets}
+              droppableId={'search' + local.table}
+              items={local.widgets.filter(it => it.widget === 'button')}
               sort={(oldIndex: number, newIndex: number) => {
                 // (oldIndex, newIndex);
               }}
+              direction={'horizontal'}
               ukey="widget"
               mode={'preview'}
               listStyle={{}}
@@ -200,6 +202,33 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                     <FullWidthAuto>
                       <Transform widget={item} />
                     </FullWidthAuto>
+                  </FullWidth>
+                </Handler>
+              )}
+            />
+            <div>列字段</div>
+            <SortList
+              droppableId={'table' + local.table}
+              items={local.widgets.filter(it => it.widget === 'column')}
+              sort={(oldIndex: number, newIndex: number) => {
+                // (oldIndex, newIndex);
+              }}
+              direction={'horizontal'}
+              ukey="index"
+              mode={'preview'}
+              listStyle={{}}
+              itemStyle={{ padding: 6 }}
+              renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: HTMLObjectElement }) => (
+                <Handler key={index}>
+                  <FullWidth onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(item)
+                    local.editWidget = item;
+                  }}>
+                    <FullWidthFix style={{ minWidth: 50 }}>
+                      <Transform widget={item} />
+                    </FullWidthFix>
                   </FullWidth>
                 </Handler>
               )}

@@ -10,6 +10,10 @@ const apis = {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/tables/${table}/fields`);
     return result;
   },
+  getList: async (table: string, query?: { [key: string]: any }) => {
+    const result = await shttp.get<ITable>(`/api/v1/tables/${table}/list`)
+    return result
+  },
   getTableViews: async (table: string) => {
     const result = await shttp.get<ITable>(`/api/v1/tables/${table}/views`)
     return result

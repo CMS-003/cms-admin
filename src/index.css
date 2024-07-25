@@ -15,10 +15,12 @@ code {
 .App {
   height: 100vh;
 }
+
 .app-slider .ant-layout-sider-children {
   display: flex;
   flex-direction: column;
 }
+
 .code-mirror {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -28,6 +30,7 @@ code {
 .ant-modal {
   width: 1000px !important;
 }
+
 .ant-modal .ant-modal-body {
   max-height: 700px;
   overflow-y: auto;
@@ -48,4 +51,10 @@ code {
 
 .ant-tabs-tabpane {
   height: 100%;
+}
+
+.txt-omit {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

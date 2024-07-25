@@ -57,7 +57,7 @@ export default function SortList({
             style={{ display: 'flex', width: '100%', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex || 'auto' }}
           >
             {items.map((item: any, index: number) => (
-              <Draggable key={item[ukey]} draggableId={item[ukey]} isDragDisabled={mode === 'preview'} index={index}>
+              <Draggable key={item[ukey] || index + ''} draggableId={item[ukey] || index + ''} isDragDisabled={mode === 'preview'} index={index}>
                 {(provided, snapshot) => {
                   let transform = (provided.draggableProps.style as any).transform;
                   if (snapshot.isDragging && transform) {

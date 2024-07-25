@@ -39,22 +39,26 @@ export default function Page() {
               <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
                 navigate(`/tables/form/modify?table=${table.name}&id=${view._id}`);
               }} />
-              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} />
+              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                navigate(`/tables/form/preview?title=${view.name}&view_id=${view._id}`);
+              }} />
             </div>
           </AlignAside>
         ))}
         <br />
         <SubTitle>列表视图 <Acon icon='PlusCircleOutlined' onClick={() => {
-          navigate('/tables/list/modify?table=' + table.name);
+          navigate(`/tables/list/modify?table=${table.name}`);
         }} /></SubTitle>
         {table.lists.map(view => (
           <AlignAside key={view._id} style={{ borderBottom: '1px solid #e4e4e4' }}>
-            <span>{view.name}</span>
-            <div>
+            <span className='txt-omit'>{view.name}</span>
+            <div style={{ whiteSpace: 'nowrap' }}>
               <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
                 navigate(`/tables/list/modify?table=${table.name}&id=${view._id}`);
               }} />
-              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} />
+              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                navigate(`/tables/list/preview?view_id=${view._id}`);
+              }} />
             </div>
           </AlignAside>
         ))}

@@ -2,6 +2,7 @@ import WInput from './input';
 import WCheckbox from './checkbox';
 import WRadio from './radio';
 import WUpload from './upload';
+import WColumn from './column';
 import { ITableWidget } from '@/types';
 import { Observer } from 'mobx-react';
 
@@ -10,6 +11,7 @@ const Widgets = {
   'checkbox': WCheckbox,
   'radio': WRadio,
   'upload': WUpload,
+  'column': WColumn,
 }
 
 export function Transform({ widget }: { widget: ITableWidget }) {

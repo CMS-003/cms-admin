@@ -118,7 +118,20 @@ const LoadableTablesPage = Loadable({
 const LoadableTableFormModifyPage = Loadable({
   loader: () => import("@/pages/table/form/modify"),
   loading: LoadingPage,
+});
+const FormPreviewPage = Loadable({
+  loader: () => import("@/pages/table/form/preview"),
+  loading: LoadingPage,
+});
+const ListModifyPage = Loadable({
+  loader: () => import('@/pages/table/list/modify'),
+  loading: LoadingPage,
+});
+const ListPreviewPage = Loadable({
+  loader: () => import('@/pages/table/list/preview'),
+  loading: LoadingPage,
 })
+
 
 const Pages: { [key: string]: IPage } = {
   '/dashboard': {
@@ -141,93 +154,105 @@ const Pages: { [key: string]: IPage } = {
   },
   '/config': {
     title: '配置管理',
-    Content: () => <LoadableConfigPage />,
+    Content: (props: any) => <LoadableConfigPage  {...props} />,
     closable: true,
     route: '/config'
   },
   '/tables': {
     title: '所有表',
-    Content: () => <LoadableTablesPage />,
+    Content: (props: any) => <LoadableTablesPage {...props} />,
     closable: true,
     route: '/tables',
   },
   '/tables/form/modify': {
     title: '表单编辑',
-    Content: () => <LoadableTableFormModifyPage />,
+    Content: (props: any) => <LoadableTableFormModifyPage {...props} />,
     closable: true,
     route: '/tables/form/modify'
   },
   '/tables/form/preview': {
     title: '表单预览',
-    Content: () => <></>,
+    Content: (props: any) => <FormPreviewPage  {...props} />,
+    closable: true,
+    route: '/tables/form/preview'
+  },
+  '/tables/list/modify': {
+    title: '表单编辑',
+    Content: (props: any) => <ListModifyPage {...props} />,
+    closable: true,
+    route: '/tables/form/modify'
+  },
+  '/tables/list/preview': {
+    title: '表单预览',
+    Content: (props: any) => <ListPreviewPage  {...props} />,
     closable: true,
     route: '/tables/form/preview'
   },
   '/project': {
     title: '项目管理',
-    Content: () => <LoadableProjectPage />,
+    Content: (props: any) => <LoadableProjectPage {...props} />,
     closable: true,
     route: '/project'
   },
   '/component/data': {
     title: '组件管理',
-    Content: () => <LoadableComponentPage />,
+    Content: (props: any) => <LoadableComponentPage {...props} />,
     closable: true,
     route: '/component/data'
   },
   '/component/widget': {
     title: '控件类型',
-    Content: () => <LoadableWidgetPage />,
+    Content: (props: any) => <LoadableWidgetPage {...props} />,
     closable: true,
     route: '/component/widget'
   },
   '/component/type': {
     title: '组件类型',
-    Content: () => <LoadableComponentTypePage />,
+    Content: (props: any) => <LoadableComponentTypePage {...props} />,
     closable: true,
     route: '/component/type'
   },
   '/template/form': {
     title: '表单页',
-    Content: () => <LoadableTemplateForm />,
+    Content: (props: any) => <LoadableTemplateForm {...props} />,
     closable: true,
     route: '/template/form'
   },
   '/template/page': {
     title: '模板页',
-    Content: () => <LoadableTemplatePage />,
+    Content: (props: any) => <LoadableTemplatePage {...props} />,
     closable: true,
     route: '/template/page'
   },
   '/template/editable': {
     title: '可视化编辑',
-    Content: () => <LoadableEditable />,
+    Content: (props: any) => <LoadableEditable {...props} />,
     closable: true,
     route: '/template/editable'
   },
   '/log/system': {
     title: '系统日志',
-    Content: () => <LoadableLogSystem />,
+    Content: (props: any) => <LoadableLogSystem {...props} />,
     closable: true,
     route: '/log/system'
   },
   '/log/verification-code': {
     title: ' 验证码',
-    Content: () => <LoadableVerification />,
+    Content: (props: any) => <LoadableVerification {...props} />,
     closable: true,
     route: '/log/verification-code'
   },
   '/result/404': {
     title: '',
-    Content: function () {
-      return <ErrorPage status="404" subTitle="?" errTitle="Not Found" />
+    Content: function (props: any) {
+      return <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} />
     },
     closable: true,
     route: '/result/404'
   },
   '/user/bind': {
     title: '第三方账号绑定',
-    Content: () => <LoadableUserBind />,
+    Content: (props: any) => <LoadableUserBind {...props} />,
     closable: true,
     route: '/user/bind'
   }
@@ -456,7 +481,9 @@ const TabPanes: FC = () => {
           key: Panel.path,
           label: Panel.title,
           children: local.reloadPath !== Panel.path ? (
-            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} store={store} /></div>
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} store={store} setTitle={(title: string) => {
+              Panel.title = title;
+            }} /></div>
           ) : (
             <CenterXY key={Panel.path}>
               <Alert message="刷新中..." type="info" />
