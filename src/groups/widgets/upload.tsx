@@ -1,5 +1,6 @@
 import React from 'react';
+import { Upload } from 'antd';
 
 export default function Widget() {
-  return <input type="file" />
+  return <Upload />
 }

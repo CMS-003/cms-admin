@@ -12,9 +12,10 @@ export const TableCard = styled.div`
 `
 export const TableTitle = styled.div`
   height: 32px;
+  font-size: 16px;
 `
 export const SubTitle = styled.h2`
-  font-size: 12px;
+  font-size: 14px;
   color: grey;
   margin-bottom: 0;
   & > span {

@@ -88,6 +88,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
           source: 'var',
           refer,
           explain: '',
+          template: '',
         });
         local.widgets = toJS(local.widgets)
       }
@@ -140,7 +141,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
   })
   return <Observer>{() => (
     <FullWidth style={{ height: '100%' }}>
-      <FullWidthFix style={{ flexDirection: 'column', width: 120, height: '100%', }}>
+      <FullWidthFix style={{ flexDirection: 'column', width: 150, height: '100%', }}>
         <p>控件列表</p>
         {store.widget.list.map(widget => (
           <WidgetWrap draggable

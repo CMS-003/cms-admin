@@ -33,7 +33,7 @@ export default function Page() {
           navigate('/tables/form/modify?table=' + table.name);
         }} /></SubTitle>
         {table.forms.map(view => (
-          <AlignAside key={view._id} style={{ borderBottom: '1px solid #e4e4e4' }}>
+          <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
             <span>{view.name}</span>
             <div>
               <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
@@ -50,7 +50,7 @@ export default function Page() {
           navigate(`/tables/list/modify?table=${table.name}`);
         }} /></SubTitle>
         {table.lists.map(view => (
-          <AlignAside key={view._id} style={{ borderBottom: '1px solid #e4e4e4' }}>
+          <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
             <span className='txt-omit'>{view.name}</span>
             <div style={{ whiteSpace: 'nowrap' }}>
               <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {

@@ -3,6 +3,8 @@ import WCheckbox from './checkbox';
 import WRadio from './radio';
 import WUpload from './upload';
 import WColumn from './column';
+import WButton from './button';
+import WSearch from './search';
 import { ITableWidget } from '@/types';
 import { Observer } from 'mobx-react';
 
@@ -12,6 +14,8 @@ const Widgets = {
   'radio': WRadio,
   'upload': WUpload,
   'column': WColumn,
+  'button': WButton,
+  'search': WSearch,
 }
 
 export function Transform({ widget }: { widget: ITableWidget }) {
