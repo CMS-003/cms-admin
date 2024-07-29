@@ -1,5 +1,5 @@
 import { types, IType, IModelType, IMSTArray, SnapshotIn, SnapshotOut } from 'mobx-state-tree'
-import { IWidget } from '@/types'
+import { IWidget, ITableWidget } from '@/types'
 
 export const WidgetType = types.model('WidgetType', {
   _id: types.string,
@@ -16,6 +16,47 @@ const Widget = types.model({
   getList(): IWidget[] {
     return self.list.toJSON();
   },
+  getViewWidgetByType(type: string): ITableWidget {
+    let value: any = '';
+    let refer: any = '';
+    switch (type) {
+      case 'input':
+        value = '';
+        break;
+      case 'checkbox':
+        value = '';
+        refer = [
+          { value: 'apple', name: '苹果', },
+          { value: 'banana', name: '香蕉', },
+        ];
+        break;
+      case 'radio':
+        value = '';
+        refer = [{ value: 'apple', name: '苹果' }, { value: 'banana', name: '香蕉' }];
+        break;
+      case 'search':
+        value = '条件';
+        break;
+      case 'select':
+        value = 'success';
+        refer = [
+          { value: 'success', name: '成功' },
+          { value: 'fail', name: '失败' },
+        ]
+        break;
+      default: break;
+    }
+    return {
+      field: '',
+      label: '字段',
+      widget: type,
+      value,
+      source: 'var',
+      refer,
+      explain: '',
+      template: '',
+    };
+  }
 })).actions((self) => ({
   setList(items: IWidget[]) {
     self.list.replace(items);

@@ -54,7 +54,7 @@ export default function SortList({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={{ display: 'flex', width: '100%', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex || 'auto' }}
+            style={{ ...listStyle, display: 'flex', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex !== undefined ? listStyle.flex : 'auto' }}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item[ukey] || index + ''} draggableId={item[ukey] || index + ''} isDragDisabled={mode === 'preview'} index={index}>
@@ -76,7 +76,8 @@ export default function SortList({
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      // 设置整块拖动 {...(provided.dragHandleProps)}
+                      // 设置整块拖动 
+                      {...(provided.dragHandleProps)}
                       style={{
                         ...style,
                         ...itemStyle,

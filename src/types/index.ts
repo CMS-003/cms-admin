@@ -7,6 +7,12 @@ export * from "./project"
 export * from "./resource"
 export * from "./table"
 
+declare global {
+  interface Window {
+    goto: (url: string) => void;
+  }
+}
+
 export type ITemplate = {
   _id: string;
   project_id: string;

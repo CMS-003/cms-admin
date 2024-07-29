@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useMemo, useState, JSXElementConstructor, ReactElement, ReactFragment, ReactPortal, useCallback, } from 'react'
 import { Observer, useLocalStore } from 'mobx-react'
-import { Form, Input, Switch, Upload, Button, Select, Spin, Row, Col } from 'antd'
+import { Form, Input, Switch, Upload, Button, Select, Spin, Row, Col, message } from 'antd'
 import Acon from '@/components/Acon'
 import { Codemirror } from 'react-codemirror-ts';
 import { debounce } from 'lodash'
@@ -13,6 +13,7 @@ import 'codemirror/theme/3024-night.css';
 import { useEffectOnce } from 'react-use';
 import apis from '@/api';
 import { Center, FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style';
+import { FormItem } from '../style'
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -62,22 +63,35 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
 const lb = { span: 4 }, rb = { span: 16 }
 
 export default function EditPage({ setTitle }: { setTitle: (title: string) => void }) {
-  const local = useLocalStore<{ data: any, id: string, view_id: string, title: string, widgets: ITableWidget[] }>(() => ({
+  const local = useLocalStore<{ isLoading: boolean, table: string, data: any, id: string, view_id: string, title: string, widgets: ITableWidget[] }>(() => ({
+    isLoading: false,
     id: '',
     title: '',
+    table: '',
     view_id: '',
     data: {},
     widgets: [],
   }))
   const init = useCallback(async () => {
     if (local.view_id) {
-      const resp = await apis.getViewDetail(local.view_id, {});
+      const resp = await apis.getViewDetail(local.view_id, { id: local.id });
       if (resp.code === 0) {
         local.widgets = resp.data.widgets
+        local.table = resp.data.table;
         local.data = resp.data.data || {};
       }
     }
-  }, [])
+  }, []);
+  const save = useCallback(async () => {
+    try {
+      local.isLoading = true;
+      await apis.updateData(local.table, local.data);
+    } catch (e) {
+      message.error('修改失败!')
+    } finally {
+      local.isLoading = false;
+    }
+  }, []);
   useEffect(() => {
     return () => {
 
@@ -95,15 +109,18 @@ export default function EditPage({ setTitle }: { setTitle: (title: string) => vo
   })
   return <Observer>{() => (<FullHeight>
     <FullHeightAuto>
-      <Form disabled={!local.id}>
-        {local.widgets.map(item => {
+      <Form disabled={!local.id} style={{ width: '80%' }}>
+        {local.widgets.map((item, i) => {
           switch (item.widget) {
             case 'input':
-              return <Form.Item key={item.field} style={{ padding: '10px 0' }} label={item.label} labelCol={lb} wrapperCol={rb}>
-                <Input defaultValue={item.value as string} onChange={e => {
-                  item.value = e.target.value
-                }} />
-              </Form.Item>;
+              return <FormItem key={i}>
+                <Col span={6} style={{ textAlign: 'right', padding: '0 15px' }}>{item.label}</Col>
+                <Col span={18}>
+                  <Input defaultValue={local.data[item.field] as string} onChange={e => {
+                    local.data[item.field] = e.target.value
+                  }} />
+                </Col>
+              </FormItem>;
             case 'Number':
               return <Form.Item key={item.field} label={item.label} labelCol={lb} wrapperCol={rb}>
                 <Input type="number" value={local.data[item.field]} onChange={e => {
@@ -222,7 +239,7 @@ export default function EditPage({ setTitle }: { setTitle: (title: string) => vo
       </Form>
     </FullHeightAuto>
     <Center style={{ padding: 15 }}>
-      <Button type='primary'>保存</Button>
+      <Button disabled={local.isLoading} type='primary' onClick={save}>保存</Button>
     </Center>
   </FullHeight>)}</Observer>
 } 

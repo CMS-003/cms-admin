@@ -4,7 +4,8 @@ export const TableCard = styled.div`
   float: left;
   width: 200px;
   min-height: 250px;
-  margin: 10px;
+  margin-left: 10px;
+  margin-top: 10px;
   padding: 8px;
   background-color: #fff;
   color: #0896db;
@@ -22,4 +23,11 @@ export const SubTitle = styled.h2`
     color: #4e92f9;
     cursor: pointer;
   }
+`
+
+export const FormItem = styled.div`
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `

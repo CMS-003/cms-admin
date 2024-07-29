@@ -33,16 +33,16 @@ const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: 
   const navigate = useNavigate()
   const location = useLocation()
   const [tree, setTree] = useState([])
-  const [selectedKey, setKey] = useState(location.pathname)
+  const [selectedKey, setKey] = useState(location.pathname + location.search)
   useEffect(() => {
     setTree(transform(props.tree, props.collapsed).children)
   }, [props.collapsed, props.flag])
   useEffect(() => {
     // 路由变化自动选中菜单
-    if (pathKeyMap[location.pathname]) {
-      setKey(pathKeyMap[location.pathname])
+    if (pathKeyMap[location.pathname + location.search]) {
+      setKey(pathKeyMap[location.pathname + location.search])
     }
-  }, [location.pathname])
+  }, [location.pathname, location.search])
   return <Observer>{() => (
     <div style={{ flex: 1 }}>
       <Menu

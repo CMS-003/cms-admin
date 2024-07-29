@@ -11,6 +11,7 @@ import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/fail'
 import store from './store'
 import { IUser } from '@/types'
+import { useEffectOnce } from 'react-use';
 
 function App() {
   const location = useLocation()
@@ -72,7 +73,12 @@ function App() {
     return () => {
 
     }
-  }, [location.pathname])
+  }, [location.pathname]);
+  useEffectOnce(() => {
+    window.goto = function (url: string) {
+      navigate(url);
+    }
+  });
   return (
     <Observer>{() => (
       <div className="App">
@@ -85,7 +91,7 @@ function App() {
           <Route path="/oauth/bind" element={<BindPage />} />
           <Route path="/oauth/success" element={<SuccessPage />} />
           <Route path="/oauth/fail" element={<FailPage />} />
-          <Route path="/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag}/>}</Observer>} />
+          <Route path="/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
         </Routes>}
       </div>
     )}</Observer>

@@ -158,11 +158,11 @@ const Pages: { [key: string]: IPage } = {
     closable: true,
     route: '/config'
   },
-  '/tables': {
+  '/tables/all': {
     title: '所有表',
     Content: (props: any) => <LoadableTablesPage {...props} />,
     closable: true,
-    route: '/tables',
+    route: '/tables/all',
   },
   '/tables/form/modify': {
     title: '表单编辑',

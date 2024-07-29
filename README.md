@@ -17,16 +17,16 @@
 - 权限控制
 - ✅ 拖拽排序
 - 完善组件类型的视图
-- 模板分类视图
+- ✅ 模板分类视图
 - novel前端项目重构
 - ✅ 可视化修改后端菜单,成功后左侧应当自动更新
 - ✅ 可视化编辑后,再修改保存提示无变化
 
 ## 代码库学习
-- mobx,mobx-react
-- loadable
+- ✅ mobx,mobx-react
+- ✅ loadable
 - echarts
-- axios
+- ✅ axios
 - ❌ react-router-cache-route(没必要用route实现标签页)
 - http-proxy-middleware
 

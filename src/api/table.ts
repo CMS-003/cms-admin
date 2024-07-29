@@ -1,5 +1,6 @@
 import shttp from "../utils/shttp";
 import { ITable, ITableDetail, ITableView, ITableWidget, IWidget } from '../types'
+import qs from 'qs'
 
 const apis = {
   getTables: async () => {
@@ -11,8 +12,12 @@ const apis = {
     return result;
   },
   getList: async (table: string, query?: { [key: string]: any }) => {
-    const result = await shttp.get<ITable>(`/api/v1/tables/${table}/list`)
+    const result = await shttp.get<ITable>(`/api/v1/tables/${table}/list?${qs.stringify(query)}`)
     return result
+  },
+  updateData: async (table: string, data: { _id: string } & any) => {
+    const result = await shttp.put(`/api/v1/tables/${table}/data`, data);
+    return result;
   },
   getTableViews: async (table: string) => {
     const result = await shttp.get<ITable>(`/api/v1/tables/${table}/views`)

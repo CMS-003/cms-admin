@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import SortList from '@/components/SortList';
 import { Transform } from '@/groups/widgets';
 import { toJS } from 'mobx';
-import { Select, Input, Button } from 'antd';
+import { Select, Input, Button, Popconfirm } from 'antd';
 import VisualBox from '@/components/VisualBox';
 import Acon from '@/components/Acon';
 
@@ -33,6 +33,9 @@ const AttrItem = styled.div`
   & > span { display: inline-block; }
   & > div { width: 150px; }
 `
+
+type IEditWidget = ITableWidget & { _id: number };
+
 export default function FormModifyPage({ setTitle }: { setTitle: (title: string) => void, }) {
   const local: {
     isLoading: boolean,
@@ -40,13 +43,13 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     id: string,
     error: boolean,
     flag: number,
-    editWidget: ITableWidget | null,
-    setEditData: (data: ITableWidget | null) => void,
+    editWidget: IEditWidget | null,
+    setEditData: (data: IEditWidget | null) => void,
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
     name: string,
-    widgets: ITableWidget[],
+    widgets: IEditWidget[],
     fields: { field: string, type: string }[]
   } = useLocalObservable(() => ({
     isLoading: false,
@@ -62,45 +65,15 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     setDrag(is) {
       local.isDragOver = is;
     },
-    setEditData(data: ITableWidget | null) {
-      local.editWidget = data;
+    setEditData(data: IEditWidget | null) {
       local.flag = Date.now();
+      local.editWidget = data;
     },
     onDrop() {
       if (store.app.dragingWidgetType) {
-        let value: any = '';
-        let refer: any = '';
-        switch (store.app.dragingWidgetType) {
-          case 'input':
-            value = '';
-            break;
-          case 'checkbox':
-            value = '';
-            refer = [
-              { value: 'apple', name: '苹果', },
-              { value: 'banana', name: '香蕉', },
-            ];
-            break;
-          case 'radio':
-            value = '';
-            refer = [{ value: 'apple', name: '苹果' }, { value: 'banana', name: '香蕉' }];
-            break;
-          case 'search':
-            value = '条件';
-            break;
-          default: break;
-        }
-        local.widgets.push({
-          field: '',
-          label: '字段',
-          widget: store.app.dragingWidgetType,
-          value,
-          source: 'var',
-          refer,
-          explain: '',
-          template: '',
-        });
-        // local.widgets = toJS(local.widgets)
+        const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
+        local.editWidget = null;
+        local.widgets.push({ ...widget, _id: local.widgets.length });
       }
     },
   }));
@@ -120,7 +93,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       if (resp.code === 0) {
         local.name = resp.data.name
         setTitle(local.name);
-        local.widgets = resp.data.widgets
+        local.widgets = resp.data.widgets.map((it, i) => ({ ...it, _id: i }));
       }
     }
   }, []);
@@ -132,7 +105,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         type: 'list',
         table: local.table,
         name: local.name,
-        widgets: local.widgets,
+        widgets: local.widgets.map(it => _.omit(it, ['_id'])),
       });
       if (respResult.code === 0 && respResult.data) {
         local.id = respResult.data._id
@@ -185,12 +158,45 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       >
         <FullHeight>
           <FullHeightAuto style={{ backgroundColor: '#1990ff1f' }}>
-            <Input addonBefore="视图标题" defaultValue={local.name} onChange={e => {
+            <Input addonBefore="视图标题" value={local.name} onChange={e => {
               local.name = e.target.value;
             }} />
             <div>搜索栏</div>
+            <FullWidth>
+              <SortList
+                droppableId={'search' + local.table}
+                items={local.widgets}
+                sort={(oldIndex: number, newIndex: number) => {
+                  const [old] = local.widgets.splice(oldIndex, 1)
+                  local.widgets.splice(newIndex, 0, old)
+                }}
+                direction={'horizontal'}
+                ukey="index"
+                mode={''}
+                listStyle={{ flex: '0' }}
+                itemStyle={{ padding: 6 }}
+                renderItem={({ index, item, handler }: { index: number, item: IEditWidget, handler: any }) => (
+                  item.widget === 'column' ? <div key={index}></div> :
+                    <Handler key={index}>
+                      <FullWidth onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        local.editWidget = item;
+                      }}>
+                        <FullWidthFix {...handler}>
+                          <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
+                        </FullWidthFix>
+                        <Transform widget={item} mode="modify" />
+                      </FullWidth>
+                    </Handler>
+                )}
+              />
+              <Button type='primary' disabled style={{ marginLeft: 10 }} >搜索</Button>
+              <Button type='ghost' disabled style={{ marginLeft: 10 }} >清空</Button>
+            </FullWidth>
+            <div style={{ marginTop: 30 }}>列字段</div>
             <SortList
-              droppableId={'search' + local.table}
+              droppableId={'table' + local.table}
               items={local.widgets}
               sort={(oldIndex: number, newIndex: number) => {
                 const [old] = local.widgets.splice(oldIndex, 1)
@@ -198,49 +204,20 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               }}
               direction={'horizontal'}
               ukey="index"
-              mode={''}
-              listStyle={{}}
-              itemStyle={{ padding: 6 }}
-              renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: any }) => (
-                item.widget === 'column' ? <div key={index}></div> :
-                  <Handler key={index}>
-                    <FullWidth onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      local.editWidget = item;
-                    }}>
-                      <FullWidthFix {...handler}>
-                        <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
-                      </FullWidthFix>
-                      <Transform widget={item} />
-                    </FullWidth>
-                  </Handler>
-              )}
-            />
-            <div style={{ marginTop: 30 }}>列字段</div>
-            <SortList
-              droppableId={'table' + local.table}
-              items={local.widgets.filter(it => it.widget === 'column')}
-              sort={(oldIndex: number, newIndex: number) => {
-                // (oldIndex, newIndex);
-              }}
-              direction={'horizontal'}
-              ukey="index"
-              mode={'preview'}
-              listStyle={{}}
+              mode={'modify'}
+              listStyle={{ borderBottom: '1px dashed #888', margin: '0 20px' }}
               itemStyle={{}}
-              renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: HTMLObjectElement }) => (
-                <Handler key={index}>
-                  <FullWidth style={{ backgroundColor: 'wheat' }} onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    local.setEditData(item);
-                  }}>
-                    <FullWidthFix style={{ minWidth: 50 }}>
-                      <Transform widget={item} />
-                    </FullWidthFix>
-                  </FullWidth>
-                </Handler>
+              renderItem={({ index, item, handler }: { index: number, item: IEditWidget, handler: any }) => (
+                item.widget === 'column' ? <FullWidth key={index} style={{ minWidth: 50, padding: '5px 10px', borderRight: '1px solid #cfcfcf', backgroundColor: 'wheat' }} onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  local.setEditData(item);
+                }}>
+                  <FullWidthFix {...handler}>
+                    <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
+                  </FullWidthFix>
+                  <Transform widget={item} mode="modify" />
+                </FullWidth> : <div key={index}></div>
               )}
             />
           </FullHeightAuto>
@@ -256,30 +233,49 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       </FullWidthAuto>
       {
         local.editWidget && (<FullHeight style={{ padding: 5, width: 250 }} key={local.flag}>
-          <AlignAside>
+          <AlignAside style={{ marginBottom: 10 }}>
             <span>属性列表</span>
-            <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+            <div>
+              <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+              <Popconfirm
+                title="确定删除控件吗?"
+                okText="确定"
+                cancelText="取消"
+                onConfirm={() => {
+                  local.widgets.forEach((it) => {
+                    if (local.editWidget && (it._id === local.editWidget._id)) {
+                      local.widgets.splice(local.editWidget._id, 1);
+                      local.editWidget = null;
+                    }
+                  });
+                  local.widgets.forEach((it, i) => {
+                    it._id = i;
+                  });
+                }}>
+                <Acon icon={"DeleteOutlined"} />
+              </Popconfirm>
+            </div>
           </AlignAside>
-          <FullWidth>
+          <FullWidth style={{ marginBottom: 10 }}>
             <FullWidthFix style={{ width: 50 }}>
               标签:
             </FullWidthFix>
             <FullWidthAuto>
-              <Input style={{ width: '100%' }} defaultValue={local.editWidget.label} onChange={e => {
+              <Input style={{ width: '100%' }} value={local.editWidget.label} onChange={e => {
                 if (local.editWidget) {
                   local.editWidget.label = e.target.value;
                 }
               }} />
             </FullWidthAuto>
           </FullWidth>
-          <FullWidth>
+          <FullWidth style={{ marginBottom: 10 }}>
             <FullWidthFix style={{ width: 50 }}>
               字段:
             </FullWidthFix>
             <FullWidthAuto>
               <Select
                 style={{ width: '100%' }}
-                defaultValue={local.editWidget.field}
+                value={local.editWidget.field}
                 onSelect={value => {
                   if (local.editWidget) {
                     local.editWidget.field = value || '';
@@ -292,13 +288,27 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               </Select>
             </FullWidthAuto>
           </FullWidth>
+          <VisualBox visible={!['column'].includes(local.editWidget.widget)}>
+            <FullWidth style={{ marginBottom: 10 }}>
+              <FullWidthFix style={{ width: 50 }}>
+                默认值:
+              </FullWidthFix>
+              <FullWidthAuto>
+                <Input style={{ width: '100%' }} defaultValue={local.editWidget.value} onChange={e => {
+                  if (local.editWidget) {
+                    local.editWidget.value = e.target.value;
+                  }
+                }} />
+              </FullWidthAuto>
+            </FullWidth>
+          </VisualBox>
           <VisualBox visible={['checkbox', 'radio'].includes(local.editWidget.widget)}>
-            <FullWidth>
+            <FullWidth style={{ marginBottom: 10 }}>
               <FullWidthFix style={{ width: 50 }}>
                 多选/复选:
               </FullWidthFix>
               <FullWidthAuto>
-                <Input.TextArea defaultValue={JSON.stringify(local.editWidget.refer, null, 2)} onChange={e => {
+                <Input.TextArea style={{ minHeight: 200 }} defaultValue={JSON.stringify(local.editWidget.refer, null, 2)} onChange={e => {
                   try {
                     e.target.style.border = '1px solid grey';
                     const arr = JSON.parse(e.target.value);
@@ -312,13 +322,32 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               </FullWidthAuto>
             </FullWidth>
           </VisualBox>
+          <VisualBox visible={['select'].includes(local.editWidget.widget)}>
+            <FullWidth style={{ marginBottom: 10 }}>
+              <FullWidthFix style={{ width: 50 }}>
+                下拉框:
+              </FullWidthFix>
+              <FullWidthAuto>
+                <Input.TextArea style={{ minHeight: 200 }} defaultValue={JSON.stringify(local.editWidget.refer, null, 2)} onChange={e => {
+                  try {
+                    e.target.style.border = '1px solid grey';
+                    if (local.editWidget) {
+                      local.editWidget.refer = JSON.parse(e.target.value);
+                    }
+                  } catch (err) {
+                    e.target.style.border = '1px solid red';
+                  }
+                }} />
+              </FullWidthAuto>
+            </FullWidth>
+          </VisualBox>
           <VisualBox visible={['column'].includes(local.editWidget.widget)}>
-            <FullWidth>
+            <FullWidth style={{ marginBottom: 10 }}>
               <FullWidthFix style={{ width: 50 }}>
                 模板:
               </FullWidthFix>
               <FullWidthAuto>
-                <Input.TextArea style={{ width: '100%' }} defaultValue={local.editWidget.template} onChange={e => {
+                <Input.TextArea style={{ width: '100%', minHeight: 200 }} defaultValue={local.editWidget.template} onChange={e => {
                   if (local.editWidget) {
                     local.editWidget.template = e.target.value;
                   }

@@ -61,35 +61,8 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     },
     onDrop() {
       if (store.app.dragingWidgetType) {
-        let value: any = '';
-        let refer: any = '';
-        switch (store.app.dragingWidgetType) {
-          case 'input':
-            value = '';
-            break;
-          case 'checkbox':
-            value = '';
-            refer = [
-              { value: 'apple', name: '苹果', },
-              { value: 'banana', name: '香蕉', },
-            ];
-            break;
-          case 'radio':
-            value = '';
-            refer = [{ value: 'apple', name: '苹果' }, { value: 'banana', name: '香蕉' }];
-            break;
-          default: break;
-        }
-        local.widgets.push({
-          field: '',
-          label: '字段',
-          widget: store.app.dragingWidgetType,
-          value,
-          source: 'var',
-          refer,
-          explain: '',
-          template: '',
-        });
+        const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
+        local.widgets.push(widget);
         local.widgets = toJS(local.widgets)
       }
     },
@@ -199,7 +172,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                   }}>
                     <FullWidthFix style={{ minWidth: 50 }}>{item.label}</FullWidthFix>
                     <FullWidthAuto>
-                      <Transform widget={item} />
+                      <Transform widget={item} mode="modify" />
                     </FullWidthAuto>
                   </FullWidth>
                 </Handler>
