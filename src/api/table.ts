@@ -15,6 +15,10 @@ const apis = {
     const result = await shttp.get<ITable>(`/api/v1/tables/${table}/list?${qs.stringify(query)}`)
     return result
   },
+  createData: async (table: string, data: any) => {
+    const result = await shttp.post<{ _id: string }>(`/api/v1/tables/${table}/data`, data);
+    return result;
+  },
   updateData: async (table: string, data: { _id: string } & any) => {
     const result = await shttp.put(`/api/v1/tables/${table}/data`, data);
     return result;

@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import SortList from '@/components/SortList';
 import { Transform } from '@/groups/widgets';
 import { toJS } from 'mobx';
-import { Select, Input, Button } from 'antd';
+import { Select, Input, Button, Popconfirm } from 'antd';
 import VisualBox from '@/components/VisualBox';
 import Acon from '@/components/Acon';
 
@@ -33,18 +33,20 @@ const AttrItem = styled.div`
   & > span { display: inline-block; }
   & > div { width: 150px; }
 `
+type IEditWidget = ITableWidget & { _id: number };
+
 export default function FormModifyPage({ setTitle }: { setTitle: (title: string) => void, }) {
   const local: {
     isLoading: boolean,
     table: string,
     id: string,
     error: boolean,
-    editWidget: ITableWidget | null,
+    editWidget: IEditWidget | null,
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
     name: string,
-    widgets: ITableWidget[],
+    widgets: IEditWidget[],
     fields: { field: string, type: string }[]
   } = useLocalObservable(() => ({
     isLoading: false,
@@ -62,7 +64,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     onDrop() {
       if (store.app.dragingWidgetType) {
         const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
-        local.widgets.push(widget);
+        local.widgets.push({ _id: local.widgets.length, ...widget });
         local.widgets = toJS(local.widgets)
       }
     },
@@ -83,7 +85,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       if (resp.code === 0) {
         local.name = resp.data.name
         setTitle(local.name);
-        local.widgets = resp.data.widgets
+        local.widgets = resp.data.widgets.map((widget, i) => ({ _id: i, ...widget }));
       }
     }
   }, []);
@@ -156,18 +158,18 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               droppableId={local.table || '_'}
               items={local.widgets}
               sort={(oldIndex: number, newIndex: number) => {
-                // (oldIndex, newIndex);
+                const [old] = local.widgets.splice(oldIndex, 1)
+                local.widgets.splice(newIndex, 0, old)
               }}
-              ukey="widget"
-              mode={'preview'}
+              ukey="index"
+              mode={'modify'}
               listStyle={{}}
               itemStyle={{ padding: 6 }}
-              renderItem={({ item, handler }: { item: ITableWidget, handler: HTMLObjectElement }) => (
-                <Handler key={item.widget}>
-                  <FullWidth onClick={(e) => {
+              renderItem={({ item, handler }: { item: IEditWidget, handler: any }) => (
+                <Handler key={item._id}>
+                  <FullWidth {...handler} onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log(e.nativeEvent.currentTarget)
                     local.editWidget = item;
                   }}>
                     <FullWidthFix style={{ minWidth: 50 }}>{item.label}</FullWidthFix>
@@ -193,7 +195,26 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         local.editWidget && (<FullHeight style={{ padding: 5, width: 250 }} key={local.editWidget.widget}>
           <AlignAside>
             <span>属性列表</span>
-            <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+            <div>
+              <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+              <Popconfirm
+                title="确定删除控件吗?"
+                okText="确定"
+                cancelText="取消"
+                onConfirm={() => {
+                  local.widgets.forEach((it) => {
+                    if (local.editWidget && (it._id === local.editWidget._id)) {
+                      local.widgets.splice(local.editWidget._id, 1);
+                      local.editWidget = null;
+                    }
+                  });
+                  local.widgets.forEach((it, i) => {
+                    it._id = i;
+                  });
+                }}>
+                <Acon icon={"DeleteOutlined"} />
+              </Popconfirm>
+            </div>
           </AlignAside>
           <FullWidth>
             <FullWidthFix style={{ width: 50 }}>
