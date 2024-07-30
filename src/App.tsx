@@ -12,6 +12,7 @@ import FailPage from './pages/oauthResult/fail'
 import store from './store'
 import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
+import events from './utils/event';
 
 function App() {
   const location = useLocation()
@@ -77,6 +78,9 @@ function App() {
   useEffectOnce(() => {
     window.goto = function (url: string) {
       navigate(url);
+    }
+    window.sendCustomEvent = function (view_id: string, name: string, data) {
+      events.emit(view_id, name, data)
     }
   });
   return (

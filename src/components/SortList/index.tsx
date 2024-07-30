@@ -52,6 +52,7 @@ export default function SortList({
       <Droppable droppableId={droppableId} direction={direction} isDropDisabled={mode === 'preview'}>
         {(provided, snapshot) => (
           <div
+            data-drag="container"
             ref={provided.innerRef}
             {...provided.droppableProps}
             style={{ ...listStyle, display: 'flex', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex !== undefined ? listStyle.flex : 'auto' }}
@@ -74,6 +75,7 @@ export default function SortList({
                   };
                   return (
                     <div
+                      data-drag="item"
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       // 设置整块拖动 
@@ -81,8 +83,9 @@ export default function SortList({
                       style={{
                         ...style,
                         ...itemStyle,
+                        ...item.style,
                         // flex 解决嵌套时的样式问题
-                        flex: item.style && Object.fromEntries(item.style).flex || '',
+                        // flex: item.style && Object.fromEntries(item.style).flex || '',
                       }}>
                       {renderItem({ item, index, isDragging: snapshot.isDragging, handler: provided.dragHandleProps, ...restProps })}
                     </div>

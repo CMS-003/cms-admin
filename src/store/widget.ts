@@ -55,6 +55,7 @@ const Widget = types.model({
       refer,
       explain: '',
       template: '',
+      style: {},
     };
   }
 })).actions((self) => ({

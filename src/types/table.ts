@@ -16,6 +16,8 @@ export type ITableWidget = {
   refer: any;
   explain: string;
   template: string;
+  style: object | null;
+  onclick?: string;
 }
 export type ITableView = {
   _id: string;

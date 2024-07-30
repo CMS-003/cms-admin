@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from 'antd';
 import { ITableWidget } from '@/types';
+import { toJS } from 'mobx';
 
-export default function Widget({ widget }: { widget: ITableWidget }) {
-  return <Button type='primary'>{widget.label} </Button>
+export default function Widget({ widget, mode }: { widget: ITableWidget, mode: 'preview' | 'modify' }) {
+  const handler = useCallback(() => {
+    if (widget.onclick) {
+      const fn = eval(widget.onclick);
+      if (typeof fn === 'function') {
+        fn();
+      }
+    }
+  }, [widget.onclick]);
+  return mode === 'preview' ? <Button onClick={handler} style={toJS(widget.style || {})}>{widget.label} </Button> : <Button>{widget.label}</Button>
 }

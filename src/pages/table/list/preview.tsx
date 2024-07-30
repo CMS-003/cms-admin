@@ -8,6 +8,7 @@ import apis from '@/api';
 import { ITableView, ITableWidget } from '@/types';
 import hbs from 'handlebars'
 import { Transform } from '@/groups/widgets';
+import events from '@/utils/event';
 
 export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
   const local = useLocalObservable<{
@@ -52,10 +53,11 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
       })
     }
   }));
-  const getList = useCallback(async (query = {}) => {
+  const getList = useCallback(async () => {
     if (local.table) {
       try {
         local.loading = true;
+        const query = local.getQuery();
         const resp = await apis.getList(local.table, query);
         if (resp.code === 0) {
           local.list = resp.data.items;
@@ -90,21 +92,28 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     const params = new URL(window.location.href).searchParams;
     local.view_id = params.get('view_id') || '';
     init();
+    function search(data: any) {
+      if (data.view_id === local.view_id) {
+        getList();
+      }
+    }
+    function clear(data: any) {
+      if (data.view_id === local.view_id) {
+        local.clear();
+      }
+    }
+    events.on('search', search);
+    events.on('clear', clear);
+    return () => {
+      events && events.off('search', search);
+      events && events.off('clear', clear);
+    }
   })
   return <Observer>
     {() => (
       <FullHeight style={{ padding: 10 }}>
         <FullWidth style={{ marginBottom: 10 }}>
-          {local.widgets.map((it, i) => <FullWidthFix key={i} style={{ marginRight: 10 }}>
-            <Transform widget={it} mode="preview" />
-          </FullWidthFix>)}
-          <Button type='primary' loading={local.loading} style={{ marginLeft: 10 }} onClick={async () => {
-            const query = local.getQuery();
-            await getList(query)
-          }}>搜索</Button>
-          <Button type='ghost' style={{ marginLeft: 10 }} onClick={() => {
-            local.clear();
-          }}>清空</Button>
+          {local.widgets.map((it, i) => <Transform key={i} widget={it} mode="preview" />)}
         </FullWidth>
         <FullHeightAuto>
           <Table rowKey={'_id'} columns={local.columns} dataSource={toJS(local.list)} pagination={{ position: ['bottomRight'] }}>

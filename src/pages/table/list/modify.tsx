@@ -74,6 +74,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
         local.editWidget = null;
         local.widgets.push({ ...widget, _id: local.widgets.length });
+        local.widgets = toJS(local.widgets)
       }
     },
   }));
@@ -173,7 +174,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                 direction={'horizontal'}
                 ukey="index"
                 mode={''}
-                listStyle={{ flex: '0' }}
+                listStyle={{}}
                 itemStyle={{ padding: 6 }}
                 renderItem={({ index, item, handler }: { index: number, item: IEditWidget, handler: any }) => (
                   item.widget === 'column' ? <div key={index}></div> :
@@ -191,8 +192,6 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                     </Handler>
                 )}
               />
-              <Button type='primary' disabled style={{ marginLeft: 10 }} >搜索</Button>
-              <Button type='ghost' disabled style={{ marginLeft: 10 }} >清空</Button>
             </FullWidth>
             <div style={{ marginTop: 30 }}>列字段</div>
             <SortList
@@ -350,6 +349,40 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                 <Input.TextArea style={{ width: '100%', minHeight: 200 }} defaultValue={local.editWidget.template} onChange={e => {
                   if (local.editWidget) {
                     local.editWidget.template = e.target.value;
+                  }
+                }} />
+              </FullWidthAuto>
+            </FullWidth>
+          </VisualBox>
+          <VisualBox visible={true}>
+            <FullWidth style={{ marginBottom: 10 }}>
+              <FullWidthFix style={{ width: 50 }}>
+                样式:
+              </FullWidthFix>
+              <FullWidthAuto>
+                <Input.TextArea style={{ minHeight: 200 }} defaultValue={JSON.stringify(local.editWidget.style || {}, null, 2)} onChange={e => {
+                  try {
+                    e.target.style.border = '1px solid grey';
+                    const style = JSON.parse(e.target.value);
+                    if (local.editWidget) {
+                      local.editWidget.style = style;
+                    }
+                  } catch (err) {
+                    e.target.style.border = '1px solid red';
+                  }
+                }} />
+              </FullWidthAuto>
+            </FullWidth>
+          </VisualBox>
+          <VisualBox visible={['button'].includes(local.editWidget.widget)}>
+            <FullWidth style={{ marginBottom: 10 }}>
+              <FullWidthFix style={{ width: 50 }}>
+                onClick:
+              </FullWidthFix>
+              <FullWidthAuto>
+                <Input.TextArea style={{ width: '100%', minHeight: 200 }} defaultValue={local.editWidget.onclick} onChange={e => {
+                  if (local.editWidget) {
+                    local.editWidget.onclick = e.target.value;
                   }
                 }} />
               </FullWidthAuto>

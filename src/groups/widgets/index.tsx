@@ -6,6 +6,7 @@ import WColumn from './column';
 import WButton from './button';
 import WSearch from './search';
 import WSelect from './select';
+import WAdaptive from './wadaptive';
 import { ITableWidget } from '@/types';
 import { Observer } from 'mobx-react';
 
@@ -18,6 +19,7 @@ const Widgets = {
   'button': WButton,
   'search': WSearch,
   'select': WSelect,
+  'width-adaptive': WAdaptive,
 }
 
 export function Transform({ widget, mode }: { widget: ITableWidget, mode: 'preview' | 'modify' }) {

@@ -10,6 +10,7 @@ export * from "./table"
 declare global {
   interface Window {
     goto: (url: string) => void;
+    sendCustomEvent: (view_id: string, name: string, data?: any) => void;
   }
 }
 
