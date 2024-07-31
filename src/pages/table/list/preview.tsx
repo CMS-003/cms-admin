@@ -9,6 +9,20 @@ import { ITableView, ITableWidget } from '@/types';
 import hbs from 'handlebars'
 import { Transform } from '@/groups/widgets';
 import events from '@/utils/event';
+import moment from 'moment';
+
+
+hbs.registerHelper('eq', function (a, b, options) {
+  // @ts-ignore
+  const that = this as any;
+  if (a == b) {
+    return options.fn(that);
+  }
+  return options.inverse(that);
+});
+hbs.registerHelper('moment', function (time, format) {
+  return moment(time).format(format);
+})
 
 export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
   const local = useLocalObservable<{
@@ -81,7 +95,13 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
           key: i + '',
           dataIndex: it.field,
           render: (value: any, record: any, index: number) => {
-            return <div dangerouslySetInnerHTML={{ __html: tpl({ data: record, widget: it }) }}></div>
+            let html = '';
+            try {
+              html = tpl({ data: record, widget: it })
+            } catch (e) {
+              console.log(e);
+            }
+            return <div dangerouslySetInnerHTML={{ __html: html }}></div>
           }
         }
       });

@@ -7,6 +7,9 @@ import WColumn from './column';
 import WButton from './button';
 import WSearch from './search';
 import WSelect from './select';
+import WDate from './date';
+import WTime from './time';
+import WDatetime from './datetime';
 import WAdaptive from './wadaptive';
 import WCodeEditor from './code-editor';
 import { ITableWidget } from '@/types';
@@ -22,6 +25,9 @@ const Widgets = {
   'button': WButton,
   'search': WSearch,
   'select': WSelect,
+  'date': WDate,
+  'time': WTime,
+  'datetime': WDatetime,
   'width-adaptive': WAdaptive,
   'code-editor': WCodeEditor,
 }
