@@ -23,6 +23,10 @@ const apis = {
     const result = await shttp.put(`/api/v1/tables/${table}/data`, data);
     return result;
   },
+  destroyData: async (table: string, _id: string) => {
+    const result = await shttp.delete(`/api/v1/tables/${table}/data/${_id}`);
+    return result;
+  },
   getTableViews: async (table: string) => {
     const result = await shttp.get<ITable>(`/api/v1/tables/${table}/views`)
     return result

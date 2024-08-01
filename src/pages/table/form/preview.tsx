@@ -143,7 +143,7 @@ export default function EditPage({ setTitle }: { setTitle: (title: string) => vo
           itemStyle={{ padding: 6 }}
           renderItem={({ item, handler }: { item: IEditWidget, handler: any }) => (
             <FullWidth key={item._id} {...handler}>
-              <FullWidthFix style={{ minWidth: 50 }}>{item.label}</FullWidthFix>
+              <FullWidthFix style={{ minWidth: 80, justifyContent: 'flex-end', paddingRight: 10, }}>{item.label}</FullWidthFix>
               <FullWidthAuto>
                 <Transform widget={item} mode="preview" />
               </FullWidthAuto>

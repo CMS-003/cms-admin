@@ -9,7 +9,7 @@ export default function Widget({ widget }: { widget: ITableWidget }) {
       <Fragment>
         <Radio value={item.value} checked={widget.value === item.value} onChange={e => {
           widget.value = item.value;
-        }} /> {item.name}
+        }}>{item.name}</Radio>
       </Fragment>
     )))
   }}</Observer>

@@ -1,7 +1,7 @@
 import { FullHeight, FullHeightAuto, FullWidth, FullWidthFix } from '@/components/style';
 import { Observer, useLocalObservable } from 'mobx-react';
-import React, { useCallback } from 'react';
-import { Button, Input, Table } from 'antd';
+import { useCallback, useEffect, useRef } from 'react';
+import { Table } from 'antd';
 import { toJS } from 'mobx';
 import { useEffectOnce } from 'react-use';
 import apis from '@/api';
@@ -22,7 +22,7 @@ hbs.registerHelper('eq', function (a, b, options) {
 });
 hbs.registerHelper('moment', function (time, format) {
   return moment(time).format(format);
-})
+});
 
 export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
   const local = useLocalObservable<{
@@ -34,6 +34,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     loading: boolean,
     getQuery: () => { [key: string]: string | number },
     clear: () => void,
+    destroy: (table: string, id: string) => void,
     widgets: ITableWidget[],
     columns: { title: string, key: string, render?: (value: any, record: any, index: number) => JSX.Element }[],
     list: any[],
@@ -65,6 +66,16 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
           widget.value = '';
         }
       })
+    },
+    async destroy(table, id) {
+      local.loading = true;
+      try {
+        await apis.destroyData(table, id);
+      } catch (e) {
+
+      } finally {
+        local.loading = false;
+      }
     }
   }));
   const getList = useCallback(async () => {
@@ -81,6 +92,76 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
       }
     }
   }, []);
+  const clickRef: { current: HTMLDivElement | null } = useRef(null);
+  useEffect(() => {
+    if (clickRef.current) {
+      clickRef.current.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const target = event.target as HTMLElement;
+        if (target.tagName.toLowerCase() === 'span' && target.classList.contains('delete')) {
+          const o = document.createElement('div');
+          o.style.position = 'absolute';
+          o.style.width = '150px';
+          o.style.left = (target.offsetLeft + target.offsetWidth / 2 - 75) + 'px';
+          o.style.bottom = target.offsetHeight + 6 + 'px';
+          o.style.backgroundColor = 'white';
+          o.style.borderRadius = '5px';
+          o.style.zIndex = '2';
+          o.style.boxShadow = '0px 0px 3px #ccc';
+          const mask = document.createElement('div');
+          mask.style.position = 'fixed';
+          mask.style.left = '0';
+          mask.style.top = '0';
+          mask.style.width = '100%';
+          mask.style.height = '100%';
+          mask.style.backgroundColor = 'rgba(0,0,0,0.3)';
+          mask.style.zIndex = '1';
+          document.body.appendChild(mask);
+
+          const oContent = document.createElement('div');
+          oContent.style.margin = '10px 15px';
+          oContent.innerText = '确定要执行吗?';
+          const oOperation = document.createElement('div');
+          oOperation.style.textAlign = 'right';
+          oOperation.style.margin = '10px';
+          oOperation.style.fontSize = '12px';
+          const oCancel = document.createElement('span');
+          oCancel.style.border = '1px solid #ccc';
+          oCancel.style.borderRadius = '3px';
+          oCancel.style.padding = '4px 6px';
+          oCancel.style.cursor = 'pointer';
+          oCancel.innerText = '取消';
+          const oConfirm = document.createElement('span');
+          oConfirm.style.backgroundColor = '#1890ff';
+          oConfirm.style.color = 'white';
+          oConfirm.style.marginRight = '10px';
+          oConfirm.style.padding = '5px 7px';
+          oConfirm.style.borderRadius = '3px';
+          oConfirm.style.cursor = 'pointer';
+          oConfirm.innerText = '确定';
+          oConfirm.addEventListener('click', function () {
+            target.parentNode?.removeChild(o);
+            document.body.removeChild(mask);
+            local.destroy(local.table, target.getAttribute('data-id') || '');
+          });
+          oCancel.addEventListener('click', function () {
+            target.parentNode?.removeChild(o);
+            document.body.removeChild(mask);
+          });
+          mask.addEventListener('click', function () {
+            target.parentNode?.removeChild(o);
+            document.body.removeChild(mask);
+          });
+          oOperation.appendChild(oConfirm)
+          oOperation.appendChild(oCancel)
+          o.appendChild(oContent);
+          o.appendChild(oOperation);
+          target.parentNode?.append(o);
+        }
+      });
+    };
+  }, [clickRef.current])
   const init = useCallback(async () => {
     const resp = await apis.getViewDetail(local.view_id, {})
     if (resp.code === 0) {
@@ -101,7 +182,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
             } catch (e) {
               console.log(e);
             }
-            return <div dangerouslySetInnerHTML={{ __html: html }}></div>
+            return <div style={{ position: 'relative' }} dangerouslySetInnerHTML={{ __html: html }}></div>
           }
         }
       });
@@ -135,7 +216,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
         <FullWidth style={{ marginBottom: 10 }}>
           {local.widgets.map((it, i) => <Transform key={i} widget={it} mode="preview" />)}
         </FullWidth>
-        <FullHeightAuto>
+        <FullHeightAuto ref={node => clickRef.current = node}>
           <Table rowKey={'_id'} columns={local.columns} dataSource={toJS(local.list)} pagination={{ position: ['bottomRight'] }}>
 
           </Table>
