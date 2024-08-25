@@ -54,7 +54,7 @@ export default function SignInPage() {
                   store.user.setInfo(result.data.item as any)
                 }
                 await store.getBoot();
-                navigate('/dashboard')
+                navigate(process.env.PUBLIC_URL + '/dashboard')
               } else {
                 message.error(res.message)
               }

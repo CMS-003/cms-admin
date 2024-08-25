@@ -132,131 +132,33 @@ const ListPreviewPage = Loadable({
   loading: LoadingPage,
 })
 
+const pageArr: IPage[] = [
+  { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
+  { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
+  { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
+  { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
+  { title: '所有表', Content: (props: any) => <LoadableTablesPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/all' },
+  { title: '表单编辑', Content: (props: any) => <LoadableTableFormModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/modify' },
+  { title: '表单预览', Content: (props: any) => <FormPreviewPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/preview' },
+  { title: '表单编辑', Content: (props: any) => <ListModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/modify' },
+  { title: '表单预览', Content: (props: any) => <ListPreviewPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/preview' },
+  { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
+  { title: '组件管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
+  { title: '控件类型', Content: (props: any) => <LoadableWidgetPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/widget' },
+  { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },
+  { title: '表单页', Content: (props: any) => <LoadableTemplateForm {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/form' },
+  { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
+  { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/editable' },
+  { title: '系统日志', Content: (props: any) => <LoadableLogSystem {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/system' },
+  { title: '验证码', Content: (props: any) => <LoadableVerification {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/verification-code' },
+  { title: '', Content: function (props: any) { return <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} /> }, closable: true, route: process.env.PUBLIC_URL + '/result/404' },
+  { title: '第三方账号绑定', Content: (props: any) => <LoadableUserBind {...props} />, closable: true, route: process.env.PUBLIC_URL + '/user/bind' },
+];
 
-const Pages: { [key: string]: IPage } = {
-  '/dashboard': {
-    title: '首页',
-    Content: HomePage,
-    closable: false,
-    route: '/dashboard'
-  },
-  '/oauth/success': {
-    title: '授权成功',
-    closable: true,
-    Content: OAuthSuccessPage,
-    route: '/oauth/success'
-  },
-  '/oauth/fail': {
-    title: '授权失败',
-    closable: true,
-    Content: OAuthFailPage,
-    route: '/oauth/fail'
-  },
-  '/config': {
-    title: '配置管理',
-    Content: (props: any) => <LoadableConfigPage  {...props} />,
-    closable: true,
-    route: '/config'
-  },
-  '/tables/all': {
-    title: '所有表',
-    Content: (props: any) => <LoadableTablesPage {...props} />,
-    closable: true,
-    route: '/tables/all',
-  },
-  '/tables/form/modify': {
-    title: '表单编辑',
-    Content: (props: any) => <LoadableTableFormModifyPage {...props} />,
-    closable: true,
-    route: '/tables/form/modify'
-  },
-  '/tables/form/preview': {
-    title: '表单预览',
-    Content: (props: any) => <FormPreviewPage  {...props} />,
-    closable: true,
-    route: '/tables/form/preview'
-  },
-  '/tables/list/modify': {
-    title: '表单编辑',
-    Content: (props: any) => <ListModifyPage {...props} />,
-    closable: true,
-    route: '/tables/form/modify'
-  },
-  '/tables/list/preview': {
-    title: '表单预览',
-    Content: (props: any) => <ListPreviewPage  {...props} />,
-    closable: true,
-    route: '/tables/form/preview'
-  },
-  '/project': {
-    title: '项目管理',
-    Content: (props: any) => <LoadableProjectPage {...props} />,
-    closable: true,
-    route: '/project'
-  },
-  '/component/data': {
-    title: '组件管理',
-    Content: (props: any) => <LoadableComponentPage {...props} />,
-    closable: true,
-    route: '/component/data'
-  },
-  '/component/widget': {
-    title: '控件类型',
-    Content: (props: any) => <LoadableWidgetPage {...props} />,
-    closable: true,
-    route: '/component/widget'
-  },
-  '/component/type': {
-    title: '组件类型',
-    Content: (props: any) => <LoadableComponentTypePage {...props} />,
-    closable: true,
-    route: '/component/type'
-  },
-  '/template/form': {
-    title: '表单页',
-    Content: (props: any) => <LoadableTemplateForm {...props} />,
-    closable: true,
-    route: '/template/form'
-  },
-  '/template/page': {
-    title: '模板页',
-    Content: (props: any) => <LoadableTemplatePage {...props} />,
-    closable: true,
-    route: '/template/page'
-  },
-  '/template/editable': {
-    title: '可视化编辑',
-    Content: (props: any) => <LoadableEditable {...props} />,
-    closable: true,
-    route: '/template/editable'
-  },
-  '/log/system': {
-    title: '系统日志',
-    Content: (props: any) => <LoadableLogSystem {...props} />,
-    closable: true,
-    route: '/log/system'
-  },
-  '/log/verification-code': {
-    title: ' 验证码',
-    Content: (props: any) => <LoadableVerification {...props} />,
-    closable: true,
-    route: '/log/verification-code'
-  },
-  '/result/404': {
-    title: '',
-    Content: function (props: any) {
-      return <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} />
-    },
-    closable: true,
-    route: '/result/404'
-  },
-  '/user/bind': {
-    title: '第三方账号绑定',
-    Content: (props: any) => <LoadableUserBind {...props} />,
-    closable: true,
-    route: '/user/bind'
-  }
-}
+const Pages: { [key: string]: IPage } = {};
+pageArr.forEach(p => {
+  Pages[p.route] = p;
+});
 
 // 多页签组件
 const TabPanes: FC = () => {
@@ -317,7 +219,7 @@ const TabPanes: FC = () => {
       local.pushPanel(pane)
       store.page.addTag(fullPath)
     }
-    local.setCurrentTag(store.page.openedTags.includes(fullPath) ? fullPath : '/dashboard')
+    local.setCurrentTag(store.page.openedTags.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
   }, [local, pathname, search])
 
   // 初始化页面
@@ -335,7 +237,7 @@ const TabPanes: FC = () => {
       return
     }
     // 删除当前tab，地址往前推
-    const nextPath = store.page.openedTags[delIndex - 1] || store.page.openedTags[delIndex - 1] || '/dashboard'
+    const nextPath = store.page.openedTags[delIndex - 1] || store.page.openedTags[delIndex - 1] || process.env.PUBLIC_URL + '/dashboard'
     local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {

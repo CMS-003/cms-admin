@@ -4,7 +4,7 @@ import { useDidRecover } from "react-router-cache-route"
 import Error from "../pages/error";
 import { Spin } from "antd";
 import store from "../store";
-import { useNavigate, useLocation  } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { IMenuItem } from "../types";
 
 
@@ -77,7 +77,7 @@ function Intercept({ menuList, components: Components, title, path: pagePath, pa
     (m) => (m['parent_path'] || "") + m['path'] === pagePath
   );
 
-  if (hasPath && pagePath !== "/" && pagePath !== "*") {
+  if (hasPath && pagePath !== process.env.PUBLIC_URL && pagePath !== "*") {
     return (
       <Error
         {...itemProps}

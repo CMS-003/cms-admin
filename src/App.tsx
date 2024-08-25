@@ -25,14 +25,14 @@ function App() {
       this.booting = b;
     }
   }))
-  const white_paths = ['/sign-in', '/oauth/success', '/oauth/fail', '/oauth/bind']
+  const white_paths = ['/sign-in', '/oauth/success', '/oauth/fail', '/oauth/bind'].map(p => process.env.PUBLIC_URL + p);
   const init = useCallback(async () => {
     local.error = false;
     local.booting = true;
     const result = await apis.getProfile<IUser>();
     if (result.code !== 0) {
-      if (location.pathname !== '/sign-in') {
-        navigate('/sign-in')
+      if (location.pathname !== process.env.PUBLIC_URL + '/sign-in') {
+        navigate(process.env.PUBLIC_URL + '/sign-in')
       }
       return;
     } else {
@@ -60,9 +60,9 @@ function App() {
           await init();
           local.booted = true
           if (!store.user.isLogin()) {
-            navigate('/sign-in')
-          } else if (location.pathname === '/') {
-            navigate('/dashboard')
+            navigate(process.env.PUBLIC_URL + '/sign-in')
+          } else if (location.pathname === '/' || location.pathname === process.env.PUBLIC_URL) {
+            navigate(process.env.PUBLIC_URL + '/dashboard')
           }
         }
         local.setBooting(false)
@@ -91,10 +91,10 @@ function App() {
             <Spin spinning />加载中...
           </Space>
         </div> : <Routes>
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/oauth/bind" element={<BindPage />} />
-          <Route path="/oauth/success" element={<SuccessPage />} />
-          <Route path="/oauth/fail" element={<FailPage />} />
+          <Route path={process.env.PUBLIC_URL + "/sign-in"} element={<SignInPage />} />
+          <Route path={process.env.PUBLIC_URL + "/oauth/bind"} element={<BindPage />} />
+          <Route path={process.env.PUBLIC_URL + "/oauth/success"} element={<SuccessPage />} />
+          <Route path={process.env.PUBLIC_URL + "/oauth/fail"} element={<FailPage />} />
           <Route path="/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
         </Routes>}
       </div>

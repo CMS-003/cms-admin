@@ -32,9 +32,9 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "dev": "cross-env NODE_ENV=development react-app-rewired start",
+    "dev": "cross-env NODE_ENV=development PUBLIC_URL='/manager' react-app-rewired start",
     "build": "react-app-rewired build",
-    "build:prod": "PUBLIC_URL='' react-app-rewired build",
+    "build:prod": "PUBLIC_URL='/manager' react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },

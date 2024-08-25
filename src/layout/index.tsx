@@ -21,9 +21,9 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
     setLogout(true);
     try {
       await apis.SignOut()
-      navigate('/sign-in')
+      navigate(process.env.PUBLIC_URL + '/sign-in')
     } catch (e) {
-      navigate('/sign-in')
+      navigate(process.env.PUBLIC_URL + '/sign-in')
     } finally {
       setLogout(false)
     }
@@ -70,7 +70,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
           trigger="hover"
           placement="rightBottom"
         >
-          <Link to={'/user/bind'}>
+          <Link to={process.env.PUBLIC_URL + '/user/bind'}>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
               <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Acon icon='UserOutlined' />

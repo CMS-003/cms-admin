@@ -13,16 +13,16 @@ module.exports = {
   devServer: overrideDevServer(config => {
     config.proxy = {
       '/api/': {
-        target: 'http://127.0.0.1:3334',
+        target: 'http://192.168.0.124:3334',
         changeOrigin: true,
         // pathRewrite: { '^/api': '/' }
       },
       '/upload/': {
-        target: 'http://127.0.0.1:3334',
+        target: 'http://192.168.0.124:3334',
         changeOrigin: true,
       },
       '/images/': {
-        target: 'http://127.0.0.1:3334',
+        target: 'http://192.168.0.124:3334',
         changeOrigin: true,
       },
     }
