@@ -36,7 +36,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
   })
   return (
     <Layout style={{ height: '100vh' }}>
-      <Sider className="app-slider" collapsible collapsed={collapsed} onCollapse={value => {
+      <Sider theme='light' className="app-slider" collapsible collapsed={collapsed} onCollapse={value => {
         setCollapsed(value)
       }}>
         <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>

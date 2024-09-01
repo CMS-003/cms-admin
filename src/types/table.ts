@@ -4,6 +4,8 @@ export type ITable = {
 }
 export type ITableDetail = {
   name: string;
+  title: string;
+  visible: number;
   forms: { _id: string; name: string }[];
   lists: { _id: string; name: string }[];
 }

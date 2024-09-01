@@ -50,7 +50,7 @@ const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: 
         selectedKeys={[selectedKey]}
         defaultOpenKeys={store.page.defaultOpened}
         mode="inline"
-        theme="dark"
+        theme="light"
         items={tree}
         onClick={(e: any) => {
           navigate(keyPathMap[e.key])
