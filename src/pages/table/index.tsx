@@ -25,10 +25,10 @@ export default function Page() {
   useEffectOnce(() => {
     refresh();
   })
-  return <Observer>{() => (<div>
+  return <Observer>{() => (<div style={{ overflow: 'auto', paddingRight: 10, paddingTop: 10 }}>
     {local.tables.map(table => (
       <TableCard key={table.name}>
-        <TableTitle>{table.name}</TableTitle>
+        <TableTitle>{table.name}{table.title ? `(${table.title})` : ''}</TableTitle>
         <SubTitle>表单视图 <Acon icon='PlusCircleOutlined' onClick={() => {
           navigate('/tables/form/modify?table=' + table.name);
         }} /></SubTitle>

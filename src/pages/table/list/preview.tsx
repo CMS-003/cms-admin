@@ -96,10 +96,10 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
   useEffect(() => {
     if (clickRef.current) {
       clickRef.current.addEventListener('click', function (event) {
-        event.preventDefault();
-        event.stopPropagation();
         const target = event.target as HTMLElement;
         if (target.tagName.toLowerCase() === 'span' && target.classList.contains('delete')) {
+          event.preventDefault();
+          event.stopPropagation();
           const o = document.createElement('div');
           o.style.position = 'absolute';
           o.style.width = '150px';

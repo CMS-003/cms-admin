@@ -5,7 +5,7 @@ export const TableCard = styled.div`
   width: 200px;
   min-height: 250px;
   margin-left: 10px;
-  margin-top: 10px;
+  margin-bottom: 10px;
   padding: 8px;
   background-color: #fff;
   color: #0896db;
@@ -14,6 +14,9 @@ export const TableCard = styled.div`
 export const TableTitle = styled.div`
   height: 32px;
   font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 export const SubTitle = styled.h2`
   font-size: 14px;
