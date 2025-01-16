@@ -90,7 +90,7 @@ const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', 
       if (res.status === 200) {
         if (body.code === 101010) {
           store.user.setAccessToken('')
-          window.location.href = '/sign-in'
+          window.location.href = '/manager/sign-in'
         }
         //数据请求正确 使用resolve将结果返回
         resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
@@ -174,14 +174,14 @@ class Request<T> {
           if (this.data.code === 101010) {
             message.warn('您的账号已登出或超时，即将登出...');
             console.log('登录异常，执行登出...');
-            window.location.href = '/sign-in'
+            window.location.href = '/manager/sign-in'
           }
           //数据请求错误 使用reject将错误返回
           resolve(body as BaseBizError);
-        } else if (res.data.code === 101010 && window.location.pathname !== '/sign-in') {
+        } else if (res.data.code === 101010 && window.location.pathname !== '/manager/sign-in') {
           message.warn('您的账号已登出或超时，即将登出...');
           console.log('登录异常，执行登出...');
-          window.location.href = '/sign-in'
+          window.location.href = '/manager/sign-in'
           resolve(body as BaseBizError);
         } else {
           if (cb) {

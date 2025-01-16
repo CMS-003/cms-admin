@@ -27,8 +27,8 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
-  imageLines: [process.env.PUBLIC_URL],
-  baseURL: process.env.NODE_ENV === 'development' ? '' : "/gw" + process.env.PUBLIC_URL,
+  imageLines: ['/manager'],
+  baseURL: process.env.NODE_ENV === 'development' ? '' : "/gw/manager",
   project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态

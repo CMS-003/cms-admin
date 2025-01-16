@@ -77,7 +77,7 @@ function Intercept({ menuList, components: Components, title, path: pagePath, pa
     (m) => (m['parent_path'] || "") + m['path'] === pagePath
   );
 
-  if (hasPath && pagePath !== process.env.PUBLIC_URL && pagePath !== "*") {
+  if (hasPath && pagePath !== '/manager' && pagePath !== "*") {
     return (
       <Error
         {...itemProps}
