@@ -50,7 +50,7 @@ export default function BindPage() {
     const bind_token = searchParams.get('bind_token') || '';
     if (bind_token) {
       local.bind_token = bind_token;
-      navigate(process.env.PUBLIC_URL + '/oauth/bind', { replace: true });
+      navigate('/manager/oauth/bind', { replace: true });
     }
   })
   return <Observer>{() => (
@@ -105,7 +105,7 @@ export default function BindPage() {
             if (res.code === 0 && res.data) {
               store.user.setAccessToken(res.data.access_token)
               await store.getBoot();
-              navigate(process.env.PUBLIC_URL + '/dashboard')
+              navigate('/manager/dashboard')
             } else {
               message.error(res.message)
             }

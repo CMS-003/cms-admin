@@ -108,7 +108,7 @@ const WidgetPage: React.FC = () => {
       <Table pagination={false} rowKey="_id" dataSource={local.list} >
         <Table.Column title="类型标志" dataIndex="_id" />
         <Table.Column title="名称" dataIndex="title" render={(title, record: IWidget) => (
-          <span>{record.cover && <Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover)} />}{title}</span>
+          <span>{record.cover && <Image style={{ width: 24, height: 24, margin: '0 5px' }} src={record.cover} />}{title}</span>
         )} />
         <Table.Column title="操作" key="_id" render={(_, record: IWidget) => (
           <Space size="middle" >
