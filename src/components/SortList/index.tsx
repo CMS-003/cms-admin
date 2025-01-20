@@ -55,7 +55,7 @@ export default function SortList({
             data-drag="container"
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={{ ...listStyle, display: 'flex', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex !== undefined ? listStyle.flex : 'auto' }}
+            style={{ ...listStyle, display: 'flex', height: '100%', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex !== undefined ? listStyle.flex : 'auto' }}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item[ukey] || index + ''} draggableId={item[ukey] || index + ''} isDragDisabled={mode === 'preview'} index={index}>

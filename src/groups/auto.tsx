@@ -453,9 +453,9 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     }}>添加子视图</ContextMenuItem> */}
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', }}>
+  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY:'auto', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
       <div style={{
         height: '100%',
         maxWidth: 480,
