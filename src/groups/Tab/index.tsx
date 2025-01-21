@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IComponent } from '@/types/component';
-import Acon from '@/components/Acon'
+import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
 import SortList from '@/components/SortList/';
 import TabItem from "../TabItem";
@@ -38,7 +38,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
       <TabWrap>
         <Tabs
           defaultActiveKey={self.attrs.get('selected_id')}
-          tabBarExtraContent={{ right: <Acon icon={self.icon as string} /> || <Acon icon='BarsOutlined' /> }}
+          tabBarExtraContent={{ right: <Acon icon={self.icon as Icon} /> || <Acon icon='BarsOutlined' /> }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
               onContextMenu={e => {

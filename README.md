@@ -29,6 +29,8 @@
 - ✅ axios
 - ❌ react-router-cache-route(没必要用route实现标签页)
 - http-proxy-middleware
+- 列表编辑中列widget支持添加子组件(主要是按钮)
+- JsonSchema编辑自定义组件
 
 ## 代码流程
 - 通过url进入app页面
@@ -39,9 +41,13 @@
 - 请求初始化:
   - 菜单数据(重整:openedMenus,openedTabs).show bread,show tab
 
-## 添加页面步骤
+## 添加自定义页面步骤
 - page文件夹添加页面
 - router文件配置路由
+- 可视化后台菜单添加菜单项
+
+## 表单与列表
+- 列模板使用hbs语法
 
 ## 问题与方案
 - 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`

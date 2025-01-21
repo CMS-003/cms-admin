@@ -17,6 +17,9 @@ export const TableTitle = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `
 export const SubTitle = styled.h2`
   font-size: 14px;

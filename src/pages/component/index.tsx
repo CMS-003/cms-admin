@@ -8,7 +8,7 @@ import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
-import Acon from '@/components/Acon';
+import Acon, { Icon } from '@/components/Acon';
 
 type SelectItem = {
   name: string;
@@ -202,7 +202,7 @@ const ComponentPage: React.FC = () => {
       />
       <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
         <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-          <span><Acon icon={record.icon as string} />{title}</span>
+          <span><Acon icon={record.icon as Icon} />{title}</span>
         )} />
         <Table.Column title="组件类型" dataIndex="name" />
         <Table.Column title="分类类型" dataIndex="type" />

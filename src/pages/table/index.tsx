@@ -28,7 +28,10 @@ export default function Page() {
   return <Observer>{() => (<div style={{ overflow: 'auto', paddingRight: 10, paddingTop: 10 }}>
     {local.tables.map(table => (
       <TableCard key={table.name}>
-        <TableTitle>{table.name}{table.title ? `(${table.title})` : ''}</TableTitle>
+        <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
+          navigate(process.env.PUBLIC_URL + `/tables/detail?name=${table.name}`);
+        }} /></TableTitle>
+        <span>{table.title}</span>
         <SubTitle>表单视图 <Acon icon='PlusCircleOutlined' onClick={() => {
           navigate(process.env.PUBLIC_URL + '/tables/form/modify?table=' + table.name);
         }} /></SubTitle>

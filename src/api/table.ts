@@ -1,11 +1,15 @@
 import shttp from "../utils/shttp";
-import { ITable, ITableDetail, ITableView, ITableWidget, IWidget } from '../types'
+import { ITable, ITableDetail, IJsonSchema, ITableView, ITableWidget, IWidget } from '../types'
 import qs from 'qs'
 
 const apis = {
   getTables: async () => {
     const result = await shttp.get<ITableDetail>(`/api/v1/tables/views`)
     return result
+  },
+  getTableSchema: async (name: string) => {
+    const result = await shttp.get<IJsonSchema>(`/api/v1/tables/schemas/${name}`);
+    return result;
   },
   getTableFields: async (table: string) => {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/tables/${table}/fields`);

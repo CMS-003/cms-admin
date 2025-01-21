@@ -1,7 +1,7 @@
 import React from 'react'
 import { IComponent } from '@/types/component'
 import styled from 'styled-components'
-import Acon from '@/components/Acon'
+import Acon, { Icon } from '@/components/Acon'
 
 const MenuItem = styled.div`
   color: #333;
@@ -14,7 +14,7 @@ const MenuItem = styled.div`
 `
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <div>
-    <MenuItem><Acon icon={self.icon as string} /> {self.title}</MenuItem>
+    <MenuItem><Acon icon={self.icon as Icon} /> {self.title}</MenuItem>
     <div style={{ marginLeft: 3 * level }}>
       {children}
     </div>

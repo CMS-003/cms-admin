@@ -2,6 +2,18 @@ export type ITable = {
   name: string;
   fields: { id: string; name: string }[];
 }
+export type IJsonSchema = {
+  type?: string;
+  format?: string;
+  descrition?: string;
+  enum?: any;
+  comment?: string;
+  default?: any;
+  properties: { [key: string]: IJsonSchema };
+  items?: IJsonSchema[];
+  required?: string[];
+  oneOf?: { type: string }[];
+}
 export type ITableDetail = {
   name: string;
   title: string;

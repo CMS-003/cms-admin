@@ -115,6 +115,10 @@ const LoadableTablesPage = Loadable({
   loader: () => import("@/pages/table/index"),
   loading: LoadingPage,
 });
+const LoadableTableDetailPage = Loadable({
+  loader: () => import("@/pages/table/detail"),
+  loading: LoadingPage,
+});
 const LoadableTableFormModifyPage = Loadable({
   loader: () => import("@/pages/table/form/modify"),
   loading: LoadingPage,
@@ -138,6 +142,7 @@ const pageArr: IPage[] = [
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
   { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
   { title: '所有表', Content: (props: any) => <LoadableTablesPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/all' },
+  { title: '表定义', Content: (props: any) => <LoadableTableDetailPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/detail' },
   { title: '表单编辑', Content: (props: any) => <LoadableTableFormModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/modify' },
   { title: '表单预览', Content: (props: any) => <FormPreviewPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/preview' },
   { title: '列表编辑', Content: (props: any) => <ListModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/list/modify' },

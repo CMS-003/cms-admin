@@ -1,23 +1,39 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useEffect, useCallback, useState } from 'react'
 import { Observer, useLocalStore } from 'mobx-react';
-import { ITable, ITableDetail } from '@/types/table';
+import { IJsonSchema } from '@/types/table';
 import { TableCard, TableTitle } from './style'
+import { useEffectOnce } from 'react-use';
+import apis from '@/api';
 
 export default function Page() {
-  const local: { table: ITableDetail | null } = useLocalStore(() => ({
-    table: null
+  const local: {
+    name: string;
+    schema: IJsonSchema | null
+  } = useLocalStore(() => ({
+    schema: null,
+    isLoading: false,
+    name: new URL(window.location.href).searchParams.get('name') || '',
   }));
+
+  const init = useCallback(async () => {
+    const resp = await apis.getTableSchema(local.name);
+    if (resp.code === 0) {
+      local.schema = resp.data;
+    }
+  }, []);
+  useEffectOnce(() => {
+    const searchParams = new URLSearchParams(window.location.search.substring(1));
+    if (!local.schema) {
+      init();
+    } else {
+      // local.error = true;
+    }
+
+  })
   return <Observer>{() => (<Fragment>
-    {local.table ? <TableCard>
-      <TableTitle>{local.table.name}</TableTitle>
+    {local.schema ? <Fragment>
+      <TableTitle>{local.name}</TableTitle>
       <h2>表单视图</h2>
-      {local.table.forms.map(view => (
-        <span>{view.name}</span>
-      ))}
-      <h2>列表视图</h2>
-      {local.table.lists.map(view => (
-        <span>{view.name}</span>
-      ))}
-    </TableCard> : null}
+    </Fragment> : null}
   </Fragment>)}</Observer>
 }
