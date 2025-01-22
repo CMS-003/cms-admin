@@ -3,6 +3,7 @@ export type ITable = {
   fields: { id: string; name: string }[];
 }
 export type IJsonSchema = {
+  title?: string;
   type?: string;
   format?: string;
   descrition?: string;

@@ -13,6 +13,7 @@ import {
   BarsOutlined,
   LeftOutlined,
   RightOutlined,
+  CaretRightOutlined,
   UserOutlined,
   MinusCircleOutlined,
   LoadingOutlined,
@@ -31,6 +32,8 @@ import {
   CloudDownloadOutlined,
   SettingOutlined,
 } from '@ant-design/icons'
+import React from 'react';
+import styled from 'styled-components'
 
 const icons = {
   HomeOutlined,
@@ -47,6 +50,7 @@ const icons = {
   BarsOutlined,
   LeftOutlined,
   RightOutlined,
+  CaretRightOutlined,
   UserOutlined,
   MinusCircleOutlined,
   LoadingOutlined,
@@ -65,12 +69,29 @@ const icons = {
   CloudDownloadOutlined,
   SettingOutlined,
 }
-
+const Wrap = styled.span`
+  cursor: pointer;
+    cursor:pointer;
+  &:hover { 
+    opacity: 0.4;
+  }
+`;
 export type Icon = keyof typeof icons;
-export default function Acon(prop: { icon: Icon, size?: number, title?: string, hidden?: boolean, style?: React.CSSProperties, onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void }) {
+export default function Acon(prop: {
+  icon: Icon,
+  size?: number,
+  color?: React.CSSProperties['color'],
+  rotate?: React.CSSProperties['rotate'],
+  title?: string,
+  hidden?: boolean,
+  style?: React.CSSProperties,
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
+}) {
   const Image: any = icons[prop.icon]
   if (Image && !prop.hidden) {
-    return <span style={prop.style || { margin: 5 }} onClick={prop.onClick}><Image /></span>
+    return <Wrap style={{ ...prop.style, color: prop.color }} onClick={prop.onClick}>
+      <Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
+    </Wrap>
   }
   return null;
 }

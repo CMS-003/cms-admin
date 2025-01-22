@@ -1,0 +1,12 @@
+.json-schema-editor .border-radius-5 .ant-select-selector {
+  border-radius: 5px;
+}
+
+/* input group 中 border-radius失效问题 */
+.json-schema-editor .border-radius-5 .ant-input-group-addon {
+  border-radius: 0 5px 5px 0;
+}
+
+.json-schema-editor .border-radius-5 .ant-input {
+  border-radius: 5px 0 0 5px;
+}

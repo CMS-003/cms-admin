@@ -4,6 +4,8 @@ import { IJsonSchema } from '@/types/table';
 import { TableCard, TableTitle } from './style'
 import { useEffectOnce } from 'react-use';
 import apis from '@/api';
+import JsonSchemaEditor from '@/components/JsonSchemaEditor';
+import { toJS } from 'mobx';
 
 export default function Page() {
   const local: {
@@ -34,6 +36,28 @@ export default function Page() {
     {local.schema ? <Fragment>
       <TableTitle>{local.name}</TableTitle>
       <h2>表单视图</h2>
+      <JsonSchemaEditor
+        data={local.schema}
+        // data={{
+        //   title: 'product',
+        //   type: 'Object',
+        //   properties: {
+        //     name: {
+        //       title: 'name',
+        //       type: 'String',
+        //       properties: {}
+        //     },
+        //     price: {
+        //       title: 'price',
+        //       type: 'Number',
+        //       properties: {}
+        //     },
+        //   }
+        // }}
+        onChange={data => {
+          // local.schema = data;
+          console.log(JSON.stringify(toJS(data), null, 2));
+        }} />
     </Fragment> : null}
   </Fragment>)}</Observer>
 }
