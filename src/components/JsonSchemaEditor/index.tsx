@@ -8,26 +8,44 @@ import SortList from '@/components/SortList/';
 import { IJsonSchema } from '@/types';
 import _ from 'lodash';
 import { useEffectOnce } from 'react-use';
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import './custom.css';
+import VisualBox from '../VisualBox';
+import styled from 'styled-components'
+
+const Handler = styled.div`
+  padding-right: 10px;
+`;
 
 type ItemArgvs = {
+  parent?: IJsonSchema;
   data: IJsonSchema;
   field: string;
   isRoot?: boolean;
-  freeze?: boolean;
   false_id?: boolean;
+  handler: any;
   onChange?: () => void;
 }
 
 function Item({
+  handler,
+  parent,
   data,
   field,
   isRoot = false,
-  freeze = false,
-  false_id = false,
   onChange,
 }: ItemArgvs) {
+  const [open, setOpen] = useState(false);
+  const [timer, setTimer] = useState<any>(null);
+  const handleMouseEnter = () => {
+    clearTimeout(timer);
+    setOpen(true)
+  };
+  const handleMouseLeave = () => {
+    setTimer(setTimeout(() => {
+      setOpen(false);
+    }, 200))
+  };
   const local = useLocalStore(() => ({
     showSub: true,
     get array() {
@@ -35,14 +53,47 @@ function Item({
     },
     setShowSub(b = false) {
       local.showSub = b
+    },
+    get is_disabled() {
+      return !_.isUndefined(data.const);
+    },
+    sortKey(oi: number, ni: number) {
+      if (oi === ni) return;
+      const keys = _.clone(local.array);
+      const [removed] = keys.splice(oi, 1);
+      keys.splice(ni, 0, removed);
+      const newProperties: { [key: string]: IJsonSchema } = {};
+      keys.forEach(([k, v]) => {
+        newProperties[k] = v;
+      });
+      data.properties = newProperties;
+      onChange && onChange();
+    },
+    renameKey(key: string, newKey: string) {
+      if (key === newKey || !parent) return;
+      if (parent.properties[newKey]) {
+        message.error('字段名已存在');
+        return;
+      }
+      const keys = Object.keys(parent.properties);
+      const newProperties: { [key: string]: IJsonSchema } = {};
+      keys.forEach(k => {
+        if (k === key) {
+          newProperties[newKey] = parent.properties[k];
+        } else {
+          newProperties[k] = parent.properties[k];
+        }
+      });
+      parent.properties = newProperties;
+      onChange && onChange();
     }
   }));
   useEffectOnce(() => {
-    local.setShowSub((data.type === 'Object' && local.array.length > 0) || data.type === 'Array');
+    local.setShowSub((isRoot || data.type === 'Object' && local.array.length > 0) || data.type === 'Array');
   });
   return <Observer>{() => (
     <FullHeight style={{}}>
-      <FullWidth style={{ marginTop: 5 }}>
+      <FullWidth style={{ padding: '3px 0' }}>
         {(data.type === 'Object' || data.type === 'Array') && <Acon
           icon='CaretRightOutlined'
           color='#8f8f8f'
@@ -52,64 +103,97 @@ function Item({
             local.showSub = !local.showSub;
           }}
         />}
-        <Input className='border-radius-5' value={field || ''} style={{ flex: 1, marginRight: 8 }} disabled={freeze || false_id} onChange={e => {
-          // data.title = e.target.value
-          if (isRoot) {
-            data.title = e.target.value;
-          } else {
-            // TODO: 修改 field
-            // data.properties[field] = e.target.value;
+        <VisualBox visible={!isRoot}>
+          <Handler {...handler} >
+            <Acon icon='DragOutlined' />
+          </Handler>
+        </VisualBox>
+        <Input className='border-radius-5' defaultValue={field} style={{ flex: 1, marginRight: 8 }} disabled={local.is_disabled || isRoot} onChange={e => {
+          // TODO: 修改 field
+          // data.properties[field] = e.target.value;
+          // onChange && onChange();
+        }} onBlur={(e) => {
+          if (field !== e.target.value) {
+            local.renameKey(field, e.target.value);
+            onChange && onChange();
           }
-          onChange && onChange();
         }} />
         <Space size={25} >
-          <Checkbox disabled={freeze} />
-          <Select className='border-radius-5' disabled={false_id} value={false_id ? false : data.type} style={{ width: 100 }} onChange={value => {
-            if (!false_id) {
-              // data.type = value;
-            }
-            onChange && onChange();
-          }}>
-            <Select.Option value={false}>false</Select.Option>
+          <Checkbox />
+          <Select
+            className='border-radius-5'
+            style={{ width: 100 }}
+            dropdownStyle={{ marginTop: -9 }}
+            open={open}
+            disabled={local.is_disabled || isRoot}
+            value={data.type}
+            getPopupContainer={(trigger) => trigger.parentNode}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onDropdownVisibleChange={(visible) => setOpen(visible)}
+            onChange={value => {
+              data.type = value;
+              onChange && onChange();
+            }}>
+            <Select.Option value="ObjectId">ObjectId</Select.Option>
             <Select.Option value="Object">对象</Select.Option>
             <Select.Option value="Array">数组</Select.Option>
             <Select.Option value="String">字符串</Select.Option>
             <Select.Option value="Number">数字</Select.Option>
             <Select.Option value="Date">日期</Select.Option>
             <Select.Option value="Boolean">布尔</Select.Option>
+            <Select.Option value="Map">Map</Select.Option>
+            <Select.Option value="Mixed">混合</Select.Option>
+            <Select.Option value="Buffer">二进制</Select.Option>
+            <Select.Option value="Decimal128">高精度</Select.Option>
           </Select>
-          <Input className='border-radius-5' disabled={false_id} placeholder='备注' addonAfter={<Acon icon='FormOutlined' />} onChange={value => {
+          <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} addonAfter={<Acon icon='FormOutlined' />} onBlur={value => {
             data.comment = value.target.value;
             onChange && onChange();
           }} />
           <Space style={{ width: 100, paddingLeft: 15 }}>
             <Acon icon='SettingOutlined' color='#37b332' />
-            {!freeze && <Acon icon='PlusOutlined' color='#c80000' rotate='45deg' />}
-            <Acon icon='PlusOutlined' color='#36b3f9' />
+            <VisualBox visible={!(local.is_disabled || isRoot)}>
+              <Acon icon='PlusOutlined' color='#c80000' rotate='45deg' onClick={() => {
+                if (parent) {
+                  delete parent.properties[field];
+                }
+              }} />
+            </VisualBox>
+            <VisualBox visible={data.type === 'Object'}>
+              <Acon icon='PlusOutlined' color='#36b3f9' onClick={() => {
+                if (!data.properties) data.properties = {};
+                const new_field = `field_${local.array.length}`;
+                data.properties[new_field] = { type: 'String', properties: {}, comment: '' };
+                onChange && onChange();
+              }} />
+            </VisualBox>
           </Space>
         </Space>
       </FullWidth>
       {local.showSub && <Fragment>
         {data.type === 'Object' && <SortList
           items={local.array}
-          sort={() => {
-
+          sort={(oi: number, ni: number) => {
+            local.sortKey(oi, ni);
           }}
           droppableId="json-schema-editor"
           itemStyle={{ marginLeft: 20 }}
-          renderItem={({ item }: { item: [string, IJsonSchema] }) => {
+          renderItem={({ item, handler }: { item: [string, IJsonSchema], handler: any }) => {
             return <Item
+              key={item[0]}
+              parent={data}
               data={item[1]}
               field={item[0]}
-              false_id={item[0] === '_id' && (item[1] as any) === false}
               onChange={onChange}
+              handler={handler}
             />
           }}
-          mode="preview"
+          mode="edit"
         />}
         {data.type === 'Array' && <div style={{ marginLeft: 30 }}>
           {data.items?.map((v, i) => {
-            return <Item key={i} data={v} field={'items'} freeze={true} onChange={onChange} />
+            return <Item key={i} data={v} field={'items'} onChange={onChange} handler={null} />
           }
           )}
         </div>}
@@ -136,11 +220,11 @@ export default function Editor({ data, onChange }: { data: IJsonSchema, onChange
     }
   }))
   useEffectOnce(() => {
-    
+
   });
   return <Observer>{() => <div style={{ width: '50%', margin: '0 auto', paddingLeft: 20 }}>
     <FullHeight className='json-schema-editor'>
-      <Item data={store.data} field='root' isRoot={true} onChange={() => {
+      <Item data={store.data} field='root' isRoot={true} handler={null} onChange={() => {
         onChange && onChange(store.data);
       }} />
     </FullHeight>

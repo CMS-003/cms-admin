@@ -1,6 +1,7 @@
 import shttp from "../utils/shttp";
 import { ITable, ITableDetail, IJsonSchema, ITableView, ITableWidget, IWidget } from '../types'
 import qs from 'qs'
+import { update } from "lodash";
 
 const apis = {
   getTables: async () => {
@@ -9,6 +10,14 @@ const apis = {
   },
   getTableSchema: async (name: string) => {
     const result = await shttp.get<IJsonSchema>(`/api/v1/tables/schemas/${name}`);
+    return result;
+  },
+  createTableSchema: async (name: string, data: any) => {
+    const result = await shttp.post(`/api/v1/tables/schemas/${name}`, data);
+    return result;
+  },
+  updateTableSchema: async (name: string, data: any) => {
+    const result = await shttp.put(`/api/v1/tables/schemas/${name}`, data);
     return result;
   },
   getTableFields: async (table: string) => {

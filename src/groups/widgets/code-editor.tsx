@@ -1,26 +1,15 @@
-import { Codemirror } from 'react-codemirror-ts';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/3024-night.css';
+import CodeMirror from '@uiw/react-codemirror';
 import { Observer } from 'mobx-react';
 import { ITableWidget } from '@/types';
 import { useState } from 'react';
+import { json } from '@codemirror/lang-json';
 
 export default function Widget(props: { widget: ITableWidget, mode: string }) {
   const [value, setValue] = useState(props.widget.value);
   return <Observer>{() => (
-    <Codemirror
+    <CodeMirror
       value={value}
-      name="attrs"
-      options={{
-        lineNumbers: true,
-        lineWrapping: true,
-        matchBrackets: true,
-        theme: '3024-night',
-        mode: 'javascript',
-        tabSize: 2,
-      }}
+      extensions={[json()]}
       className="code-mirror"
       onChange={(value, options) => {
         props.widget.value = value;

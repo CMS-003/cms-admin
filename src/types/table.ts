@@ -4,11 +4,11 @@ export type ITable = {
 }
 export type IJsonSchema = {
   title?: string;
-  type?: string;
+  type: string;
   format?: string;
-  descrition?: string;
   enum?: any;
-  comment?: string;
+  const?: any;
+  comment: string;
   default?: any;
   properties: { [key: string]: IJsonSchema };
   items?: IJsonSchema[];

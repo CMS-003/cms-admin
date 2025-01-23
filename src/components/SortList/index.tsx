@@ -71,7 +71,7 @@ export default function SortList({
                   const style = {
                     ...provided.draggableProps.style,
                     transform,
-                    background: snapshot.isDragging ? 'lightgreen' : ''
+                    background: snapshot.isDragging ? '#97d7f5' : ''
                   };
                   return (
                     <div

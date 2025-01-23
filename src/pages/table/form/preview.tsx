@@ -1,23 +1,13 @@
-import { Fragment, useEffect, useRef, useMemo, useState, JSXElementConstructor, ReactElement, ReactFragment, ReactPortal, useCallback, } from 'react'
+import { useEffect, useRef, useMemo, useState, useCallback, } from 'react'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, Row, Col, message } from 'antd'
-import Acon from '@/components/Acon'
-import { Codemirror } from 'react-codemirror-ts';
 import { debounce } from 'lodash'
-import store from '@/store'
-import { IEditorField, ITableView, ITableWidget } from '@/types'
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/3024-night.css';
+import { ITableWidget } from '@/types'
 import { useEffectOnce } from 'react-use';
 import apis from '@/api';
 import { Center, FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround } from '@/components/style';
-import { FormItem } from '../style'
 import SortList from '@/components/SortList';
-import styled from 'styled-components';
 import { Transform } from '@/groups/widgets';
-import { toJS } from 'mobx';
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);

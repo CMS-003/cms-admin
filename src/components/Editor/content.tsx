@@ -2,14 +2,11 @@ import { Fragment, useEffect, useRef, useMemo, useState, } from 'react'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
 import Acon from '../Acon'
-import { Codemirror } from 'react-codemirror-ts';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
 import { debounce } from 'lodash'
 import store from '@/store'
 import { IEditorField } from '@/types'
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/3024-night.css';
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -181,21 +178,12 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 <Select.Option value="html">html</Select.Option>
                 <Select.Option value="json">json</Select.Option>
               </Select>
-              <Codemirror
+              <CodeMirror
                 key={item.field}
                 autoFocus
                 value={local.jsonMap[item.field]}
-                name="attrs"
-                // path="example"
-                options={{
-                  lineNumbers: true,
-                  lineWrapping: true,
-                  matchBrackets: true,
-                  theme: '3024-night',
-                  mode: item.type === 'html' ? 'html' : 'javascript',
-                  tabSize: 2,
-                }}
                 className="code-mirror"
+                extensions={[json()]}
                 onChange={(value, options) => {
                   data[item.field] = value
                 }}

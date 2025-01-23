@@ -2,14 +2,11 @@ import { Fragment, useEffect, useRef, useMemo, useState, JSXElementConstructor, 
 import { Observer, useLocalStore } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, Row, Col } from 'antd'
 import Acon from '../Acon'
-import { Codemirror } from 'react-codemirror-ts';
+import CodeMirror from '@uiw/react-codemirror';
 import { debounce } from 'lodash'
 import store from '@/store'
 import { IEditorField } from '@/types'
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/addon/edit/matchbrackets';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/3024-night.css';
+import { javascript } from '@codemirror/lang-javascript';
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -185,20 +182,11 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 </Form.Item>
               case 'Editor':
                 return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-                  <Codemirror
+                  <CodeMirror
                     key={item.field}
                     autoFocus
                     value={local.jsonMap[item.field]}
-                    name="attrs"
-                    // path="example"
-                    options={{
-                      lineNumbers: true,
-                      lineWrapping: true,
-                      matchBrackets: true,
-                      theme: '3024-night',
-                      mode: 'javascript',
-                      tabSize: 2,
-                    }}
+                    extensions={[javascript()]}
                     className="code-mirror"
                     onChange={(value, options) => {
                       data[item.field] = value

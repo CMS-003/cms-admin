@@ -89,7 +89,7 @@ export default function Acon(prop: {
 }) {
   const Image: any = icons[prop.icon]
   if (Image && !prop.hidden) {
-    return <Wrap style={{ ...prop.style, color: prop.color }} onClick={prop.onClick}>
+    return <Wrap style={{ ...prop.style, color: prop.color, fontSize: prop.size }} onClick={prop.onClick}>
       <Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
     </Wrap>
   }
