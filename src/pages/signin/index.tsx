@@ -46,7 +46,6 @@ export default function SignInPage() {
             local.isFetch = true
             try {
               const res = await apis.SignIn({ type: 'account', account: local.username, value: local.password })
-              console.log(res)
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
                 const result = await apis.getProfile<IUser>();

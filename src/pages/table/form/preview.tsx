@@ -55,10 +55,9 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
 }
 
 const lb = { span: 4 }, rb = { span: 16 }
-type IEditWidget = ITableWidget & { _id: number };
 
 export default function EditPage({ setTitle }: { setTitle: (title: string) => void }) {
-  const local = useLocalStore<{ isLoading: boolean, table: string, data: any, id: string, view_id: string, title: string, widgets: IEditWidget[] }>(() => ({
+  const local = useLocalStore<{ isLoading: boolean, table: string, data: any, id: string, view_id: string, title: string, widgets: ITableWidget[] }>(() => ({
     isLoading: false,
     id: '',
     title: '',
@@ -72,7 +71,7 @@ export default function EditPage({ setTitle }: { setTitle: (title: string) => vo
       const resp = await apis.getViewDetail(local.view_id, { id: local.id });
       if (resp.code === 0) {
         local.data = resp.data.data || {};
-        local.widgets = resp.data.widgets.map((widget, i) => ({ _id: i, ...widget, value: local.data[widget.field] || '' }));
+        local.widgets = resp.data.widgets.map((widget, i) => ({ ...widget, value: local.data[widget.field] || '' }));
         local.table = resp.data.table;
         setTitle(resp.data.name);
       }
@@ -131,7 +130,7 @@ export default function EditPage({ setTitle }: { setTitle: (title: string) => vo
           mode={'preview'}
           listStyle={{}}
           itemStyle={{ padding: 6 }}
-          renderItem={({ item, handler }: { item: IEditWidget, handler: any }) => (
+          renderItem={({ item, handler }: { item: ITableWidget, handler: any }) => (
             <FullWidth key={item._id} {...handler}>
               <FullWidthFix style={{ minWidth: 80, justifyContent: 'flex-end', paddingRight: 10, }}>{item.label}</FullWidthFix>
               <FullWidthAuto>

@@ -33,7 +33,6 @@ const AttrItem = styled.div`
   & > span { display: inline-block; }
   & > div { width: 150px; }
 `
-type IEditWidget = ITableWidget & { _id: number };
 
 export default function FormModifyPage({ setTitle }: { setTitle: (title: string) => void, }) {
   const local: {
@@ -41,12 +40,12 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     table: string,
     id: string,
     error: boolean,
-    editWidget: IEditWidget | null,
+    editWidget: ITableWidget | null,
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
     name: string,
-    widgets: IEditWidget[],
+    widgets: ITableWidget[],
     fields: { field: string, type: string }[]
   } = useLocalObservable(() => ({
     isLoading: false,
@@ -64,7 +63,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     onDrop() {
       if (store.app.dragingWidgetType) {
         const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
-        local.widgets.push({ _id: local.widgets.length, ...widget });
+        local.widgets.push(widget);
         local.widgets = toJS(local.widgets)
       }
     },
@@ -85,7 +84,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       if (resp.code === 0) {
         local.name = resp.data.name
         setTitle(local.name);
-        local.widgets = resp.data.widgets.map((widget, i) => ({ _id: i, ...widget }));
+        local.widgets = resp.data.widgets;
       }
     }
   }, []);
@@ -165,7 +164,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               mode={'modify'}
               listStyle={{}}
               itemStyle={{ padding: 6 }}
-              renderItem={({ item, handler }: { item: IEditWidget, handler: any }) => (
+              renderItem={({ item, handler }: { item: ITableWidget, handler: any }) => (
                 <Handler key={item._id}>
                   <FullWidth {...handler} onClick={(e) => {
                     e.preventDefault();
@@ -202,14 +201,14 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                 okText="确定"
                 cancelText="取消"
                 onConfirm={() => {
-                  local.widgets.forEach((it) => {
+                  local.widgets.forEach((it, i) => {
                     if (local.editWidget && (it._id === local.editWidget._id)) {
-                      local.widgets.splice(local.editWidget._id, 1);
+                      local.widgets.splice(i, 1);
                       local.editWidget = null;
                     }
                   });
                   local.widgets.forEach((it, i) => {
-                    it._id = i;
+                    it._id = i + '';
                   });
                 }}>
                 <Acon icon={"DeleteOutlined"} />
@@ -272,5 +271,6 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         </FullHeight>)
       }
     </FullWidth>
-  )}</Observer>
+  )
+  }</Observer >
 }

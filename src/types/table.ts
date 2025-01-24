@@ -23,6 +23,7 @@ export type ITableDetail = {
   lists: { _id: string; name: string }[];
 }
 export type ITableWidget = {
+  _id: string;
   widget: string;
   field: string;
   label: string;
@@ -33,6 +34,7 @@ export type ITableWidget = {
   template: string;
   style: object | null;
   onclick?: string;
+  widgets: ITableWidget[];
 }
 export type ITableView = {
   _id: string;
