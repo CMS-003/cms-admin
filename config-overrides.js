@@ -17,13 +17,15 @@ module.exports = {
         changeOrigin: true,
         // pathRewrite: { '^/api': '/' }
       },
-      '/upload/': {
+      '/manager/upload/': {
         target: 'http://localhost:3333',
         changeOrigin: true,
+        pathRewrite: { '^/manager': '/' }
       },
-      '/images/': {
+      '/manager/images/': {
         target: 'http://localhost:3333',
         changeOrigin: true,
+        pathRewrite: { '^/manager': '/' }
       },
     }
     return config;

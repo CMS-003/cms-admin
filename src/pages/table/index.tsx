@@ -180,6 +180,7 @@ export default function Page() {
         </Form.Item>
         <Form.Item label='schema' labelCol={lb} wrapperCol={rb}>
           <CodeMirror
+            style={{ border: '1px solid #ccc' }}
             height='350px'
             value={value}
             extensions={[json()]}

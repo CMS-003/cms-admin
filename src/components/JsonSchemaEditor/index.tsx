@@ -8,7 +8,7 @@ import SortList from '@/components/SortList/';
 import { IJsonSchema } from '@/types';
 import _ from 'lodash';
 import { useEffectOnce } from 'react-use';
-import { Fragment, useState } from 'react';
+import { CSSProperties, Fragment, useState } from 'react';
 import './custom.css';
 import VisualBox from '../VisualBox';
 import styled from 'styled-components'
@@ -202,7 +202,7 @@ function Item({
   )}</Observer>
 }
 
-export default function Editor({ data, onChange }: { data: IJsonSchema, onChange: (data: IJsonSchema) => void }) {
+export default function Editor({ wrapStyle = {}, mainStyle = {}, data, onChange }: { wrapStyle?: CSSProperties, mainStyle?: CSSProperties, data: IJsonSchema, onChange: (data: IJsonSchema) => void }) {
   const store = useLocalStore(() => ({
     data,
     onChange,
@@ -222,8 +222,8 @@ export default function Editor({ data, onChange }: { data: IJsonSchema, onChange
   useEffectOnce(() => {
 
   });
-  return <Observer>{() => <div style={{ width: '50%', margin: '0 auto', paddingLeft: 20 }}>
-    <FullHeight className='json-schema-editor'>
+  return <Observer>{() => <div style={{ paddingLeft: 20, ...wrapStyle }}>
+    <FullHeight className='json-schema-editor' style={mainStyle}>
       <Item data={store.data} field='root' isRoot={true} handler={null} onChange={() => {
         onChange && onChange(store.data);
       }} />

@@ -43,20 +43,22 @@ export default function Page() {
   })
   return <Observer>{() => (<Fragment>
     {local.schema ? <Fragment>
-      <AlignAround style={{ height: 50 }}>
+      <AlignAround style={{ height: 50, flex: 'none' }}>
         <Space>
           {local.name}
           <CopyToClipboard text={JSON.stringify(local.schema, null, 2)}><Acon icon='CopyOutlined' title={'复制'} onClick={() => { message.success('已复制') }} /></CopyToClipboard>
         </Space>
       </AlignAround>
       <JsonSchemaEditor
+        wrapStyle={{ overflow: 'auto' }}
+        mainStyle={{ margin: '0 auto', width: '50%', minWidth: 800 }}
         data={local.schema}
         onChange={data => {
           if (local.diffed) {
             console.log(JSON.stringify(toJS(data), null, 2));
           }
         }} />
-      <AlignAround style={{ paddingTop: 50 }}>
+      <AlignAround style={{ height: 50, flex: 'none' }}>
         <Button type='primary' loading={local.isLoading} disabled={!local.diffed} onClick={async () => {
           if (local.schema) {
             try {
