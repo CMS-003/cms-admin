@@ -20,6 +20,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
   const logout = useCallback(async () => {
     setLogout(true);
     try {
+      store.user.setAccessToken('')
       await apis.SignOut()
       navigate('/manager/sign-in')
     } catch (e) {

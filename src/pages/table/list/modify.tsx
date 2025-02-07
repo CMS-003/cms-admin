@@ -6,12 +6,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import _ from 'lodash';
 import apis from '@/api';
 import store from '@/store';
-import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround } from '@/components/style';
+import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround, FullHeightFix, CenterXY } from '@/components/style';
 import styled from 'styled-components';
 import SortList from '@/components/SortList';
 import { Transform } from '@/groups/widgets';
 import { toJS } from 'mobx';
-import { Select, Input, Button, Popconfirm } from 'antd';
+import { Select, Input, Button, Popconfirm, Space } from 'antd';
 import VisualBox from '@/components/VisualBox';
 import Acon from '@/components/Acon';
 
@@ -34,25 +34,28 @@ const AttrItem = styled.div`
   & > div { width: 150px; }
 `
 
-type IEditWidget = ITableWidget & { _id: number };
-
 export default function FormModifyPage({ setTitle }: { setTitle: (title: string) => void, }) {
   const local: {
+    new_colomn: string;
+    showAddColumn: any;
     isLoading: boolean,
     table: string,
     id: string,
     error: boolean,
     flag: number,
-    editWidget: IEditWidget | null,
-    setEditData: (data: IEditWidget | null) => void,
+    editWidget: ITableWidget | null,
+    setEditData: (data: ITableWidget | null) => void,
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
     name: string,
-    widgets: IEditWidget[],
-    fields: { field: string, type: string }[]
+    widgets: ITableWidget[],
+    fields: { field: string, type: string }[];
+    pushSubWidget: (editWidget: ITableWidget, sub: ITableWidget) => void;
+    removeSubWidget: (p: ITableWidget, i: number) => void;
   } = useLocalObservable(() => ({
     isLoading: false,
+    showAddColumn: false,
     table: '',
     id: new URL(window.location.href).searchParams.get('id') || '',
     name: '视图名称',
@@ -62,10 +65,11 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     editWidget: null,
     isDragOver: false,
     error: false,
+    new_colomn: '',
     setDrag(is) {
       local.isDragOver = is;
     },
-    setEditData(data: IEditWidget | null) {
+    setEditData(data: ITableWidget | null) {
       local.flag = Date.now();
       local.editWidget = data;
     },
@@ -73,10 +77,18 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       if (store.app.dragingWidgetType) {
         const widget = store.widget.getViewWidgetByType(store.app.dragingWidgetType);
         local.editWidget = null;
-        local.widgets.push({ ...widget, _id: local.widgets.length });
+        local.widgets.push({ ...widget, _id: `${local.widgets.length}` });
         local.widgets = toJS(local.widgets)
       }
     },
+    pushSubWidget(p: ITableWidget, s: ITableWidget) {
+      p.widgets.push(s);
+      return;
+    },
+    removeSubWidget(p: ITableWidget, i: number) {
+      p.widgets.splice(i, 1);
+    }
+
   }));
   const init = useCallback(async () => {
     if (store.widget.list.length === 0) {
@@ -94,7 +106,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       if (resp.code === 0) {
         local.name = resp.data.name
         setTitle(local.name);
-        local.widgets = resp.data.widgets.map((it, i) => ({ ...it, _id: i }));
+        local.widgets = resp.data.widgets.map((it, i) => ({ ...it, _id: `${i}` }));
       }
     }
   }, []);
@@ -106,7 +118,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         type: 'list',
         table: local.table,
         name: local.name,
-        widgets: local.widgets.map(it => _.omit(it, ['_id'])),
+        widgets: local.widgets,
       });
       if (respResult.code === 0 && respResult.data) {
         local.id = respResult.data._id
@@ -158,7 +170,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         onDrop={local.onDrop}
       >
         <FullHeight>
-          <FullHeightAuto style={{ backgroundColor: '#1990ff1f' }}>
+          <FullHeightAuto style={{ backgroundColor: '#1990ff1f', display: 'flex', flexDirection: 'column' }}>
             <Input addonBefore="视图标题" value={local.name} onChange={e => {
               local.name = e.target.value;
             }} />
@@ -176,7 +188,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                 mode={''}
                 listStyle={{}}
                 itemStyle={{ padding: 6 }}
-                renderItem={({ index, item, handler }: { index: number, item: IEditWidget, handler: any }) => (
+                renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: any }) => (
                   item.widget === 'column' ? <div key={index}></div> :
                     <Handler key={index}>
                       <FullWidth onClick={(e) => {
@@ -185,7 +197,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                         local.editWidget = item;
                       }}>
                         <FullWidthFix {...handler}>
-                          <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
+                          <Acon icon='drag' style={{ marginRight: 5 }} />
                         </FullWidthFix>
                         <Transform widget={item} mode="modify" />
                       </FullWidth>
@@ -194,31 +206,70 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               />
             </FullWidth>
             <div style={{ marginTop: 30 }}>列字段</div>
-            <SortList
-              droppableId={'table' + local.table}
-              items={local.widgets}
-              sort={(oldIndex: number, newIndex: number) => {
-                const [old] = local.widgets.splice(oldIndex, 1)
-                local.widgets.splice(newIndex, 0, old)
-              }}
-              direction={'horizontal'}
-              ukey="index"
-              mode={'modify'}
-              listStyle={{ borderBottom: '1px dashed #888', margin: '0 20px' }}
-              itemStyle={{}}
-              renderItem={({ index, item, handler }: { index: number, item: IEditWidget, handler: any }) => (
-                item.widget === 'column' ? <FullWidth key={index} style={{ minWidth: 50, padding: '5px 10px', borderRight: '1px solid #cfcfcf', backgroundColor: 'wheat' }} onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  local.setEditData(item);
-                }}>
-                  <FullWidthFix {...handler}>
-                    <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
-                  </FullWidthFix>
-                  <Transform widget={item} mode="modify" />
-                </FullWidth> : <div key={index}></div>
-              )}
-            />
+            <FullWidth style={{ alignItems: 'flex-start' }}>
+              <SortList
+                droppableId={'table' + local.table}
+                items={local.widgets}
+                sort={(oldIndex: number, newIndex: number) => {
+                  const [old] = local.widgets.splice(oldIndex, 1)
+                  local.widgets.splice(newIndex, 0, old)
+                }}
+                direction={'horizontal'}
+                ukey="index"
+                mode={'modify'}
+                listStyle={{ marginLeft: 20, flex: 'none', }}
+                itemStyle={{ flex: 1 }}
+                renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: any }) => (
+                  item.widget === 'column' ? <FullHeight key={index}>
+                    <FullHeightFix>
+                      <FullWidth style={{ width: '100%', padding: '5px 10px', borderRight: '1px solid #cfcfcf', backgroundColor: 'wheat' }} onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        local.setEditData(item);
+                      }}>
+                        <FullWidthFix {...handler}>
+                          <Acon icon='drag' style={{ marginRight: 5 }} />
+                        </FullWidthFix>
+                        <Transform widget={item} mode="modify" />
+                      </FullWidth>
+                    </FullHeightFix>
+                    <Space style={{ margin: '10px 15px' }}>
+                      {item.widgets.map((sub, k) => (
+                        <div onClick={() => {
+                          local.editWidget = sub;
+                        }}>
+                          <Transform widget={sub} key={k} mode="modify" />
+                        </div>
+                      ))}
+                    </Space>
+                  </FullHeight> : <div key={index}></div>
+                )}
+              />
+              {local.showAddColumn ? <Input style={{ width: 150 }} onChange={e => {
+                local.new_colomn = e.target.value
+              }} addonAfter={<Acon icon='check' onClick={e => {
+                const name = local.new_colomn.trim()
+                if (name) {
+                  local.widgets.push({
+                    _id: `${local.widgets.length}`,
+                    field: '',
+                    label: name,
+                    widget: "column",
+                    value: '',
+                    source: 'var',
+                    refer: '',
+                    explain: '',
+                    template: '',
+                    style: {},
+                    widgets: [],
+                  });
+                }
+                local.new_colomn = '';
+                local.showAddColumn = false;
+              }} />} /> : <Acon icon='add' size={18} style={{ marginLeft: 10 }} onClick={() => {
+                local.showAddColumn = true;
+              }} />}
+            </FullWidth>
           </FullHeightAuto>
           <AlignAround style={{ padding: 10 }}>
             <Button type='primary' disabled={local.isLoading} onClick={async () => {
@@ -234,26 +285,26 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
         local.editWidget && (<FullHeight style={{ padding: 5, width: 250 }} key={local.flag}>
           <AlignAside style={{ marginBottom: 10 }}>
             <span>属性列表</span>
-            <div>
-              <Acon icon={"CloseOutlined"} onClick={() => local.editWidget = null} />
+            <Space>
+              <Acon icon={"close"} onClick={() => local.editWidget = null} />
               <Popconfirm
                 title="确定删除控件吗?"
                 okText="确定"
                 cancelText="取消"
                 onConfirm={() => {
-                  local.widgets.forEach((it) => {
+                  local.widgets.forEach((it, i) => {
                     if (local.editWidget && (it._id === local.editWidget._id)) {
-                      local.widgets.splice(local.editWidget._id, 1);
+                      local.widgets.splice(i, 1);
                       local.editWidget = null;
                     }
                   });
                   local.widgets.forEach((it, i) => {
-                    it._id = i;
+                    it._id = i + '';
                   });
                 }}>
-                <Acon icon={"DeleteOutlined"} />
+                <Acon icon={"delete"} />
               </Popconfirm>
-            </div>
+            </Space>
           </AlignAside>
           <FullWidth style={{ marginBottom: 10 }}>
             <FullWidthFix style={{ width: 50 }}>
@@ -388,8 +439,40 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               </FullWidthAuto>
             </FullWidth>
           </VisualBox>
+          <VisualBox visible={'column' === local.editWidget.widget} >
+            <FullWidth style={{ alignItems: 'flex-start' }}>
+              <FullWidthFix style={{ width: 50, }}>
+                自定义:
+              </FullWidthFix>
+              <Space direction='vertical' style={{ flex: 1, alignItems: 'center' }}>
+                {local.editWidget.widgets.map((widget, i) => (
+                  <Transform widget={widget} mode="preview" key={i + widget.label} />
+                ))}
+                <AlignAround>
+                  <Acon icon='add' onClick={() => {
+                    if (local.editWidget) {
+                      local.pushSubWidget(local.editWidget, {
+                        _id: local.editWidget.widgets.length + '',
+                        field: '',
+                        label: '操作' + local.editWidget.widgets.length,
+                        widget: "icon",
+                        value: 'edit',
+                        source: 'var',
+                        refer: '',
+                        explain: '',
+                        template: '',
+                        style: {},
+                        widgets: [],
+                      })
+                    }
+                  }} />
+                </AlignAround>
+              </Space>
+            </FullWidth>
+          </VisualBox>
         </FullHeight>)
       }
     </FullWidth>
-  )}</Observer>
+  )
+  }</Observer >
 }

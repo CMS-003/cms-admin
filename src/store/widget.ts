@@ -47,6 +47,7 @@ const Widget = types.model({
       default: break;
     }
     return {
+      _id: '',
       field: '',
       label: '字段',
       widget: type,
@@ -56,6 +57,7 @@ const Widget = types.model({
       explain: '',
       template: '',
       style: {},
+      widgets: [],
     };
   }
 })).actions((self) => ({

@@ -12,11 +12,13 @@ import WTime from './time';
 import WDatetime from './datetime';
 import WAdaptive from './wadaptive';
 import WCodeEditor from './code-editor';
+import WIcon from './icon';
 import { ITableWidget } from '@/types';
 import { Observer } from 'mobx-react';
 
 const Widgets = {
   'input': WInput,
+  'icon': WIcon,
   'textarea': WTextarea,
   'checkbox': WCheckbox,
   'radio': WRadio,
