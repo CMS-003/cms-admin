@@ -34,11 +34,11 @@ const Widgets = {
   'code-editor': WCodeEditor,
 }
 
-export function Transform({ widget, mode }: { widget: ITableWidget, mode: 'preview' | 'modify' }) {
+export function Transform({ widget, mode, onChange, onFetch }: { widget: ITableWidget, mode: 'preview' | 'modify', onChange?: Function, onFetch?: Function }) {
   const Comp = Widgets[widget.widget as keyof typeof Widgets];
   if (Comp) {
     return <Observer>{() => {
-      return <Comp widget={widget} mode={mode} />
+      return <Comp widget={widget} mode={mode} onChange={onChange} onFetch={onFetch}/>
     }}</Observer>
   } else {
     return <div>不支持的控件</div>

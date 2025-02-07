@@ -55,7 +55,14 @@ export default function SortList({
             data-drag="container"
             ref={provided.innerRef}
             {...provided.droppableProps}
-            style={{ ...listStyle, display: 'flex', height: '100%', flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column', flex: listStyle.flex !== undefined ? listStyle.flex : 'auto' }}
+            style={{
+              ...listStyle,
+              display: 'flex',
+              height: '100%',
+              flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column',
+              flex: listStyle.flex !== undefined ? listStyle.flex : 'auto',
+              backgroundColor: snapshot.isDraggingOver ? '#fefefe' : 'transparent',
+            }}
           >
             {items.map((item: any, index: number) => (
               <Draggable key={item[ukey] || index + ''} draggableId={item[ukey] || index + ''} isDragDisabled={mode === 'preview'} index={index}>
@@ -79,7 +86,7 @@ export default function SortList({
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       // 设置整块拖动 
-                      {...(provided.dragHandleProps)}
+                      // {...(provided.dragHandleProps)}
                       style={{
                         ...style,
                         ...itemStyle,

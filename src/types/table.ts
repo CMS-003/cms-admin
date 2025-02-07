@@ -34,6 +34,7 @@ export type ITableWidget = {
   template: string;
   style: object | null;
   onclick?: string;
+  onChange?: Function;
   widgets: ITableWidget[];
 }
 export type ITableView = {

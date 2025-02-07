@@ -24,13 +24,12 @@ const apis = {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/tables/${table}/fields`);
     return result;
   },
-  getList: async (url: string, query?: { [key: string]: any }) => {
+  getList: async (url: string, query: { [key: string]: any } = {}) => {
     if (url.includes('?')) {
       const [path, params] = url.split('?');
       url = path;
       query = Object.assign({}, qs.parse(params), query);
     }
-    console.log(url);
     const result = await shttp.get<ITable>(`${url}?${qs.stringify(query)}`)
     return result
   },

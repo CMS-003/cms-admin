@@ -32,6 +32,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     url: string,
     page: number,
     page_size: number,
+    total: number,
     loading: boolean,
     getQuery: () => { [key: string]: string | number },
     clear: () => void,
@@ -49,14 +50,15 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     url: '',
     loading: false,
     page: 1,
-    page_size: 20,
+    page_size: 15,
+    total: 0,
     getQuery() {
       const query: any = {
         page: local.page,
         page_size: local.page_size,
       };
       local.widgets.forEach(widget => {
-        if (widget.widget !== 'column') {
+        if (widget.widget !== 'column' && widget.field) {
           query[widget.field] = widget.value;
         }
       })
@@ -88,6 +90,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
         const resp = await apis.getList(local.url, query);
         if (resp.code === 0) {
           local.list = resp.data.items;
+          local.total = resp.data.total as number;
         }
       } finally {
         local.loading = false;
@@ -217,10 +220,21 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     {() => (
       <FullHeight style={{ padding: 10 }}>
         <FullWidth style={{ marginBottom: 10 }}>
-          {local.widgets.map((it, i) => <Transform key={i} widget={it} mode="preview" />)}
+          {local.widgets.map((it, i) => <Transform key={i} widget={it} mode="preview" onChange={(field: string, v: any) => {
+            console.log(field, v);
+          }} onFetch={getList} />)}
         </FullWidth>
         <FullHeightAuto ref={node => clickRef.current = node}>
-          <Table rowKey={'_id'} columns={local.columns} dataSource={toJS(local.list)} pagination={{ position: ['bottomRight'] }}>
+          <Table
+            rowKey={'_id'}
+            columns={local.columns}
+            dataSource={toJS(local.list)}
+            pagination={{ total: local.total, pageSize: local.page_size, position: ['bottomRight'] }}
+            onChange={(p) => {
+              local.page = p.current as number;
+              getList();
+            }}
+          >
 
           </Table>
         </FullHeightAuto>

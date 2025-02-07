@@ -116,7 +116,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
   }, []);
   const saveView = useCallback(async () => {
     if (local.id) {
-      await apis.updateTableView(local.id, { table: local.table, name: local.name, widgets: local.widgets });
+      await apis.updateTableView(local.id, { table: local.table, url: local.url, name: local.name, widgets: local.widgets });
     } else {
       const respResult = await apis.addTableView({
         type: 'list',
@@ -186,6 +186,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
               <SortList
                 droppableId={'search' + local.table}
                 items={local.widgets}
+                itemStyle={{}}
                 sort={(oldIndex: number, newIndex: number) => {
                   const [old] = local.widgets.splice(oldIndex, 1)
                   local.widgets.splice(newIndex, 0, old)
@@ -194,7 +195,6 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                 ukey="index"
                 mode={''}
                 listStyle={{}}
-                itemStyle={{ padding: 6 }}
                 renderItem={({ index, item, handler }: { index: number, item: ITableWidget, handler: any }) => (
                   item.widget === 'column' ? <div key={index}></div> :
                     <Handler key={index}>
@@ -204,7 +204,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                         local.editWidget = item;
                       }}>
                         <FullWidthFix {...handler}>
-                          <Acon icon='drag' style={{ marginRight: 5 }} />
+                          <IconSVG src={icon_drag} style={{ width: 18, height: 22 }} />
                         </FullWidthFix>
                         <Transform widget={item} mode="modify" />
                       </FullWidth>
@@ -234,15 +234,15 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                         e.stopPropagation();
                         local.setEditData(item);
                       }}>
-                        <FullWidthFix {...handler}>
+                        <FullWidthFix>
                           {/* <Acon icon='drag' style={{ marginRight: 5 }} /> */}
-                          <IconSVG src={icon_drag} />
+                          <IconSVG src={icon_drag} style={{ width: 18, height: 22 }}  {...handler} />
                         </FullWidthFix>
                         <Transform widget={item} mode="modify" />
                       </FullWidth>
                     </FullHeightFix>
                     <Space style={{ margin: '10px 15px' }}>
-                      {item.widgets.map((sub, k) => (
+                      {(item.widgets || []).map((sub, k) => (
                         <div onClick={() => {
                           local.editWidget = sub;
                         }}>

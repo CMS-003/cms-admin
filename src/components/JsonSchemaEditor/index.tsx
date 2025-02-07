@@ -35,17 +35,6 @@ function Item({
   isRoot = false,
   onChange,
 }: ItemArgvs) {
-  const [open, setOpen] = useState(false);
-  const [timer, setTimer] = useState<any>(null);
-  const handleMouseEnter = () => {
-    clearTimeout(timer);
-    setOpen(true)
-  };
-  const handleMouseLeave = () => {
-    setTimer(setTimeout(() => {
-      setOpen(false);
-    }, 200))
-  };
   const local = useLocalStore(() => ({
     showSub: true,
     get array() {
@@ -124,13 +113,9 @@ function Item({
             className='border-radius-5'
             style={{ width: 100 }}
             dropdownStyle={{ marginTop: -9 }}
-            open={open}
             disabled={local.is_disabled || isRoot}
             value={data.type}
             getPopupContainer={(trigger) => trigger.parentNode}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onDropdownVisibleChange={(visible) => setOpen(visible)}
             onChange={value => {
               data.type = value;
               onChange && onChange();
