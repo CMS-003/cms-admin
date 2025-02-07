@@ -60,7 +60,7 @@ export const ScrollWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
-  left: -11px;
-  top: -7px;
+  left: -4px;
+  top: 4px;
   visibility: hidden;
 `;

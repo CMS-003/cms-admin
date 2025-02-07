@@ -29,6 +29,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     view: ITableView | null,
     view_id: string,
     table: string,
+    url: string,
     page: number,
     page_size: number,
     loading: boolean,
@@ -45,6 +46,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     widgets: [],
     view_id: '',
     table: '',
+    url: '',
     loading: false,
     page: 1,
     page_size: 20,
@@ -79,11 +81,11 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     }
   }));
   const getList = useCallback(async () => {
-    if (local.table) {
+    if (local.url) {
       try {
         local.loading = true;
         const query = local.getQuery();
-        const resp = await apis.getList(local.table, query);
+        const resp = await apis.getList(local.url, query);
         if (resp.code === 0) {
           local.list = resp.data.items;
         }
@@ -167,6 +169,7 @@ export default function ({ setTitle }: { setTitle: (title: string) => void, }) {
     if (resp.code === 0) {
       local.view = resp.data;
       local.table = resp.data.table;
+      local.url = resp.data.url;
       setTitle(resp.data.name);
       local.widgets = resp.data.widgets.filter(it => it.widget !== 'column');
       local.columns = resp.data.widgets.filter(it => it.widget === 'column').map((it, i) => {

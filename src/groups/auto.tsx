@@ -2,7 +2,7 @@ import { ITemplate, IComponent, IResource } from '@/types'
 import { Observer, useLocalStore } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
-import { AlignAside } from '@/components/style'
+import { AlignAside, IconSVG } from '@/components/style'
 import { Input, message } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
@@ -14,6 +14,7 @@ import { useCallback } from 'react';
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import icon_drag from '@/asserts/images/drag.svg'
 
 import Menu from './Menu'
 import MenuItem from './MenuItem'
@@ -124,7 +125,8 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
           <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
-            <Acon icon='DragOutlined' />
+            {/* <Acon icon='DragOutlined' /> */}
+            <IconSVG src={icon_drag} />
           </Handler>
           <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
             <SortList
@@ -455,7 +457,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
 
   return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY:'auto', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY: 'auto', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
       <div style={{
         height: '100%',
         maxWidth: 480,

@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 export const TableCard = styled.div`
-  float: left;
-  width: 200px;
+  flex: 1;
+  max-width: 180px;
   min-height: 250px;
   margin-left: 10px;
   margin-bottom: 10px;

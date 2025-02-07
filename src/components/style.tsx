@@ -82,3 +82,9 @@ export const padding = {
 export const paddingSide = {
   padding: '0 15px'
 }
+
+export const IconSVG = styled.img`
+  height: 20px;
+  width: 20px;
+  src: ${({ src }) => src}
+`;

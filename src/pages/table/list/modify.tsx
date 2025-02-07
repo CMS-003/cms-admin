@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import _ from 'lodash';
 import apis from '@/api';
 import store from '@/store';
-import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround, FullHeightFix, CenterXY } from '@/components/style';
+import { FullWidth, FullWidthFix, FullWidthAuto, FullHeight, AlignAside, FullHeightAuto, AlignAround, FullHeightFix, CenterXY, IconSVG } from '@/components/style';
 import styled from 'styled-components';
 import SortList from '@/components/SortList';
 import { Transform } from '@/groups/widgets';
@@ -14,6 +14,7 @@ import { toJS } from 'mobx';
 import { Select, Input, Button, Popconfirm, Space } from 'antd';
 import VisualBox from '@/components/VisualBox';
 import Acon from '@/components/Acon';
+import icon_drag from '@/asserts/images/drag.svg'
 
 const WidgetWrap = styled.div`
   margin: 5px 10px;
@@ -36,11 +37,15 @@ const AttrItem = styled.div`
 
 export default function FormModifyPage({ setTitle }: { setTitle: (title: string) => void, }) {
   const local: {
+    name: string,
+    widgets: ITableWidget[],
+    fields: { field: string, type: string }[];
+    table: string,
+    url: string,
+    id: string,
     new_colomn: string;
     showAddColumn: any;
     isLoading: boolean,
-    table: string,
-    id: string,
     error: boolean,
     flag: number,
     editWidget: ITableWidget | null,
@@ -48,19 +53,17 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
     setDrag: (is: boolean) => void,
     onDrop: () => void,
     isDragOver: boolean,
-    name: string,
-    widgets: ITableWidget[],
-    fields: { field: string, type: string }[];
     pushSubWidget: (editWidget: ITableWidget, sub: ITableWidget) => void;
     removeSubWidget: (p: ITableWidget, i: number) => void;
   } = useLocalObservable(() => ({
-    isLoading: false,
-    showAddColumn: false,
-    table: '',
-    id: new URL(window.location.href).searchParams.get('id') || '',
     name: '视图名称',
     fields: [],
     widgets: [],
+    table: '',
+    url: '',
+    id: new URL(window.location.href).searchParams.get('id') || '',
+    isLoading: false,
+    showAddColumn: false,
     flag: 0,
     editWidget: null,
     isDragOver: false,
@@ -105,6 +108,7 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
       const resp = await apis.getTableViewDetail({ table: local.table, id: local.id });
       if (resp.code === 0) {
         local.name = resp.data.name
+        local.url = resp.data.url;
         setTitle(local.name);
         local.widgets = resp.data.widgets.map((it, i) => ({ ...it, _id: `${i}` }));
       }
@@ -174,6 +178,9 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
             <Input addonBefore="视图标题" value={local.name} onChange={e => {
               local.name = e.target.value;
             }} />
+            <Input addonBefore="数据接口" value={local.url} onChange={e => {
+              local.url = e.target.value;
+            }} />
             <div>搜索栏</div>
             <FullWidth>
               <SortList
@@ -228,7 +235,8 @@ export default function FormModifyPage({ setTitle }: { setTitle: (title: string)
                         local.setEditData(item);
                       }}>
                         <FullWidthFix {...handler}>
-                          <Acon icon='drag' style={{ marginRight: 5 }} />
+                          {/* <Acon icon='drag' style={{ marginRight: 5 }} /> */}
+                          <IconSVG src={icon_drag} />
                         </FullWidthFix>
                         <Transform widget={item} mode="modify" />
                       </FullWidth>

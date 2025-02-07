@@ -41,6 +41,7 @@ export type ITableView = {
   name: string;
   type: string;
   table: string;
+  url: string;
   order: number;
   widgets: ITableWidget[];
   data?: any;

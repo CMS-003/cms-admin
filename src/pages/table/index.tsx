@@ -6,18 +6,20 @@ import { TableCard, TableTitle, SubTitle } from './style'
 import apis from '@/api';
 import Acon from '@/components/Acon';
 import { AlignAside } from '@/components/style';
-import { useEffectOnce } from 'react-use';
+import { useEffectOnce, useWindowSize } from 'react-use';
 import { Affix, Form, Input, message, Modal, Switch } from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import { toJS } from 'mobx';
 import { json } from '@codemirror/lang-json';
+import { chunk } from 'lodash'
 
 const lb = { span: 4 }, rb = { span: 16 }
 export default function Page() {
-
+  const { width } = useWindowSize()
   const [value, setValue] = useState<string>('');
   const navigate = useNavigate()
   const local: {
+    cells: number;
     temp: any;
     schema: any;
     loading: boolean | undefined;
@@ -25,6 +27,7 @@ export default function Page() {
     tables: ITableDetail[];
     setData: Function;
   } = useLocalStore(() => ({
+    cells: 1,
     tables: [],
     loading: false,
     showCreate: false,
@@ -40,50 +43,57 @@ export default function Page() {
       local.tables = resp.data.items;
     }
   }, []);
+  useEffect(() => {
+    local.cells = width < 200 ? 1 : Math.floor(width / 200);
+  }, [width]);
   useEffectOnce(() => {
     refresh();
   })
   return <Observer>{() => (<div style={{ overflow: 'auto', paddingRight: 10, paddingTop: 10 }}>
-    {local.tables.map(table => (
-      <TableCard key={table.name}>
-        <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
-          navigate(process.env.PUBLIC_URL + `/tables/detail?name=${table.name}`);
-        }} /></TableTitle>
-        <span>{table.title}</span>
-        <SubTitle>表单视图 <Acon icon='PlusCircleOutlined' onClick={() => {
-          navigate(process.env.PUBLIC_URL + '/tables/form/modify?table=' + table.name);
-        }} /></SubTitle>
-        {table.forms.map(view => (
-          <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
-            <span>{view.name}</span>
-            <div>
-              <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                navigate(process.env.PUBLIC_URL + `/tables/form/modify?table=${table.name}&id=${view._id}`);
-              }} />
-              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                navigate(`${process.env.PUBLIC_URL}/tables/form/preview?title=${view.name}&view_id=${view._id}`);
-              }} />
-            </div>
-          </AlignAside>
+    {chunk(local.tables, local.cells).map((tables, i) => (
+      <AlignAside style={{ justifyContent: 'flex-start' }} key={i}>
+        {tables.map(table => (
+          <TableCard key={table.name}>
+            <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
+              navigate(process.env.PUBLIC_URL + `/tables/detail?name=${table.name}`);
+            }} /></TableTitle>
+            <span>{table.title}</span>
+            <SubTitle>表单视图 <Acon icon='PlusCircleOutlined' onClick={() => {
+              navigate(process.env.PUBLIC_URL + '/tables/form/modify?table=' + table.name);
+            }} /></SubTitle>
+            {table.forms.map(view => (
+              <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
+                <span>{view.name}</span>
+                <div>
+                  <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                    navigate(process.env.PUBLIC_URL + `/tables/form/modify?table=${table.name}&id=${view._id}`);
+                  }} />
+                  <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                    navigate(`${process.env.PUBLIC_URL}/tables/form/preview?title=${view.name}&view_id=${view._id}`);
+                  }} />
+                </div>
+              </AlignAside>
+            ))}
+            <br />
+            <SubTitle>列表视图 <Acon icon='PlusCircleOutlined' onClick={() => {
+              navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}`);
+            }} /></SubTitle>
+            {table.lists.map(view => (
+              <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
+                <span className='txt-omit'>{view.name}</span>
+                <div style={{ whiteSpace: 'nowrap' }}>
+                  <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                    navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}&id=${view._id}`);
+                  }} />
+                  <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
+                    navigate(`${process.env.PUBLIC_URL}/tables/list/preview?view_id=${view._id}`);
+                  }} />
+                </div>
+              </AlignAside>
+            ))}
+          </TableCard>
         ))}
-        <br />
-        <SubTitle>列表视图 <Acon icon='PlusCircleOutlined' onClick={() => {
-          navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}`);
-        }} /></SubTitle>
-        {table.lists.map(view => (
-          <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
-            <span className='txt-omit'>{view.name}</span>
-            <div style={{ whiteSpace: 'nowrap' }}>
-              <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}&id=${view._id}`);
-              }} />
-              <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                navigate(`${process.env.PUBLIC_URL}/tables/list/preview?view_id=${view._id}`);
-              }} />
-            </div>
-          </AlignAside>
-        ))}
-      </TableCard>
+      </AlignAside>
     ))}
     <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
       <Acon icon='PlusCircleOutlined' size={30} color='#0896db' onClick={() => {
