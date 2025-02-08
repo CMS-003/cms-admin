@@ -74,7 +74,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
         <Wrap>
           {[{ value: 'container', label: '容器' }, { value: 'widget', label: '控件' }, { value: 'component', label: '组件' }].map(t => (<div key={t.value} style={{ marginTop: 10, marginLeft: 5, position: 'relative', overflow: 'hidden', border: '1px solid #ccc' }}>
             <div>{t.label}</div>
-            {store.component.types.filter(it => it.level === 1 && it.group === t.value).map(item => (<Card
+            {store.component.types.filter(it => it.group === t.value).map(item => (<Card
               draggable
               key={item._id}
               title={item.title}
@@ -92,7 +92,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
         </Wrap>
       </FullWidthAuto>
       <FullWidthAuto style={{ height: '100%' }}>
-        <FullHeight>
+        <FullHeight style={{ alignItems: 'center' }}>
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
@@ -113,7 +113,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
             </AlignAside>
           </FullHeightFix>
-          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center', position: 'relative', overflow: 'auto' }}>
+          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center', position: 'relative', margin: '10px 0', width: '100%' }}>
             {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

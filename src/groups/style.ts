@@ -8,6 +8,9 @@ export const TemplateBox = styled.div`
   &.preview.dragover {
     background-color: #df3540;
   }
+  &.cantdrag {
+    background-color: #df3540;
+  }
 `
 export const EditWrap = styled.div`
   position: relative;
@@ -28,6 +31,7 @@ export const EditWrap = styled.div`
   }
   &.edit .coner {
     position: absolute;
+    z-index: 2;
     width: 2px;
     height: 2px;
     border-style: solid;

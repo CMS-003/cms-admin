@@ -27,6 +27,8 @@ type IPanel = {
   title?: string;
   // 标签页对应的 url 路径
   path: string,
+  // 动态页id
+  id: string,
   // 标签页是否可以被关闭
   closable?: boolean;
   Content?: any;
@@ -42,11 +44,13 @@ type IPage = {
 
 function getKeyName(key: string): IPanel {
   const [_pathname, _search] = key.split('?');
-  const Page = Pages[_pathname];
+  const [, id = ''] = /^\/manager\/dynamic\/([^\/]+)[/]?$/.exec(_pathname) || [];
+  const Page = id ? Pages['/manager/dynamic/:id'] : Pages[_pathname];
   return Page ? {
     title: Page.title,
     Content: Page.Content,
     path: key,
+    id,
     closable: Page.closable,
   } : {
     title: '404',
@@ -54,6 +58,7 @@ function getKeyName(key: string): IPanel {
       return <ErrorPage status="404" subTitle="?" errTitle="Not Found" />
     },
     closable: true,
+    id,
     path: key
   }
 }
@@ -87,6 +92,11 @@ const LoadableTemplateForm = Loadable({
 
 const LoadableTemplatePage = Loadable({
   loader: () => import('@/pages/template'),
+  loading: LoadingPage,
+});
+
+const LoadableDynamicPage = Loadable({
+  loader: () => import('@/pages/dynamic'),
   loading: LoadingPage,
 });
 
@@ -153,6 +163,7 @@ const pageArr: IPage[] = [
   { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },
   { title: '表单页', Content: (props: any) => <LoadableTemplateForm {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/form' },
   { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
+  { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/dynamic/:id' },
   { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/editable' },
   { title: '系统日志', Content: (props: any) => <LoadableLogSystem {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/system' },
   { title: '验证码', Content: (props: any) => <LoadableVerification {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/verification-code' },
@@ -209,7 +220,10 @@ const TabPanes: FC = () => {
   const resetTabs = useCallback((): void => {
     store.page.openedTags.forEach(tag => {
       const [new_pathname, new_search] = tag.split('?');
-      if (Pages[new_pathname]) {
+      if (new_pathname.startsWith('/manager/dynamic')) {
+          const pane = getKeyName(tag);
+          local.pushPanel(pane);
+      } else if (Pages[new_pathname]) {
         if (-1 !== local.panels.findIndex(pane => pane.path === tag)) {
           // 重复render处理
           return
@@ -388,7 +402,7 @@ const TabPanes: FC = () => {
           key: Panel.path,
           label: Panel.title,
           children: local.reloadPath !== Panel.path ? (
-            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} store={store} setTitle={(title: string) => {
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} id={Panel.id} store={store} setTitle={(title: string) => {
               Panel.title = title;
             }} /></div>
           ) : (

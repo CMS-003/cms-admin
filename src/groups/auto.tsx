@@ -10,7 +10,7 @@ import { ComponentItem } from '@/store/component';
 import SortList from '@/components/SortList/';
 import store from '@/store'
 import _ from 'lodash'
-import { useCallback } from 'react';
+import { CSSProperties, useCallback } from 'react';
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -27,7 +27,12 @@ import Layout from './Layout'
 import PickCard from './Card'
 import RandomCard from './Random'
 import SearchBtn from './SearchBtn'
-import IconBtn from './Button'
+import IconBtn from './Image'
+import Button from './Button'
+import Select from './Select'
+import CInput from './Input'
+import Table from './Table'
+import TableColumn from './TableColumn'
 import { toJS } from 'mobx';
 import { Fragment } from 'react';
 import events from '@/utils/event';
@@ -46,6 +51,11 @@ const BaseComponent = {
   RandomCard,
   SearchBtn,
   IconBtn,
+  Button,
+  Input: CInput,
+  Select,
+  Table,
+  TableColumn,
 }
 
 function getDiff(t: ITemplate | IComponent | null) {
@@ -99,7 +109,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
   }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
-    const direction = self.type === 'Tab' || self.style.get('flexDirection') === 'row' ? 'horizontal' : 'vertical';
+    const direction = self.type === 'Tab' || self.style.get('flexDirection') === 'row' || self.attrs.get('layout') === 'horizon' ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
         mode === 'edit' ? <EditWrap
@@ -128,7 +138,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? 'dragover' : 'cantdrag') : ''}`}
         >
           <ConerLB className='coner' />
           <ConerRB className='coner' />
@@ -149,7 +159,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={direction}
-              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={(is: boolean) => {
+              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} handler={h2} self={item} key={index} setParentHovered={(is: boolean) => {
                 local.setIsMouseOver(is);
               }} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
@@ -165,7 +175,9 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     </Observer >
   } else {
     return <div>
-      {self.type}!
+      <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+        <IconSVG src={icon_drag} />
+      </Handler>
     </div>
   }
 }
@@ -270,7 +282,7 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${local.isDragOver ? "dragover" : ""}`}
+          className={`${mode} ${local.isDragOver && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : ""}`}
           style={toJS(local.template?.style)}
         >
           {mode === 'edit' ? <SortList
@@ -469,11 +481,11 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
 
   return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY: 'auto', boxShadow: '#9dbdcc 0px 0px 10px 4px' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', overflowX: 'hidden', overflowY: 'auto', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
       <div style={{
         height: '100%',
-        maxWidth: 480,
         minWidth: 400,
+        width: '100%',
       }}>
         <Observer>{() => {
           if (local.loading) {
@@ -483,7 +495,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
               onDragOver={local.onDragOver}
               onDragLeave={local.onDragLeave}
               onDrop={local.onDrop}
-              className={`${mode} ${local.isDragOver ? "dragover" : ""}`}
+              className={`${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={toJS(local.template?.style)}
             >
               {mode === 'edit' ? <SortList
@@ -576,7 +588,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         </EditItem>
         <EditItem>
           attr
-          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.attrs, null, 2)} onChange={e => {
+          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.attrs, null, 2)} onBlur={e => {
             try {
               const attrs = JSON.parse(e.target.value)
               const keys = Array.from(local.editComponent?.attrs).map((v: any) => v[0])
