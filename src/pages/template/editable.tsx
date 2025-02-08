@@ -10,6 +10,7 @@ import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
+import { keyBy } from 'lodash';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
   const local = useLocalStore<{
@@ -59,7 +60,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
     }
   }, [])
   useEffect(() => {
-    store.component.types.map(item => ({ name: item.title, value: item.name }))
+
   }, [t])
   useEffectOnce(() => {
     refresh()
@@ -69,19 +70,25 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
   })
   return (<Observer>{() => <Fragment>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
-      <FullWidthAuto style={{ flex: '120px 0 0' }}>
+      <FullWidthAuto style={{ flex: '140px 0 0' }}>
         <Wrap>
-          {store.component.types.map(item => (<Card draggable key={item._id}
-            onDragStartCapture={() => {
-              store.app.setDragType(item.name);
-            }}
-            onDragEndCapture={() => {
-              store.app.setDragType('')
-            }}>
-            <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
-            />
-            <div>{item.title}</div>
-          </Card>))}
+          {[{ value: 'container', label: '容器' }, { value: 'widget', label: '控件' }, { value: 'component', label: '组件' }].map(t => (<div key={t.value} style={{ marginTop: 10, marginLeft: 5, position: 'relative', overflow: 'hidden', border: '1px solid #ccc' }}>
+            <div>{t.label}</div>
+            {store.component.types.filter(it => it.level === 1 && it.group === t.value).map(item => (<Card
+              draggable
+              key={item._id}
+              title={item.title}
+              onDragStartCapture={() => {
+                store.app.setDragType(item.name);
+              }}
+              onDragEndCapture={() => {
+                store.app.setDragType('')
+              }}>
+              <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
+              />
+              <div className='txt-omit'>{item.title}</div>
+            </Card>))}
+          </div>))}
         </Wrap>
       </FullWidthAuto>
       <FullWidthAuto style={{ height: '100%' }}>

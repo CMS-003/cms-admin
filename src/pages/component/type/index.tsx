@@ -41,6 +41,20 @@ const ComponentTypePage: React.FC = () => {
       value: [],
     },
     {
+      field: 'group',
+      title: '类别',
+      type: 'string',
+      component: IEditorComponent.Select,
+      defaultValue: '',
+      autoFocus: false,
+      value: [
+        { value: '', name: '无' },
+        { value: 'widget', name: '控件' },
+        { value: 'container', name: '容器' },
+        { value: 'component', name: '组件' },
+      ],
+    },
+    {
       field: 'cover',
       title: '图片',
       type: 'string',
@@ -52,6 +66,15 @@ const ComponentTypePage: React.FC = () => {
     {
       field: 'order',
       title: '序号',
+      type: 'number',
+      component: IEditorComponent.Input,
+      defaultValue: 1,
+      value: [],
+      autoFocus: false,
+    },
+    {
+      field: 'level',
+      title: '层级',
       type: 'number',
       component: IEditorComponent.Input,
       defaultValue: 1,
@@ -78,14 +101,14 @@ const ComponentTypePage: React.FC = () => {
   const addComponentType = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateComponentTypes(params) : await apis.addComponentTypes(params)
     if (result.code === 0) {
-      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
+      notification.info({ message: params.body._id ? '修改成功' : '添加成功', placement: 'top' })
       await refresh()
     }
   }, [refresh])
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <div style={{ padding: '0 10px' }}>
+  return (<Observer>{() => <div style={{ padding: '0 10px', height: '100%', display: 'flex', flexDirection: 'column' }}>
     <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
       <Button type="primary" onClick={e => {
         local.openEditor({})
@@ -103,11 +126,14 @@ const ComponentTypePage: React.FC = () => {
     />
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="_id" dataSource={local.list} >
+      <Table pagination={false} rowKey="_id" dataSource={local.list} style={{ overflow: 'auto' }}>
+        <Table.Column title="序号" dataIndex="order" width={60} />
         <Table.Column title="名称" dataIndex="title" render={(title, record: IComponent) => (
           <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
         )} />
         <Table.Column title="类型" dataIndex="name" />
+        <Table.Column title="类别" dataIndex="group" />
+        <Table.Column title="层级" dataIndex="level" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <Acon icon='FormOutlined' onClick={
@@ -116,7 +142,6 @@ const ComponentTypePage: React.FC = () => {
               }
             } />
             <Acon icon='DeleteOutlined' onClick={async () => {
-              console.log(record, '?')
               await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()
             }} />

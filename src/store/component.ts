@@ -179,6 +179,7 @@ const ComponentTypeItem = types.model({
   name: types.string,
   title: types.string,
   cover: types.optional(types.string, ''),
+  group: types.optional(types.string, ''),
   level: types.number,
   accepts: types.array(types.string),
 })

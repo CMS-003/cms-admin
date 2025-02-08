@@ -9,8 +9,8 @@ export const Wrap = styled.div`
 `
 
 export const Card = styled.div`
-  float: left;
   width: 50px;
+  display: inline-block;
   text-align: center;
   padding: 8px 0;
   margin-left: 10px;

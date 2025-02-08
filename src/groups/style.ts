@@ -3,10 +3,10 @@ import styled from 'styled-components'
 export const TemplateBox = styled.div`
   height: 100%;
   &.edit.dragover {
-    background-color: #ded200
+    background-color: #55a558;
   }
   &.preview.dragover {
-    background-color: #aaa;
+    background-color: #df3540;
   }
 `
 export const EditWrap = styled.div`
@@ -18,28 +18,68 @@ export const EditWrap = styled.div`
     height: 100%;
   }
   &.edit {
-    padding: 5px 5px 5px 5px;
+    padding-left: 20px;
   }
   &.edit.hover {
-    // box-shadow: inset rgb(198 202 204) 3px 4px 10px 4px;
+    border: 1px dashed #df3540;
   }
   &.edit.hover > div {
+    visibility: visible;
+  }
+  &.edit .coner {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-style: solid;
+    border-color: #df3540;
+    visibility: hidden;
+  }
+  &.focus > .coner {
+    border-color: #1890ff;
+  }
+  &.edit.hover > .coner {
+    border-color: #df3540;
+  }
+  &.focus > .coner, &.edit.hover > .coner {
     visibility: visible;
   }
   &.delete {
     background-color: #333;
   }
-  border: 2px dashed transparent;
+  border: 1px dashed transparent;
   &.focus {
     border-color: #1890ff;
   }
   &.dragover {
-    background-color: #ded200;
+    background-color: green;
   }
   &.cantdrag {
     background-color: #df3540;
   }
 `;
+export const ConerLT = styled.span`
+  left: 0;
+  top: 0;
+  border-width: 0 1px 1px 0;
+`
+
+export const ConerRT = styled.span`
+  right: 0;
+  top: 0;
+  border-width: 0 0 1px 1px;
+`
+
+export const ConerLB = styled.span`
+  left: 0;
+  bottom: 0;
+  border-width: 1px 1px 0 0;
+`
+
+export const ConerRB = styled.span`
+  right: 0;
+  bottom: 0;
+  border-width: 1px 0 0 1px;
+`
 
 export const EditItem = styled.div`
   margin: 8px 0;
@@ -60,7 +100,8 @@ export const ScrollWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
-  left: -4px;
+  left: 0px;
   top: 4px;
+  cursor: move !important;
   visibility: hidden;
 `;

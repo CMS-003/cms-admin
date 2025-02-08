@@ -6,16 +6,15 @@ import Acon, { Icon } from '@/components/Acon'
 const MenuItem = styled.div`
   color: #333;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 10px;
   &:hover {
-    background-color: #71ace3;
-    color: #000;
+    background-color: ${props => props.className === 'edit' ? 'transparent' : '#71ace3'};
   }
 `
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <div>
-    <MenuItem><Acon icon={self.icon as Icon} /> {self.title}</MenuItem>
-    <div style={{ marginLeft: 3 * level }}>
+    <MenuItem className={mode}><Acon icon={self.icon as Icon} /> {self.title}</MenuItem>
+    <div style={{ paddingLeft: 10 * level }}>
       {children}
     </div>
   </div>

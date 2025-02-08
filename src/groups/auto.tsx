@@ -1,6 +1,6 @@
 import { ITemplate, IComponent, IResource } from '@/types'
 import { Observer, useLocalStore } from 'mobx-react'
-import { EditWrap, TemplateBox, EditItem, Handler, } from './style'
+import { EditWrap, TemplateBox, EditItem, Handler, ConerLB, ConerRB, ConerLT, ConerRT, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside, IconSVG } from '@/components/style'
 import { Input, message } from 'antd'
@@ -68,7 +68,7 @@ function getDiff(t: ITemplate | IComponent | null) {
   return results;
 }
 
-export function Component({ self, children, mode, isDragging, handler, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, setParentHovered, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, props?: any }) {
   const local = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
@@ -115,16 +115,26 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
           }}
           onMouseEnter={() => {
             local.setIsMouseOver(true);
+            if (setParentHovered) {
+              setParentHovered(false)
+            }
           }}
           onMouseLeave={() => {
             local.setIsMouseOver(false);
+            if (setParentHovered) {
+              setParentHovered(true)
+            }
           }}
           onDragOver={local.onDragOver}
           onDragLeave={local.onDragLeave}
           onDrop={local.onDrop}
-          className={`${mode} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
+          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`}
         >
-          <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible' } : {}}>
+          <ConerLB className='coner' />
+          <ConerRB className='coner' />
+          <ConerLT className='coner' />
+          <ConerRT className='coner' />
+          <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
             {/* <Acon icon='DragOutlined' /> */}
             <IconSVG src={icon_drag} />
           </Handler>
@@ -139,7 +149,9 @@ export function Component({ self, children, mode, isDragging, handler, ...props 
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={direction}
-              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={(is: boolean) => {
+                local.setIsMouseOver(is);
+              }} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
         </EditWrap>
@@ -457,7 +469,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
 
   return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY: 'auto', boxShadow: 'rgb(41, 172, 233) 0px 0px 10px 4px' }}>
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '90%', overflowX: 'hidden', overflowY: 'auto', boxShadow: '#9dbdcc 0px 0px 10px 4px' }}>
       <div style={{
         height: '100%',
         maxWidth: 480,

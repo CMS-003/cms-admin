@@ -52,6 +52,7 @@ export type IComponent = {
 export type IComponentType = {
   _id: string;
   name: string;
+  group: string;
   title: string;
   accepts: string[];
 }
