@@ -60,7 +60,13 @@ export const ComponentItem = types.model('Component', {
   updatedAt: types.maybe(IsoDate),
   style: types.map(types.union(types.string, types.number)),
   attrs: types.map(types.union(types.string, types.number)),
+  widget: types.maybe(types.model({
+    field: types.optional(types.string, ''),
+    value: types.optional(types.string, ''),
+    refer: types.optional(types.string, ''),
+  })),
   accepts: types.optional(types.array(types.string), []),
+  api: types.optional(types.string, ''),
   resources: types.optional(types.array(types.model({
     _id: types.string,
     title: types.optional(types.string, ''),
@@ -81,6 +87,11 @@ export const ComponentItem = types.model('Component', {
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
+  },
+  setWidget(k: 'field' | 'value', v: string) {
+    if (self.widget) {
+      self.widget[k] = v;
+    }
   },
   setAttrs(key: string, value: string | number | null) {
     if (value === null) {
@@ -117,6 +128,8 @@ export const ComponentItem = types.model('Component', {
       desc: '',
       order: self.children.length,
       status: 1,
+      api: '',
+      widget: {},
       createdAt: new Date(),
       updatedAt: new Date(),
       accepts: self.toJSON().accepts,

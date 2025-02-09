@@ -29,7 +29,9 @@ export type IComponent = {
   accepts?: string[];
   style?: any;
   attrs?: any;
+  api?: string;
   resources?: IResource[];
+  widget?: { field: string, value: string, refer: string },
 
   children: IComponent[];
   data?: IResource[];
@@ -38,6 +40,7 @@ export type IComponent = {
   $selected?: boolean;
   diff: Function;
   setAttr: Function;
+  setWidget: Function;
   setAttrs: Function;
   setStyle: Function;
   appendChild: Function;

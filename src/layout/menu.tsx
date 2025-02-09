@@ -22,8 +22,9 @@ export function transform(tree: any, collapsed = true) {
     node.label = null;
   }
   if (tree.children && tree.children.length) {
-    node.children = tree.children.map((item: any) => transform(item, collapsed))
-  } else {
+    node.children = tree.children.filter((item: any) => item.status === 1).map((item: any) => transform(item, collapsed))
+  }
+  if (!node.children || node.children.length === 0) {
     delete node.children
   }
   return node;

@@ -105,7 +105,11 @@ export const ScrollWrap = styled.div`
 export const Handler = styled.div`
   position: absolute;
   left: 0px;
-  top: 4px;
+  bottom: 0px;
+  top: 0px;
   cursor: move !important;
   visibility: hidden;
+  display: flex; 
+  align-items: center;
+  height: 100%; 
 `;

@@ -58,3 +58,6 @@ code {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+}

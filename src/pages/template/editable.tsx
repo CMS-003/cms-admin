@@ -5,7 +5,7 @@ import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
-import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix } from '@/components/style'
+import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix, FullHeightAuto } from '@/components/style'
 import { Wrap, Card } from './style';
 import Auto from '../../groups/auto'
 import events from '@/utils/event';
@@ -70,7 +70,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
   })
   return (<Observer>{() => <Fragment>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
-      <FullWidthAuto style={{ flex: '140px 0 0' }}>
+      <FullWidthAuto className='hidden-scrollbar' style={{ flex: '140px 0 0', height: '100%', overflow: 'auto' }}>
         <Wrap>
           {[{ value: 'container', label: '容器' }, { value: 'widget', label: '控件' }, { value: 'component', label: '组件' }].map(t => (<div key={t.value} style={{ marginTop: 10, marginLeft: 5, position: 'relative', overflow: 'hidden', border: '1px solid #ccc' }}>
             <div>{t.label}</div>
@@ -91,7 +91,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           </div>))}
         </Wrap>
       </FullWidthAuto>
-      <FullWidthAuto style={{ height: '100%' }}>
+      <FullWidthAuto style={{ height: '100%', overflow: 'auto' }}>
         <FullHeight style={{ alignItems: 'center' }}>
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
@@ -113,8 +113,11 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
             </AlignAside>
           </FullHeightFix>
-          <FullWidthAuto style={{ display: 'flex', justifyContent: 'center', position: 'relative', margin: '10px 0', width: '100%' }}>
-            {local.loading ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." /> : <Auto template_id={local.edit_template_id} mode={local.mode} />}
+          <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: '10px 0', width: '100%', height: '100%', overflow: 'auto' }}>
+            {local.loading
+              ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." />
+              : <Auto template_id={local.edit_template_id} mode={local.mode} />
+            }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
             <Button type="primary" onClick={async () => {

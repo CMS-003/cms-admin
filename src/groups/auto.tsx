@@ -3,7 +3,7 @@ import { Observer, useLocalStore } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem, Handler, ConerLB, ConerRB, ConerLT, ConerRT, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
 import { AlignAside, IconSVG } from '@/components/style'
-import { Input, message } from 'antd'
+import { Input, message, Select, Button, Divider } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
@@ -28,8 +28,8 @@ import PickCard from './Card'
 import RandomCard from './Random'
 import SearchBtn from './SearchBtn'
 import IconBtn from './Image'
-import Button from './Button'
-import Select from './Select'
+import CButton from './Button'
+import CSelect from './Select'
 import CInput from './Input'
 import Table from './Table'
 import TableColumn from './TableColumn'
@@ -51,9 +51,9 @@ const BaseComponent = {
   RandomCard,
   SearchBtn,
   IconBtn,
-  Button,
+  Button: CButton,
   Input: CInput,
-  Select,
+  Select: CSelect,
   Table,
   TableColumn,
 }
@@ -479,13 +479,14 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
     }}>添加子视图</ContextMenuItem> */}
   </ContextMenu>);
 
-  return <Observer>{() => (<div style={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+  return <Observer>{() => (<div style={{ display: 'flex', width: mode === 'edit' ? '90%' : '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', overflowX: 'hidden', overflowY: 'auto', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
-      <div style={{
+    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
+      <div className='hidden-scrollbar' style={{
         height: '100%',
         minWidth: 400,
         width: '100%',
+        overflow: 'auto'
       }}>
         <Observer>{() => {
           if (local.loading) {
@@ -522,7 +523,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         }</Observer >
       </div>
     </div>
-    {local.editComponent && <div key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, overflowX: 'auto', backgroundColor: 'wheat', position: 'absolute', right: 0, top: 0, bottom: 0 }}>
+    {local.editComponent && <div className='hidden-scroll' key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: '5%', marginRight: '-5%' }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({local.editComponent.type})</span>
         <Acon icon='CloseOutlined' onClick={() => {
@@ -563,7 +564,11 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
           }} />
         </EditItem>
         <EditItem>
-          resources
+          数据
+          <Input addonBefore="api" value={local.editComponent.api} onChange={e => {
+            local.editComponent?.setAttr('api', e.target.value);
+          }} />
+          <Divider type="horizontal" style={{ margin: 5 }} />
           <SortList
             key={local.editComponent.resources?.length}
             sort={(oldIndex: number, newIndex: number) => {
@@ -585,6 +590,17 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
               </div>
             </Fragment>}
           />
+          <Button icon={<Acon icon="add" />}>添加资源</Button>
+        </EditItem>
+        <EditItem>
+          控件属性
+          <Input addonBefore="字段" value={local.editComponent.widget?.field} onChange={e => {
+            local.editComponent?.setWidget('field', e.target.value);
+          }} />
+          <Input addonBefore="默认值" value={local.editComponent.widget?.value} onChange={e => {
+            local.editComponent?.setWidget('value', e.target.value);
+          }} />
+          <Select></Select>
         </EditItem>
         <EditItem>
           attr
@@ -628,5 +644,6 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         </EditItem>
       </ScrollWrap>
     </div>}
-  </div>)}</Observer>
+  </div>)
+  }</Observer >
 }

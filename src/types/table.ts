@@ -1,4 +1,5 @@
 export type ITable = {
+  _id?: string;
   name: string;
   fields: { id: string; name: string }[];
 }
