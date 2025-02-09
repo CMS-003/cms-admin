@@ -58,6 +58,11 @@ code {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .hidden-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.ant-table-pagination.ant-pagination {
+  margin: 0;
 }

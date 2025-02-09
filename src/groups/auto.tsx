@@ -78,7 +78,7 @@ function getDiff(t: ITemplate | IComponent | null) {
   return results;
 }
 
-export function Component({ self, children, mode, isDragging, handler, setParentHovered, ...props }: { self: IComponent, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, props?: any }) {
   const local = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
@@ -148,7 +148,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             {/* <Acon icon='DragOutlined' /> */}
             <IconSVG src={icon_drag} />
           </Handler>
-          <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
+          <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} {...(props)}>
             <SortList
               listStyle={Object.fromEntries(self.style)}
               sort={(oldIndex: number, newIndex: number) => {
@@ -165,7 +165,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             />
           </Com>
         </EditWrap>
-          : <Com self={self} mode={mode} level={_.get(props, 'level', 1)} {...(props)}>
+          : <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} {...(props)}>
             <Fragment>
               {self.children.map(child => (<Component mode={mode} self={child} key={child._id} {...({ level: 2 })} />))}
             </Fragment>
