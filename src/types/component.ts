@@ -16,6 +16,7 @@ export type IComponent = {
   _id: string;
   parent_id: string;
   tree_id: string;
+  template_id: string;
   title: string;
   name: string;
   type: string;
@@ -31,7 +32,7 @@ export type IComponent = {
   attrs?: any;
   api?: string;
   resources?: IResource[];
-  widget?: { field: string, value: string, refer: string },
+  widget?: { field: string, value: string, refer: { label: string, value: string }[] },
 
   children: IComponent[];
   data?: IResource[];
@@ -50,6 +51,8 @@ export type IComponent = {
   swap: Function;
   swapResource: Function;
   toJSON: Function;
+  pushRefer: Function;
+  remRefer: Function;
 }
 
 export type IComponentType = {

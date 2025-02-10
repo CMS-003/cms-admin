@@ -33,9 +33,16 @@ import {
   SettingOutlined,
   CheckOutlined,
   HolderOutlined,
+  TrademarkCircleOutlined,
+  VideoCameraOutlined,
+  PictureOutlined,
+  FileImageOutlined,
+  FontSizeOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
+import caption from '@/asserts/images/caption.svg'
+import { IconSVG } from '../style';
 
 const icons = {
   home: HomeOutlined,
@@ -94,6 +101,12 @@ const icons = {
   CloudDownloadOutlined,
   download: CloudDownloadOutlined,
   holder: HolderOutlined,
+  TrademarkCircleOutlined,
+  Video: VideoCameraOutlined,
+  Image: PictureOutlined,
+  Album: FileImageOutlined,
+  Text: FontSizeOutlined,
+  Caption: () => <IconSVG src={caption} />
 }
 const Wrap = styled.span`
   cursor: pointer;

@@ -3,7 +3,6 @@ import { Observer, useLocalStore } from 'mobx-react';
 import { IJsonSchema } from '@/types/table';
 import { useEffectOnce } from 'react-use';
 import JsonSchemaEditor from '@/components/JsonSchemaEditor';
-import { toJS } from 'mobx';
 import { AlignAround } from '@/components/style';
 import { Button, message, Space } from 'antd';
 import { cloneDeep } from 'lodash';
@@ -54,9 +53,7 @@ export default function Page() {
         mainStyle={{ margin: '0 auto', width: '50%', minWidth: 800 }}
         data={local.schema}
         onChange={data => {
-          if (local.diffed) {
-            console.log(JSON.stringify(toJS(data), null, 2));
-          }
+          
         }} />
       <AlignAround style={{ height: 50, flex: 'none' }}>
         <Button type='primary' loading={local.isLoading} disabled={!local.diffed} onClick={async () => {

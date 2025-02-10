@@ -60,6 +60,15 @@ const ComponentTemplatePage: React.FC = () => {
       value: [],
     },
     {
+      field: 'type',
+      title: '类型',
+      type: 'string',
+      component: IEditorComponent.Select,
+      defaultValue: '',
+      autoFocus: false,
+      value: [{ name: '页面', value: 'page' }, { name: '表单', value: 'form' }],
+    },
+    {
       field: 'desc',
       title: '模板描述',
       type: 'string',

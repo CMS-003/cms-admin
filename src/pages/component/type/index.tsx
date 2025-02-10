@@ -82,6 +82,15 @@ const ComponentTypePage: React.FC = () => {
       autoFocus: false,
     },
     {
+      field: 'available',
+      title: '是否可用',
+      type: 'boolean',
+      component: IEditorComponent.Switch,
+      defaultValue: false,
+      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
+      autoFocus: false,
+    },
+    {
       field: 'status',
       title: '状态',
       type: 'number',

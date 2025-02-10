@@ -36,6 +36,9 @@ export default function EditPage({ isAdd, visible, fetch, fields, data, close, .
               if (item.type === 'number') {
                 data[item.field] = parseInt(data[item.field])
               }
+              if (item.type === 'boolean') {
+                data[item.field] = data[item.field] ? true : false;
+              }
             })
             await fetch({ body: data })
           } catch (e: any) {

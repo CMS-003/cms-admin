@@ -1,11 +1,34 @@
 import { IComponent } from '@/types/component'
 import { Select } from 'antd'
+import { Observer, useLocalStore } from 'mobx-react'
+import events from '@/utils/event';
 
 export default function ComponentSelect({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  return <div>
-    {self.title}
-    <Select style={{ marginLeft: 5 }}>
-      <Select.Option value="">全部</Select.Option>
-    </Select>
-  </div>
+  const local = useLocalStore(() => ({
+    open: false,
+  }))
+  return <Observer>{() => (
+    <div>
+      {self.title}
+      <Select
+        style={{ marginLeft: 5 }}
+        open={local.open}
+        defaultValue={self.widget?.value}
+        onChange={v => {
+          events.emit('setQuery', { page: self.template_id, field: self.widget?.field, value: v, force: true, template_id: self.template_id })
+        }}
+        onMouseDown={(e) => {
+          if (e.button === 0) {
+            setTimeout(() => {
+              local.open = !local.open
+            }, 200)
+          }
+        }}
+      >
+        {self.widget?.refer.map(t => (
+          <Select.Option key={t.value} value={t.value}>{t.label}</Select.Option>
+        ))}
+      </Select>
+    </div>
+  )}</Observer>
 }

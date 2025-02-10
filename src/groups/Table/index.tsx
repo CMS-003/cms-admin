@@ -8,21 +8,55 @@ import { useEffectOnce } from 'react-use'
 import apis from '@/api'
 import { useCallback, useEffect } from 'react'
 import { IResource } from '@/types'
+import events from '@/utils/event'
 
-export default function ComponentTable({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  const local: { loading: boolean, resources: IResource[], total: number, page: number, setResources: (resource: IResource[]) => void } = useLocalStore(() => ({
+export default function ComponentTable({ self, mode, children, level, setParentHovered }: { self: IComponent, mode: string, children?: any, level: number, setParentHovered?: Function }) {
+  const local: {
+    loading: boolean,
+    query: { [key: string]: string | number },
+    setQuery: Function,
+    getQuery: Function,
+    resources: IResource[],
+    total: number,
+    page: number,
+    setResources: (resource: IResource[]) => void
+  } = useLocalStore(() => ({
     resources: [],
     loading: false,
     total: 0,
     page: 1,
+    query: {},
     setResources(resources: IResource[]) {
       local.resources = resources;
+    },
+    setQuery(field: string, value: string | number) {
+      local.query[field] = value;
+    },
+    getQuery() {
+      return {
+        page: local.page,
+        ...local.query,
+      }
     }
   }));
+  const onSetQuery = useCallback((event: { field: string, value: string, force: boolean, template_id: string }) => {
+    if (self.template_id === event.template_id) {
+      local.setQuery(event.field, event.value);
+      if (event.force) {
+        init();
+      }
+    }
+  }, []);
+  useEffectOnce(() => {
+    events.on('setQuery', onSetQuery);
+    () => {
+      events.off('setQuery', onSetQuery);
+    }
+  })
   const init = useCallback(async () => {
-    if (self.api) {
+    if (self.api && mode === 'preview') {
       local.loading = true;
-      const resp = await apis.getList(self.api, { page: local.page });
+      const resp = await apis.getList(self.api, local.getQuery());
       if (resp.code === 0) {
         local.setResources(resp.data.items as IResource[]);
         local.total = resp.data.total || 0;
@@ -39,14 +73,19 @@ export default function ComponentTable({ self, mode, children, level }: { self: 
         loading={local.loading}
         pagination={{ total: local.total }}
         rowKey={'_id'}
-        dataSource={local.resources}
+        dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', }] : local.resources}
         onChange={p => {
           local.page = p.current as number;
           init();
         }}
-        columns={mode === 'edit'
-          ? [...self.children.map(child => ({ title: <Component self={child} mode={mode} key={child._id} />, key: child._id, dataIndex: self.widget?.field, render: (t: string, d: any) => d.name })), { title: <Acon icon="PlusOutlined" onClick={() => { self.appendChild('TableColumn') }} />, key: '', }]
-          : self.children.map(child => ({ title: child.title, key: child._id, dataIndex: self.widget?.field, render: (t: string, d: any) => <Observer>{() => <Component self={child} mode={mode} source={d} key={child._id} />}</Observer> }))} />
+        columns={self.children.map(child => ({
+          title: mode === 'edit' ? <Component self={child} mode={mode} key={child._id} setParentHovered={setParentHovered} /> : child.title,
+          key: child._id,
+          dataIndex: self.widget?.field,
+          render: (t: string, d: any) => (
+            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
+          )
+        }))} />
     </div>
   )}</Observer>
 }

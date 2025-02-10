@@ -70,7 +70,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
   })
   return (<Observer>{() => <Fragment>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
-      <FullWidthAuto className='hidden-scrollbar' style={{ flex: '140px 0 0', height: '100%', overflow: 'auto' }}>
+      <FullWidthAuto className='hidden-scrollbar' style={{ display: local.mode === 'edit' ? 'flex' : 'none', flex: '140px 0 0', height: '100%', overflow: 'auto' }}>
         <Wrap>
           {[{ value: 'container', label: '容器' }, { value: 'widget', label: '控件' }, { value: 'component', label: '组件' }].map(t => (<div key={t.value} style={{ marginTop: 10, marginLeft: 5, position: 'relative', overflow: 'hidden', border: '1px solid #ccc' }}>
             <div>{t.label}</div>

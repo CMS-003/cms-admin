@@ -63,7 +63,7 @@ export const ComponentItem = types.model('Component', {
   widget: types.maybe(types.model({
     field: types.optional(types.string, ''),
     value: types.optional(types.string, ''),
-    refer: types.optional(types.string, ''),
+    refer: types.optional(types.array(types.model({ value: types.string, label: types.string })), []),
   })),
   accepts: types.optional(types.array(types.string), []),
   api: types.optional(types.string, ''),
@@ -92,6 +92,12 @@ export const ComponentItem = types.model('Component', {
     if (self.widget) {
       self.widget[k] = v;
     }
+  },
+  pushRefer(t: { label: string, value: string }) {
+    self.widget?.refer.push(t);
+  },
+  remRefer(n: number) {
+    self.widget?.refer.splice(n, 1);
   },
   setAttrs(key: string, value: string | number | null) {
     if (value === null) {
@@ -129,7 +135,7 @@ export const ComponentItem = types.model('Component', {
       order: self.children.length,
       status: 1,
       api: '',
-      widget: {},
+      widget: { field: '', value: '', refer: [] },
       createdAt: new Date(),
       updatedAt: new Date(),
       accepts: self.toJSON().accepts,

@@ -13,9 +13,7 @@ const MenuItem = styled.div`
 `
 export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <div>
-    <MenuItem className={mode}><Acon icon={self.icon as Icon} />{self.title}{mode === 'edit' && <Acon icon='add' style={{ marginLeft: 15 }} onClick={() => {
-      self.appendChild('MenuItem')
-    }} />}</MenuItem>
+    <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
     <div style={{ paddingLeft: 10 * level }}>
       {children}
     </div>

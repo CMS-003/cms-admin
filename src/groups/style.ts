@@ -48,7 +48,15 @@ export const EditWrap = styled.div`
     visibility: visible;
   }
   &.delete {
-    background-color: #333;
+    background: repeating-linear-gradient(
+      45deg, 
+      gray 0px, 
+      gray 10px, 
+      white 10px, 
+      white 20px
+    );
+    background-clip: padding-box;
+    opacity: 0.6;
   }
   border: 1px dashed transparent;
   &.focus {
@@ -108,8 +116,16 @@ export const Handler = styled.div`
   bottom: 0px;
   top: 0px;
   cursor: move !important;
+  background-color: #cc000040;
   visibility: hidden;
   display: flex; 
   align-items: center;
-  height: 100%; 
+  height: 100%;
+  &::after {
+    height: 100%;
+    content: '';
+    margin-right: -1px;
+    border-right: 1px dashed #df3540;
+    z-index: 2;
+  }
 `;

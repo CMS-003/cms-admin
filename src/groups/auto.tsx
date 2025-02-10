@@ -2,8 +2,8 @@ import { ITemplate, IComponent, IResource } from '@/types'
 import { Observer, useLocalStore } from 'mobx-react'
 import { EditWrap, TemplateBox, EditItem, Handler, ConerLB, ConerRB, ConerLT, ConerRT, } from './style'
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
-import { AlignAside, IconSVG } from '@/components/style'
-import { Input, message, Select, Button, Divider } from 'antd'
+import { AlignAround, AlignAside, IconSVG } from '@/components/style'
+import { Input, message, Select, Button, Divider, Tag, Space } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
 import { ComponentItem } from '@/store/component';
@@ -28,6 +28,7 @@ import PickCard from './Card'
 import RandomCard from './Random'
 import SearchBtn from './SearchBtn'
 import IconBtn from './Image'
+import CText from './Text'
 import CButton from './Button'
 import CSelect from './Select'
 import CInput from './Input'
@@ -51,6 +52,7 @@ const BaseComponent = {
   RandomCard,
   SearchBtn,
   IconBtn,
+  Text: CText,
   Button: CButton,
   Input: CInput,
   Select: CSelect,
@@ -148,7 +150,9 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             {/* <Acon icon='DragOutlined' /> */}
             <IconSVG src={icon_drag} />
           </Handler>
-          <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} {...(props)}>
+          <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
+                local.setIsMouseOver(is);
+              }} {...(props)}>
             <SortList
               listStyle={Object.fromEntries(self.style)}
               sort={(oldIndex: number, newIndex: number) => {
@@ -319,21 +323,23 @@ const ScrollWrap = styled.div`
   }
 `
 
-export default function Page({ template_id, mode, ...props }: { template_id: string, props?: any, mode: string, }) {
+export default function Page({ template_id, mode, ...props }: { template_id: string, mode: string, [key: string]: any }) {
   const local = useLocalStore<{
     editComponent: IComponent | null
     template: ITemplate | null,
     isDragOver: boolean,
     loading: boolean,
+    addWidgetReferVisible: boolean,
     setLoading: (is: boolean) => void,
     onDragOver: any,
     onDragLeave: any,
     onDrop: any,
-    remComponent: Function
+    remComponent: Function,
   }>(() => ({
     editComponent: null,
     loading: true,
     template: null,
+    addWidgetReferVisible: false,
     isDragOver: false,
     onDrop: (e: any) => {
       e.preventDefault();
@@ -399,6 +405,9 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
       const { children, ...template } = resp.data as ITemplate;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
+      if (props && props.setTitle) {
+        (props.setTitle as any)(local.template.title)
+      }
       // 更新编辑中的数据
       if (local.editComponent) {
         const stack = components.map(c => c);
@@ -600,7 +609,30 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
           <Input addonBefore="默认值" value={local.editComponent.widget?.value} onChange={e => {
             local.editComponent?.setWidget('value', e.target.value);
           }} />
-          <Select></Select>
+          <Divider type="horizontal" style={{ margin: 5 }} />
+          <Space direction='vertical'>
+            {local.editComponent.widget?.refer.map((w, n) => (
+              <Input key={w.value} addonBefore={w.label} value={w.value} addonAfter={<Acon icon='close' onClick={() => local.editComponent?.remRefer(n)} />} />
+            ))}
+            <AlignAround>
+              {local.addWidgetReferVisible
+                ? <Fragment>
+                  <Input />
+                  <Input />
+                  <Acon icon='check' onClick={e => {
+                    const op = e.currentTarget.parentElement;
+                    if (op && local.editComponent) {
+                      const oinputs = op.getElementsByTagName('input');
+                      if (oinputs?.length === 2) {
+                        local.editComponent.pushRefer({ label: oinputs[0].value, value: oinputs[1].value });
+                      }
+                      local.addWidgetReferVisible = false
+                    }
+                  }} />
+                </Fragment>
+                : <Acon icon='add' onClick={() => local.addWidgetReferVisible = true} />}
+            </AlignAround>
+          </Space>
         </EditItem>
         <EditItem>
           attr

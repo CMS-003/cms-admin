@@ -17,7 +17,7 @@ export function transform(tree: any, collapsed = true) {
   const node: any = { label: tree.title, key: path || tree._id, children: [] }
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key
-  node.icon = <Acon icon={tree.icon} />
+  node.icon = <Acon icon={tree.icon} style={{ marginRight: 5 }} />
   if (collapsed) {
     node.label = null;
   }
