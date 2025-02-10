@@ -8,7 +8,7 @@ const Layout = styled.div`
   min-height: 30px;
 `
 export default function ComponentLayout({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  return <Layout style={{ flexDirection: self.attrs.get("layout") === 'horizon' ? 'row' : 'column', ...Object.fromEntries(self.style) }} id={self._id}>
+  return <Layout style={{ flexDirection: self.attrs.get("layout") === 'horizon' || !self.attrs.get('layout') ? 'row' : 'column', ...Object.fromEntries(self.style) }} id={self._id}>
     {children}
   </Layout>
 }

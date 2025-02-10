@@ -222,7 +222,7 @@ const componentList = types.model({
     if (!type) {
       return false;
     }
-    const result = type.accepts.length === 0 || type.accepts.includes(from);
+    const result = type.accepts.includes(from) || type.accepts.includes('all');
     return result;
   },
   async fetch() {
