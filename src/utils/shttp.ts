@@ -189,6 +189,11 @@ class Request<T> {
           }
           if (body.data && _.isArray(body.data.list)) {
             body.data.items = body.data.list
+          } else if (_.isArray(body.data)) {
+            body.data = {
+              items: body.data,
+              total: 0,
+            }
           }
           //数据请求正确 使用resolve将结果返回
           resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));

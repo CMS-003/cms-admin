@@ -87,7 +87,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
             <Router />
           </div>
         </Content>
-        <div style={{ textAlign: 'center', padding: 10 }}>Ant Design ©2018 Created by Ant UED</div>
+        {/* <div style={{ textAlign: 'center', padding: 10 }}>Ant Design ©2018 Created by Ant UED</div> */}
       </Layout>
     </Layout >
   );

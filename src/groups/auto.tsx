@@ -113,7 +113,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
   }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
-    const direction = self.type === 'Tab' || self.style.get('flexDirection') === 'row' || self.attrs.get('layout') === 'horizon' ? 'horizontal' : 'vertical';
+    const direction = ['Tab'].includes(self.type) || self.style.get('flexDirection') === 'row' || self.attrs.get('layout') === 'horizon' || (self.type === 'Layout' && !self.attrs.get('layout')) ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
         mode === 'edit' ? <EditWrap
@@ -533,7 +533,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         }</Observer >
       </div>
     </div>
-    {local.editComponent && <div className='hidden-scroll' key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: '5%', marginRight: '-5%' }}>
+    {local.editComponent && <div className='hidden-scroll' key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: '5%', marginRight: mode === 'edit' ? '-5%' : '' }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({local.editComponent.type})</span>
         <Acon icon='CloseOutlined' onClick={() => {
@@ -618,8 +618,8 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
             <AlignAround>
               {local.addWidgetReferVisible
                 ? <Fragment>
-                  <Input />
-                  <Input />
+                  <Input addonBefore='名称' />
+                  <Input addonBefore='值' />
                   <Acon icon='check' onClick={e => {
                     const op = e.currentTarget.parentElement;
                     if (op && local.editComponent) {
