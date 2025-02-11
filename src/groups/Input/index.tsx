@@ -5,7 +5,7 @@ import { Observer } from 'mobx-react'
 
 export default function SearchBtn({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
   return <Observer>{() => (
-    <div style={{ ...Object.fromEntries(self.style) }}>
+    <div style={self.style}>
       <Input />
     </div>
   )}</Observer>

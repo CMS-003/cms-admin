@@ -7,7 +7,7 @@ const Layout = styled.div`
   flex-direction: row;
 `
 export default function ComponentLayout({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
-  return <Layout style={{ minHeight: mode === 'edit' ? 35 : 'unset', flexDirection: self.attrs.get("layout") === 'horizon' || !self.attrs.get('layout') ? 'row' : 'column', ...Object.fromEntries(self.style) }} id={self._id}>
+  return <Layout style={{ minHeight: mode === 'edit' ? 35 : 'unset', flexDirection: self.attrs.get("layout") === 'horizon' || !self.attrs.get('layout') ? 'row' : 'column', ...self.style }} id={self._id}>
     {children}
   </Layout>
 }

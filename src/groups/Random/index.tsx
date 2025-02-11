@@ -19,7 +19,7 @@ const Content = styled.div`
 `
 export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
   return <Observer>{() => (
-    <div style={Object.fromEntries(self.style)}>
+    <div style={self.style}>
       <Header>
         {self.title}
       </Header>

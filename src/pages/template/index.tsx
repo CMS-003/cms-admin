@@ -83,7 +83,7 @@ const ComponentTemplatePage: React.FC = () => {
       type: 'boolean',
       component: IEditorComponent.Switch,
       defaultValue: false,
-      value: [{ name: '可用', value: 1 }, { name: '不可用', value: 0 }],
+      value: [{ name: '可用', value: true }, { name: '不可用', value: false }],
       autoFocus: false,
     },
     {
@@ -171,6 +171,7 @@ const ComponentTemplatePage: React.FC = () => {
       <Table pagination={false} rowKey="_id" dataSource={local.list} >
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
+        <Table.Column title="序号" dataIndex="order" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <Acon icon="FormOutlined" onClick={

@@ -43,7 +43,7 @@ export type IComponent = {
   setAttr: Function;
   setWidget: Function;
   setAttrs: Function;
-  setStyle: Function;
+  updateStyle: Function;
   appendChild: Function;
   removeChild: Function;
   addResource: Function;
@@ -82,7 +82,7 @@ export type IEditorField = {
   component: IEditorComponent;
   defaultValue: string | boolean | number;
   autoFocus?: boolean;
-  value: { value: string | number, name: string }[];
+  value: { value: string | number |boolean, name: string }[];
   fetch?: Function;
 }
 export type IWidget = {

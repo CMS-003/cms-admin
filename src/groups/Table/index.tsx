@@ -72,7 +72,7 @@ export default function ComponentTable({ self, mode, children, level, setParentH
     init();
   })
   return <Observer>{() => (
-    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...Object.fromEntries(self.style || {}) }}>
+    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...self.style }}>
       <Table
         loading={local.loading}
         pagination={{ total: local.total, pageSize: local.page_size }}

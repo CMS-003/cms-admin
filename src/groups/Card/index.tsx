@@ -66,7 +66,7 @@ export default function ComponentCard({ self, mode, children }: { self: ICompone
     }
   }))
   return <Observer>{() => (
-    <div style={Object.fromEntries(self.style)}>
+    <div style={self.style || {}}>
       <Header>
         {self.title}
       </Header>

@@ -58,7 +58,7 @@ export const ComponentItem = types.model('Component', {
   status: types.optional(types.number, 1),
   createdAt: types.maybe(IsoDate),
   updatedAt: types.maybe(IsoDate),
-  style: types.map(types.union(types.string, types.number)),
+  style: types.optional(types.frozen(), {}),
   attrs: types.map(types.union(types.string, types.number)),
   widget: types.maybe(types.model({
     field: types.optional(types.string, ''),
@@ -106,17 +106,13 @@ export const ComponentItem = types.model('Component', {
       self.attrs.set(key, value)
     }
   },
-  setStyle(key: string, value: string | number | null) {
-    if (value === null) {
-      self.style.delete(key)
-    } else {
-      self.style.set(key, value)
-    }
+  updateStyle(s: { [key: string]: number | string }) {
+    self.style = s;
   },
   appendChild(type: string) {
     let attrs: any = {};
     if (type === 'MenuItem') {
-      attrs.path = '/page'
+      attrs.path = '/dynamic'
     }
     self.children.push(ComponentItem.create({
       $origin: {},

@@ -13,7 +13,7 @@ export default function ComponentFilter({ self, mode, children, setParentHovered
         <FullHeightFix style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           {mode === 'edit' ? <>
             <SortList
-              listStyle={Object.fromEntries(self.style)}
+              listStyle={self.style || {}}
               sort={(oldIndex: number, newIndex: number) => {
                 self.swap(oldIndex, newIndex);
               }}
@@ -25,7 +25,7 @@ export default function ComponentFilter({ self, mode, children, setParentHovered
               renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
             <div style={{ width: '100%' }}>
-              <Acon icon='PlusCircleOutlined' size={30} onClick={() => {
+              <Acon icon='PlusCircleOutlined' size={18} onClick={() => {
                 self.appendChild('FilterRow')
               }} />
             </div>

@@ -26,7 +26,6 @@ import FilterTag from './FilterTag'
 import Layout from './Layout'
 import PickCard from './Card'
 import RandomCard from './Random'
-import SearchBtn from './SearchBtn'
 import IconBtn from './Image'
 import CText from './Text'
 import CButton from './Button'
@@ -51,7 +50,6 @@ const BaseComponent = {
   Layout,
   PickCard,
   RandomCard,
-  SearchBtn,
   IconBtn,
   Text: CText,
   Button: CButton,
@@ -113,7 +111,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
   }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
-    const direction = ['Tab'].includes(self.type) || self.style.get('flexDirection') === 'row' || self.attrs.get('layout') === 'horizon' || (self.type === 'Layout' && !self.attrs.get('layout')) ? 'horizontal' : 'vertical';
+    const direction = ['Tab'].includes(self.type) || self.style.flexDirection === 'row' || self.attrs.get('layout') === 'horizon' || (self.type === 'Layout' && !self.attrs.get('layout')) ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
         mode === 'edit' ? <EditWrap
@@ -155,7 +153,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             local.setIsMouseOver(is);
           }} {...(props)}>
             <SortList
-              listStyle={Object.fromEntries(self.style)}
+              listStyle={self.style || {}}
               sort={(oldIndex: number, newIndex: number) => {
                 self.swap(oldIndex, newIndex);
               }}
@@ -657,17 +655,10 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
         </EditItem>
         <EditItem>
           样式
-          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onChange={e => {
+          <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onBlur={e => {
             try {
               const style = JSON.parse(e.target.value)
-              const keys = Array.from(local.editComponent?.style).map((v: any) => v[0])
-              const new_keys = Object.keys(style);
-              for (let k in style) {
-                local.editComponent?.setStyle(k, style[k])
-              }
-              _.difference(keys, new_keys).forEach(k => {
-                local.editComponent?.setStyle(k, null)
-              })
+              local.editComponent?.updateStyle(style);
             } catch (e) {
 
             } finally {
