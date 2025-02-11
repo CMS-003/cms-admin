@@ -24,8 +24,8 @@ export default function ComponentFilter({ self, mode, children, setParentHovered
               direction={'vertical'}
               renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
-            <div>
-              <Acon icon='PlusCircleOutlined' size={48} onClick={() => {
+            <div style={{ width: '100%' }}>
+              <Acon icon='PlusCircleOutlined' size={30} onClick={() => {
                 self.appendChild('FilterRow')
               }} />
             </div>

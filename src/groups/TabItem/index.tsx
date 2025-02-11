@@ -4,10 +4,7 @@ import styled from 'styled-components'
 import store from '@/store'
 
 export const TabItemWrap = styled.div`
-  min-height: 300px;
-  &.edit:hover {
-    box-shadow: inset rgb(41, 172, 233) 0px 0px 8px 0px;
-  }
+  height: 100%;
   &.delete {
     background-color: #333;
   }

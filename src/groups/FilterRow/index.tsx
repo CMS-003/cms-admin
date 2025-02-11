@@ -5,6 +5,7 @@ import Acon from '@/components/Acon'
 import SortList from '@/components/SortList'
 import { Observer } from 'mobx-react'
 import { ScrollWrap } from '../style'
+import { useEffectOnce } from 'react-use'
 
 const Wrap = styled.div`
   display: flex;
@@ -18,6 +19,13 @@ const Wrap = styled.div`
 `
 
 export default function ComponentFilterRow({ self, mode, children, setParentHovered }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function }) {
+  useEffectOnce(() => {
+    self.children.forEach(child => {
+      if (child.attrs.get('selected')) {
+        child.setAttr('$selected', true)
+      }
+    })
+  })
   return <Observer>
     {() => (
       <Wrap key={self.children.length}>

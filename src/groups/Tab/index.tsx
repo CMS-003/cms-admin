@@ -1,5 +1,5 @@
 import { Tabs } from "antd";
-import { Observer } from "mobx-react";
+import { Observer, useLocalStore } from "mobx-react";
 import { IComponent } from '@/types/component';
 import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
@@ -7,8 +7,9 @@ import SortList from '@/components/SortList/';
 import TabItem from "../TabItem";
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { TemplatePage } from '../auto'
+import { useEffectOnce } from "react-use";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -37,8 +38,11 @@ export default function TagPage({ self, mode, children, setParentHovered }: { se
     {() => (
       <TabWrap>
         <Tabs
-          defaultActiveKey={self.attrs.get('selected_id')}
+          activeKey={self.attrs.get('selected_id')}
           tabBarExtraContent={{ right: <Acon icon={(self.icon as Icon) || 'BarsOutlined'} /> }}
+          onChange={activeKey => {
+            self.setAttrs('selected_id', activeKey)
+          }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
               onContextMenu={e => {
@@ -67,7 +71,7 @@ export default function TagPage({ self, mode, children, setParentHovered }: { se
                     itemStyle={{ display: 'flex', alignItems: 'center' }}
                     mode={mode}
                     direction={'vertical'}
-                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered}/>}
+                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered} />}
                   />
                 </TabItem> : <Component mode={mode} self={child} key={child._id} />
             )
