@@ -6,7 +6,7 @@ import { Component } from '../auto'
 import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 
-export default function ComponentFilter({ self, mode, children, ...props }: { self: IComponent, mode: string, children?: any, props?: any }) {
+export default function ComponentFilter({ self, mode, children, setParentHovered, ...props }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function, props?: any }) {
   return <Observer>
     {() => (
       <FullHeight key={self.children.length}>
@@ -22,7 +22,7 @@ export default function ComponentFilter({ self, mode, children, ...props }: { se
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={'vertical'}
-              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
             <div>
               <Acon icon='PlusCircleOutlined' size={48} onClick={() => {

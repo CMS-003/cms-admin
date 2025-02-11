@@ -63,6 +63,19 @@ code {
   display: none;
 }
 
-.ant-table-pagination.ant-pagination {
-  margin: 0;
+/* 覆盖antd表格样式 */
+.ant-table-wrapper,
+.ant-spin-nested-loading,
+.ant-spin-container {
+  height: 100%;
+}
+
+.ant-spin-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-table {
+  flex: 1;
+  overflow: auto;
 }

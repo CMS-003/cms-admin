@@ -32,6 +32,7 @@ import CText from './Text'
 import CButton from './Button'
 import CSelect from './Select'
 import CInput from './Input'
+import CIcon from './Icon'
 import Table from './Table'
 import TableColumn from './TableColumn'
 import { toJS } from 'mobx';
@@ -56,6 +57,7 @@ const BaseComponent = {
   Button: CButton,
   Input: CInput,
   Select: CSelect,
+  Icon: CIcon,
   Table,
   TableColumn,
 }
@@ -146,13 +148,12 @@ export function Component({ self, children, mode, isDragging, handler, setParent
           <ConerRB className='coner' />
           <ConerLT className='coner' />
           <ConerRT className='coner' />
-          <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
-            {/* <Acon icon='DragOutlined' /> */}
+          <Handler {...handler} className='hover' data-drag={isDragging}>
             <IconSVG src={icon_drag} />
           </Handler>
           <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
-                local.setIsMouseOver(is);
-              }} {...(props)}>
+            local.setIsMouseOver(is);
+          }} {...(props)}>
             <SortList
               listStyle={Object.fromEntries(self.style)}
               sort={(oldIndex: number, newIndex: number) => {
@@ -506,7 +507,7 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
               onDragLeave={local.onDragLeave}
               onDrop={local.onDrop}
               className={`${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-              style={toJS(local.template?.style)}
+              style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
               {mode === 'edit' ? <SortList
                 listStyle={{}}

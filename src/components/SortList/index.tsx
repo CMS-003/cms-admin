@@ -59,6 +59,7 @@ export default function SortList({
               ...listStyle,
               display: 'flex',
               height: '100%',
+              width: '100%',
               flexDirection: direction === 'horizontal' || listStyle.flexDirection === 'row' ? 'row' : 'column',
               flex: listStyle.flex !== undefined ? listStyle.flex : 'auto',
               backgroundColor: snapshot.isDraggingOver ? '#fefefe' : 'transparent',
@@ -90,7 +91,7 @@ export default function SortList({
                       style={{
                         ...style,
                         ...itemStyle,
-                        ...item.style,
+                        ...Object.fromEntries(item.style || {}),
                         // flex 解决嵌套时的样式问题
                         // flex: item.style && Object.fromEntries(item.style).flex || '',
                       }}>

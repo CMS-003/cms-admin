@@ -17,7 +17,7 @@ const Wrap = styled.div`
   }
 `
 
-export default function ComponentFilterRow({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function ComponentFilterRow({ self, mode, children, setParentHovered }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function }) {
   return <Observer>
     {() => (
       <Wrap key={self.children.length}>
@@ -31,7 +31,7 @@ export default function ComponentFilterRow({ self, mode, children }: { self: ICo
             itemStyle={{ display: 'flex', alignItems: 'center', }}
             mode={mode}
             direction={'horizontal'}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
+            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered} />}
           />
           <Acon icon='PlusCircleOutlined' onClick={() => {
             self.appendChild('FilterTag')

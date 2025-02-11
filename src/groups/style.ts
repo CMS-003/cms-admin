@@ -20,15 +20,25 @@ export const EditWrap = styled.div`
   &.preview > div {
     height: 100%;
   }
+  // 为拖拽handler提供位置
   &.edit {
     padding-left: 20px;
   }
+  // 鼠标悬浮时显示整个组件的形状和handler
   &.edit.hover {
     border: 1px dashed #df3540;
+    &>div.hover {
+      background-color: #cc000040;
+      &::after {
+        height: 100%;
+        content: '';
+        margin-right: -1px;
+        border-right: 1px dashed #df3540;
+        z-index: 2;
+      }    
+    }
   }
-  &.edit.hover > div {
-    visibility: visible;
-  }
+  // 显示组件位置的四个角定位
   &.edit .coner {
     position: absolute;
     z-index: 2;
@@ -47,6 +57,7 @@ export const EditWrap = styled.div`
   &.focus > .coner, &.edit.hover > .coner {
     visibility: visible;
   }
+  // 被删除组件的背景
   &.delete {
     background: repeating-linear-gradient(
       45deg, 
@@ -59,11 +70,13 @@ export const EditWrap = styled.div`
     opacity: 0.6;
   }
   border: 1px dashed transparent;
+
+  // 编辑状态形状显示为蓝色
   &.focus {
     border-color: #1890ff;
   }
   &.dragover {
-    background-color: green;
+    background-color: #7cd77f;
   }
   &.cantdrag {
     background-color: #df3540;
@@ -115,17 +128,19 @@ export const Handler = styled.div`
   left: 0px;
   bottom: 0px;
   top: 0px;
+  // visibility: hidden;
   cursor: move !important;
-  background-color: #cc000040;
-  visibility: hidden;
   display: flex; 
   align-items: center;
   height: 100%;
-  &::after {
-    height: 100%;
-    content: '';
-    margin-right: -1px;
-    border-right: 1px dashed #df3540;
-    z-index: 2;
-  }
+  // &.hover {
+  //   background-color: #cc000040;
+  //   &::after {
+  //     height: 100%;
+  //     content: '';
+  //     margin-right: -1px;
+  //     border-right: 1px dashed #df3540;
+  //     z-index: 2;
+  //   }
+  // }
 `;

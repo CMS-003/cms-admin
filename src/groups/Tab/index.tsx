@@ -32,13 +32,13 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function TagPage({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function TagPage({ self, mode, children, setParentHovered }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function }) {
   return <Observer>
     {() => (
       <TabWrap>
         <Tabs
           defaultActiveKey={self.attrs.get('selected_id')}
-          tabBarExtraContent={{ right: <Acon icon={self.icon as Icon} /> || <Acon icon='BarsOutlined' /> }}
+          tabBarExtraContent={{ right: <Acon icon={(self.icon as Icon) || 'BarsOutlined'} /> }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
               onContextMenu={e => {
@@ -50,21 +50,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
                   props: child
                 });
               }}>
-              <Acon icon='LeftOutlined' hidden={mode === 'preview'} onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                if (i > 0) {
-                  self.swap(i, i - 1)
-                }
-              }} />
               {child.title}
-              <Acon icon='RightOutlined' hidden={mode === 'preview'} onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                if (i < self.children.length - 1) {
-                  self.swap(i, i + 1)
-                }
-              }} />
             </TabItemWrap>,
             key: child._id,
             children: (
@@ -81,7 +67,7 @@ export default function TagPage({ self, mode, children }: { self: IComponent, mo
                     itemStyle={{ display: 'flex', alignItems: 'center' }}
                     mode={mode}
                     direction={'vertical'}
-                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} />}
+                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered}/>}
                   />
                 </TabItem> : <Component mode={mode} self={child} key={child._id} />
             )

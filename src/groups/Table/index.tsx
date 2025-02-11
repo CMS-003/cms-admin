@@ -9,6 +9,7 @@ import apis from '@/api'
 import { useCallback, useEffect } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
+// import Table from 'rc-table';
 
 export default function ComponentTable({ self, mode, children, level, setParentHovered }: { self: IComponent, mode: string, children?: any, level: number, setParentHovered?: Function }) {
   const local: {
@@ -19,12 +20,14 @@ export default function ComponentTable({ self, mode, children, level, setParentH
     resources: IResource[],
     total: number,
     page: number,
+    page_size: number,
     setResources: (resource: IResource[]) => void
   } = useLocalStore(() => ({
     resources: [],
     loading: false,
     total: 0,
     page: 1,
+    page_size: 20,
     query: {},
     setResources(resources: IResource[]) {
       local.resources = resources;
@@ -35,6 +38,7 @@ export default function ComponentTable({ self, mode, children, level, setParentH
     getQuery() {
       return {
         page: local.page,
+        page_size: local.page_size,
         ...local.query,
       }
     }
@@ -68,14 +72,16 @@ export default function ComponentTable({ self, mode, children, level, setParentH
     init();
   })
   return <Observer>{() => (
-    <div style={{ display: 'flow-root', ...Object.fromEntries(self.style) }}>
+    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...Object.fromEntries(self.style || {}) }}>
       <Table
         loading={local.loading}
-        pagination={{ total: local.total }}
+        pagination={{ total: local.total, pageSize: local.page_size }}
         rowKey={'_id'}
+        sticky={true}
         dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', }] : local.resources}
         onChange={p => {
-          local.page = p.current as number;
+          local.page = p.pageSize !== local.page_size ? 1 : p.current as number;
+          local.page_size = p.pageSize as number;
           init();
         }}
         columns={self.children.map(child => ({
@@ -86,6 +92,18 @@ export default function ComponentTable({ self, mode, children, level, setParentH
             child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
           )
         }))} />
+      {/* <Table
+        rowKey="_id"
+        columns={self.children.map(child => ({
+          title: mode === 'edit' ? <Component self={child} mode={mode} key={child._id} setParentHovered={setParentHovered} /> : child.title,
+          key: child._id,
+          dataIndex: self.widget?.field || '_id',
+          render: (t: string, d: any) => (
+            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
+          )
+        }))}
+        data={mode === 'edit' ? [] : local.resources}
+      /> */}
     </div>
   )}</Observer>
 }
