@@ -214,11 +214,11 @@ const componentList = types.model({
     self.types = items as IMSTArray<typeof ComponentTypeItem>;
   },
   canDrop(from: string, to: string) {
-    const type = self.types.find(it => it.name === to);
-    if (!type) {
+    const com = self.types.find(it => it.name === to);
+    if (!com) {
       return false;
     }
-    const result = type.accepts.includes(from) || type.accepts.includes('all');
+    const result = com.accepts.includes(from) || com.accepts.includes('all');
     return result;
   },
   async fetch() {

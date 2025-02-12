@@ -78,15 +78,6 @@ const ComponentTemplatePage: React.FC = () => {
       value: [],
     },
     {
-      field: 'available',
-      title: '是否可用',
-      type: 'boolean',
-      component: IEditorComponent.Switch,
-      defaultValue: false,
-      value: [{ name: '可用', value: true }, { name: '不可用', value: false }],
-      autoFocus: false,
-    },
-    {
       field: 'order',
       title: '序号',
       type: 'number',
@@ -124,7 +115,7 @@ const ComponentTemplatePage: React.FC = () => {
     },
   ])
   const refresh = useCallback(async () => {
-    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId, type: 'page' } })
+    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
     if (result.code === 0) {
       local.list = result.data.items
     }
@@ -172,6 +163,7 @@ const ComponentTemplatePage: React.FC = () => {
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
         <Table.Column title="序号" dataIndex="order" />
+        <Table.Column title="类型" dataIndex="type" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <Acon icon="FormOutlined" onClick={

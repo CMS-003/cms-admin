@@ -1,64 +1,33 @@
-import { ITemplate, IComponent, IResource } from '@/types'
-import { Observer, useLocalStore } from 'mobx-react'
-import { EditWrap, TemplateBox, EditItem, Handler, ConerLB, ConerRB, ConerLT, ConerRT, } from './style'
-import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
-import { AlignAround, AlignAside, IconSVG } from '@/components/style'
-import { Input, message, Select, Button, Divider, Tag, Space } from 'antd'
-import Acon from '@/components/Acon';
-import "react-contexify/dist/ReactContexify.css";
-import { ComponentItem } from '@/store/component';
-import SortList from '@/components/SortList/';
-import store from '@/store'
-import _ from 'lodash'
-import { CSSProperties, useCallback } from 'react';
-import apis from '@/api'
+import { Fragment, useCallback } from 'react';
 import { useEffectOnce } from 'react-use';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import icon_drag from '@/asserts/images/drag.svg'
-
-import Menu from './Menu'
-import MenuItem from './MenuItem'
-import Tab from './Tab'
-import TabItem from './TabItem'
-import Filter from './Filter'
-import FilterRow from './FilterRow'
-import FilterTag from './FilterTag'
-import Layout from './Layout'
-import PickCard from './Card'
-import RandomCard from './Random'
-import IconBtn from './Image'
-import CText from './Text'
-import CButton from './Button'
-import CSelect from './Select'
-import CInput from './Input'
-import CIcon from './Icon'
-import Table from './Table'
-import TableColumn from './TableColumn'
 import { toJS } from 'mobx';
-import { Fragment } from 'react';
+import { Observer, useLocalStore } from 'mobx-react'
+import { Input, message, Button, Divider, Space } from 'antd'
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import "react-contexify/dist/ReactContexify.css";
+import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
+import _ from 'lodash'
+import apis from '@/api'
+import store from '@/store'
 import events from '@/utils/event';
 import styled from 'styled-components';
+import { ComponentItem } from '@/store/component';
+import icon_drag from '@/asserts/images/drag.svg'
+import { Acon, SortList, Style } from '@/components/index';
+import { ITemplate, IComponent, IResource } from '@/types'
+import BaseComponent from './index';
+import {
+  EditWrap,
+  TemplateBox,
+  EditItem,
+  Handler,
+  ConerLB,
+  ConerRB,
+  ConerLT,
+  ConerRT,
+} from './style'
 
-const BaseComponent = {
-  Menu,
-  MenuItem,
-  Tab,
-  TabItem,
-  Filter,
-  FilterRow,
-  FilterTag,
-  Layout,
-  PickCard,
-  RandomCard,
-  IconBtn,
-  Text: CText,
-  Button: CButton,
-  Input: CInput,
-  Select: CSelect,
-  Icon: CIcon,
-  Table,
-  TableColumn,
-}
+const { AlignAround, AlignAside, IconSVG } = Style;
 
 function getDiff(t: ITemplate | IComponent | null) {
   if (!t) {
@@ -81,29 +50,30 @@ function getDiff(t: ITemplate | IComponent | null) {
 }
 
 export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, props?: any }) {
-  const local = useLocalStore(() => ({
+  // 拖拽事件
+  const dragStore = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
     onDrop: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
-      local.isDragOver = false;
+      dragStore.isDragOver = false;
       if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
         self.appendChild(store.app.dragingType)
       }
     },
     onDragLeave: () => {
-      local.isDragOver = false;
+      dragStore.isDragOver = false;
     },
     onDragOver: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!local.isDragOver) {
-        local.isDragOver = true;
+      if (!dragStore.isDragOver) {
+        dragStore.isDragOver = true;
       }
     },
     setIsMouseOver(is: boolean) {
-      local.isMouseOver = is;
+      dragStore.isMouseOver = is;
     }
   }))
   if (self.status === 0 && mode === 'preview') {
@@ -126,21 +96,21 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             });
           }}
           onMouseEnter={() => {
-            local.setIsMouseOver(true);
+            dragStore.setIsMouseOver(true);
             if (setParentHovered) {
               setParentHovered(false)
             }
           }}
           onMouseLeave={() => {
-            local.setIsMouseOver(false);
+            dragStore.setIsMouseOver(false);
             if (setParentHovered) {
               setParentHovered(true)
             }
           }}
-          onDragOver={local.onDragOver}
-          onDragLeave={local.onDragLeave}
-          onDrop={local.onDrop}
-          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${local.isMouseOver ? 'hover' : ''} ${store.app.dragingType && local.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? 'dragover' : 'cantdrag') : ''}`}
+          onDragOver={dragStore.onDragOver}
+          onDragLeave={dragStore.onDragLeave}
+          onDrop={dragStore.onDrop}
+          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${dragStore.isMouseOver ? 'hover' : ''} ${store.app.dragingType && dragStore.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? 'dragover' : 'cantdrag') : ''}`}
         >
           <ConerLB className='coner' />
           <ConerRB className='coner' />
@@ -150,7 +120,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             <IconSVG src={icon_drag} />
           </Handler>
           <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
-            local.setIsMouseOver(is);
+            dragStore.setIsMouseOver(is);
           }} {...(props)}>
             <SortList
               listStyle={self.style || {}}
@@ -163,7 +133,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
               mode={mode}
               direction={direction}
               renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} handler={h2} self={item} key={index} setParentHovered={(is: boolean) => {
-                local.setIsMouseOver(is);
+                dragStore.setIsMouseOver(is);
               }} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
@@ -181,6 +151,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
       <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
         <IconSVG src={icon_drag} />
       </Handler>
+      <span>不支持</span>
     </div>
   }
 }
