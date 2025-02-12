@@ -1,10 +1,9 @@
-import Content from '@/components/FormEditor/content'
-import { IComponent, IEditorComponent } from '@/types/component'
+import { IPageInfo } from '@/types'
+import { IComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
-import { Fragment } from 'react'
 
 
-export default function CForm({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
+export default function CForm({ self, mode, children, level, page }: { self: IComponent, mode: string, children?: any, level: number, page?: IPageInfo }) {
   return <Observer>{() => (
     <div style={{ height: '100%' }}>
       {children}

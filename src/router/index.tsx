@@ -221,8 +221,8 @@ const TabPanes: FC = () => {
     store.page.openedTags.forEach(tag => {
       const [new_pathname, new_search] = tag.split('?');
       if (new_pathname.startsWith('/manager/dynamic')) {
-          const pane = getKeyName(tag);
-          local.pushPanel(pane);
+        const pane = getKeyName(tag);
+        local.pushPanel(pane);
       } else if (Pages[new_pathname]) {
         if (-1 !== local.panels.findIndex(pane => pane.path === tag)) {
           // 重复render处理
@@ -402,7 +402,7 @@ const TabPanes: FC = () => {
           key: Panel.path,
           label: Panel.title,
           children: local.reloadPath !== Panel.path ? (
-            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} id={Panel.id} store={store} setTitle={(title: string) => {
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} id={Panel.id} page={{ path: Panel.path, param: {}, query: Object.fromEntries(new URLSearchParams(Panel.path.split('?')[1])) }} store={store} setTitle={(title: string) => {
               Panel.title = title;
             }} /></div>
           ) : (

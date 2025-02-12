@@ -18,6 +18,7 @@ import Table from './Table'
 import TableColumn from './TableColumn'
 import Form from './Form'
 import Field from './Field'
+import Tpl from './Tpl'
 
 const components = {
   Menu,
@@ -40,6 +41,7 @@ const components = {
   TableColumn,
   Form,
   Field,
+  Tpl,
 }
 
 export default components;

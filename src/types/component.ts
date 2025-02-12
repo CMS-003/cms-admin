@@ -32,7 +32,7 @@ export type IComponent = {
   attrs?: any;
   api?: string;
   resources?: IResource[];
-  widget?: { field: string, value: string, refer: { label: string, value: string }[] },
+  widget?: { field: string, value: string, refer: { label: string, value: string }[], action: string, action_url: string, },
 
   children: IComponent[];
   data?: IResource[];

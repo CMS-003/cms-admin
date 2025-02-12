@@ -14,6 +14,12 @@ declare global {
   }
 }
 
+export type IPageInfo = {
+  path: string,
+  param: { [key: string]: string },
+  query: { [key: string]: string },
+}
+
 export type ITemplate = {
   _id: string;
   project_id: string;

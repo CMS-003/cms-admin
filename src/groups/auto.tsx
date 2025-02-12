@@ -2,7 +2,7 @@ import { Fragment, useCallback } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
 import { Observer, useLocalStore } from 'mobx-react'
-import { Input, message, Button, Divider, Space } from 'antd'
+import { Input, message, Button, Divider, Space, Select } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import "react-contexify/dist/ReactContexify.css";
 import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Acon, SortList, Style } from '@/components/index';
-import { ITemplate, IComponent, IResource } from '@/types'
+import { IPageInfo, ITemplate, IComponent, IResource } from '@/types'
 import BaseComponent from './index';
 import {
   EditWrap,
@@ -49,7 +49,7 @@ function getDiff(t: ITemplate | IComponent | null) {
   return results;
 }
 
-export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, page, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, page?: IPageInfo, props?: any }) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
@@ -75,7 +75,84 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     setIsMouseOver(is: boolean) {
       dragStore.isMouseOver = is;
     }
-  }))
+  }));
+  // 数据源
+  const dataStore: {
+    loading: boolean,
+    query: { [key: string]: string | number },
+    total: number,
+    page: number,
+    pageSize: number,
+    resource: IResource | null,
+    resources: IResource[],
+    setQuery: Function,
+    getQuery: Function,
+    setResources: (resource: IResource | IResource[]) => void,
+  } = useLocalStore(() => ({
+    loading: false,
+    // 列表类型
+    page: 1,
+    pageSize: 20,
+    total: 0,
+    query: {},
+    setQuery(field: string, value: string | number) {
+      dataStore.query[field] = value;
+    },
+    getQuery() {
+      return {
+        page: dataStore.page,
+        page_size: dataStore.pageSize,
+        ...dataStore.query,
+      }
+    },
+    setResources(resources: IResource | IResource[]) {
+      if (resources instanceof Array) {
+        dataStore.resources = resources;
+      } else {
+        dataStore.resource = resources;
+      }
+    },
+    resources: [],
+    // 表单类型
+    resource: null,
+  }));
+  const onSetQuery = useCallback((event: { field: string, value: string, force: boolean, template_id: string }) => {
+    if (self.template_id === event.template_id) {
+      dataStore.setQuery(event.field, event.value);
+      if (event.force) {
+        init();
+      }
+    }
+  }, []);
+  useEffectOnce(() => {
+    console.log(self.title, self._id, page)
+    events.on('setQuery', onSetQuery);
+    () => {
+      events.off('setQuery', onSetQuery);
+    }
+  })
+  const init = useCallback(async () => {
+    if (self.api && mode === 'preview') {
+      dataStore.loading = true;
+      if (self.type === 'Form') {
+        const resp = await apis.getInfo(self.api, page?.query['id'] as string);
+        if (resp.code === 0) {
+          dataStore.setResources(resp.data.items);
+        }
+      } else {
+        const resp = await apis.getList(self.api, dataStore.getQuery());
+        if (resp.code === 0) {
+          dataStore.setResources(resp.data.items as IResource[]);
+          dataStore.total = resp.data.total || 0;
+        }
+      }
+      dataStore.loading = false;
+    }
+  }, [self.api])
+  useEffectOnce(() => {
+    init();
+  })
+
   if (self.status === 0 && mode === 'preview') {
     return null;
   }
@@ -119,7 +196,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
           <Handler {...handler} className='hover' data-drag={isDragging}>
             <IconSVG src={icon_drag} />
           </Handler>
-          <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
+          <Com self={self} mode={mode} page={page} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
             dragStore.setIsMouseOver(is);
           }} {...(props)}>
             <SortList
@@ -132,15 +209,15 @@ export function Component({ self, children, mode, isDragging, handler, setParent
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={direction}
-              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} handler={h2} self={item} key={index} setParentHovered={(is: boolean) => {
+              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} page={page} handler={h2} self={item} key={index} setParentHovered={(is: boolean) => {
                 dragStore.setIsMouseOver(is);
               }} {...({ level: _.get(props, 'level', 1) + 1 })} />}
             />
           </Com>
         </EditWrap>
-          : <Com self={self} mode={mode} source={source} level={_.get(props, 'level', 1)} {...(props)}>
+          : <Com self={self} mode={mode} page={page} source={source} level={_.get(props, 'level', 1)} {...(props)}>
             <Fragment>
-              {self.children.map(child => (<Component mode={mode} self={child} key={child._id} {...({ level: 2 })} />))}
+              {self.children.map(child => (<Component mode={mode} page={page} source={source} self={child} key={child._id} {...({ level: 2 })} />))}
             </Fragment>
           </Com>
       )
@@ -156,7 +233,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
   }
 }
 
-export function TemplatePage({ template_id, mode, }: { template_id: string, mode: string }) {
+export function TemplatePage({ template_id, mode, page }: { template_id: string, mode: string, page?: IPageInfo }) {
   const local = useLocalStore<{
     template: ITemplate | null,
     isDragOver: boolean,
@@ -273,8 +350,8 @@ export function TemplatePage({ template_id, mode, }: { template_id: string, mode
             items={(local.template as ITemplate).children}
             itemStyle={{ display: 'flex' }}
             mode={mode}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} handler={handler} />}
-          /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} />))}
+            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} page={page} key={item._id} mode={mode} handler={handler} />}
+          /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />))}
         </TemplateBox>
       } else {
         return <div>Page NotFound</div>
@@ -293,7 +370,7 @@ const ScrollWrap = styled.div`
   }
 `
 
-export default function Page({ template_id, mode, ...props }: { template_id: string, mode: string, [key: string]: any }) {
+export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page?: IPageInfo, [key: string]: any }) {
   const local = useLocalStore<{
     editComponent: IComponent | null
     template: ITemplate | null,
@@ -492,8 +569,8 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
                 items={(local.template as ITemplate).children}
                 itemStyle={{ display: 'flex' }}
                 mode={mode}
-                renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} handler={handler} />}
-              /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} />))}
+                renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} page={page} handler={handler} />}
+              /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />))}
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>
@@ -603,6 +680,20 @@ export default function Page({ template_id, mode, ...props }: { template_id: str
                 : <Acon icon='add' onClick={() => local.addWidgetReferVisible = true} />}
             </AlignAround>
           </Space>
+        </EditItem>
+        <EditItem>
+          事件
+          <Input addonBefore="action_url" value={local.editComponent.widget?.action_url} onChange={e => {
+            local.editComponent?.setWidget('action_url', e.target.value);
+          }} addonAfter={<Select value={local.editComponent.widget?.action} onChange={v => {
+            local.editComponent?.setWidget('action', v);
+          }} >
+            <Select.Option value="">无</Select.Option>
+            <Select.Option value="goto_detail">跳转详情</Select.Option>
+            <Select.Option value="goto_url">跳转外链</Select.Option>
+            <Select.Option value="edit">编辑</Select.Option>
+            <Select.Option value="delete">删除</Select.Option>
+          </Select>} />
         </EditItem>
         <EditItem>
           attr

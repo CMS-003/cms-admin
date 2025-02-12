@@ -1,5 +1,5 @@
 import shttp from "../utils/shttp";
-import { ITable, ITableDetail, IJsonSchema, ITableView, ITableWidget, IWidget } from '../types'
+import { ITable, ITableDetail, IJsonSchema, ITableView, ITableWidget, IWidget, IResource } from '../types'
 import qs from 'qs'
 import { update } from "lodash";
 
@@ -22,6 +22,16 @@ const apis = {
   },
   getTableFields: async (table: string) => {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/tables/${table}/fields`);
+    return result;
+  },
+  getInfo: async (url: string, id: string) => {
+    url = url.replace(':id', id);
+    const result = await shttp.get<IResource>(url)
+    return result
+  },
+  putInfo: async (url: string, data: IResource) => {
+    url = url.replace(':id', data._id);
+    const result = await shttp.put<IResource>(url, data);
     return result;
   },
   getList: async (url: string, query: { [key: string]: any } = {}) => {
