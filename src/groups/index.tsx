@@ -13,12 +13,56 @@ import CText from './Text'
 import CButton from './Button'
 import CSelect from './Select'
 import CInput from './Input'
+import TextArea from './TextArea'
 import CIcon from './Icon'
 import Table from './Table'
 import TableColumn from './TableColumn'
 import Form from './Form'
+import Row from './Row'
+import Col from './Col'
+import Radio from './Radio'
 import Field from './Field'
+import Upload from './Upload'
+import Tags from './TagList'
 import Tpl from './Tpl'
+
+/**
+ * 组件与属性 attr
+ * Layout: layout(0,1)
+ * HotArea: columns(number)
+ * Button: type, action, action_url
+ * Icon: 
+ * Tags: 依赖source的字符串数组
+ * Text
+ * Tpl: value
+ * Image
+ * 
+ * Form:
+ * Field: grids,left,right
+ * Row: layout
+ * Col: layout,offsetSpan,Span
+ * Upload
+ * Input
+ * TextArea
+ * Radio: 
+ * CheckBox: 
+ * Select: value,refer
+ * 
+ * Filter:
+ * FilterRow:
+ * FilterTag:
+ * 
+ * Tab: content_type, template_id
+ * TabItem:
+ * 
+ * Table
+ * TableColumn
+ * 
+ * Menu
+ * MenuItem
+ * Card:
+ * Random
+ */
 
 const components = {
   Menu,
@@ -35,13 +79,19 @@ const components = {
   Text: CText,
   Button: CButton,
   Input: CInput,
+  TextArea,
   Select: CSelect,
   Icon: CIcon,
   Table,
   TableColumn,
   Form,
+  Row,
+  Col,
   Field,
+  Radio,
   Tpl,
+  Tags,
+  Upload,
 }
 
 export default components;

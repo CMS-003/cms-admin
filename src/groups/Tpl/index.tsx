@@ -11,7 +11,7 @@ export default function Text({ self, mode, source }: { self: IComponent, mode: s
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
-    <div onClick={() => {
+    <div style={{ lineHeight: 2.5 }} onClick={() => {
       if (self.widget?.action === 'goto_detail') {
         navigate(`${self.widget.action_url}?id=${source._id}`)
       }

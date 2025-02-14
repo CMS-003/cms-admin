@@ -48,6 +48,24 @@ function getDiff(t: ITemplate | IComponent | null) {
   }
   return results;
 }
+function findNode(arr: IComponent[], id: string): IComponent | null {
+  let result: IComponent | null = null;
+  for (let i = 0; i < arr.length; i++) {
+    const v = arr[i];
+    if (v._id === id) {
+      return v;
+    }
+    result = findNode(v.children, id);
+    if (result) {
+      return result;
+    }
+  }
+  return null;
+}
+function collectIds(tree: IComponent, arr: string[]) {
+  arr.push(tree._id);
+  tree.children.forEach(t => collectIds(t, arr));
+}
 
 export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, page, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, page?: IPageInfo, props?: any }) {
   // 拖拽事件
@@ -125,7 +143,6 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     }
   }, []);
   useEffectOnce(() => {
-    console.log(self.title, self._id, page)
     events.on('setQuery', onSetQuery);
     () => {
       events.off('setQuery', onSetQuery);
@@ -433,14 +450,15 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     },
     remComponent: (id: string) => {
       if (local.template) {
-        const index = local.template?.children.findIndex(c => c._id === id) as number;
-        console.log(index)
-        if (index !== -1 && local.template) {
-          local.template.children.splice(index, 1);
-        } else {
-          local.template?.children.forEach(c => {
-            c.removeChild(id)
-          })
+        const tree = findNode(local.template.children, id);
+        if (tree) {
+          const ids: string[] = [];
+          collectIds(tree, ids);
+          if (local.editComponent && ids.includes(local.editComponent._id)) {
+            local.editComponent = null;
+          }
+          local.template.children.forEach(child => child.removeChild(id));
+          apis.batchDestroyComponent({ ids: toJS(ids).join(',') })
         }
       }
     }
@@ -499,7 +517,6 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
   }, [])
   const eventRemoveComponent = useCallback(async (id: string) => {
     local.remComponent(id)
-
   }, []);
   useEffectOnce(() => {
     refresh()
@@ -520,11 +537,8 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     }}>编辑</ContextMenuItem>
     <ContextMenuItem onClick={(e: { props?: IComponent }) => {
       if (e.props) {
-        if (e.props.$new) {
-          events && events.emit('remove_component', e.props._id);
-        } else {
-          e.props.setAttr('status', 0)
-        }
+        console.log('emit')
+        events && events.emit('remove_component', e.props._id);
       }
     }}>删除</ContextMenuItem>
     {/* <ContextMenuItem onClick={(e: any) => {
@@ -599,7 +613,11 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
           <Input addonBefore="描述" value={local.editComponent.desc} />
         </EditItem>
         <EditItem>
-          <Input addonBefore="parent_id" readOnly value={local.editComponent.parent_id} />
+          <Input addonBefore="parent_id" value={local.editComponent.parent_id} onChange={e => {
+            if (local.editComponent) {
+              local.editComponent.setAttr('parent_id', e.target.value)
+            }
+          }} />
         </EditItem>
         <EditItem>
           <Input addonBefore="_id" readOnly value={local.editComponent._id} />
