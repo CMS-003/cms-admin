@@ -55,6 +55,16 @@ export type IComponent = {
   remRefer: Function;
 }
 
+export type IAuto = {
+  self: IComponent;
+  mode: string;
+  children?: any;
+  level: number;
+  source: any;
+  dragging?: boolean;
+  handle?: DraggableProvided;
+}
+
 export type IComponentType = {
   _id: string;
   name: string;
@@ -82,7 +92,7 @@ export type IEditorField = {
   component: IEditorComponent;
   defaultValue: string | boolean | number;
   autoFocus?: boolean;
-  value: { value: string | number |boolean, name: string }[];
+  value: { value: string | number | boolean, name: string }[];
   fetch?: Function;
 }
 export type IWidget = {
