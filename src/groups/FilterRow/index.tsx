@@ -31,7 +31,7 @@ export default function ComponentFilterRow({ self, mode, children, setParentHove
   return <Observer>
     {() => (
       <Wrap key={self.children.length}>
-        <NatureSortable
+        {/* <NatureSortable
           droppableId={self._id}
           items={self.children}
           onDragEnd={(result) => {
@@ -56,8 +56,8 @@ export default function ComponentFilterRow({ self, mode, children, setParentHove
           }}
         >
           {() => ScrollWrap}
-        </NatureSortable>
-        {/* {mode === 'edit' ? <div style={{ display: 'flex', alignItems: 'center' }}>
+        </NatureSortable> */}
+        {mode === 'edit' ? <div style={{ display: 'flex', alignItems: 'center' }}>
           <SortList
             sort={(oldIndex: number, newIndex: number) => {
               self.swap(oldIndex, newIndex);
@@ -82,7 +82,7 @@ export default function ComponentFilterRow({ self, mode, children, setParentHove
               }
             })} />)}
           </ScrollWrap>
-        )} */}
+        )}
       </Wrap>
     )}
   </Observer>

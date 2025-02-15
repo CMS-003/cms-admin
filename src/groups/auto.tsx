@@ -154,7 +154,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
       if (self.type === 'Form') {
         const resp = await apis.getInfo(self.api, page?.query['id'] as string);
         if (resp.code === 0) {
-          dataStore.setResources(resp.data.items);
+          dataStore.setResources(resp.data);
         }
       } else {
         const resp = await apis.getList(self.api, dataStore.getQuery());
@@ -234,7 +234,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
         </EditWrap>
           : <Com self={self} mode={mode} page={page} source={source} level={_.get(props, 'level', 1)} {...(props)}>
             <Fragment>
-              {self.children.map(child => (<Component mode={mode} page={page} source={source} self={child} key={child._id} {...({ level: 2 })} />))}
+              {self.children.map(child => (<Component mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} self={child} key={child._id} {...({ level: 2 })} />))}
             </Fragment>
           </Com>
       )
@@ -310,7 +310,6 @@ export function TemplatePage({ template_id, mode, page }: { template_id: string,
     remComponent: (id: string) => {
       if (local.template) {
         const index = local.template?.children.findIndex(c => c._id === id) as number;
-        console.log(index)
         if (index !== -1 && local.template) {
           local.template.children.splice(index, 1);
         } else {
@@ -537,7 +536,6 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     }}>编辑</ContextMenuItem>
     <ContextMenuItem onClick={(e: { props?: IComponent }) => {
       if (e.props) {
-        console.log('emit')
         events && events.emit('remove_component', e.props._id);
       }
     }}>删除</ContextMenuItem>
