@@ -67,7 +67,7 @@ function collectIds(tree: IComponent, arr: string[]) {
   tree.children.forEach(t => collectIds(t, arr));
 }
 
-export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, page, ...props }: { self: IComponent, source?: object, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, page?: IPageInfo, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, setSource, page, ...props }: { self: IComponent, source?: object, setSource?: Function, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, page?: IPageInfo, props?: any }) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
@@ -106,6 +106,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     setQuery: Function,
     getQuery: Function,
     setResources: (resource: IResource | IResource[]) => void,
+    setSource: (field: keyof IResource, value: any) => void,
   } = useLocalStore(() => ({
     loading: false,
     // 列表类型
@@ -128,6 +129,11 @@ export function Component({ self, children, mode, isDragging, handler, setParent
         dataStore.resources = resources;
       } else {
         dataStore.resource = resources;
+      }
+    },
+    setSource(field: keyof IResource, value: any) {
+      if (dataStore.resource) {
+        dataStore.resource[field] = value;
       }
     },
     resources: [],
@@ -213,7 +219,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
           <Handler {...handler} className='hover' data-drag={isDragging}>
             <IconSVG src={icon_drag} />
           </Handler>
-          <Com self={self} mode={mode} page={page} source={source} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
+          <Com self={self} mode={mode} page={page} source={source} setSource={setSource} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
             dragStore.setIsMouseOver(is);
           }} {...(props)}>
             <SortList
@@ -232,9 +238,9 @@ export function Component({ self, children, mode, isDragging, handler, setParent
             />
           </Com>
         </EditWrap>
-          : <Com self={self} mode={mode} page={page} source={source} level={_.get(props, 'level', 1)} {...(props)}>
+          : <Com self={self} mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} setSource={self.type === 'Form' ? dataStore.setSource : setSource} level={_.get(props, 'level', 1)} {...(props)}>
             <Fragment>
-              {self.children.map(child => (<Component mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} self={child} key={child._id} {...({ level: 2 })} />))}
+              {self.children.map(child => (<Component mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} setSource={setSource} self={child} key={child._id} {...({ level: 2 })} />))}
             </Fragment>
           </Com>
       )

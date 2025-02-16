@@ -61,8 +61,6 @@ export type IAuto = {
   children?: any;
   level: number;
   source: any;
-  dragging?: boolean;
-  handle?: DraggableProvided;
 }
 
 export type IComponentType = {

@@ -6,8 +6,6 @@ import SortList from '@/components/SortList'
 import { Observer } from 'mobx-react'
 import { ScrollWrap } from '../style'
 import { useEffectOnce } from 'react-use'
-import NatureSortable from '@/components/NatureSortable'
-import { ReactElement } from 'react'
 
 const Wrap = styled.div`
   display: flex;
@@ -31,32 +29,6 @@ export default function ComponentFilterRow({ self, mode, children, setParentHove
   return <Observer>
     {() => (
       <Wrap key={self.children.length}>
-        {/* <NatureSortable
-          droppableId={self._id}
-          items={self.children}
-          onDragEnd={(result) => {
-            if (!result.destination) return;
-            self.swap(result.source.index, result.destination.index)
-          }}
-          renderItem={({ item, isDragging, provided, index }) => {
-            return <div
-              key={index}
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-              style={{
-                background: isDragging ? "lightblue" : "",
-                // 合并由react-beautiful-dnd提供的样式，避免覆盖拖拽动画样式
-                ...provided.draggableProps.style,
-                transform: provided.draggableProps.style?.transform?.replace(/,.+\)/, ",0)")
-              }}
-            >
-              <Component mode={mode} self={item} key={item._id} setParentHovered={setParentHovered} />
-            </div>
-          }}
-        >
-          {() => ScrollWrap}
-        </NatureSortable> */}
         {mode === 'edit' ? <div style={{ display: 'flex', alignItems: 'center' }}>
           <SortList
             sort={(oldIndex: number, newIndex: number) => {

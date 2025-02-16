@@ -5,7 +5,7 @@ import { Observer } from 'mobx-react'
 
 export default function CRow({ self, mode, children, level, source }: { self: IComponent, mode: string, children?: any, level: number, source: any }) {
   return <Observer>{() => (
-    <Row style={{margin: '8px 0'}}>
+    <Row style={{ margin: '8px 0', flex: 1 }}>
       <Col span={0} style={{ minHeight: 35, display: 'block' }} />
       {children}
     </Row>
