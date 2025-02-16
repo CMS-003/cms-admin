@@ -1,19 +1,50 @@
 import { Acon } from '@/components'
 import { FullWidth } from '@/components/style'
-import { IResource } from '@/types'
-import { IComponent } from '@/types/component'
-import { Tag } from 'antd'
-import { Observer } from 'mobx-react'
+import { IAuto } from '@/types/component'
+import { Input, Tag } from 'antd'
+import { Observer, useLocalStore } from 'mobx-react'
+import { Fragment } from 'react'
 
-export default function ComponentSelect({ self, mode, children, level, source = {} }: { self: IComponent, mode: string, children?: any, level: number, source: any }) {
+export default function CTags({ self, source = {}, setSource }: IAuto) {
+  const local = useLocalStore(() => ({
+    addVisible: false,
+    tempTag: '',
+  }))
+  const field = self.widget.field;
   return <Observer>{() => (
-    <FullWidth style={{ alignItems: 'center' }}>
-      {((source[self.widget?.field || ''] || []) as string[]).map((tag, i) => (
-        <Tag key={i}>{tag}</Tag>
-      ))}
-      <span style={{ border: '1px dashed #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
-        <Acon icon='add' />
-      </span>
-    </FullWidth>
+    <Fragment>
+      <FullWidth>
+        {((source[field] || []) as string[]).map((tag, i) => (
+          <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
+            if (setSource) {
+              const rest = source[field].filter((v: string) => v !== tag)
+              console.log(tag,rest,field)
+              setSource(field, rest)
+            }
+          }}>{tag}</Tag>
+        ))}
+      </FullWidth>
+      <div style={{ display: 'flex', alignItems: 'center', width: 150, height: '2.5em' }}>
+        {local.addVisible ? (
+          <Input value={local.tempTag} onChange={e => {
+            local.tempTag = e.target.value;
+          }} addonAfter={(
+            <Fragment>
+              <Acon icon='check' onClick={() => {
+                if (setSource && local.tempTag && !source[field].includes(local.tempTag)) {
+                  setSource(field, [...source[field], local.tempTag])
+                }
+                local.tempTag = '';
+                local.addVisible = false;
+              }} />
+              <Acon icon='close' style={{ marginLeft: 10 }} onClick={() => { local.tempTag = ''; local.addVisible = false }} />
+            </Fragment>
+          )} />
+        ) : <span style={{ border: '1px dashed #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
+          <Acon icon='add' onClick={() => local.addVisible = true} />
+        </span>}
+
+      </div>
+    </Fragment>
   )}</Observer>
 }

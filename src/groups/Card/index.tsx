@@ -55,7 +55,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function CCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
   const local = useLocalStore(() => ({
     show: false,
     close() {

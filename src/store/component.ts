@@ -60,13 +60,14 @@ export const ComponentItem = types.model('Component', {
   updatedAt: types.maybe(IsoDate),
   style: types.optional(types.frozen(), {}),
   attrs: types.map(types.union(types.string, types.number)),
-  widget: types.maybe(types.model({
+  widget: types.model({
     field: types.optional(types.string, ''),
-    value: types.optional(types.string, ''),
-    refer: types.optional(types.array(types.model({ value: types.string, label: types.string })), []),
+    value: types.optional(types.union(types.string, types.number), ''),
+    type: types.enumeration(['string', 'number', 'boolean', 'date']),
+    refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number), label: types.string })), []),
     action: types.optional(types.string, ''),
     action_url: types.optional(types.string, ''),
-  })),
+  }),
   accepts: types.optional(types.array(types.string), []),
   api: types.optional(types.string, ''),
   resources: types.optional(types.array(types.model({
@@ -95,11 +96,23 @@ export const ComponentItem = types.model('Component', {
       self.widget[k] = v;
     }
   },
+  changeWidgetType(type: 'string' | 'number') {
+    if (type === self.widget.type) {
+      return;
+    } else if (type === 'number') {
+      self.widget.value = parseInt(self.widget.value as string);
+      self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
+    } else {
+      self.widget.value = self.widget.value.toString();
+      self.widget.refer.forEach(r => r.value = r.value.toString());
+    }
+    self.widget.type = type;
+  },
   pushRefer(t: { label: string, value: string }) {
-    self.widget?.refer.push(t);
+    self.widget.refer.push(t);
   },
   remRefer(n: number) {
-    self.widget?.refer.splice(n, 1);
+    self.widget.refer.splice(n, 1);
   },
   setAttrs(key: string, value: string | number | null) {
     if (value === null) {
@@ -125,6 +138,7 @@ export const ComponentItem = types.model('Component', {
       template_id: self.template_id,
       type,
       attrs,
+      style: {},
       title: '无',
       name: '',
       icon: '',
@@ -133,7 +147,7 @@ export const ComponentItem = types.model('Component', {
       order: self.children.length,
       status: 1,
       api: '',
-      widget: { field: '', value: '', refer: [], action: '' },
+      widget: { field: '', value: '', type: 'string', refer: [], action: '' },
       createdAt: new Date(),
       updatedAt: new Date(),
       accepts: self.toJSON().accepts,
@@ -197,7 +211,6 @@ const ComponentTypeItem = types.model({
   title: types.string,
   cover: types.optional(types.string, ''),
   group: types.optional(types.string, ''),
-  level: types.number,
   accepts: types.array(types.string),
 })
 

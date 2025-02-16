@@ -21,9 +21,9 @@
 - novel前端项目重构
 - ✅ 可视化修改后端菜单,成功后左侧应当自动更新
 - ✅ 可视化编辑后,再修改保存提示无变化
-- source和setSource
-- widget的类型问题整数1和字符串1
-- 
+- ✅ source和setSource
+- ✅ widget的类型问题整数1和字符串1
+- page root info
 
 ## 代码库学习
 - ✅ mobx,mobx-react

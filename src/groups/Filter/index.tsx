@@ -1,12 +1,12 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
-import { IComponent } from '@/types/component'
+import { IAuto, IComponent } from '@/types/component'
 import _ from 'lodash'
 import SortList from '@/components/SortList/';
 import { Component } from '../auto'
 import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 
-export default function ComponentFilter({ self, mode, children, setParentHovered, ...props }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function, props?: any }) {
+export default function CFilter({ self, mode, setParentHovered }: IAuto) {
   return <Observer>
     {() => (
       <FullHeight key={self.children.length}>
@@ -22,7 +22,7 @@ export default function ComponentFilter({ self, mode, children, setParentHovered
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={'vertical'}
-              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} />}
             />
             <div style={{ width: '100%' }}>
               <Acon icon='PlusCircleOutlined' size={18} onClick={() => {

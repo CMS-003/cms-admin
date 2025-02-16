@@ -1,5 +1,4 @@
-import React from 'react'
-import { IComponent } from '@/types/component'
+import { IAuto, } from '@/types/component'
 import styled from 'styled-components'
 import Acon, { Icon } from '@/components/Acon'
 
@@ -11,10 +10,10 @@ const MenuItem = styled.div`
     background-color: ${props => props.className === 'edit' ? 'transparent' : '#71ace3'};
   }
 `
-export default function ComponentMenuItem({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
+export default function CMenuItem({ self, mode, children, }: IAuto) {
   return <div>
     <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
-    <div style={{ paddingLeft: 10 * level }}>
+    <div style={{ paddingLeft: 24 }}>
       {children}
     </div>
   </div>

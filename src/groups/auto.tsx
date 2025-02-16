@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Acon, SortList, Style } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource } from '@/types'
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto } from '@/types'
 import BaseComponent from './index';
 import {
   EditWrap,
@@ -67,7 +67,7 @@ function collectIds(tree: IComponent, arr: string[]) {
   tree.children.forEach(t => collectIds(t, arr));
 }
 
-export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, setSource, page, ...props }: { self: IComponent, source?: object, setSource?: Function, children?: any, isDragging?: boolean, mode: string, handler?: any, setParentHovered?: Function, page?: IPageInfo, props?: any }) {
+export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
@@ -101,12 +101,10 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     total: number,
     page: number,
     pageSize: number,
-    resource: IResource | null,
     resources: IResource[],
     setQuery: Function,
     getQuery: Function,
-    setResources: (resource: IResource | IResource[]) => void,
-    setSource: (field: keyof IResource, value: any) => void,
+    setResources: (resource: IResource[]) => void,
   } = useLocalStore(() => ({
     loading: false,
     // 列表类型
@@ -124,17 +122,8 @@ export function Component({ self, children, mode, isDragging, handler, setParent
         ...dataStore.query,
       }
     },
-    setResources(resources: IResource | IResource[]) {
-      if (resources instanceof Array) {
-        dataStore.resources = resources;
-      } else {
-        dataStore.resource = resources;
-      }
-    },
-    setSource(field: keyof IResource, value: any) {
-      if (dataStore.resource) {
-        dataStore.resource[field] = value;
-      }
+    setResources(resources: IResource[]) {
+      dataStore.resources = resources;
     },
     resources: [],
     // 表单类型
@@ -155,19 +144,12 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     }
   })
   const init = useCallback(async () => {
-    if (self.api && mode === 'preview') {
+    if (self.api && mode === 'preview' && self.type !== 'Form') {
       dataStore.loading = true;
-      if (self.type === 'Form') {
-        const resp = await apis.getInfo(self.api, page?.query['id'] as string);
-        if (resp.code === 0) {
-          dataStore.setResources(resp.data);
-        }
-      } else {
-        const resp = await apis.getList(self.api, dataStore.getQuery());
-        if (resp.code === 0) {
-          dataStore.setResources(resp.data.items as IResource[]);
-          dataStore.total = resp.data.total || 0;
-        }
+      const resp = await apis.getList(self.api, dataStore.getQuery());
+      if (resp.code === 0) {
+        dataStore.setResources(resp.data.items as IResource[]);
+        dataStore.total = resp.data.total || 0;
       }
       dataStore.loading = false;
     }
@@ -219,7 +201,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
           <Handler {...handler} className='hover' data-drag={isDragging}>
             <IconSVG src={icon_drag} />
           </Handler>
-          <Com self={self} mode={mode} page={page} source={source} setSource={setSource} level={_.get(props, 'level', 1)} setParentHovered={(is: boolean) => {
+          <Com self={self} mode={mode} page={page} source={source} setSource={setSource} setParentHovered={(is: boolean) => {
             dragStore.setIsMouseOver(is);
           }} {...(props)}>
             <SortList
@@ -232,15 +214,15 @@ export function Component({ self, children, mode, isDragging, handler, setParent
               itemStyle={{ display: 'flex', alignItems: 'center', }}
               mode={mode}
               direction={direction}
-              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} page={page} handler={h2} self={item} key={index} setParentHovered={(is: boolean) => {
+              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} page={page} handler={h2} self={item} source={source} key={index} setParentHovered={(is: boolean) => {
                 dragStore.setIsMouseOver(is);
-              }} {...({ level: _.get(props, 'level', 1) + 1 })} />}
+              }} />}
             />
           </Com>
         </EditWrap>
-          : <Com self={self} mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} setSource={self.type === 'Form' ? dataStore.setSource : setSource} level={_.get(props, 'level', 1)} {...(props)}>
+          : <Com self={self} mode={mode} page={page} source={source} setSource={setSource} {...(props)}>
             <Fragment>
-              {self.children.map(child => (<Component mode={mode} page={page} source={self.type === 'Form' ? dataStore.resource || source : source} setSource={setSource} self={child} key={child._id} {...({ level: 2 })} />))}
+              {self.children.map(child => (<Component mode={mode} page={page} source={source} setSource={setSource} self={child} key={child._id} />))}
             </Fragment>
           </Com>
       )
@@ -254,133 +236,6 @@ export function Component({ self, children, mode, isDragging, handler, setParent
       <span>不支持</span>
     </div>
   }
-}
-
-export function TemplatePage({ template_id, mode, page }: { template_id: string, mode: string, page?: IPageInfo }) {
-  const local = useLocalStore<{
-    template: ITemplate | null,
-    isDragOver: boolean,
-    loading: boolean,
-    setLoading: (is: boolean) => void,
-    onDragOver: any,
-    onDragLeave: any,
-    onDrop: any,
-    remComponent: Function
-  }>(() => ({
-    loading: true,
-    template: null,
-    isDragOver: false,
-    onDrop: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      local.isDragOver = false;
-      if (mode === 'preview') {
-        return;
-      }
-      const type = store.component.types.find(it => it.name === store.app.dragingType)
-      if (type && type.level !== 1) {
-        return message.warn('非一级组件不能直接放到模板页')
-      }
-      const child = ComponentItem.create({
-        _id: '',
-        parent_id: '',
-        tree_id: '',
-        type: store.app.dragingType,
-        status: 1,
-        order: local.template?.children.length,
-        template_id: local.template?._id,
-        title: '无',
-        name: '',
-        cover: '',
-        desc: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        accepts: [],
-        children: [],
-      });
-      local.template?.children.push(child)
-    },
-    onDragLeave: () => {
-      local.isDragOver = false;
-    },
-    onDragOver: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!local.isDragOver) {
-        local.isDragOver = true;
-      }
-    },
-    setLoading: (is: boolean) => {
-      local.loading = is;
-    },
-    remComponent: (id: string) => {
-      if (local.template) {
-        const index = local.template?.children.findIndex(c => c._id === id) as number;
-        if (index !== -1 && local.template) {
-          local.template.children.splice(index, 1);
-        } else {
-          local.template?.children.forEach(c => {
-            c.removeChild(id)
-          })
-        }
-      }
-    }
-  }))
-  const refresh = useCallback(async () => {
-    local.setLoading(true)
-    try {
-      const resp = await apis.getTemplateComponents(template_id)
-      const { children, ...template } = resp.data as ITemplate;
-      const components = children.map(child => ComponentItem.create(child))
-      local.template = { ...template, children: components }
-    } catch (e) {
-      console.log(e)
-    } finally {
-      local.setLoading(false);
-    }
-  }, [])
-  useEffectOnce(() => {
-    refresh()
-  })
-  return <div style={{
-    height: '100%',
-    maxWidth: 480,
-    minWidth: 400,
-  }}>
-    <Observer>{() => {
-      if (local.loading) {
-        return <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
-      } else if (local.template) {
-        return <TemplateBox
-          onDragOver={local.onDragOver}
-          onDragLeave={local.onDragLeave}
-          onDrop={local.onDrop}
-          className={`${mode} ${local.isDragOver && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : ""}`}
-          style={toJS(local.template?.style)}
-        >
-          {mode === 'edit' ? <SortList
-            listStyle={{}}
-            sort={(oldIndex: number, newIndex: number) => {
-              const [old] = (local.template as ITemplate).children.splice(oldIndex, 1);
-              local.template?.children.splice(newIndex, 0, old);
-              local.template?.children.forEach((child, i) => {
-                child.setAttr('order', i);
-              });
-            }}
-            key={local.template?.children.length}
-            droppableId={(local.template as ITemplate)._id}
-            items={(local.template as ITemplate).children}
-            itemStyle={{ display: 'flex' }}
-            mode={mode}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} page={page} key={item._id} mode={mode} handler={handler} />}
-          /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />))}
-        </TemplateBox>
-      } else {
-        return <div>Page NotFound</div>
-      }
-    }
-    }</Observer >
-  </div>
 }
 
 const ScrollWrap = styled.div`
@@ -418,9 +273,6 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         return;
       }
       const type = store.component.types.find(it => it.name === store.app.dragingType)
-      if (type && type.level !== 1) {
-        return message.warn('非一级组件不能直接放到模板页')
-      }
       const child = ComponentItem.create({
         _id: '',
         parent_id: '',
@@ -437,6 +289,9 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         updatedAt: new Date(),
         accepts: [],
         children: [],
+        widget: {
+          type: 'string'
+        }
       });
       local.template?.children.push(child)
     },
@@ -672,17 +527,51 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         </EditItem>
         <EditItem>
           控件属性
-          <Input addonBefore="字段" value={local.editComponent.widget?.field} onChange={e => {
+          <Input addonBefore="字段" value={local.editComponent.widget.field} onChange={e => {
             local.editComponent?.setWidget('field', e.target.value);
           }} />
-          <Input addonBefore="默认值" value={local.editComponent.widget?.value} onChange={e => {
+          <Input addonBefore="默认值" value={local.editComponent.widget.value} onChange={e => {
             local.editComponent?.setWidget('value', e.target.value);
-          }} />
+          }} addonAfter={<Select value={local.editComponent.widget.type} onChange={v => {
+            if (local.editComponent) {
+              local.editComponent.changeWidgetType(v);
+            }
+          }}>
+            <Select.Option value="string">string</Select.Option>
+            <Select.Option value="number">number</Select.Option>
+            <Select.Option value="boolean">boolean</Select.Option>
+            <Select.Option value="date">date</Select.Option>
+          </Select>} />
           <Divider type="horizontal" style={{ margin: 5 }} />
           <Space direction='vertical'>
-            {local.editComponent.widget?.refer.map((w, n) => (
+            <SortList
+              sort={(srcIndex: number, dstIndex: number) => {
+                const arr = _.cloneDeep(local.editComponent?.widget.refer);
+                const curr = arr?.splice(srcIndex, 1);
+                arr?.splice(dstIndex, 0, ...(curr || []));
+                local.editComponent?.setWidget('refer', arr)
+              }}
+              droppableId={local.editComponent._id + '2'}
+              mode={mode}
+              direction={'vertical'}
+              listStyle={{}}
+              itemStyle={{ display: 'flex', alignItems: 'center' }}
+              items={local.editComponent.widget.refer}
+              renderItem={({ item, index, handler }: { item: { label: string, value: number | string }, index: number, handler: any }) => (
+                <Input
+                  key={index}
+                  addonBefore={<div  {...handler}>
+                    <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
+                    {item.label}
+                  </div>}
+                  value={item.value}
+                  addonAfter={<Acon icon='close' onClick={() => local.editComponent?.remRefer(index)} />}
+                />
+              )}
+            />
+            {/* {local.editComponent.widget.refer.map((w, n) => (
               <Input key={w.value} addonBefore={w.label} value={w.value} addonAfter={<Acon icon='close' onClick={() => local.editComponent?.remRefer(n)} />} />
-            ))}
+            ))} */}
             <AlignAround>
               {local.addWidgetReferVisible
                 ? <Fragment>
@@ -705,9 +594,9 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         </EditItem>
         <EditItem>
           事件
-          <Input addonBefore="action_url" value={local.editComponent.widget?.action_url} onChange={e => {
+          <Input addonBefore="action_url" value={local.editComponent.widget.action_url} onChange={e => {
             local.editComponent?.setWidget('action_url', e.target.value);
-          }} addonAfter={<Select value={local.editComponent.widget?.action} onChange={v => {
+          }} addonAfter={<Select value={local.editComponent.widget.action} onChange={v => {
             local.editComponent?.setWidget('action', v);
           }} >
             <Select.Option value="">无</Select.Option>

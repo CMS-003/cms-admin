@@ -21,18 +21,18 @@ export type IComponent = {
   name: string;
   type: string;
   cover: string;
-  icon?: string;
+  icon: string;
   desc: string;
   order: number;
   status: number;
   createdAt?: Date;
   updatedAt?: Date;
-  accepts?: string[];
-  style?: any;
-  attrs?: any;
-  api?: string;
+  accepts: string[];
+  style: any;
+  attrs: any;
+  api: string;
   resources?: IResource[];
-  widget?: { field: string, value: string, refer: { label: string, value: string }[], action: string, action_url: string, },
+  widget: { field: string, value: string | number, type: 'boolean' | 'number' | 'string' | 'date', refer: { label: string, value: string | number }[], action: string, action_url: string, },
 
   children: IComponent[];
   data?: IResource[];
@@ -42,6 +42,7 @@ export type IComponent = {
   diff: Function;
   setAttr: Function;
   setWidget: Function;
+  changeWidgetType: Function;
   setAttrs: Function;
   updateStyle: Function;
   appendChild: Function;
@@ -59,8 +60,16 @@ export type IAuto = {
   self: IComponent;
   mode: string;
   children?: any;
-  level: number;
-  source: any;
+  isDragging?: boolean;
+  source?: any;
+  setSource?: Function;
+  setParentHovered?: Function;
+  handler?: any
+  page?: {
+    path: string,
+    param: { [key: string]: string },
+    query: { [key: string]: string },
+  };
 }
 
 export type IComponentType = {

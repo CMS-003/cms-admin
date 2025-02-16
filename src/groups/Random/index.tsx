@@ -1,5 +1,5 @@
 
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
 import Acon from '@/components/Acon'
@@ -17,7 +17,7 @@ background-color: #eee;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function ComponentCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function CRandom({ self }: IAuto) {
   return <Observer>{() => (
     <div style={self.style}>
       <Header>

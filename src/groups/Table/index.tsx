@@ -1,17 +1,14 @@
-import Acon from '@/components/Acon'
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 import { Table } from 'antd'
-import { toJS } from 'mobx'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Component } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
-// import Table from 'rc-table';
 
-export default function ComponentTable({ self, mode, children, level, setParentHovered }: { self: IComponent, mode: string, children?: any, level: number, setParentHovered?: Function }) {
+export default function CTable({ self, mode, setParentHovered }: IAuto) {
   const local: {
     loading: boolean,
     query: { [key: string]: string | number },
@@ -63,7 +60,7 @@ export default function ComponentTable({ self, mode, children, level, setParentH
       const resp = await apis.getList(self.api, local.getQuery());
       if (resp.code === 0) {
         local.setResources(resp.data.items as IResource[]);
-        local.total = resp.data.total || 0;
+        local.total = (resp as any).count || resp.data.total || 0;
       }
       local.loading = false;
     }
@@ -87,23 +84,11 @@ export default function ComponentTable({ self, mode, children, level, setParentH
         columns={self.children.map(child => ({
           title: mode === 'edit' ? <Component self={child} mode={mode} key={child._id} setParentHovered={setParentHovered} /> : child.title,
           key: child._id,
-          dataIndex: self.widget?.field,
+          dataIndex: self.widget.field,
           render: (t: string, d: any) => (
             child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
           )
         }))} />
-      {/* <Table
-        rowKey="_id"
-        columns={self.children.map(child => ({
-          title: mode === 'edit' ? <Component self={child} mode={mode} key={child._id} setParentHovered={setParentHovered} /> : child.title,
-          key: child._id,
-          dataIndex: self.widget?.field || '_id',
-          render: (t: string, d: any) => (
-            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
-          )
-        }))}
-        data={mode === 'edit' ? [] : local.resources}
-      /> */}
     </div>
   )}</Observer>
 }

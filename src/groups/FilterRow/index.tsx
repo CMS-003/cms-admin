@@ -1,4 +1,4 @@
-import { IComponent } from '@/types/component'
+import { IAuto, IComponent } from '@/types/component'
 import styled from 'styled-components'
 import { Component } from '../auto'
 import Acon from '@/components/Acon'
@@ -18,7 +18,7 @@ const Wrap = styled.div`
   }
 `
 
-export default function ComponentFilterRow({ self, mode, children, setParentHovered }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function }) {
+export default function CFilterRow({ self, mode, setParentHovered }: IAuto) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.get('selected')) {

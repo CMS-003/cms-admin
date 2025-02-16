@@ -28,6 +28,7 @@ export const EditWrap = styled.div`
   &.edit.hover {
     border: 1px dashed #df3540;
     &>div.hover {
+      visibility: visible;
       background-color: #cc000040;
       &::after {
         height: 100%;
@@ -51,10 +52,13 @@ export const EditWrap = styled.div`
   &.focus > .coner {
     border-color: #1890ff;
   }
+  &.focus > .coner {
+    visibility: visible;
+  }
   &.edit.hover > .coner {
     border-color: #df3540;
   }
-  &.focus > .coner, &.edit.hover > .coner {
+  &.edit.hover > .coner {
     visibility: visible;
   }
   // 被删除组件的背景
@@ -128,19 +132,9 @@ export const Handler = styled.div`
   left: 0px;
   bottom: 0px;
   top: 0px;
-  // visibility: hidden;
+  visibility: hidden;
   cursor: move !important;
   display: flex; 
   align-items: center;
   height: 100%;
-  // &.hover {
-  //   background-color: #cc000040;
-  //   &::after {
-  //     height: 100%;
-  //     content: '';
-  //     margin-right: -1px;
-  //     border-right: 1px dashed #df3540;
-  //     z-index: 2;
-  //   }
-  // }
 `;

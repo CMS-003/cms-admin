@@ -1,7 +1,7 @@
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 
-export default function TableColumn({ self, mode, source }: { self: IComponent, source?: any, mode: string }) {
+export default function TableColumn({ self, mode, source }: IAuto) {
   return <div>
-    {mode === 'edit' ? self.title : (source ? source[(self.widget as any).field] : '')}
+    {mode === 'edit' ? self.title : (source ? source[self.widget.field] : '')}
   </div>
 }

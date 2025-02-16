@@ -1,4 +1,4 @@
-import { IComponent } from "@/types"
+import { IAuto } from "@/types"
 import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
@@ -19,7 +19,7 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function TabItem({ self, mode, children }: IAuto) {
   const local = useLocalStore(() => ({
     isDragOver: false,
     onDrop: (e: any) => {

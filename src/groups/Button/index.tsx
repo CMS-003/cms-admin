@@ -1,7 +1,7 @@
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 import { Button } from 'antd'
 
-export default function CButton({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
+export default function CButton({ self }: IAuto) {
   return <div>
     <Button type={self.attrs.get('type') || 'primary'}>{self.title}</Button>
   </div>

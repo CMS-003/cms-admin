@@ -1,6 +1,6 @@
 import { Tabs } from "antd";
 import { Observer, useLocalStore } from "mobx-react";
-import { IComponent } from '@/types/component';
+import { IAuto, IComponent } from '@/types/component';
 import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
 import SortList from '@/components/SortList/';
@@ -8,7 +8,7 @@ import TabItem from "../TabItem";
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
 import { Fragment, useEffect } from "react";
-import { TemplatePage } from '../auto'
+import Auto from '../auto'
 import { useEffectOnce } from "react-use";
 
 const TabWrap = styled.div`
@@ -33,7 +33,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function TagPage({ self, mode, children, setParentHovered }: { self: IComponent, mode: string, children?: any, setParentHovered?: Function }) {
+export default function CTab({ self, mode, source, setParentHovered }: IAuto) {
   return <Observer>
     {() => (
       <TabWrap>
@@ -59,9 +59,9 @@ export default function TagPage({ self, mode, children, setParentHovered }: { se
             key: child._id,
             children: (
               child.attrs.get('content_type') === 'template' ? (<Fragment>
-                <TemplatePage mode={'preview'} template_id={child.attrs.get('template_id')} />
+                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                mode === 'edit' ? <TabItem self={child} mode={mode}>
+                mode === 'edit' ? <TabItem self={child} mode={mode} source={source}>
                   <SortList
                     sort={(oldIndex: number, newIndex: number) => {
                       self.swap(oldIndex, newIndex);

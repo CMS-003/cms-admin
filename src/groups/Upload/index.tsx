@@ -1,4 +1,4 @@
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 import { UploadOutlined } from '@ant-design/icons'
 import { Button, Upload } from 'antd'
 import { Observer } from 'mobx-react'
@@ -16,10 +16,10 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function ComponentSelect({ self, mode, children, level, source = {} }: { self: IComponent, mode: string, children?: any, level: number, source: any }) {
+export default function CUpload({ self, source = {} }: IAuto) {
   return <Observer>{() => (
     <Upload>
-      <Preview style={{ backgroundImage: `url(${source[self.widget?.field || '']})` }}>
+      <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
         <Button icon={<UploadOutlined />}></Button>
       </Preview>
     </Upload>

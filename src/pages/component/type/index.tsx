@@ -72,15 +72,6 @@ const ComponentTypePage: React.FC = () => {
       value: [],
       autoFocus: false,
     },
-    {
-      field: 'level',
-      title: '层级',
-      type: 'number',
-      component: IEditorComponent.Input,
-      defaultValue: 1,
-      value: [],
-      autoFocus: false,
-    },
     // {
     //   field: 'available',
     //   title: '是否可用',
@@ -143,7 +134,6 @@ const ComponentTypePage: React.FC = () => {
         <Table.Column title="类型" dataIndex="name" />
         <Table.Column title="类别" dataIndex="group" />
         <Table.Column title="accepts" dataIndex="accepts" render={(types) => types.join(',')} />
-        <Table.Column title="层级" dataIndex="level" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
             <Acon icon='FormOutlined' onClick={

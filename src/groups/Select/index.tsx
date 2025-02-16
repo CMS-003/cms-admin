@@ -1,9 +1,9 @@
-import { IComponent } from '@/types/component'
+import { IAuto } from '@/types/component'
 import { Select } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import events from '@/utils/event';
 
-export default function ComponentSelect({ self, mode, children, level }: { self: IComponent, mode: string, children?: any, level: number }) {
+export default function CSelect({ self }: IAuto) {
   const local = useLocalStore(() => ({
     open: false,
   }))
@@ -13,9 +13,9 @@ export default function ComponentSelect({ self, mode, children, level }: { self:
       <Select
         style={{ marginLeft: 5 }}
         open={local.open}
-        defaultValue={self.widget?.value}
+        defaultValue={self.widget.value}
         onChange={v => {
-          events.emit('setQuery', { page: self.template_id, field: self.widget?.field, value: v, force: true, template_id: self.template_id })
+          events.emit('setQuery', { page: self.template_id, field: self.widget.field, value: v, force: true, template_id: self.template_id })
         }}
         onMouseDown={(e) => {
           if (e.button === 0) {
@@ -25,7 +25,7 @@ export default function ComponentSelect({ self, mode, children, level }: { self:
           }
         }}
       >
-        {self.widget?.refer.map(t => (
+        {self.widget.refer.map(t => (
           <Select.Option key={t.value} value={t.value}>{t.label}</Select.Option>
         ))}
       </Select>
