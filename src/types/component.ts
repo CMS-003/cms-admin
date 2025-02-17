@@ -64,13 +64,16 @@ export type IAuto = {
   source?: any;
   setSource?: Function;
   setParentHovered?: Function;
-  handler?: any
+  handler?: any;
+  index: number;
   page?: {
     path: string,
     param: { [key: string]: string },
     query: { [key: string]: string },
   };
-  drag?: {
+}
+export type IBaseComponent = {
+  drag: {
     isDragOver: boolean;
     isMouseOver: boolean;
     onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;

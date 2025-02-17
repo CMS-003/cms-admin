@@ -1,4 +1,4 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Table } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Component } from '../auto'
@@ -8,7 +8,7 @@ import { useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 
-export default function CTable({ self, mode, page, drag, children }: IAuto) {
+export default function CTable({ self, mode, page, drag, children }: IAuto & IBaseComponent) {
   const local: {
     loading: boolean,
     query: { [key: string]: string | number },
@@ -90,12 +90,12 @@ export default function CTable({ self, mode, page, drag, children }: IAuto) {
           local.page_size = p.pageSize as number;
           init();
         }}
-        columns={self.children.map(child => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
+        columns={self.children.map((child, i) => ({
+          title: <Observer>{() => (<Component index={i} self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
+            child.children.map((sun, index) => <Observer>{() => <Component index={index} self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

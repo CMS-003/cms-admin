@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect } from 'react';
+import { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
 import { Observer, useLocalStore } from 'mobx-react'
@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import { ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Acon, SortList, Style } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource, IAuto } from '@/types'
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IBaseComponent } from '@/types'
 import BaseComponent from './index';
 import {
   EditWrap,
@@ -71,7 +71,7 @@ function collectIds(tree: IComponent, arr: string[]) {
   tree.children.forEach(t => collectIds(t, arr));
 }
 
-export function Component({ self, children, mode, isDragging, handler, setParentHovered, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, mode, handler = {}, isDragging, index, setParentHovered, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
@@ -199,15 +199,27 @@ export function Component({ self, children, mode, isDragging, handler, setParent
         <Com
           self={self}
           mode={mode}
+          index={index}
           page={page}
           source={source}
           setSource={setSource}
           setParentHovered={setParentHovered}
           drag={dragStore}
+          handler={handler}
+          isDragging={isDragging}
           {...(props)}
         >
           <div>
-            <Handler className='handler'>
+            <Handler
+              className='handler'
+              // ref={handler.innerRef}
+              // {...handler.draggableProps}
+              // {...handler.dragHandleProps}
+              // style={{
+              //   backgroundColor: isDragging ? 'lightblue' : '',
+              //   ...(handler.draggableProps || {}).style,
+              // }}
+            >
               <IconSVG src={icon_drag} />
             </Handler>
             <LineL className='line' />
@@ -225,7 +237,7 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     </Observer >
   } else {
     return <div>
-      <Handler className='handler' {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+      <Handler className='handler' {...handler} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
         <IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>
@@ -436,7 +448,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
-              {(local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />)}
+              {(local.template as ITemplate).children.map((child, index) => <Component self={child} index={index} key={child._id} mode={mode} page={page} />)}
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>

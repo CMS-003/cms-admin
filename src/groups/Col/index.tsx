@@ -1,10 +1,10 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 
 
-export default function CCol({ self, mode, drag, page, source, setSource, children }: IAuto) {
+export default function CCol({ self, mode, drag, page, source, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <Col style={{ minHeight: 32 }}
       offset={self.attrs.get('left') || 0}
@@ -17,7 +17,7 @@ export default function CCol({ self, mode, drag, page, source, setSource, childr
       onDrop={drag?.onDrop || ((e) => { })}
       onDragLeave={drag?.onDragLeave || ((e) => { })}>
       {children}
-      {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+      {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
     </Col>
   )}</Observer>
 }

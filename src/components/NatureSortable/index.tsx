@@ -26,7 +26,6 @@ export default function NatureSortable({
     provided: DraggableProvided,
   }) => ReactElement<HTMLElement, string | JSXElementConstructor<any>>);
 }) {
-  const Container = children ? children() : Wrap;
   return (
     <DragDropContext onDragEnd={restProps.onDragEnd}>
       <Droppable
@@ -38,14 +37,14 @@ export default function NatureSortable({
         }
       >
         {(provided) => (
-          <Container ref={provided.innerRef} {...provided.droppableProps}>
+          <Wrap ref={provided.innerRef} {...provided.droppableProps}>
             {items.map((item, index) => (
-              <Draggable key={item.id} draggableId={item._id} index={index}>
+              <Draggable key={item._id} draggableId={item._id} index={index}>
                 {(provided, snapshot) => renderItem({ item, provided, isDragging: snapshot.isDragging, index })}
               </Draggable>
             ))}
             {provided.placeholder}
-          </Container>
+          </Wrap>
         )}
       </Droppable>
     </DragDropContext>

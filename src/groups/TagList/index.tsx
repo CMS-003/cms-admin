@@ -1,11 +1,11 @@
 import { Acon } from '@/components'
 import { FullWidth } from '@/components/style'
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Input, Tag } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Fragment } from 'react'
 
-export default function CTags({ self, mode, source = {}, setSource, drag, children }: IAuto) {
+export default function CTags({ self, mode, source = {}, setSource, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     addVisible: false,
     tempTag: '',

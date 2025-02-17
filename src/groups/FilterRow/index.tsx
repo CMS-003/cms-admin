@@ -1,4 +1,4 @@
-import { IAuto, IComponent } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
 import { Component } from '../auto'
 import Acon from '@/components/Acon'
@@ -18,7 +18,7 @@ const Wrap = styled.div`
   }
 `
 
-export default function CFilterRow({ self, mode, drag, page, source, setSource, children }: IAuto) {
+export default function CFilterRow({ self, mode, drag, page, source, setSource, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.get('selected')) {
@@ -37,7 +37,7 @@ export default function CFilterRow({ self, mode, drag, page, source, setSource, 
         onDrop={drag?.onDrop || ((e) => { })}
         onDragLeave={drag?.onDragLeave || ((e) => { })}>
         {children}
-        {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+        {self.children.map((child, index) => <Component index={index} mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
       </Wrap>
     )}
   </Observer>

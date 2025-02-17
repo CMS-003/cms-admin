@@ -1,7 +1,7 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Observer } from 'mobx-react'
 
-export default function TableColumn({ self, mode, source, drag, children }: IAuto) {
+export default function TableColumn({ self, mode, source, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}

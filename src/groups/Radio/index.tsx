@@ -1,8 +1,8 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 
-export default function CRadio({ self, mode, drag, source = {}, setSource, children }: IAuto) {
+export default function CRadio({ self, mode, drag, source = {}, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div style={{ lineHeight: 2.5 }}
       className={`${mode} ${drag?.classNames}`}

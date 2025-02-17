@@ -1,6 +1,6 @@
 import { Tabs } from "antd";
 import { Observer, useLocalStore } from "mobx-react";
-import { IAuto, IComponent } from '@/types/component';
+import { IAuto, IBaseComponent } from '@/types/component';
 import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
 import SortList from '@/components/SortList/';
@@ -33,7 +33,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, source, drag, page, setSource, children }: IAuto) {
+export default function CTab({ self, mode, source, drag, page, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <TabWrap
@@ -71,7 +71,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
               child.attrs.get('content_type') === 'template' ? (<Fragment>
                 <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                <Component mode={mode} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
+                <Component mode={mode} index={i} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
             )
           }))}
         >

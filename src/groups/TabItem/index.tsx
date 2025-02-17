@@ -1,4 +1,4 @@
-import { IAuto } from "@/types"
+import { IAuto, IBaseComponent} from "@/types"
 import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
@@ -20,7 +20,7 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, page, drag, source, setSource, children }: IAuto) {
+export default function TabItem({ self, mode, page, drag, source, setSource, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
@@ -50,7 +50,7 @@ export default function TabItem({ self, mode, page, drag, source, setSource, chi
         onDragLeave={local.onDragLeave}
         onDrop={local.onDrop} >
         {children}
-        {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+        {self.children.map((child, index) => <Component index={index} mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
       </TabItemWrap>
     )}
   </Observer>

@@ -1,8 +1,8 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Input } from 'antd'
 import { Observer } from 'mobx-react'
 
-export default function CInput({ self, mode, source = {}, drag, setSource, children }: IAuto) {
+export default function CInput({ self, mode, source = {}, drag, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div style={self.style}
       className={`${mode} ${drag?.classNames}`}

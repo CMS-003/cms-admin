@@ -1,9 +1,9 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Image } from 'antd';
 import store from '@/store';
 import { Observer } from 'mobx-react';
 
-export default function CImage({ self, mode, drag, children }: IAuto) {
+export default function CImage({ self, mode, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}

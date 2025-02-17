@@ -1,5 +1,5 @@
 
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
 import Acon from '@/components/Acon'
@@ -17,7 +17,7 @@ background-color: #eee;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CRandom({ self, mode, drag, children }: IAuto) {
+export default function CRandom({ self, mode, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div style={self.style}
       className={`${mode} ${drag?.classNames}`}

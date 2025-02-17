@@ -1,11 +1,11 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
 
 const Icon = styled.img`
 
 `
-export default function CIcon({ self, mode, drag, children }: IAuto) {
+export default function CIcon({ self, mode, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}

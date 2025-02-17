@@ -1,8 +1,8 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Tag } from 'antd'
 import { Observer } from 'mobx-react';
 
-export default function ComponentFilterTag({ self, mode, children, drag, ...props }: IAuto) {
+export default function ComponentFilterTag({ self, mode, children, drag, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}

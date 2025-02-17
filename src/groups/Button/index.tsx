@@ -1,8 +1,8 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Button } from 'antd'
 import { Observer } from 'mobx-react'
 
-export default function CButton({ self, mode, drag, children }: IAuto) {
+export default function CButton({ self, mode, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}

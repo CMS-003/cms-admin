@@ -1,9 +1,9 @@
-import { IAuto } from '@/types/component'
+import { IAuto, IBaseComponent} from '@/types/component'
 import { Select } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import events from '@/utils/event';
 
-export default function CSelect({ self, mode, drag, children }: IAuto) {
+export default function CSelect({ self, mode, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     open: false,
   }))

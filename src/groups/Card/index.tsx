@@ -1,4 +1,4 @@
-import { IAuto, IComponent } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import Acon from '@/components/Acon'
 import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
@@ -55,7 +55,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function CCard({ self, mode, drag, children }: IAuto) {
+export default function CCard({ self, mode, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     show: false,
     close() {

@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect } from 'react';
+import { Fragment, useCallback, useEffect, useRef, forwardRef } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin } from 'antd';
 import { Observer, useLocalStore } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
@@ -7,12 +7,12 @@ import { useEffectOnce } from 'react-use';
 import store from '@/store';
 import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix, FullHeightAuto } from '@/components/style'
 import { Wrap, Card } from './style';
-import Auto from '../../groups/auto'
+import Page from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
-import { keyBy } from 'lodash';
 
 const ComponentTemplatePage = ({ t }: { t?: number }) => {
+  const ref = useRef(null)
   const local = useLocalStore<{
     mode: string,
     loading: boolean,
@@ -116,7 +116,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: '10px 0', width: '100%', height: '100%', overflow: 'auto' }}>
             {local.loading
               ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." />
-              : <Auto template_id={local.edit_template_id} mode={local.mode} />
+              : <Page template_id={local.edit_template_id} mode={local.mode} />
             }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

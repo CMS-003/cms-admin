@@ -1,4 +1,4 @@
-import { IAuto, } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
 import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
@@ -12,7 +12,7 @@ const MenuItem = styled.div`
     background-color: ${props => props.className === 'edit' ? 'transparent' : '#71ace3'};
   }
 `
-export default function CMenuItem({ self, mode, drag, children, }: IAuto) {
+export default function CMenuItem({ self, mode, drag, children, }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}
@@ -27,6 +27,7 @@ export default function CMenuItem({ self, mode, drag, children, }: IAuto) {
       <div style={{ paddingLeft: 24 }}>
         {self.children.map((child, i) => <Component
           key={i}
+          index={i}
           self={child}
           mode={mode}
           setParentHovered={drag?.setIsMouseOver}

@@ -1,12 +1,12 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
-import { IAuto, IComponent } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import _ from 'lodash'
 import SortList from '@/components/SortList/';
 import { Component } from '../auto'
 import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 
-export default function CFilter({ self, mode, drag, page, source, setSource, children }: IAuto) {
+export default function CFilter({ self, mode, drag, page, source, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <FullHeight key={self.children.length}
@@ -20,7 +20,7 @@ export default function CFilter({ self, mode, drag, page, source, setSource, chi
       >
         {children}
         <FullHeightFix style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+          {self.children.map((child, index) => <Component index={index} mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
         </FullHeightFix>
         <FullHeightAuto>
           resources
