@@ -78,3 +78,100 @@ code {
   flex: 1;
   overflow: auto;
 }
+
+/* 组件编辑状态样式 */
+/* .focus 选中状态(蓝色) 
+   .hover 悬浮状态(红色) 
+   .delete 删除状态(灰色)
+ */
+.component {
+  position: relative;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* 为拖拽handler提供位置 */
+.component.edit {
+  padding-left: 20px;
+}
+
+.component.edit.focus>div>.handler {
+  visibility: visible;
+  background-color: #1890ff40;
+}
+
+.component.edit.focus>div>.handler::after {
+  height: 100%;
+  content: '';
+  margin-right: -1px;
+  border-right: 1px dashed #1890ff;
+  z-index: 2;
+}
+
+.component.edit.hover>div>.handler {
+  visibility: visible;
+  background-color: #cc000040;
+}
+
+.component.edit.hover>div>.handler::after {
+  height: 100%;
+  content: '';
+  margin-right: -1px;
+  border-right: 1px dashed #df3540;
+  z-index: 2;
+}
+
+.component.edit>div>.line {
+  position: absolute;
+  z-index: 2;
+  visibility: hidden;
+  border: 0 dashed transparent;
+}
+
+.component.edit.focus>div>.line {
+  border-color: #1890ff;
+  visibility: visible;
+}
+
+.component.edit.hover>div>.line {
+  border-color: #df3540;
+  visibility: visible;
+  z-index: 3;
+}
+
+.component.edit>div>.coner {
+  position: absolute;
+  z-index: 2;
+  width: 2px;
+  height: 2px;
+  border-style: solid;
+  visibility: hidden;
+}
+
+.component.edit.focus>div>.coner {
+  border-color: #1890ff;
+  visibility: visible;
+}
+
+.component.edit.hover>div>.coner {
+  border-color: #df3540;
+  visibility: visible;
+}
+
+.component.edit.delete {
+  background: repeating-linear-gradient(45deg,
+      gray 0px,
+      gray 10px,
+      white 10px,
+      white 20px);
+  background-clip: padding-box;
+  opacity: 0.6;
+}
+
+.component.edit.dragover {
+  background-color: #7cd77f;
+}
+
+.component.edit.cantdrag {
+  background-color: #df3540;
+}

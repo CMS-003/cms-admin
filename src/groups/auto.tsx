@@ -1,4 +1,4 @@
-import { Fragment, useCallback } from 'react';
+import { Fragment, useCallback, useEffect } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
 import { Observer, useLocalStore } from 'mobx-react'
@@ -21,6 +21,10 @@ import {
   TemplateBox,
   EditItem,
   Handler,
+  LineL,
+  LineT,
+  LineR,
+  LineB,
   ConerLB,
   ConerRB,
   ConerLT,
@@ -75,9 +79,11 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     onDrop: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
+      if (mode === 'preview' || store.app.dragingType === '') return;
       dragStore.isDragOver = false;
       if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
-        self.appendChild(store.app.dragingType)
+        const com = self.appendChild(store.app.dragingType)
+        store.app.setEditComponentId(com._id);
       }
     },
     onDragLeave: () => {
@@ -90,8 +96,32 @@ export function Component({ self, children, mode, isDragging, handler, setParent
         dragStore.isDragOver = true;
       }
     },
-    setIsMouseOver(is: boolean) {
+    setIsMouseOver: (is: boolean) => {
       dragStore.isMouseOver = is;
+    },
+    onMouseEnter() {
+      dragStore.isMouseOver = true;
+      if (setParentHovered) {
+        setParentHovered(false)
+      }
+    },
+    onMouseLeave() {
+      dragStore.isMouseOver = false;
+      if (setParentHovered) {
+        setParentHovered(true)
+      }
+    },
+    onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      e.preventDefault();
+      e.stopPropagation();
+      contextMenu.show({
+        id: 'group_menu',
+        event: e,
+        props: self
+      });
+    },
+    get classNames() {
+      return `component ${self.status === 0 ? 'delete' : ''} ${mode === 'edit' && dragStore.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`
     }
   }));
   // 数据源
@@ -166,71 +196,36 @@ export function Component({ self, children, mode, isDragging, handler, setParent
     const direction = ['Tab'].includes(self.type) || self.style.flexDirection === 'row' || self.attrs.get('layout') === 'horizon' || (self.type === 'Layout' && !self.attrs.get('layout')) ? 'horizontal' : 'vertical';
     return <Observer>
       {() => (
-        mode === 'edit' ? <EditWrap
-          data-component-id={self.type + '-' + self._id}
-          onContextMenu={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            contextMenu.show({
-              id: 'group_menu',
-              event: e,
-              props: self
-            });
-          }}
-          onMouseEnter={() => {
-            dragStore.setIsMouseOver(true);
-            if (setParentHovered) {
-              setParentHovered(false)
-            }
-          }}
-          onMouseLeave={() => {
-            dragStore.setIsMouseOver(false);
-            if (setParentHovered) {
-              setParentHovered(true)
-            }
-          }}
-          onDragOver={dragStore.onDragOver}
-          onDragLeave={dragStore.onDragLeave}
-          onDrop={dragStore.onDrop}
-          className={`${mode} ${store.app.editing_component_id === self._id && mode === 'edit' ? 'focus' : ''} ${self.status === 0 ? 'delete' : ''} ${dragStore.isMouseOver ? 'hover' : ''} ${store.app.dragingType && dragStore.isDragOver ? (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type) && BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? 'dragover' : 'cantdrag') : ''}`}
+        <Com
+          self={self}
+          mode={mode}
+          page={page}
+          source={source}
+          setSource={setSource}
+          setParentHovered={setParentHovered}
+          drag={dragStore}
+          {...(props)}
         >
-          <ConerLB className='coner' />
-          <ConerRB className='coner' />
-          <ConerLT className='coner' />
-          <ConerRT className='coner' />
-          <Handler {...handler} className='hover' data-drag={isDragging}>
-            <IconSVG src={icon_drag} />
-          </Handler>
-          <Com self={self} mode={mode} page={page} source={source} setSource={setSource} setParentHovered={(is: boolean) => {
-            dragStore.setIsMouseOver(is);
-          }} {...(props)}>
-            <SortList
-              listStyle={self.style || {}}
-              sort={(oldIndex: number, newIndex: number) => {
-                self.swap(oldIndex, newIndex);
-              }}
-              droppableId={self._id}
-              items={self.children}
-              itemStyle={{ display: 'flex', alignItems: 'center', }}
-              mode={mode}
-              direction={direction}
-              renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} page={page} handler={h2} self={item} source={source} key={index} setParentHovered={(is: boolean) => {
-                dragStore.setIsMouseOver(is);
-              }} />}
-            />
-          </Com>
-        </EditWrap>
-          : <Com self={self} mode={mode} page={page} source={source} setSource={setSource} {...(props)}>
-            <Fragment>
-              {self.children.map(child => (<Component mode={mode} page={page} source={source} setSource={setSource} self={child} key={child._id} />))}
-            </Fragment>
-          </Com>
+          <div>
+            <Handler className='handler'>
+              <IconSVG src={icon_drag} />
+            </Handler>
+            <LineL className='line' />
+            <LineT className='line' />
+            <LineR className='line' />
+            <LineB className='line' />
+            <ConerLB className='coner' />
+            <ConerRB className='coner' />
+            <ConerLT className='coner' />
+            <ConerRT className='coner' />
+          </div>
+        </Com>
       )
       }
     </Observer >
   } else {
     return <div>
-      <Handler {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+      <Handler className='handler' {...handler} data-drag={isDragging} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
         <IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>
@@ -259,6 +254,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     onDragLeave: any,
     onDrop: any,
     remComponent: Function,
+    setEditComponent: Function,
   }>(() => ({
     editComponent: null,
     loading: true,
@@ -269,7 +265,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
-      if (mode === 'preview') {
+      if (mode === 'preview' || store.app.dragingType === '') {
         return;
       }
       const type = store.component.types.find(it => it.name === store.app.dragingType)
@@ -293,7 +289,11 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
           type: 'string'
         }
       });
-      local.template?.children.push(child)
+      if (local.template) {
+        local.template.children.push(child)
+        local.setEditComponent(local.template.children[local.template.children.length - 1]);
+        store.app.setEditComponentId(child._id);
+      }
     },
     onDragLeave: () => {
       local.isDragOver = false;
@@ -321,8 +321,13 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
           apis.batchDestroyComponent({ ids: toJS(ids).join(',') })
         }
       }
+    },
+    setEditComponent(com: IComponent | null) {
+      local.editComponent = com;
+      store.app.setEditComponentId(com ? com._id : '');
     }
   }))
+
   const refresh = useCallback(async () => {
     local.setLoading(true)
     try {
@@ -378,6 +383,9 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
   const eventRemoveComponent = useCallback(async (id: string) => {
     local.remComponent(id)
   }, []);
+  useEffect(() => {
+    local.setEditComponent(null)
+  }, [mode])
   useEffectOnce(() => {
     refresh()
     events.on('editable', eventHandle)
@@ -425,25 +433,10 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               onDragOver={local.onDragOver}
               onDragLeave={local.onDragLeave}
               onDrop={local.onDrop}
-              className={`${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
+              className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
-              {mode === 'edit' ? <SortList
-                listStyle={{}}
-                sort={(oldIndex: number, newIndex: number) => {
-                  const [old] = (local.template as ITemplate).children.splice(oldIndex, 1);
-                  local.template?.children.splice(newIndex, 0, old);
-                  local.template?.children.forEach((child, i) => {
-                    child.setAttr('order', i);
-                  });
-                }}
-                key={local.template?.children.length}
-                droppableId={(local.template as ITemplate)._id}
-                items={(local.template as ITemplate).children}
-                itemStyle={{ display: 'flex' }}
-                mode={mode}
-                renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component self={item} key={item._id} mode={mode} page={page} handler={handler} />}
-              /> : ((local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />))}
+              {(local.template as ITemplate).children.map(child => <Component self={child} key={child._id} mode={mode} page={page} />)}
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>
@@ -569,9 +562,6 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
                 />
               )}
             />
-            {/* {local.editComponent.widget.refer.map((w, n) => (
-              <Input key={w.value} addonBefore={w.label} value={w.value} addonAfter={<Acon icon='close' onClick={() => local.editComponent?.remRefer(n)} />} />
-            ))} */}
             <AlignAround>
               {local.addWidgetReferVisible
                 ? <Fragment>

@@ -17,9 +17,18 @@ background-color: #eee;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CRandom({ self }: IAuto) {
+export default function CRandom({ self, mode, drag, children }: IAuto) {
   return <Observer>{() => (
-    <div style={self.style}>
+    <div style={self.style}
+      className={`${mode} ${drag?.classNames}`}
+      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+      onContextMenu={drag?.onContextMenu || ((e) => { })}
+      onDragOver={drag?.onDragOver || ((e) => { })}
+      onDrop={drag?.onDrop || ((e) => { })}
+      onDragLeave={drag?.onDragLeave || ((e) => { })}
+    >
+      {children}
       <Header>
         {self.title}
       </Header>
@@ -30,6 +39,5 @@ export default function CRandom({ self }: IAuto) {
         <div style={{ textAlign: 'center', padding: '5px 0' }}><Acon icon='SyncOutlined' /></div>
       </Wrap>
     </div>
-  )
-  }</Observer >
+  )}</Observer >
 }

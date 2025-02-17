@@ -9,7 +9,7 @@ import apis from '@/api'
 import _ from 'lodash'
 
 
-export default function CForm({ self, mode, page, setParentHovered, }: IAuto) {
+export default function CForm({ self, mode, page, drag, children }: IAuto) {
   const local: {
     source: { [key: string]: any };
     $origin: { [key: string]: any };
@@ -59,20 +59,18 @@ export default function CForm({ self, mode, page, setParentHovered, }: IAuto) {
     getInfo();
   }, [page?.query['id'], self.api])
   return <Observer>{() => (
-    <FullHeight style={{ height: '100%' }}>
+    <FullHeight style={{ width: '100%', height: '100%' }}
+      className={`${mode} ${drag?.classNames}`}
+      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+      onContextMenu={drag?.onContextMenu || ((e) => { })}
+      onDragOver={drag?.onDragOver || ((e) => { })}
+      onDrop={drag?.onDrop || ((e) => { })}
+      onDragLeave={drag?.onDragLeave || ((e) => { })}
+    >
+      {children}
       <FullHeightAuto>
-        <SortList
-          listStyle={self.style || {}}
-          sort={(oldIndex: number, newIndex: number) => {
-            self.swap(oldIndex, newIndex);
-          }}
-          droppableId={self._id}
-          items={self.children}
-          itemStyle={{ display: 'flex', alignItems: 'center', }}
-          mode={mode}
-          direction={'vertical'}
-          renderItem={({ item, handler: h2, index }: { item: IComponent, handler: HTMLObjectElement, index: number }) => <Component mode={mode} page={page} handler={h2} setSource={local.updateSource} self={item} key={index} source={local.source} setParentHovered={setParentHovered} />}
-        />
+        {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={local.source} setSource={local.updateSource} setParentHovered={drag?.setIsMouseOver} />)}
       </FullHeightAuto>
       <AlignAround style={{ padding: 8 }}>
         <Button loading={local.loading} disabled={!local.isDiff()} type='primary' onClick={updateInfo}>保存</Button>

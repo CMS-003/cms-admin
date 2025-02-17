@@ -18,7 +18,7 @@ const Wrap = styled.div`
   }
 `
 
-export default function CFilterRow({ self, mode, setParentHovered }: IAuto) {
+export default function CFilterRow({ self, mode, drag, page, source, setSource, children }: IAuto) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.get('selected')) {
@@ -28,33 +28,16 @@ export default function CFilterRow({ self, mode, setParentHovered }: IAuto) {
   })
   return <Observer>
     {() => (
-      <Wrap key={self.children.length}>
-        {mode === 'edit' ? <div style={{ display: 'flex', alignItems: 'center' }}>
-          <SortList
-            sort={(oldIndex: number, newIndex: number) => {
-              self.swap(oldIndex, newIndex);
-            }}
-            droppableId={self._id}
-            items={self.children}
-            itemStyle={{ display: 'flex', alignItems: 'center', }}
-            mode={mode}
-            direction={'horizontal'}
-            renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered} />}
-          />
-          <Acon icon='PlusCircleOutlined' onClick={() => {
-            self.appendChild('FilterTag')
-          }} />
-        </div> : (
-          <ScrollWrap>
-            {self.children.map(child => <Component self={child} mode={mode} key={child._id}  {...({
-              onSelect: (id: string) => {
-                self.children.forEach(child => {
-                  child.setAttr('$selected', child._id === id ? true : false)
-                })
-              }
-            })} />)}
-          </ScrollWrap>
-        )}
+      <Wrap key={self.children.length}
+        className={`${mode} ${drag?.classNames}`}
+        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+        onContextMenu={drag?.onContextMenu || ((e) => { })}
+        onDragOver={drag?.onDragOver || ((e) => { })}
+        onDrop={drag?.onDrop || ((e) => { })}
+        onDragLeave={drag?.onDragLeave || ((e) => { })}>
+        {children}
+        {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
       </Wrap>
     )}
   </Observer>

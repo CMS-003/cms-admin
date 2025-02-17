@@ -1,4 +1,4 @@
-import { IComponent } from '@/types/component'
+import { IAuto, IComponent } from '@/types/component'
 import Acon from '@/components/Acon'
 import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
@@ -55,7 +55,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function CCard({ self, mode, children }: { self: IComponent, mode: string, children?: any }) {
+export default function CCard({ self, mode, drag, children }: IAuto) {
   const local = useLocalStore(() => ({
     show: false,
     close() {
@@ -66,7 +66,16 @@ export default function CCard({ self, mode, children }: { self: IComponent, mode
     }
   }))
   return <Observer>{() => (
-    <div style={self.style || {}}>
+    <div
+      style={self.style || {}}
+      className={`${mode} ${drag?.classNames}`}
+      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+      onContextMenu={drag?.onContextMenu || ((e) => { })}
+      onDragOver={drag?.onDragOver || ((e) => { })}
+      onDrop={drag?.onDrop || ((e) => { })}
+      onDragLeave={drag?.onDragLeave || ((e) => { })}>
+      {children}
       <Header>
         {self.title}
       </Header>

@@ -70,6 +70,18 @@ export type IAuto = {
     param: { [key: string]: string },
     query: { [key: string]: string },
   };
+  drag?: {
+    isDragOver: boolean;
+    isMouseOver: boolean;
+    onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onDragOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    setIsMouseOver: Function;
+    get classNames(): string;
+  }
 }
 
 export type IComponentType = {

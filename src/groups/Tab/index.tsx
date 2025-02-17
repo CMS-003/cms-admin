@@ -33,10 +33,19 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, source, setParentHovered }: IAuto) {
+export default function CTab({ self, mode, source, drag, page, setSource, children }: IAuto) {
   return <Observer>
     {() => (
-      <TabWrap>
+      <TabWrap
+        className={`${mode} ${drag?.classNames}`}
+        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+        onContextMenu={drag?.onContextMenu || ((e) => { })}
+        onDragOver={drag?.onDragOver || ((e) => { })}
+        onDrop={drag?.onDrop || ((e) => { })}
+        onDragLeave={drag?.onDragLeave || ((e) => { })}
+      >
+        {children}
         <Tabs
           activeKey={self.attrs.get('selected_id')}
           tabBarExtraContent={{ right: <Acon icon={(self.icon as Icon) || 'BarsOutlined'} /> }}
@@ -45,6 +54,7 @@ export default function CTab({ self, mode, source, setParentHovered }: IAuto) {
           }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
+              className={`${mode} ${drag?.classNames}`}
               onContextMenu={e => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -61,19 +71,7 @@ export default function CTab({ self, mode, source, setParentHovered }: IAuto) {
               child.attrs.get('content_type') === 'template' ? (<Fragment>
                 <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                mode === 'edit' ? <TabItem self={child} mode={mode} source={source}>
-                  <SortList
-                    sort={(oldIndex: number, newIndex: number) => {
-                      self.swap(oldIndex, newIndex);
-                    }}
-                    droppableId={self._id}
-                    items={child.children}
-                    itemStyle={{ display: 'flex', alignItems: 'center' }}
-                    mode={mode}
-                    direction={'vertical'}
-                    renderItem={({ item, handler }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={handler} self={item} key={item._id} setParentHovered={setParentHovered} />}
-                  />
-                </TabItem> : <Component mode={mode} self={child} key={child._id} />
+                <Component mode={mode} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
             )
           }))}
         >

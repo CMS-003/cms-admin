@@ -8,7 +8,7 @@ import { useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 
-export default function CTable({ self, mode, setParentHovered }: IAuto) {
+export default function CTable({ self, mode, page, drag, children }: IAuto) {
   const local: {
     loading: boolean,
     query: { [key: string]: string | number },
@@ -69,7 +69,16 @@ export default function CTable({ self, mode, setParentHovered }: IAuto) {
     init();
   })
   return <Observer>{() => (
-    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...self.style }}>
+    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...self.style }}
+      className={`${mode} ${drag?.classNames}`}
+      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+      onContextMenu={drag?.onContextMenu || ((e) => { })}
+      onDragOver={drag?.onDragOver || ((e) => { })}
+      onDrop={drag?.onDrop || ((e) => { })}
+      onDragLeave={drag?.onDragLeave || ((e) => { })}
+    >
+      {children}
       <Table
         loading={local.loading}
         pagination={{ total: local.total, pageSize: local.page_size }}
@@ -82,11 +91,11 @@ export default function CTable({ self, mode, setParentHovered }: IAuto) {
           init();
         }}
         columns={self.children.map(child => ({
-          title: mode === 'edit' ? <Component self={child} mode={mode} key={child._id} setParentHovered={setParentHovered} /> : child.title,
+          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={setParentHovered} />}</Observer>)
+            child.children.map(sun => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

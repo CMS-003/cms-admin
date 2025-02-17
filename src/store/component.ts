@@ -153,6 +153,7 @@ export const ComponentItem = types.model('Component', {
       accepts: self.toJSON().accepts,
       children: [],
     }))
+    return self.children[self.children.length - 1];
   },
   removeChild(_id: string) {
     const i = self.children.findIndex(c => c._id === _id);

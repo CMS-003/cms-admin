@@ -6,32 +6,21 @@ import { Component } from '../auto'
 import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 
-export default function CFilter({ self, mode, setParentHovered }: IAuto) {
+export default function CFilter({ self, mode, drag, page, source, setSource, children }: IAuto) {
   return <Observer>
     {() => (
-      <FullHeight key={self.children.length}>
+      <FullHeight key={self.children.length}
+        className={`${mode} ${drag?.classNames}`}
+        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+        onContextMenu={drag?.onContextMenu || ((e) => { })}
+        onDragOver={drag?.onDragOver || ((e) => { })}
+        onDrop={drag?.onDrop || ((e) => { })}
+        onDragLeave={drag?.onDragLeave || ((e) => { })}
+      >
+        {children}
         <FullHeightFix style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          {mode === 'edit' ? <>
-            <SortList
-              listStyle={self.style || {}}
-              sort={(oldIndex: number, newIndex: number) => {
-                self.swap(oldIndex, newIndex);
-              }}
-              droppableId={self._id}
-              items={self.children}
-              itemStyle={{ display: 'flex', alignItems: 'center', }}
-              mode={mode}
-              direction={'vertical'}
-              renderItem={({ item, handler: h2 }: { item: IComponent, handler: HTMLObjectElement }) => <Component mode={mode} handler={h2} self={item} key={item._id} setParentHovered={setParentHovered} />}
-            />
-            <div style={{ width: '100%' }}>
-              <Acon icon='PlusCircleOutlined' size={18} onClick={() => {
-                self.appendChild('FilterRow')
-              }} />
-            </div>
-          </> : <div style={{ width: '100%', padding: 5 }}>
-            {self.children.map(child => <Component self={child} mode={mode} key={child._id} />)}
-          </div>}
+          {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
         </FullHeightFix>
         <FullHeightAuto>
           resources

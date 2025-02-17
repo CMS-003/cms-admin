@@ -86,27 +86,56 @@ export const EditWrap = styled.div`
     background-color: #df3540;
   }
 `;
-export const ConerLT = styled.span`
+export const LineL = styled.span`
   left: 0;
   top: 0;
+  height: 100%;
+  width: 0;
+  border-left-width: 1px !important;
+`;
+export const LineT = styled.span`
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  border-top-width: 1px !important;
+`;
+export const LineR = styled.span`
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  border-right-width: 1px !important;
+`;
+export const LineB = styled.span`
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  border-bottom-width: 1px !important;
+`;
+
+export const ConerLT = styled.span`
+  left: 1px;
+  top: 1px;
   border-width: 0 1px 1px 0;
 `
 
 export const ConerRT = styled.span`
-  right: 0;
-  top: 0;
+  right: 1px;
+  top: 1px;
   border-width: 0 0 1px 1px;
 `
 
 export const ConerLB = styled.span`
-  left: 0;
-  bottom: 0;
+  left: 1px;
+  bottom: 1px;
   border-width: 1px 1px 0 0;
 `
 
 export const ConerRB = styled.span`
-  right: 0;
-  bottom: 0;
+  right: 1px;
+  bottom: 1px;
   border-width: 1px 0 0 1px;
 `
 
@@ -129,6 +158,7 @@ export const ScrollWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
+  z-index: 9;
   left: 0px;
   bottom: 0px;
   top: 0px;

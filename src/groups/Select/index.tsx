@@ -3,12 +3,20 @@ import { Select } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import events from '@/utils/event';
 
-export default function CSelect({ self }: IAuto) {
+export default function CSelect({ self, mode, drag, children }: IAuto) {
   const local = useLocalStore(() => ({
     open: false,
   }))
   return <Observer>{() => (
-    <div>
+    <div
+      className={`${mode} ${drag?.classNames}`}
+      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
+      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
+      onContextMenu={drag?.onContextMenu || ((e) => { })}
+      onDragOver={drag?.onDragOver || ((e) => { })}
+      onDrop={drag?.onDrop || ((e) => { })}
+      onDragLeave={drag?.onDragLeave || ((e) => { })}>
+      {children}
       {self.title}
       <Select
         style={{ marginLeft: 5 }}
