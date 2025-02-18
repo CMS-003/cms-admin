@@ -63,66 +63,21 @@ export default function CForm({ self, mode, page, drag, children }: IAuto & IBas
     <FullHeight
       style={{ width: '100%', height: '100%' }}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}
+      {...drag.events}
     >
       {children}
       <FullHeightAuto>
-        {/* {self.children.map((child, index) => (
-          <Component
-            index={index}
-            mode={mode}
-            page={page}
-            self={child}
-            key={index}
-            source={local.source}
-            setSource={local.updateSource}
-            setParentHovered={drag?.setIsMouseOver}
-          />
-        ))} */}
-        {/* <SortList
-          items={self.children}
-          mode={mode}
-          droppableId={self._id}
-          itemStyle={{}}
-          direction='vertical'
-          sort={(srcIndex: number, dstIndex: number): void => {
-            self.swap(srcIndex, dstIndex);
-          }}
-          renderItem={({ item, index, handler }: { item: IComponent, index: number, handler: any }) => <Component self={item} mode={mode} index={index} handler={handler} />}
-        /> */}
         <NatureSortable
           items={self.children}
           direction='vertical'
           droppableId={self._id}
-          onDragEnd={result => {
-            if (result.destination) {
-              self.swap(result.source.index, result.destination.index)
-            }
-          }}
-          renderItem={({ item, isDragging, index, provided }) => (
-            // <div ref={provided.innerRef} {...provided.dragHandleProps} {...provided.draggableProps}>
-            //   test
-            //   <Component
-            //     self={item}
-            //     mode={mode}
-            //     index={index}
-            //     isDragging={isDragging}
-            //     setParentHovered={drag?.setIsMouseOver}
-            //   // handler={provided}
-            //   />
-            // </div>
+          sort={(srcIndex, dstIndex) => self.swap(srcIndex, dstIndex)}
+          renderItem={({ item, dnd }) => (
             <Component
               self={item}
               mode={mode}
-              index={index}
-              isDragging={isDragging}
               setParentHovered={drag?.setIsMouseOver}
-              handler={provided}
+              dnd={dnd}
             />
           )}
         />

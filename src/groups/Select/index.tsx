@@ -1,4 +1,4 @@
-import { IAuto, IBaseComponent} from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Select } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import events from '@/utils/event';
@@ -10,12 +10,8 @@ export default function CSelect({ self, mode, drag, children }: IAuto & IBaseCom
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}>
+      {...drag.events}
+    >
       {children}
       {self.title}
       <Select

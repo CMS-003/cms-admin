@@ -21,12 +21,7 @@ export default function CRandom({ self, mode, drag, children }: IAuto & IBaseCom
   return <Observer>{() => (
     <div style={self.style}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}
+      {...drag.events}
     >
       {children}
       <Header>

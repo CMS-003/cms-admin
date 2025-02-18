@@ -38,12 +38,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
     {() => (
       <TabWrap
         className={`${mode} ${drag?.classNames}`}
-        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-        onContextMenu={drag?.onContextMenu || ((e) => { })}
-        onDragOver={drag?.onDragOver || ((e) => { })}
-        onDrop={drag?.onDrop || ((e) => { })}
-        onDragLeave={drag?.onDragLeave || ((e) => { })}
+        {...drag.events}
       >
         {children}
         <Tabs
@@ -71,7 +66,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
               child.attrs.get('content_type') === 'template' ? (<Fragment>
                 <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                <Component mode={mode} index={i} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
+                <Component mode={mode} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
             )
           }))}
         >

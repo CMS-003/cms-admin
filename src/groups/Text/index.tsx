@@ -5,12 +5,7 @@ export default function CText({ self, mode, source = {}, drag, children }: IAuto
   return <Observer>{() => (
     <div style={{ lineHeight: 2.5 }}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}
+      {...drag.events}
     >
       {children}
       {mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}

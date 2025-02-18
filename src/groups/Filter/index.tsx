@@ -11,16 +11,11 @@ export default function CFilter({ self, mode, drag, page, source, setSource, chi
     {() => (
       <FullHeight key={self.children.length}
         className={`${mode} ${drag?.classNames}`}
-        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-        onContextMenu={drag?.onContextMenu || ((e) => { })}
-        onDragOver={drag?.onDragOver || ((e) => { })}
-        onDrop={drag?.onDrop || ((e) => { })}
-        onDragLeave={drag?.onDragLeave || ((e) => { })}
+        {...drag.events}
       >
         {children}
         <FullHeightFix style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          {self.children.map((child, index) => <Component index={index} mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+          {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
         </FullHeightFix>
         <FullHeightAuto>
           resources

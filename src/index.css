@@ -95,12 +95,12 @@ code {
   padding-left: 20px;
 }
 
-.component.edit.focus>div>.handler {
+.component.edit.focus>.handler {
   visibility: visible;
   background-color: #1890ff40;
 }
 
-.component.edit.focus>div>.handler::after {
+.component.edit.focus>.handler::after {
   height: 100%;
   content: '';
   margin-right: -1px;
@@ -108,12 +108,12 @@ code {
   z-index: 2;
 }
 
-.component.edit.hover>div>.handler {
+.component.edit.hover>.handler {
   visibility: visible;
   background-color: #cc000040;
 }
 
-.component.edit.hover>div>.handler::after {
+.component.edit.hover>.handler::after {
   height: 100%;
   content: '';
   margin-right: -1px;
@@ -121,25 +121,25 @@ code {
   z-index: 2;
 }
 
-.component.edit>div>.line {
+.component.edit>.line {
   position: absolute;
   z-index: 2;
   visibility: hidden;
   border: 0 dashed transparent;
 }
 
-.component.edit.focus>div>.line {
+.component.edit.focus>.line {
   border-color: #1890ff;
   visibility: visible;
 }
 
-.component.edit.hover>div>.line {
+.component.edit.hover>.line {
   border-color: #df3540;
   visibility: visible;
   z-index: 3;
 }
 
-.component.edit>div>.coner {
+.component.edit>.coner {
   position: absolute;
   z-index: 2;
   width: 2px;
@@ -148,12 +148,12 @@ code {
   visibility: hidden;
 }
 
-.component.edit.focus>div>.coner {
+.component.edit.focus>.coner {
   border-color: #1890ff;
   visibility: visible;
 }
 
-.component.edit.hover>div>.coner {
+.component.edit.hover>.coner {
   border-color: #df3540;
   visibility: visible;
 }

@@ -16,18 +16,13 @@ export default function CMenuItem({ self, mode, drag, children, }: IAuto & IBase
   return <Observer>{() => (
     <div
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}>
+      {...drag.events}
+    >
       {children}
       <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
       <div style={{ paddingLeft: 24 }}>
         {self.children.map((child, i) => <Component
           key={i}
-          index={i}
           self={child}
           mode={mode}
           setParentHovered={drag?.setIsMouseOver}

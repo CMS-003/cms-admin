@@ -17,7 +17,6 @@ import { Acon, SortList, Style } from '@/components/index';
 import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IBaseComponent } from '@/types'
 import BaseComponent from './index';
 import {
-  EditWrap,
   TemplateBox,
   EditItem,
   Handler,
@@ -71,58 +70,60 @@ function collectIds(tree: IComponent, arr: string[]) {
   tree.children.forEach(t => collectIds(t, arr));
 }
 
-export function Component({ self, children, mode, handler = {}, isDragging, index, setParentHovered, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
-    onDrop: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (mode === 'preview' || store.app.dragingType === '') return;
-      dragStore.isDragOver = false;
-      if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
-        const com = self.appendChild(store.app.dragingType)
-        store.app.setEditComponentId(com._id);
-      }
-    },
-    onDragLeave: () => {
-      dragStore.isDragOver = false;
-    },
-    onDragOver: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!dragStore.isDragOver) {
-        dragStore.isDragOver = true;
-      }
+    get classNames() {
+      return `component ${self.status === 0 ? 'delete' : ''} ${mode === 'edit' && dragStore.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`
     },
     setIsMouseOver: (is: boolean) => {
       dragStore.isMouseOver = is;
     },
-    onMouseEnter() {
-      dragStore.isMouseOver = true;
-      if (setParentHovered) {
-        setParentHovered(false)
-      }
+    events: {
+      onDrop: (e: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (mode === 'preview' || store.app.dragingType === '') return;
+        dragStore.isDragOver = false;
+        if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
+          const com = self.appendChild(store.app.dragingType)
+          store.app.setEditComponentId(com._id);
+        }
+      },
+      onDragLeave: () => {
+        dragStore.isDragOver = false;
+      },
+      onDragOver: (e: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!dragStore.isDragOver) {
+          dragStore.isDragOver = true;
+        }
+      },
+      onMouseEnter() {
+        dragStore.isMouseOver = true;
+        if (setParentHovered) {
+          setParentHovered(false)
+        }
+      },
+      onMouseLeave() {
+        dragStore.isMouseOver = false;
+        if (setParentHovered) {
+          setParentHovered(true)
+        }
+      },
+      onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+        e.preventDefault();
+        e.stopPropagation();
+        contextMenu.show({
+          id: 'group_menu',
+          event: e,
+          props: self
+        });
+      },
     },
-    onMouseLeave() {
-      dragStore.isMouseOver = false;
-      if (setParentHovered) {
-        setParentHovered(true)
-      }
-    },
-    onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-      e.preventDefault();
-      e.stopPropagation();
-      contextMenu.show({
-        id: 'group_menu',
-        event: e,
-        props: self
-      });
-    },
-    get classNames() {
-      return `component ${self.status === 0 ? 'delete' : ''} ${mode === 'edit' && dragStore.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`
-    }
   }));
   // 数据源
   const dataStore: {
@@ -199,45 +200,32 @@ export function Component({ self, children, mode, handler = {}, isDragging, inde
         <Com
           self={self}
           mode={mode}
-          index={index}
           page={page}
           source={source}
           setSource={setSource}
           setParentHovered={setParentHovered}
+          dnd={dnd}
           drag={dragStore}
-          handler={handler}
-          isDragging={isDragging}
           {...(props)}
         >
-          <div>
-            <Handler
-              className='handler'
-              // ref={handler.innerRef}
-              // {...handler.draggableProps}
-              // {...handler.dragHandleProps}
-              // style={{
-              //   backgroundColor: isDragging ? 'lightblue' : '',
-              //   ...(handler.draggableProps || {}).style,
-              // }}
-            >
-              <IconSVG src={icon_drag} />
-            </Handler>
-            <LineL className='line' />
-            <LineT className='line' />
-            <LineR className='line' />
-            <LineB className='line' />
-            <ConerLB className='coner' />
-            <ConerRB className='coner' />
-            <ConerLT className='coner' />
-            <ConerRT className='coner' />
-          </div>
+          <Handler className='handler'>
+            <IconSVG src={icon_drag} />
+          </Handler>
+          <LineL className='line' />
+          <LineT className='line' />
+          <LineR className='line' />
+          <LineB className='line' />
+          <ConerLB className='coner' />
+          <ConerRB className='coner' />
+          <ConerLT className='coner' />
+          <ConerRT className='coner' />
         </Com>
       )
       }
     </Observer >
   } else {
     return <div>
-      <Handler className='handler' {...handler} style={isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+      <Handler className='handler' style={dnd?.isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
         <IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>
@@ -448,7 +436,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
-              {(local.template as ITemplate).children.map((child, index) => <Component self={child} index={index} key={child._id} mode={mode} page={page} />)}
+              {(local.template as ITemplate).children.map((child, index) => <Component self={child} key={child._id} mode={mode} page={page} />)}
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>

@@ -6,12 +6,7 @@ export default function CInput({ self, mode, source = {}, drag, setSource, child
   return <Observer>{() => (
     <div style={self.style}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}
+      {...drag.events}
     >
       {children}
       <Input value={source[self.widget.field]} onChange={e => {

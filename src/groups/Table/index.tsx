@@ -71,12 +71,7 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
   return <Observer>{() => (
     <div style={{ height: '100%', flex: 1, overflow: 'auto', ...self.style }}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}
+      {...drag.events}
     >
       {children}
       <Table
@@ -91,11 +86,11 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component index={i} self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
+          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            child.children.map((sun, index) => <Observer>{() => <Component index={index} self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
+            child.children.map((sun, index) => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

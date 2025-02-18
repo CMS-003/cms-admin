@@ -1,4 +1,4 @@
-import { IAuto, IBaseComponent} from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 
@@ -6,12 +6,8 @@ export default function CRadio({ self, mode, drag, source = {}, setSource, child
   return <Observer>{() => (
     <div style={{ lineHeight: 2.5 }}
       className={`${mode} ${drag?.classNames}`}
-      onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-      onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-      onContextMenu={drag?.onContextMenu || ((e) => { })}
-      onDragOver={drag?.onDragOver || ((e) => { })}
-      onDrop={drag?.onDrop || ((e) => { })}
-      onDragLeave={drag?.onDragLeave || ((e) => { })}>
+      {...drag.events}
+    >
       {children}
       <Radio.Group options={self.widget.refer} onChange={e => {
         if (self.widget) {

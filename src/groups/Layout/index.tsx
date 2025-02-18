@@ -10,14 +10,9 @@ export default function ComponentLayout({ self, mode, page, drag, source, setSou
   return <Layout
     style={{ minHeight: mode === 'edit' ? 32 : 'unset', flexDirection: self.attrs.get("layout") === 'horizon' || !self.attrs.get('layout') ? 'row' : 'column', ...self.style }} id={self._id}
     className={`${mode} ${drag?.classNames}`}
-    onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-    onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-    onContextMenu={drag?.onContextMenu || ((e) => { })}
-    onDragOver={drag?.onDragOver || ((e) => { })}
-    onDrop={drag?.onDrop || ((e) => { })}
-    onDragLeave={drag?.onDragLeave || ((e) => { })}
+    {...drag.events}
   >
     {children}
-    {self.children.map((child, index) => <Component index={index} mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+    {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
   </Layout>
 }

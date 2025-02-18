@@ -15,12 +15,7 @@ export default function CTags({ self, mode, source = {}, setSource, drag, childr
     <Fragment>
       <FullWidth
         className={`${mode} ${drag?.classNames}`}
-        onMouseEnter={drag?.onMouseEnter || ((e) => { })}
-        onMouseLeave={drag?.onMouseLeave || ((e) => { })}
-        onContextMenu={drag?.onContextMenu || ((e) => { })}
-        onDragOver={drag?.onDragOver || ((e) => { })}
-        onDrop={drag?.onDrop || ((e) => { })}
-        onDragLeave={drag?.onDragLeave || ((e) => { })}
+        {...drag.events}
       >
         {children}
         {((source[field] || []) as string[]).map((tag, i) => (

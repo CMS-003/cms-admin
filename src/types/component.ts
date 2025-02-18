@@ -1,3 +1,4 @@
+import { DraggableProvided } from "react-beautiful-dnd";
 import { IResource } from "./resource";
 
 export type IConfig = {
@@ -60,12 +61,16 @@ export type IAuto = {
   self: IComponent;
   mode: string;
   children?: any;
-  isDragging?: boolean;
   source?: any;
   setSource?: Function;
   setParentHovered?: Function;
-  handler?: any;
-  index: number;
+  dnd?: {
+    isDragging: boolean;
+    ref: DraggableProvided['innerRef'];
+    draggableProps: DraggableProvided['draggableProps'];
+    dragHandleProps: DraggableProvided['dragHandleProps'];
+    style: DraggableProvided['draggableProps']['style'];
+  };
   page?: {
     path: string,
     param: { [key: string]: string },
@@ -76,14 +81,16 @@ export type IBaseComponent = {
   drag: {
     isDragOver: boolean;
     isMouseOver: boolean;
-    onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onDragOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     setIsMouseOver: Function;
     get classNames(): string;
+    events: {
+      onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onDragOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+    }
   }
 }
 
