@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
+import NatureSortable from '@/components/NatureSortable'
 
 
 export default function CRow({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
@@ -13,18 +14,27 @@ export default function CRow({ self, mode, dnd, drag, children }: IAuto & IBaseC
       {...dnd?.draggableProps}
       {...dnd?.dragHandleProps}
       style={{
-        paddingTop: 8, paddingBottom: 8,
         ...dnd?.style,
       }}
     >
       {children}
       <Col span={0} style={{ minHeight: 32, display: 'block' }} />
-      {self.children.map((child, i) => <Component
-        key={i}
-        self={child}
-        mode={mode}
-        setParentHovered={drag?.setIsMouseOver}
-      />)}
+      <NatureSortable
+        items={self.children}
+        direction='horizontal'
+        droppableId={self._id}
+        wrap={Row}
+        sort={(srcIndex, dstIndex) => self.swap(srcIndex, dstIndex)}
+        renderItem={({ item, dnd, index }) => (
+          <Component
+            self={item}
+            mode={mode}
+            index={index}
+            setParentHovered={drag?.setIsMouseOver}
+            dnd={dnd}
+          />
+        )}
+      />
     </Row>
   )}</Observer>
 }

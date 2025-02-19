@@ -72,10 +72,11 @@ export default function CForm({ self, mode, page, drag, children }: IAuto & IBas
           direction='vertical'
           droppableId={self._id}
           sort={(srcIndex, dstIndex) => self.swap(srcIndex, dstIndex)}
-          renderItem={({ item, dnd }) => (
+          renderItem={({ item, dnd, index }) => (
             <Component
               self={item}
               mode={mode}
+              index={index}
               setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
             />

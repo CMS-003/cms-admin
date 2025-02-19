@@ -15,7 +15,7 @@ export default function CFilter({ self, mode, drag, page, source, setSource, chi
       >
         {children}
         <FullHeightFix style={{ flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-          {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+          {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
         </FullHeightFix>
         <FullHeightAuto>
           resources

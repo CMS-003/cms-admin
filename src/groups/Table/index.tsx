@@ -86,11 +86,11 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
+          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} index={i} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            child.children.map((sun, index) => <Observer>{() => <Component self={sun} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
+            child.children.map((sun, index) => <Observer>{() => <Component self={sun} index={index} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

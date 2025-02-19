@@ -64,6 +64,7 @@ export type IAuto = {
   source?: any;
   setSource?: Function;
   setParentHovered?: Function;
+  index: number;
   dnd?: {
     isDragging: boolean;
     ref: DraggableProvided['innerRef'];

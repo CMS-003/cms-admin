@@ -23,6 +23,7 @@ export default function CMenuItem({ self, mode, drag, children, }: IAuto & IBase
       <div style={{ paddingLeft: 24 }}>
         {self.children.map((child, i) => <Component
           key={i}
+          index={i}
           self={child}
           mode={mode}
           setParentHovered={drag?.setIsMouseOver}

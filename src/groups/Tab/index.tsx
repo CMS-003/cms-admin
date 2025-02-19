@@ -66,7 +66,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
               child.attrs.get('content_type') === 'template' ? (<Fragment>
                 <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                <Component mode={mode} page={page} self={child} key={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
+                <Component mode={mode} page={page} self={child} key={i} index={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
             )
           }))}
         >

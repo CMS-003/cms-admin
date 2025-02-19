@@ -33,7 +33,7 @@ export default function CFilterRow({ self, mode, drag, page, source, setSource, 
         {...drag.events}
       >
         {children}
-        {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+        {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
       </Wrap>
     )}
   </Observer>

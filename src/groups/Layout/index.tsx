@@ -13,6 +13,6 @@ export default function ComponentLayout({ self, mode, page, drag, source, setSou
     {...drag.events}
   >
     {children}
-    {self.children.map((child, index) => <Component mode={mode} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+    {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
   </Layout>
 }

@@ -11,6 +11,8 @@ const app = types.model('app', {
   editing_component_id: types.optional(types.string, ''),
   dragingType: types.optional(types.string, ''),
   dragingWidgetType: types.optional(types.string, ''),
+  can_drag_id: types.optional(types.string, ''),
+  isDragging: types.optional(types.boolean, false),
 }).views(self => ({
   get imageLine() {
     return self.imageLines[0]
@@ -24,6 +26,7 @@ const app = types.model('app', {
     storage.setKey('project_id', id);
   },
   setEditComponentId(id: string) {
+    console.log(id)
     self.editing_component_id = id;
   },
   setDragType(type: string) {
@@ -31,6 +34,12 @@ const app = types.model('app', {
   },
   setDragWidgetType(type: string) {
     self.dragingWidgetType = type;
+  },
+  setCanDragId(id: string) {
+    self.can_drag_id = id;
+  },
+  setIsDragging(bool: boolean) {
+    self.isDragging = bool;
   },
 }));
 

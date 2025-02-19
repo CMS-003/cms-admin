@@ -8,7 +8,7 @@ export default function CMenu({ self, mode, drag, children }: IAuto & IBaseCompo
   >
     {children}
     {self.children.map((item, index) => (
-      <Component key={index} self={item} mode={mode} setParentHovered={drag?.setIsMouseOver} />
+      <Component key={index} self={item} mode={mode} index={index} setParentHovered={drag?.setIsMouseOver} />
     ))}
   </div>
 }

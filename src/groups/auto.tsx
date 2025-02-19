@@ -70,13 +70,13 @@ function collectIds(tree: IComponent, arr: string[]) {
   tree.children.forEach(t => collectIds(t, arr));
 }
 
-export function Component({ self, children, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, index = 0, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
     get classNames() {
-      return `component ${self.status === 0 ? 'delete' : ''} ${mode === 'edit' && dragStore.isMouseOver ? 'hover' : ''} ${store.app.editing_component_id === self._id ? 'focus' : ''} ${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? 'dragover' : 'cantdrag') : ''}`
+      return `component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && dragStore.isMouseOver && !store.app.isDragging ? ' hover' : ''}${store.app.editing_component_id === self._id ? ' focus' : ''}${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
     },
     setIsMouseOver: (is: boolean) => {
       dragStore.isMouseOver = is;
@@ -201,6 +201,7 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
           self={self}
           mode={mode}
           page={page}
+          index={index}
           source={source}
           setSource={setSource}
           setParentHovered={setParentHovered}
@@ -208,7 +209,9 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
           drag={dragStore}
           {...(props)}
         >
-          <Handler className='handler'>
+          <Handler className='handler' onMouseEnter={() => {
+            store.app.setCanDragId(self._id)
+          }}>
             <IconSVG src={icon_drag} />
           </Handler>
           <LineL className='line' />
@@ -436,7 +439,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
-              {(local.template as ITemplate).children.map((child, index) => <Component self={child} key={child._id} mode={mode} page={page} />)}
+              {(local.template as ITemplate).children.map((child, index) => <Component self={child} index={index} key={child._id} mode={mode} page={page} />)}
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>

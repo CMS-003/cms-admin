@@ -95,6 +95,12 @@ code {
   padding-left: 20px;
 }
 
+.component.preview>.handler,
+.component.preview>.line,
+.component.preview>.coner {
+  display: none;
+}
+
 .component.edit.focus>.handler {
   visibility: visible;
   background-color: #1890ff40;

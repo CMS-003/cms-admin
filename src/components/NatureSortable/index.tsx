@@ -1,7 +1,9 @@
-import React, { useState, ReactElement, JSXElementConstructor, CSSProperties } from "react";
+import React, { useState, ReactElement, JSXElementConstructor, CSSProperties, Fragment } from "react";
 import { Observer } from 'mobx-react-lite'
 import { DragDropContext, Droppable, Draggable, DropResult, Direction, DraggableProvided, DraggableStateSnapshot, DraggableChildrenFn, DraggingStyle } from "react-beautiful-dnd";
 import styled, { StyledComponent } from "styled-components";
+import store from "@/store";
+import { RowProps } from "antd";
 
 const Wrap = styled.div`
 
@@ -29,7 +31,7 @@ export default function NatureSortable({
   direction,
   items,
   renderItem,
-  children,
+  wrap,
   ...restProps
 }: {
   droppableId: string;
@@ -37,9 +39,10 @@ export default function NatureSortable({
   items: any[];
   onDragStart?: () => void;
   sort: (sourceIndex: number, destinationIndex: number) => void;
-  children?: () => StyledComponent<"div", any, {}, never>,
+  wrap?: React.ForwardRefExoticComponent<RowProps & React.RefAttributes<HTMLDivElement>> | StyledComponent<"div", any, RowProps, never>;
   renderItem: ((arg: {
     item: any,
+    index: number,
     dnd: {
       isDragging: boolean;
       ref: DraggableProvided['innerRef'];
@@ -49,8 +52,13 @@ export default function NatureSortable({
     }
   }) => ReactElement<HTMLElement, string | JSXElementConstructor<any>>);
 }) {
+  const Container = wrap || Wrap;
   return (
-    <DragDropContext onDragStart={restProps.onDragStart} onDragEnd={(result) => {
+    <DragDropContext onDragStart={e => {
+      store.app.setIsDragging(true);
+      restProps.onDragStart && restProps.onDragStart();
+    }} onDragEnd={(result) => {
+      store.app.setIsDragging(false);
       if (result.destination) {
         restProps.sort(result.source.index, result.destination.index);
       }
@@ -63,6 +71,7 @@ export default function NatureSortable({
         renderClone={(provided, snapshot, rubric) =>
           renderItem({
             item: items[rubric.source.index],
+            index: rubric.source.index,
             dnd: {
               isDragging: snapshot.isDragging,
               ref: provided.innerRef,
@@ -74,23 +83,27 @@ export default function NatureSortable({
         }
       >
         {(provided) => (
-          <Wrap ref={provided.innerRef} {...provided.droppableProps}>
+          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%' }}>
             {items.map((item, index) => (
-              <Draggable key={item._id} draggableId={item._id} index={index}>
-                {(provided, snapshot) => renderItem({
-                  item,
-                  dnd: {
-                    isDragging: snapshot.isDragging,
-                    ref: provided.innerRef,
-                    draggableProps: provided.draggableProps,
-                    dragHandleProps: provided.dragHandleProps,
-                    style: lockAxis(snapshot.isDragging, direction, provided.draggableProps.style),
-                  }
-                })}
-              </Draggable>
+              <Observer key={item._id}>{() => (
+                <Draggable draggableId={item._id} index={index} isDragDisabled={store.app.can_drag_id !== item._id}>
+                  {(provided, snapshot) => renderItem({
+                    item,
+                    index,
+                    dnd: {
+                      isDragging: snapshot.isDragging,
+                      ref: provided.innerRef,
+                      draggableProps: provided.draggableProps,
+                      dragHandleProps: provided.dragHandleProps,
+                      style: lockAxis(snapshot.isDragging, direction, provided.draggableProps.style),
+                    }
+                  })}
+                </Draggable>
+              )}</Observer>
+
             ))}
             {provided.placeholder}
-          </Wrap>
+          </Container>
         )}
       </Droppable>
     </DragDropContext>
