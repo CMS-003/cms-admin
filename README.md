@@ -25,15 +25,17 @@
 - ✅ source和setSource
 - ✅ widget的类型问题整数1和字符串1
 - page root info
-- sort & editable 事件.
-- dnd 克隆模式需设置整个拖动
+- ✅ sort & editable 事件.
+  - enter时显示popover层比右键+dragHandler好
+- ✅ dnd 克隆模式需设置整个拖动(记录全局可拖动id,其他都不可拖动)
 - 自己开发SortableList
-  - 能控制水平垂直方向
-  - drop超出容器要锁定边界
-  - 移动时让出占位符(translate)
-  - drop时要有动画
-  - 无侵入renderItem
-  - drag时clone复制dom结构(可指定复制父节点),不显示真实节点
+  - ✅ 能控制水平垂直方向
+  - ✅ 移动时让出占位符(translate)
+  - ✅ 无侵入renderItem
+  - ✅ drag时clone复制dom结构(可指定复制父节点),不显示真实节点
+  - ❌ drop超出容器要锁定边界(超出容器无法捕捉)
+  - ❌ drop时要有动画(默认回弹不好取消)
+  - drag事件改为mouse事件
 
 ## 代码库学习
 
@@ -43,8 +45,8 @@
 - ✅ axios
 - ❌ react-router-cache-route(没必要用route实现标签页)
 - http-proxy-middleware
-- 列表编辑中列widget支持添加子组件(主要是按钮)
-- JsonSchema编辑自定义组件
+- ✅ 列表编辑中列widget支持添加子组件(主要是按钮)
+- ✅ JsonSchema编辑自定义组件
 
 ## 代码流程
 
@@ -64,7 +66,7 @@
 
 ## 表单与列表
 
-- 列模板使用hbs语法
+- ✅ 列模板使用hbs语法
 
 ## 问题与方案
 
