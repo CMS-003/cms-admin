@@ -36,6 +36,12 @@
   - ❌ drop超出容器要锁定边界(超出容器无法捕捉)
   - ❌ drop时要有动画(默认回弹不好取消)
   - drag事件改为mouse事件
+  - 判断方式由中心点改为前后边界
+- 编辑面板
+  - 基础：title/desc/parent_id/_id/
+  - 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/
+  - 事件: widget_action/
+  - 
 
 ## 代码库学习
 
