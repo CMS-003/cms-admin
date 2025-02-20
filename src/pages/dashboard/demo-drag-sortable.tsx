@@ -1,20 +1,6 @@
 import { Observer } from "mobx-react";
 import SortableList, { DataItem, Direction } from "./SortableList"
 import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
-import Sortable, { Item } from './Sortable';
-
-const initialItems: Item[] = [
-  { id: '1', text: 'Item 1' },
-  { id: '2', text: 'Item 2' },
-  { id: '3', text: 'Item 3' },
-  { id: '4', text: 'Item 4' },
-];
-const map: { [key: string]: number } = {
-  '1': 50,
-  '2': 100,
-  '3': 150,
-  '4': 200,
-}
 
 const ItemModel = types.model('Item', {
   _id: types.string,
@@ -64,26 +50,29 @@ const data = ListModel.create({
 export default function Page() {
   return <Observer>{() => (
     <div>
-      dashboard<h2>Vertical Sortable List</h2>
-      <Sortable
-        items={initialItems}
-        direction="vertical"
-        renderItem={(item) => (
-          <div style={{ padding: '10px', }}>{item.text}</div>
-        )}
-        onItemsChange={(newOrder) => console.log('New Order:', newOrder)}
-      />
-      <h2>Horizontal Sortable List</h2>
-      <Sortable
-        items={initialItems}
-        direction="horizontal"
-        renderItem={(item, index) => (
-          <div style={{ padding: '10px', width: map[item.id] || 0 }}>{item.text}</div>
-        )}
-        onItemsChange={(newOrder) => {
-          // console.log('New Order:', newOrder)
-        }}
-      />
+      dashboard
+      <div style={{ position: 'relative' }}>
+        {data.list.map(self => (
+          <SortableList
+            key={self._id}
+            self={self}
+            direction={self.layout}
+            renderItem={({ self, handle }) => (
+              <div
+                key={self._id}
+                id={self._id}
+                draggable
+                {...handle}
+                style={{
+                  border: '1px solid #ccc',
+                  width: 50,
+                  height: 50,
+                  ...handle.style,
+                }}>{self.title}</div>
+            )}
+          />
+        ))}
+      </div>
     </div>
   )}</Observer>
 }
