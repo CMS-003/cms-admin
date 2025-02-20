@@ -78,7 +78,7 @@ export default function Page() {
         items={initialItems}
         direction="horizontal"
         renderItem={(item, index) => (
-          <div style={{ padding: '10px', width: map[item.id] || 0 }}>{item.text}</div>
+          <div style={{ padding: '10px', width: 50 }}>{item.text}</div>
         )}
         onItemsChange={(newOrder) => {
           // console.log('New Order:', newOrder)

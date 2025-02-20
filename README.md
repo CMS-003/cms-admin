@@ -37,6 +37,10 @@
   - ❌ drop时要有动画(默认回弹不好取消)
   - drag事件改为mouse事件
   - 判断方式由中心点改为前后边界
+  - 我还是太菜。
+    - 平移动画造成重复触发
+    - 先去掉动画：✅ 偏移效果 样式bug：先瞬移到右方，然后延时300恢复
+    - 去掉偏移判断：✅ 回弹效果
 - 编辑面板
   - 基础：title/desc/parent_id/_id/
   - 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/

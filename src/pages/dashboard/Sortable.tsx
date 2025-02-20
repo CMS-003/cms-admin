@@ -46,13 +46,26 @@ const SortableList: React.FC<SortableListProps> = ({
     if (!initialMouseRef.current) return 0;
     return direction === 'vertical' ? e.clientY - initialMouseRef.current.y : e.clientX - initialMouseRef.current.x;
   };
-
+  // 节流：限制每次拖拽时处理的位置更新
+  const throttleMove = useCallback(
+    (func: Function, delay: number) => {
+      let timeoutId: NodeJS.Timeout | null = null;
+      return (...args: any) => {
+        if (!timeoutId) {
+          timeoutId = setTimeout(() => {
+            func(...args);
+            timeoutId = null;
+          }, delay);
+        }
+      };
+    },
+    []
+  );
   // 全局 mousemove 处理函数
   const onMouseMove = useCallback((e: MouseEvent) => {
     if (!initialMouseRef.current || !dragStartRectRef.current) return;
     const newDelta = computeDelta(e);
     setDelta(newDelta);
-
     // 当前拖拽项的“虚拟边界”
     let draggedVirtual: { front: number; back: number };
     if (direction === 'vertical') {
@@ -66,42 +79,82 @@ const SortableList: React.FC<SortableListProps> = ({
         back: dragStartRectRef.current.right + newDelta,     // 右边界
       };
     }
-
+    console.log('前后边界', draggedVirtual.front, draggedVirtual.back)
     // 遍历其他元素，看是否满足交换条件
-    order.forEach((item, idx) => {
-      if (idx === draggingIndexRef.current) return;
-      const ref = itemRefs.current[item.id];
-      if (!ref) return;
-      const targetRect = ref.getBoundingClientRect();
-
-      if (direction === 'vertical') {
-        // 对于垂直排序：
-        // 若拖拽项原在上方（draggingIndex < idx），检查拖拽项的下边界是否超过目标项的下边界
-        if (draggingIndexRef.current < idx) {
-          if (draggedVirtual.back > targetRect.bottom) {
-            targetIndexRef.current = idx;
-          }
-        }
-        // 若拖拽项原在下方（draggingIndex > idx），检查拖拽项的上边界是否小于目标项的上边界
-        else if (draggingIndexRef.current > idx) {
-          if (draggedVirtual.front < targetRect.top) {
-            targetIndexRef.current = idx;
-          }
-        }
-      } else {
-        // 水平排序
-        if (draggingIndexRef.current < idx) {
-          if (draggedVirtual.back > targetRect.left + targetRect.width / 2) {
-            targetIndexRef.current = idx;
-          }
-        } else if (draggingIndexRef.current > idx) {
-          if (draggedVirtual.front < targetRect.left + targetRect.width / 2) {
-            targetIndexRef.current = idx;
-          }
+    for (let idx = 0; idx < order.length; idx++) {
+      // 正在移动的元素，跳过
+      if (idx === draggingIndexRef.current) continue;
+      const ref = itemRefs.current[order[idx].id];
+      if (!ref) break;
+      const currentRect = ref.getBoundingClientRect();
+      // 碰撞判断
+      if (direction === 'horizontal') {
+        if (draggedVirtual.front > currentRect.right || draggedVirtual.back < currentRect.left) {
+          continue;
         }
       }
-    });
-  }, [direction, order]);
+      console.log(`${idx} 左部`, currentRect.left, currentRect.left + currentRect.width / 2)
+      console.log(`${idx} 右部`, currentRect.left + currentRect.width / 2, currentRect.right)
+      if (direction === 'horizontal') {
+        // (drag,target]
+        // 在空白占位之前: 只判断front是否在前半部
+        // 不能只判断一部分：抓取first时和second交换后targetIndex=1，遍历时first跳过，drag在second前部target要-1，在后部不变
+        if (currentRect.left < draggedVirtual.front && draggedVirtual.front < currentRect.left + currentRect.width / 2) {
+          if (idx < targetIndexRef.current) {
+            targetIndexRef.current = idx;
+          } else if (idx === targetIndexRef.current) {
+            targetIndexRef.current = idx - 1;
+          }
+          break;
+        }
+        // 在空白占位之后：只判断banc是否在后半部
+        if (currentRect.left + currentRect.width / 2 < draggedVirtual.back && draggedVirtual.back < currentRect.right) {
+          if (idx > targetIndexRef.current) {
+            targetIndexRef.current = idx;
+          } else if (idx === targetIndexRef.current) {
+            targetIndexRef.current = idx + 1;
+          }
+          break;
+        }
+      } else {
+
+      }
+    }
+    console.log(targetIndexRef.current)
+    // order.forEach((item, idx) => {
+    //   if (idx === draggingIndexRef.current) return;
+    //   const ref = itemRefs.current[item.id];
+    //   if (!ref) return;
+    //   const targetRect = ref.getBoundingClientRect();
+
+    //   if (direction === 'vertical') {
+    //     // 对于垂直排序：
+    //     // 若拖拽项原在上方（draggingIndex < idx），检查拖拽项的下边界是否超过目标项的下边界
+    //     if (draggingIndexRef.current < idx) {
+    //       if (draggedVirtual.back > targetRect.bottom) {
+    //         targetIndexRef.current = idx;
+    //       }
+    //     }
+    //     // 若拖拽项原在下方（draggingIndex > idx），检查拖拽项的上边界是否小于目标项的上边界
+    //     else if (draggingIndexRef.current > idx) {
+    //       if (draggedVirtual.front < targetRect.top) {
+    //         targetIndexRef.current = idx;
+    //       }
+    //     }
+    //   } else {
+    //     // 水平排序
+    //     if (draggingIndexRef.current < idx) {
+    //       if (targetRect.left + targetRect.width / 2 < draggedVirtual.back && draggedVirtual.back < targetRect.right) {
+    //         targetIndexRef.current = idx;
+    //       }
+    //     } else if (draggingIndexRef.current > idx) {
+    //       if (targetRect.left < draggedVirtual.front && draggedVirtual.front < targetRect.left + targetRect.width / 2) {
+    //         targetIndexRef.current = idx;
+    //       }
+    //     }
+    //   }
+    // });
+  }, [order,]);
 
   // 交换顺序，并更新拖拽起始状态
   const reorder = (fromIndex: number, toIndex: number) => {
@@ -155,7 +208,6 @@ const SortableList: React.FC<SortableListProps> = ({
     isDraggingRef.current = false;
 
     const step = targetIndexRef.current > draggingIndexRef.current ? 1 : -1;
-    console.log(draggingIndexRef.current, targetIndexRef.current)
     let translate = 0;
     for (let i = targetIndexRef.current; ; i -= step) {
       const element = itemRefs.current[order[i].id]
@@ -190,7 +242,7 @@ const SortableList: React.FC<SortableListProps> = ({
   const getItemStyle = (index: number): React.CSSProperties => {
     // 移动和松开鼠标时所有元素有动画,拖动结束后都没动画
     if (draggingIndexRef.current === -1 || targetIndexRef.current === -1) return { /*transition: 'none', transform: 'none' */ };
-    const transition = 'transform 0.3s ease-out';
+    const transition = 'transform 0.1s ease-out';
     // 被拖动元素跟随鼠标(注意松开鼠标后修改的样式不能被这里覆盖)
     if (draggingIndexRef.current === index) return { transition, zIndex: 1000, position: 'relative', transform: direction === 'vertical' ? `translateY(${delta}px)` : `translateX(${delta}px)` };
 
@@ -213,7 +265,11 @@ const SortableList: React.FC<SortableListProps> = ({
         position: 'relative',
       }}
     >
-      <span style={{ position: 'absolute', top: 100, left: 100 }}>{offset}</span>
+      <span style={{ position: 'absolute', top: 100, left: 100 }}>
+        drag:{draggingIndexRef.current}
+        dist:{targetIndexRef.current}
+        offset:{delta}
+      </span>
       {order.map((item, index) => (
         <div
           key={item.id}
