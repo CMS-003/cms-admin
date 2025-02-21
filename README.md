@@ -41,6 +41,8 @@
     - 平移动画造成重复触发
     - 先去掉动画：✅ 偏移效果 样式bug：先瞬移到右方，然后延时300恢复
     - 去掉偏移判断：✅ 回弹效果
+  - 不能一样搞一点,按设计路线走
+    - 松开时,dragging=false,计数补偿距离,交互顺序(dragElement不能有动画),异步设置回弹到 0
 - 编辑面板
   - 基础：title/desc/parent_id/_id/
   - 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/

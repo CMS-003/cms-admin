@@ -4,10 +4,11 @@ import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
 import Sortable, { Item } from './Sortable';
 
 const initialItems: Item[] = [
-  { id: '1', text: 'Item 1' },
-  { id: '2', text: 'Item 2' },
-  { id: '3', text: 'Item 3' },
-  { id: '4', text: 'Item 4' },
+  { id: '1', text: 'ItemA' },
+  { id: '2', text: 'ItemB' },
+  { id: '3', text: 'ItemC' },
+  { id: '4', text: 'ItemD' },
+  { id: '5', text: 'ItemE' },
 ];
 const map: { [key: string]: number } = {
   '1': 50,
@@ -63,7 +64,7 @@ const data = ListModel.create({
 
 export default function Page() {
   return <Observer>{() => (
-    <div>
+    <div style={{ margin: '0 auto' }}>
       dashboard<h2>Vertical Sortable List</h2>
       <Sortable
         items={initialItems}
@@ -78,7 +79,9 @@ export default function Page() {
         items={initialItems}
         direction="horizontal"
         renderItem={(item, index) => (
-          <div style={{ padding: '10px', width: 50 }}>{item.text}</div>
+          <div style={{ padding: '10px', width: 50 }}>
+            {item.text}{/* ,idx: {index} */}
+          </div>
         )}
         onItemsChange={(newOrder) => {
           // console.log('New Order:', newOrder)
