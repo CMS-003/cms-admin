@@ -191,29 +191,28 @@ const SortableList: React.FC<SortableListProps> = ({
     setDelta((prev) => prev - translate);// 必须设置 drag 还原位置
     setTimeout(() => {
       console.log('回弹空白占位')
-      const dragedElement = itemRefs.current[order[draggingIndexRef.current].id]
-      if (dragedElement) {
-        dragedElement.style.transition = 'transform 0.2s ease-out'
-        dragedElement.style.transform = 'none';
-      }
-      // setDelta(() => 0);
+      setDelta(() => 0);
       // setOffset(() => 0);
-      // 不能还原,不然没回弹动画
-      // draggingIndexRef.current = -1
+      // 两个index错开用于最后的回弹动画
+      draggingIndexRef.current = -1
       // targetIndexRef.current = -1
     }, 10)
   }, [onMouseMove]);
 
   // 计算每个项的样式
   const getItemStyle = (index: number): React.CSSProperties => {
-    // console.log('style', index)
-    // 移动和松开鼠标时所有元素有动画,拖动结束后都没动画
-    if (draggingIndexRef.current === -1 || targetIndexRef.current === -1) {
-      console.log('判断是否影响重置')
-      return { /*transition: 'none', transform: 'none' */ }
+    // 交换后拖动的元素变成了target！  isDragging false
+
+    // 2. 微任务设置targetIndex transform none，有动画
+    if ((draggingIndexRef.current === -1 && targetIndexRef.current === index)) {
+      return { transition: 'transform 0.2s ease-out', transform: 'none' }
+    }
+    // 1. 移动和松开鼠标时所有元素有动画,拖动结束后都没动画
+    if (!isDraggingRef.current) {
+      return { transition: 'none', transform: targetIndexRef.current === index ? (direction === 'vertical' ? `translateY(${delta}px)` : `translateX(${delta}px)`) : 'none' }
     };
     // 被拖动元素跟随鼠标(注意松开鼠标后修改的样式不能被这里覆盖)
-    if ((isDraggingRef.current && draggingIndexRef.current === index) || (!isDraggingRef.current && targetIndexRef.current === index)) return { transition: isDraggingRef.current ? 'transform 0.1s ease-out' : 'none', zIndex: 1000, position: 'relative', transform: direction === 'vertical' ? `translateY(${delta}px)` : `translateX(${delta}px)` };
+    if ((isDraggingRef.current && draggingIndexRef.current === index)) return { transition: 'transform 0.1s ease-out', zIndex: 1000, position: 'relative', transform: direction === 'vertical' ? `translateY(${delta}px)` : `translateX(${delta}px)` };
 
     let k = 0;
     if (draggingIndexRef.current < index && index <= targetIndexRef.current) {
