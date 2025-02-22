@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, CSSProperties } from 'react';
 
 export interface Item {
   id: string;
@@ -10,25 +10,35 @@ type Direction = 'vertical' | 'horizontal';
 interface SortableListProps {
   items: Item[];
   direction: Direction;
-  renderItem: (item: Item, index: number) => React.ReactNode;
+  sort?: (srcIndex: number, dstIndex: number) => void;
+  renderItem: (props: {
+    item: Item;
+    refs: React.MutableRefObject<{
+      [key: string]: HTMLDivElement | null;
+    }>;
+    isDragging: Boolean;
+    style: CSSProperties;
+    onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
+  }) => React.ReactNode;
   onItemsChange?: (newItems: Item[]) => void;
   dragHandleSelector?: string; // 可选：只有匹配该选择器的区域可触发拖拽
 }
 
 const SortableList: React.FC<SortableListProps> = ({
   items,
+  sort,
   direction,
   renderItem,
-  onItemsChange,
   dragHandleSelector,
 }) => {
   // 当前排序顺序
-  const [order, setOrder] = useState<Item[]>(items);
   // 当前正在拖拽的项的索引（初始时）
   const draggingIndexRef = useRef(-1);
   const draggingIdRef = useRef('');
   const targetIndexRef = useRef(-1);
   const isDraggingRef = useRef(false);
+
+  const [isEnd, setIsEnd] = useState(true);
   // 拖拽过程中的位移（沿指定方向）
   const [delta, setDelta] = useState<number>(0);
   const deltaRef = useRef(0);
@@ -56,21 +66,6 @@ const SortableList: React.FC<SortableListProps> = ({
     if (!initialMouseRef.current) return 0;
     return direction === 'vertical' ? e.clientY - initialMouseRef.current.y : e.clientX - initialMouseRef.current.x;
   };
-  // 节流：限制每次拖拽时处理的位置更新
-  const throttleMove = useCallback(
-    (func: Function, delay: number) => {
-      let timeoutId: NodeJS.Timeout | null = null;
-      return (...args: any) => {
-        if (!timeoutId) {
-          timeoutId = setTimeout(() => {
-            func(...args);
-            timeoutId = null;
-          }, delay);
-        }
-      };
-    },
-    []
-  );
   // 全局 mousemove 处理函数
   // 不加动画,偏移位置计算没问题
   const onMouseMove = useCallback((e: MouseEvent) => {
@@ -90,10 +85,10 @@ const SortableList: React.FC<SortableListProps> = ({
     if (isAnimatingRef.current) return;
     let finalTarget = targetIndexRef.current;
     // 遍历其他元素，看是否满足让位条件
-    for (let idx = 0; idx < order.length; idx++) {
+    for (let idx = 0; idx < items.length; idx++) {
       // 正在移动的元素，跳过
       if (idx === draggingIndexRef.current) continue;
-      const ref = itemRefs.current[order[idx].id];
+      const ref = itemRefs.current[items[idx].id];
       if (!ref) break;
       const currentRect = ref.getBoundingClientRect();
       const range = direction === 'horizontal'
@@ -124,27 +119,16 @@ const SortableList: React.FC<SortableListProps> = ({
       }
     }
     targetIndexRef.current = finalTarget;
-  }, [order]);
-
-  // 交换顺序
-  const reorder = (fromIndex: number, toIndex: number) => {
-    console.log('sort', fromIndex, toIndex)
-    setOrder((prevOrder) => {
-      const newOrder = [...prevOrder];
-      const [moved] = newOrder.splice(fromIndex, 1);
-      newOrder.splice(toIndex, 0, moved);
-      onItemsChange && onItemsChange(newOrder);
-      return newOrder;
-    });
-  };
+  }, [items]);
 
   const onMouseDown = (e: React.MouseEvent<HTMLDivElement>, index: number, itemId: string) => {
-    console.log('down', index)
+    // console.log('down', index)
     // 如果设置了拖拽句柄，则检查是否在句柄区域内点击
     // if (dragHandleSelector) {
     //   const target = e.target as HTMLElement;
     //   if (!target.closest(dragHandleSelector)) return;
     // }
+    setIsEnd(false);
     isDraggingRef.current = true;
     draggingIndexRef.current = index;
     draggingIdRef.current = itemId;
@@ -163,7 +147,7 @@ const SortableList: React.FC<SortableListProps> = ({
   const onMouseUp = useCallback(() => {
     window.removeEventListener('mousemove', onMouseMove);
     window.removeEventListener('mouseup', onMouseUp);
-    console.log('mouseup', draggingIndexRef.current, targetIndexRef.current)
+    // console.log('mouseup', draggingIndexRef.current, targetIndexRef.current)
     // 关于交换位置: 交换后内容会立即更新,所以draggingIndex 也要更新.
     // 1.松开后修改状态: isDragging false, 拖拽元素相对占位符的偏移量(),交互位置,更新 draggingIndex
     // 2.自动重新计算样式: 已是松开状态,都无动画,立即更新位置
@@ -174,7 +158,7 @@ const SortableList: React.FC<SortableListProps> = ({
     const step = targetIndexRef.current > draggingIndexRef.current ? 1 : -1;
     let translate = 0;
     for (let i = draggingIndexRef.current; ; i += step) {
-      const element = itemRefs.current[order[i].id]
+      const element = itemRefs.current[items[i].id]
       if (element) {
         if (i === targetIndexRef.current) {
           break;
@@ -185,17 +169,14 @@ const SortableList: React.FC<SortableListProps> = ({
         break;
       }
     }
-    console.log('偏离值', deltaRef.current, '补偿值', translate, '校准', deltaRef.current - translate); // 错误 state 有闭包
-    console.log('should swap')
-    reorder(draggingIndexRef.current, targetIndexRef.current);
-    setDelta((prev) => prev - translate);// 必须设置 drag 还原位置
+    // console.log('should swap')
+    sort && sort(draggingIndexRef.current, targetIndexRef.current);
+    setDelta((prev) => prev - translate);
     setTimeout(() => {
-      console.log('回弹空白占位')
+      // console.log('回弹空白占位')
       setDelta(() => 0);
-      // setOffset(() => 0);
       // 两个index错开用于最后的回弹动画
       draggingIndexRef.current = -1
-      // targetIndexRef.current = -1
     }, 10)
   }, [onMouseMove]);
 
@@ -234,7 +215,6 @@ const SortableList: React.FC<SortableListProps> = ({
       const target = event.target as HTMLElement;
       const id = target.getAttribute("data-sortable-id"); // 获取 data-id
       if (id && id !== draggingIdRef.current) {
-        console.log('start transition', id)
         isAnimatingRef.current = true;
       }
     };
@@ -243,8 +223,10 @@ const SortableList: React.FC<SortableListProps> = ({
       const target = event.target as HTMLElement;
       const id = target.getAttribute("data-sortable-id"); // 获取 data-id
       if (id && id !== draggingIdRef.current) {
-        console.log('end transition')
         isAnimatingRef.current = false;
+        setTimeout(() => {
+          setIsEnd(true)
+        }, 200)
       }
     };
 
@@ -262,30 +244,16 @@ const SortableList: React.FC<SortableListProps> = ({
       style={{
         display: direction === 'vertical' ? 'block' : 'flex',
         position: 'relative',
+        userSelect: isDraggingRef.current ? 'none' : 'auto',
       }}
     >
-      {direction === 'horizontal' && <span style={{ position: 'absolute', top: 100, left: 100 }}>
-        drag:{draggingIndexRef.current}
-        dist:{targetIndexRef.current}
-        <br />
-      </span>}
-      {order.map((item, index) => (
-        <div
-          key={item.id}
-          ref={(el) => (itemRefs.current[item.id] = el)}
-          onMouseDown={(e) => onMouseDown(e, index, item.id)}
-          data-sortable-id={item.id}
-          style={{
-            userSelect: 'none',
-            padding: '5px',
-            border: '1px solid #aaa',
-            cursor: dragHandleSelector ? 'default' : 'move',
-            ...getItemStyle(index),
-          }}
-        >
-          {renderItem(item, index)}
-        </div>
-      ))}
+      {items.map((item, index) => renderItem({
+        item,
+        refs: itemRefs,
+        isDragging: isEnd ? false : (isDraggingRef.current ? draggingIndexRef.current === index : targetIndexRef.current === index),
+        style: getItemStyle(index),
+        onMouseDown: (e) => onMouseDown(e, index, item.id)
+      }))}
     </div>
   );
 };
