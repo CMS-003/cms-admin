@@ -4,11 +4,11 @@ import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
 import Sortable, { Item } from './Sortable';
 
 const initialItems: Item[] = [
-  { id: '1', text: 'ItemA' },
-  { id: '2', text: 'ItemB' },
-  { id: '3', text: 'ItemC' },
-  { id: '4', text: 'ItemD' },
-  { id: '5', text: 'ItemE' },
+  { id: 'a', text: 'ItemA' },
+  { id: 'b', text: 'ItemB' },
+  { id: 'c', text: 'ItemC' },
+  { id: 'd', text: 'ItemD' },
+  { id: 'e', text: 'ItemE' },
 ];
 const map: { [key: string]: number } = {
   '1': 50,
@@ -69,9 +69,10 @@ export default function Page() {
       <Sortable
         items={initialItems}
         direction="vertical"
-        renderItem={(item) => (
-          <div style={{ padding: '10px', }}>{item.text}</div>
-        )}
+        renderItem={
+          (item) => (
+            <div style={{ padding: '10px', }}>{item.text}</div>
+          )}
         onItemsChange={(newOrder) => console.log('New Order:', newOrder)}
       />
       <h2>Horizontal Sortable List</h2>
@@ -88,5 +89,6 @@ export default function Page() {
         }}
       />
     </div>
-  )}</Observer>
+  )
+  }</Observer >
 }

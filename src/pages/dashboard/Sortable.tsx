@@ -73,95 +73,58 @@ const SortableList: React.FC<SortableListProps> = ({
   );
   // 全局 mousemove 处理函数
   // 不加动画,偏移位置计算没问题
-  const onMouseMove = throttleMove((e: MouseEvent) => {
+  const onMouseMove = useCallback((e: MouseEvent) => {
     if (!initialMouseRef.current || !dragStartRectRef.current) return;
     const newDelta = computeDelta(e);
     setDelta(newDelta);
-    // 当前拖拽项的“虚拟边界”
-    let draggedVirtual: { front: number; back: number };
-    if (direction === 'vertical') {
-      draggedVirtual = {
-        front: dragStartRectRef.current.top + newDelta,   // 上边界
-        back: dragStartRectRef.current.bottom + newDelta,   // 下边界
+    const draggedVirtual = direction === 'vertical'
+      ? {
+        front: dragStartRectRef.current.top + newDelta,
+        back: dragStartRectRef.current.bottom + newDelta,
+      }
+      : {
+        front: dragStartRectRef.current.left + newDelta,
+        back: dragStartRectRef.current.right + newDelta,
       };
-    } else {
-      draggedVirtual = {
-        front: dragStartRectRef.current.left + newDelta,    // 左边界
-        back: dragStartRectRef.current.right + newDelta,     // 右边界
-      };
-    }
     // 让位动画时可以继续拖拽,但不参与计数占位
     if (isAnimatingRef.current) return;
-    let frontTarget = -1;
-    let backTarget = -1;
-    // 遍历其他元素，看是否满足交换条件
+    let finalTarget = targetIndexRef.current;
+    // 遍历其他元素，看是否满足让位条件
     for (let idx = 0; idx < order.length; idx++) {
       // 正在移动的元素，跳过
       if (idx === draggingIndexRef.current) continue;
       const ref = itemRefs.current[order[idx].id];
       if (!ref) break;
       const currentRect = ref.getBoundingClientRect();
-
-      // 不能只算前半部,当快速将back移到前边界之前,就无法进入 if 判断
       const range = direction === 'horizontal'
         ? { start: currentRect.left, middle: currentRect.left + currentRect.width / 2, end: currentRect.right }
         : { start: currentRect.top, middle: currentRect.top + currentRect.height / 2, end: currentRect.bottom };
-      // 如果左移恰好一半,前边界触发让位,让位后,后边界也是触发临界值
+      // 不能包含临界值
       const inFrontHalf = draggedVirtual.front < range.middle;
       const inBackHalf = range.middle < draggedVirtual.back
 
-      // 分 target 前后判断.前面只判断前边界;后面只判断后边界.必须大于临界值(放在循环让位)
-      // 让位生效后停止判断,动画生效后停止计算
-      // < -1 3 ,  <= 3 -1
-      if (idx <= targetIndexRef.current && inFrontHalf) {
-        // 非贪婪会 break,包含边界判断
-        if (frontTarget === -1) {
-          frontTarget = idx === targetIndexRef.current ? idx - 1 : idx;
-          console.log('非贪婪前边界', idx)
+      if (idx === targetIndexRef.current) {
+        if (idx > draggingIndexRef.current && inFrontHalf) {
+          // 右移前进 判断前边界
+          finalTarget = idx - 1;
+          break;
         }
-      } else if (idx > targetIndexRef.current && inBackHalf) {
-        // 贪婪不会 break,边界无所谓.上面条件可以>也可以>=
-        // !!! 
-        backTarget = idx;
-        console.log('贪婪后边界', backTarget)
+        if (idx < draggingIndexRef.current && inBackHalf) {
+          // 左移后撤 判断后边界
+          finalTarget = idx + 1;
+        }
+      }
+      if (idx < targetIndexRef.current && inFrontHalf) {
+        // 非贪婪会 break,包含边界判断
+        finalTarget = idx;
+        break;
+      }
+      if (idx > targetIndexRef.current && inBackHalf) {
+        finalTarget = idx;
       }
     }
-    console.log(targetIndexRef.current, frontTarget, backTarget, '计算结果')
-    targetIndexRef.current = frontTarget === -1 ? (backTarget === -1 ? targetIndexRef.current : backTarget) : frontTarget;
-    // order.forEach((item, idx) => {
-    //   if (idx === draggingIndexRef.current) return;
-    //   const ref = itemRefs.current[item.id];
-    //   if (!ref) return;
-    //   const targetRect = ref.getBoundingClientRect();
-
-    //   if (direction === 'vertical') {
-    //     // 对于垂直排序：
-    //     // 若拖拽项原在上方（draggingIndex < idx），检查拖拽项的下边界是否超过目标项的下边界
-    //     if (draggingIndexRef.current < idx) {
-    //       if (draggedVirtual.back > targetRect.bottom) {
-    //         targetIndexRef.current = idx;
-    //       }
-    //     }
-    //     // 若拖拽项原在下方（draggingIndex > idx），检查拖拽项的上边界是否小于目标项的上边界
-    //     else if (draggingIndexRef.current > idx) {
-    //       if (draggedVirtual.front < targetRect.top) {
-    //         targetIndexRef.current = idx;
-    //       }
-    //     }
-    //   } else {
-    //     // 水平排序
-    //     if (draggingIndexRef.current < idx) {
-    //       if (targetRect.left + targetRect.width / 2 < draggedVirtual.back && draggedVirtual.back < targetRect.right) {
-    //         targetIndexRef.current = idx;
-    //       }
-    //     } else if (draggingIndexRef.current > idx) {
-    //       if (targetRect.left < draggedVirtual.front && draggedVirtual.front < targetRect.left + targetRect.width / 2) {
-    //         targetIndexRef.current = idx;
-    //       }
-    //     }
-    //   }
-    // });
-  }, 50);
+    targetIndexRef.current = finalTarget;
+  }, []);
 
   // 交换顺序
   const reorder = (fromIndex: number, toIndex: number) => {
@@ -305,9 +268,7 @@ const SortableList: React.FC<SortableListProps> = ({
       {direction === 'horizontal' && <span style={{ position: 'absolute', top: 100, left: 100 }}>
         drag:{draggingIndexRef.current}
         dist:{targetIndexRef.current}
-        delta:{delta}
         <br />
-
       </span>}
       {order.map((item, index) => (
         <div
