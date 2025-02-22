@@ -124,7 +124,7 @@ const SortableList: React.FC<SortableListProps> = ({
       }
     }
     targetIndexRef.current = finalTarget;
-  }, []);
+  }, [order]);
 
   // 交换顺序
   const reorder = (fromIndex: number, toIndex: number) => {
