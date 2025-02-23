@@ -11,6 +11,7 @@ export default function CSelect({ self, mode, drag, children }: IAuto & IBaseCom
     <div
       className={`${mode} ${drag?.classNames}`}
       {...drag.events}
+      style={{ display: 'flex', flexDirection: 'row', whiteSpace: 'nowrap', alignItems: 'center', ...self.style }}
     >
       {children}
       {self.title}

@@ -26,7 +26,6 @@ const app = types.model('app', {
     storage.setKey('project_id', id);
   },
   setEditComponentId(id: string) {
-    console.log(id)
     self.editing_component_id = id;
   },
   setDragType(type: string) {

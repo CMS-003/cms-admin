@@ -5,7 +5,7 @@ import { Component } from '../auto'
 import NatureSortable from '@/components/NatureSortable'
 
 
-export default function CRow({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
+export default function CRow({ self, mode, dnd, source, setSource, drag, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <Row
       className={`${mode} ${drag?.classNames}`}
@@ -30,6 +30,8 @@ export default function CRow({ self, mode, dnd, drag, children }: IAuto & IBaseC
             self={item}
             mode={mode}
             index={index}
+            source={source}
+            setSource={setSource}
             setParentHovered={drag?.setIsMouseOver}
             dnd={dnd}
           />

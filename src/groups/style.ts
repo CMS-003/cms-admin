@@ -80,7 +80,8 @@ export const ConerRB = styled.span`
 
 // 属性编辑部分
 export const EditItem = styled.div`
-  margin: 8px 0;
+  margin-bottom: 8px;
+  padding: 0 8px;
 `
 
 export const ScrollWrap = styled.div`

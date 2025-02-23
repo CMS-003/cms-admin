@@ -77,6 +77,8 @@ export default function CForm({ self, mode, page, drag, children }: IAuto & IBas
               self={item}
               mode={mode}
               index={index}
+              source={local.source}
+              setSource={local.setSource}
               setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
             />
