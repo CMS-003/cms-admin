@@ -9,7 +9,7 @@ export default function CTpl({ self, mode, source, setSource, drag, children }: 
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
-    <div style={{ lineHeight: 2.5 }}
+    <div style={{ lineHeight: 2.5, ...self.style }}
       className={`${mode} ${drag?.classNames}`}
       onClick={() => {
         if (self.widget.action === 'goto_detail') {

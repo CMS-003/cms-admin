@@ -77,6 +77,7 @@ export type IAuto = {
     param: { [key: string]: string },
     query: { [key: string]: string },
   };
+  [key: string]: any;
 }
 export type IBaseComponent = {
   drag: {
