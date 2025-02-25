@@ -4,6 +4,7 @@ import { Observer } from 'mobx-react'
 export default function TableColumn({ self, mode, source, drag, isTitle = true, children }: IAuto & IBaseComponent & { isTitle?: boolean }) {
   return <Observer>{() => (
     <div
+      key={self._id}
       className={`${mode} ${drag?.classNames}`}
       {...drag.events}
     >

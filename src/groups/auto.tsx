@@ -247,19 +247,21 @@ const ScrollWrap = styled.div`
 
 export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page?: IPageInfo, [key: string]: any }) {
   const local = useLocalStore<{
-    editComponent: IComponent | null
-    template: ITemplate | null,
-    isDragOver: boolean,
-    loading: boolean,
-    addWidgetReferVisible: boolean,
-    setLoading: (is: boolean) => void,
-    onDragOver: any,
-    onDragLeave: any,
-    onDrop: any,
-    remComponent: Function,
-    setEditComponent: Function,
+    editComponent: IComponent | null;
+    editPanelKey: string;
+    template: ITemplate | null;
+    isDragOver: boolean;
+    loading: boolean;
+    addWidgetReferVisible: boolean;
+    setLoading: (is: boolean) => void;
+    onDragOver: any;
+    onDragLeave: any;
+    onDrop: any;
+    remComponent: Function;
+    setEditComponent: Function;
   }>(() => ({
     editComponent: null,
+    editPanelKey: 'base',
     loading: true,
     template: null,
     addWidgetReferVisible: false,
@@ -318,15 +320,16 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
           const ids: string[] = [];
           collectIds(tree, ids);
           if (local.editComponent && ids.includes(local.editComponent._id)) {
-            local.editComponent = null;
+            local.setEditComponent(null, '');
           }
           local.template.children.forEach(child => child.removeChild(id));
           apis.batchDestroyComponent({ ids: toJS(ids).join(',') })
         }
       }
     },
-    setEditComponent(com: IComponent | null) {
+    setEditComponent(com: IComponent | null, key = 'base') {
       local.editComponent = com;
+      local.editPanelKey = key;
       store.app.setEditComponentId(com ? com._id : '');
     }
   }))
@@ -347,7 +350,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         while (stack.length) {
           const curr = stack.shift();
           if (curr && curr._id === local.editComponent._id) {
-            local.editComponent = curr;
+            local.setEditComponent(curr, '');
             break;
           } else if (curr?.children.length) {
             curr.children.forEach(child => {
@@ -403,9 +406,17 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
 
   const GroupMenu = (props: any) => (<ContextMenu id='group_menu'>
     <ContextMenuItem onClick={async (e: any) => {
-      store.app.setEditComponentId(e.props._id);
-      local.editComponent = e.props
+      local.setEditComponent(e.props, 'base');
     }}>编辑</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
+      local.setEditComponent(e.props, 'data');
+    }}>数据</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
+      local.setEditComponent(e.props, 'event');
+    }}>事件</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
+      local.setEditComponent(e.props, 'layout');
+    }}>布局</ContextMenuItem>
     <ContextMenuItem onClick={(e: { props?: IComponent }) => {
       if (e.props) {
         events && events.emit('remove_component', e.props._id);
@@ -452,13 +463,15 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({local.editComponent.type})</span>
         <Acon icon='CloseOutlined' onClick={() => {
-          store.app.setEditComponentId('')
-          local.editComponent = null
+          local.setEditComponent(null, '')
         }} />
       </AlignAside>
       <Tabs
         style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
-        defaultActiveKey='base'
+        activeKey={local.editPanelKey}
+        onChange={v => {
+          local.editPanelKey = v;
+        }}
         items={[
           {
             label: '基础', key: 'base', children: (
@@ -541,7 +554,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
                   <Divider type="horizontal" style={{ margin: 5 }} />
                   <span className="ant-input-group-wrapper">
                     <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">数据类型</span>
+                      <span className="ant-input-group-addon">类型</span>
                       <Select style={{ width: '100%' }} value={local.editComponent.widget.type} onChange={v => {
                         if (local.editComponent) {
                           local.editComponent.changeWidgetType(v);

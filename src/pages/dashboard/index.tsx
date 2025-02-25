@@ -1,10 +1,11 @@
 import { Observer } from "mobx-react";
 import SortableList, { DataItem, Direction } from "./SortableList"
 import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
-import Sortable, { Item } from './Sortable';
-import { useState } from "react";
+import Sortable from 'components/Order';
+import { SortProvider, useSort } from 'components/Order/context';
+import { useEffect, useRef, useState } from "react";
 
-const initialItems: Item[] = [
+const initialItems: { id: string, text: string }[] = [
   { id: 'a', text: 'ItemA' },
   { id: 'b', text: 'ItemB' },
   { id: 'c', text: 'ItemC' },
@@ -63,15 +64,33 @@ const data = ListModel.create({
   ]
 });
 
+function Temp({ item, index }: { item: any, index: number }) {
+  const { drag, getStyle, draggingId } = useSort();
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    drag(ref.current, index);
+  }, [ref.current, index])
+  return <div
+    ref={ref}
+    data-sortable-id={item.id}
+    style={{
+      padding: '10px',
+      ...getStyle(index),
+      backgroundColor: draggingId === item.id ? 'lightblue' : '',
+    }}
+  >
+    {item.text}
+  </div>
+}
+
 export default function Page() {
-  const [order, setOrder] = useState<Item[]>(initialItems);
+  const [order, setOrder] = useState<any[]>(initialItems);
   return <Observer>{() => (
     <div style={{ margin: '0 auto' }}>
       dashboard
       <h2>Horizontal Sortable List</h2>
       <Sortable
         items={order}
-        direction="horizontal"
         sort={(srcIndex: number, dstIndex: number) => {
           setOrder((prevOrder) => {
             const newOrder = [...prevOrder];
@@ -80,7 +99,7 @@ export default function Page() {
             return newOrder;
           });
         }}
-        renderItem={({ item, refs, style, isDragging, onMouseDown }) => (
+        render={({ item, refs, style, isDragging, onMouseDown }) => (
           <div
             key={item.id}
             ref={v => refs.current[item.id] = v}
@@ -95,6 +114,25 @@ export default function Page() {
           </div>
         )}
       />
+      {/* 
+      <SortProvider
+        value={order}
+        field="id"
+        direction="horizontal"
+        sort={(srcIndex: number, dstIndex: number) => {
+          console.log(srcIndex, dstIndex, 'sort')
+          setOrder((prevOrder) => {
+            const newOrder = [...prevOrder];
+            const [moved] = newOrder.splice(srcIndex, 1);
+            newOrder.splice(dstIndex, 0, moved);
+            return newOrder;
+          });
+        }}
+      >
+        {order.map((item, index) => {
+          return <Temp key={item.id} item={item} index={index} />
+        })}
+      </SortProvider> */}
     </div>
   )
   }</Observer >

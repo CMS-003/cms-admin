@@ -111,7 +111,7 @@ code {
   content: '';
   margin-right: -1px;
   border-right: 1px dashed #1890ff;
-  z-index: 2;
+  z-index: 4;
 }
 
 .component.edit.hover>.handler {
@@ -124,12 +124,12 @@ code {
   content: '';
   margin-right: -1px;
   border-right: 1px dashed #df3540;
-  z-index: 2;
+  z-index: 4;
 }
 
 .component.edit>.line {
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   visibility: hidden;
   border: 0 dashed transparent;
 }
@@ -142,12 +142,12 @@ code {
 .component.edit.hover>.line {
   border-color: #df3540;
   visibility: visible;
-  z-index: 3;
+  z-index: 5;
 }
 
 .component.edit>.coner {
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   width: 2px;
   height: 2px;
   border-style: solid;

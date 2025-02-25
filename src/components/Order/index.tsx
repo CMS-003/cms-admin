@@ -1,20 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback, CSSProperties, useMemo } from 'react';
-
-export interface Item {
-  id: string;
-  text: string;
-}
+import React, { useState, useRef, useEffect, useCallback, CSSProperties, useMemo, createContext, useContext, ReactNode } from 'react';
 
 type Direction = 'vertical' | 'horizontal';
-
-const t = Date.now();
-
 interface SortableListProps {
-  items: Item[];
-  direction: Direction;
+  items: any[];
+  field?: string;
+  direction?: Direction;
   sort?: (srcIndex: number, dstIndex: number) => void;
-  renderItem: (props: {
-    item: Item;
+  render: (props: {
+    item: any;
     refs: React.MutableRefObject<{
       [key: string]: HTMLDivElement | null;
     }>;
@@ -22,61 +15,15 @@ interface SortableListProps {
     style: CSSProperties;
     onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   }) => React.ReactNode;
-  onItemsChange?: (newItems: Item[]) => void;
   dragHandleSelector?: string; // 可选：只有匹配该选择器的区域可触发拖拽
-}
-function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): T & { cancel: () => void } {
-  let lastCall = 0;
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: Parameters<T> | null = null;
-
-  const throttledFn = function (this: any, ...args: Parameters<T>) {
-    const now = new Date().getTime();
-    const timeSinceLastCall = now - lastCall;
-
-    // 保存最后一次调用的参数
-    lastArgs = args;
-
-    // 如果距离上次调用已经超过 delay，则立即执行
-    if (timeSinceLastCall >= delay) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-      lastCall = now;
-      func.apply(this, lastArgs);
-    } else if (!timeoutId) {
-      // 否则，设置一个定时器，在 delay 后执行最后一次调用
-      timeoutId = setTimeout(() => {
-        lastCall = new Date().getTime();
-        timeoutId = null;
-        if (lastArgs) {
-          func.apply(this, lastArgs);
-        }
-      }, delay - timeSinceLastCall);
-    }
-  };
-
-  // 添加一个取消方法，用于取消未执行的调用
-  throttledFn.cancel = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-      lastArgs = null;
-    }
-  };
-
-  return throttledFn as T & { cancel: () => void };
 }
 
 const SortableList: React.FC<SortableListProps> = ({
   items,
   sort,
-  direction,
-  renderItem,
+  field = 'id',
+  direction = 'vertical',
+  render,
   dragHandleSelector,
 }) => {
   // 当前排序顺序
@@ -159,22 +106,20 @@ const SortableList: React.FC<SortableListProps> = ({
         front: dragStartRectRef.current.left + newDelta,
         back: dragStartRectRef.current.right + newDelta,
       };
-    if (isAnimatingRef.current) {
+    if (delta !== 0) {
       timerRef.current && clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
+        isAnimatingRef.current = false;
         onMouseMove(e);
       }, 50);
-      return
-    } else {
-      timerRef.current && clearTimeout(timerRef.current);
-    };
+    }
     // 让位动画时可以继续拖拽,但不参与计数占位
     let finalTarget = targetIndexRef.current;
     // 遍历其他元素，看是否满足让位条件
     for (let idx = 0; idx < items.length; idx++) {
       // 正在移动的元素，跳过
       if (idx === draggingIndexRef.current) continue;
-      const ref = itemRefs.current[items[idx].id];
+      const ref = itemRefs.current[items[idx][field]];
       if (!ref) break;
       const currentRect = ref.getBoundingClientRect();
       const range = direction === 'horizontal'
@@ -247,7 +192,7 @@ const SortableList: React.FC<SortableListProps> = ({
     const step = targetIndexRef.current > draggingIndexRef.current ? 1 : -1;
     let translate = 0;
     for (let i = draggingIndexRef.current; ; i += step) {
-      const element = itemRefs.current[items[i].id]
+      const element = itemRefs.current[items[i][field]]
       if (element) {
         if (i === targetIndexRef.current) {
           break;
@@ -310,12 +255,12 @@ const SortableList: React.FC<SortableListProps> = ({
         userSelect: isDraggingRef.current ? 'none' : 'auto',
       }}
     >
-      {items.map((item, index) => renderItem({
+      {items.map((item, index) => render({
         item,
         refs: itemRefs,
         isDragging: isEnd ? false : (isDraggingRef.current ? draggingIndexRef.current === index : targetIndexRef.current === index),
         style: computeValue(index),
-        onMouseDown: (e) => onMouseDown(e, index, item.id)
+        onMouseDown: (e) => onMouseDown(e, index, item[field])
       }))}
     </div>
   );

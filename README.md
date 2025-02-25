@@ -38,15 +38,16 @@
   - ✅ drag事件改为mouse事件
   - ✅ 判断方式由中心点改为前后边界
   - 我还是太菜。
-    - 平移动画造成重复触发
+    - ✅ 平移动画造成重复触发(经常会出现问题.因为有时有start事件没有end事件)
     - ✅ 偏移效果
     - ✅ 回弹效果
   - ✅ 去掉renderItem包裹的div
 - 编辑面板
-  - 基础：title/desc/parent_id/_id/
-  - 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/
-  - 事件: widget_action/
-  - 
+  - ✅ 基础：title/desc/parent_id/_id/
+  - ✅ 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/
+  - ✅ 事件: widget_action/
+  - ✅ 布局: layout/style
+- 重写Table
 
 ## 代码库学习
 
@@ -78,6 +79,7 @@
 ## 表单与列表
 
 - ✅ 列模板使用hbs语法
+  - 
 
 ## 问题与方案
 
