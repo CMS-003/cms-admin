@@ -6,7 +6,8 @@ import store from "@/store";
 import { RowProps } from "antd";
 
 const Wrap = styled.div`
-
+  // display: flex;
+  // align-items: flex-start;
 `
 
 function lockAxis(isDragging: boolean, direction: Direction | undefined, style: DraggableProvided['draggableProps']['style']) {
@@ -83,7 +84,7 @@ export default function NatureSortable({
         }
       >
         {(provided) => (
-          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%' }}>
+          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%', flexDirection: direction === 'horizontal' ? 'row' : 'column' }}>
             {items.map((item, index) => (
               <Observer key={item._id}>{() => (
                 <Draggable draggableId={item._id} index={index} isDragDisabled={store.app.can_drag_id !== item._id}>

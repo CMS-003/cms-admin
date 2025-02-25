@@ -3,13 +3,13 @@ import hbs from 'handlebars'
 import { Observer, useLocalStore } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 
-export default function CTpl({ self, mode, source, setSource, drag, children }: IAuto & IBaseComponent) {
+export default function CTpl({ self, mode, source, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     tpl: hbs.compile(self.widget.value)
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
-    <div style={{ lineHeight: 2.5, ...self.style }}
+    <div
       className={`${mode} ${drag?.classNames}`}
       onClick={() => {
         if (self.widget.action === 'goto_detail') {
@@ -17,6 +17,14 @@ export default function CTpl({ self, mode, source, setSource, drag, children }: 
         }
       }}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        whiteSpace: 'nowrap',
+        ...self.style,
+        ...dnd?.style,
+      }}
     >
       {children}
       {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl(source) }}></div>}

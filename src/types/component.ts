@@ -50,7 +50,7 @@ export type IComponent = {
   removeChild: Function;
   addResource: Function;
   remResource: Function;
-  swap: Function;
+  swap: (srcIndex: number, dstIndex: number) => void;
   swapResource: Function;
   toJSON: Function;
   pushRefer: Function;

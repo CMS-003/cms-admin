@@ -103,6 +103,7 @@ code {
 
 .component.edit.focus>.handler {
   visibility: visible;
+  opacity: 1;
   background-color: #1890ff40;
 }
 
@@ -116,6 +117,7 @@ code {
 
 .component.edit.hover>.handler {
   visibility: visible;
+  opacity: 1;
   background-color: #cc000040;
 }
 
@@ -147,7 +149,7 @@ code {
 
 .component.edit>.coner {
   position: absolute;
-  z-index: 4;
+  z-index: 2;
   width: 2px;
   height: 2px;
   border-style: solid;

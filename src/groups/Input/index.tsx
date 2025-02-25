@@ -1,12 +1,19 @@
-import { IAuto, IBaseComponent} from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Input } from 'antd'
 import { Observer } from 'mobx-react'
 
-export default function CInput({ self, mode, source = {}, drag, setSource, children }: IAuto & IBaseComponent) {
+export default function CInput({ self, mode, source = {}, drag, dnd, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div style={self.style}
+    <div
       className={`${mode} ${drag?.classNames}`}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        ...self.style,
+        ...dnd?.style,
+      }}
     >
       {children}
       <Input value={source[self.widget.field]} onChange={e => {

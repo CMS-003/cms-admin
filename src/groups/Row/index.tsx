@@ -24,7 +24,7 @@ export default function CRow({ self, mode, dnd, source, setSource, drag, childre
         direction='horizontal'
         droppableId={self._id}
         wrap={Row}
-        sort={(srcIndex, dstIndex) => self.swap(srcIndex, dstIndex)}
+        sort={self.swap}
         renderItem={({ item, dnd, index }) => (
           <Component
             self={item}

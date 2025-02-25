@@ -19,7 +19,8 @@ export const Handler = styled.div`
   left: 0px;
   bottom: 0px;
   top: 0px;
-  visibility: hidden;
+  visibility: visible;
+  opacity: 0.15;
   cursor: move !important;
   display: flex; 
   align-items: center;

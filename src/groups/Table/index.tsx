@@ -7,6 +7,7 @@ import apis from '@/api'
 import { useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
+import NatureSortable from '@/components/NatureSortable'
 
 export default function CTable({ self, mode, page, drag, children }: IAuto & IBaseComponent) {
   const local: {
@@ -90,7 +91,23 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            child.children.map((sun, index) => <Observer>{() => <Component self={sun} isTitle={false} index={index} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
+            <NatureSortable
+              items={child.children}
+              direction='horizontal'
+              droppableId={child._id}
+              sort={self.swap}
+              renderItem={({ item, dnd, index }) => (
+                <Component
+                  self={item}
+                  mode={mode}
+                  index={index}
+                  source={d}
+                  setParentHovered={drag?.setIsMouseOver}
+                  dnd={dnd}
+                />
+              )}
+            />
+            // child.children.map((sun, index) => <Observer>{() => <Component self={sun} isTitle={false} index={index} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

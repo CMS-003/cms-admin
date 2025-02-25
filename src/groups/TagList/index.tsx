@@ -1,6 +1,6 @@
 import { Acon } from '@/components'
-import { FullWidth } from '@/components/style'
-import { IAuto, IBaseComponent} from '@/types/component'
+import { FullWidth, FullWidthFix } from '@/components/style'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Tag } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Fragment } from 'react'
@@ -12,12 +12,12 @@ export default function CTags({ self, mode, source = {}, setSource, drag, childr
   }))
   const field = self.widget.field;
   return <Observer>{() => (
-    <Fragment>
+    <div
+      className={`${mode} ${drag?.classNames}`}
+      {...drag.events}>
+      {children}
       <FullWidth
-        className={`${mode} ${drag?.classNames}`}
-        {...drag.events}
       >
-        {children}
         {((source[field] || []) as string[]).map((tag, i) => (
           <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
             if (setSource) {
@@ -48,6 +48,6 @@ export default function CTags({ self, mode, source = {}, setSource, drag, childr
           <Acon icon='add' onClick={() => local.addVisible = true} />
         </span>}
       </div>
-    </Fragment>
+    </div>
   )}</Observer>
 }
