@@ -88,7 +88,6 @@ export default function Page() {
             onMouseDown={onMouseDown}
             style={{
               padding: '10px',
-              width: 50,
               ...style,
               backgroundColor: isDragging ? 'lightblue' : '',
             }}>
