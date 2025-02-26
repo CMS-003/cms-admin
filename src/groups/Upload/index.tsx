@@ -16,12 +16,25 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CUpload({ self, source = {} }: IAuto & IBaseComponent) {
+export default function CUpload({ self, mode, drag, dnd, source = {}, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <Upload>
-      <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
-        <Button icon={<UploadOutlined />}></Button>
-      </Preview>
-    </Upload>
+    <div
+      className={mode + drag.className}
+      {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        ...self.style,
+        ...dnd?.style,
+      }}
+    >
+      {children}
+      <Upload>
+        <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
+          <Button icon={<UploadOutlined />}></Button>
+        </Preview>
+      </Upload>
+    </div>
   )}</Observer>
 }

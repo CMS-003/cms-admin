@@ -7,11 +7,11 @@ import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 import NatureSortable from '@/components/NatureSortable'
 
-export default function CFilter({ self, mode, drag, page, source, setSource, dnd, children }: IAuto & IBaseComponent) {
+export default function CFilter({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <FullHeight key={self.children.length}
-        className={`${mode} ${drag?.classNames}`}
+        className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
         {...dnd?.draggableProps}
@@ -25,16 +25,13 @@ export default function CFilter({ self, mode, drag, page, source, setSource, dnd
             direction='vertical'
             droppableId={self._id}
             sort={self.swap}
-            renderItem={({ item, dnd, index }) => (
+            renderItem={({ item, dnd }) => (
               <Component
                 self={item}
                 mode={mode}
-                index={index}
-                page={page}
-                source={source}
-                setSource={setSource}
-                setParentHovered={drag?.setIsMouseOver}
                 dnd={dnd}
+                {...props}
+                setParentHovered={drag?.setIsMouseOver}
               />
             )}
           />

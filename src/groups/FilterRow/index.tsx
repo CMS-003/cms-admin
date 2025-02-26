@@ -23,7 +23,7 @@ const Row = styled.div`
   align-items: flex-start;
 `
 
-export default function CFilterRow({ self, mode, drag, dnd, page, source, setSource, children }: IAuto & IBaseComponent) {
+export default function CFilterRow({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.get('selected')) {
@@ -34,7 +34,7 @@ export default function CFilterRow({ self, mode, drag, dnd, page, source, setSou
   return <Observer>
     {() => (
       <Wrap key={self.children.length}
-        className={`${mode} ${drag?.classNames}`}
+        className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
         {...dnd?.draggableProps}
@@ -44,23 +44,19 @@ export default function CFilterRow({ self, mode, drag, dnd, page, source, setSou
         }}
       >
         {children}
-        {/* {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)} */}
         <NatureSortable
           items={self.children}
           direction='horizontal'
           droppableId={self._id}
           sort={self.swap}
           wrap={Row}
-          renderItem={({ item, dnd, index }) => (
+          renderItem={({ item, dnd }) => (
             <Component
               self={item}
               mode={mode}
-              index={index}
-              page={page}
-              source={source}
-              setSource={setSource}
-              setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
+              {...props}
+              setParentHovered={drag?.setIsMouseOver}
             />
           )}
         />

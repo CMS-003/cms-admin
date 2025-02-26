@@ -1,4 +1,4 @@
-import { IAuto, IBaseComponent} from "@/types"
+import { IAuto, IBaseComponent } from "@/types"
 import { Observer, useLocalStore } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
@@ -20,7 +20,7 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, page, drag, source, setSource, children }: IAuto & IBaseComponent) {
+export default function TabItem({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
@@ -45,12 +45,12 @@ export default function TabItem({ self, mode, page, drag, source, setSource, chi
   return <Observer>
     {() => (
       <TabItemWrap
-        className={`${mode} ${drag?.classNames}`}
+        className={mode + drag.className}
         onDragOver={local.onDragOver}
         onDragLeave={local.onDragLeave}
         onDrop={local.onDrop} >
         {children}
-        {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+        {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props} setParentHovered={drag?.setIsMouseOver} />)}
       </TabItemWrap>
     )}
   </Observer>

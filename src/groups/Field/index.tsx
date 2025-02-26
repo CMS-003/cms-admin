@@ -3,9 +3,9 @@ import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 
-export default function CField({ self, mode, source, setSource, dnd, drag, children }: IAuto & IBaseComponent) {
+export default function CField({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => <Row
-    className={`${mode} ${drag?.classNames}`}
+    className={mode + drag.className}
     {...drag.events}
     ref={dnd?.ref}
     {...dnd?.draggableProps}
@@ -21,7 +21,7 @@ export default function CField({ self, mode, source, setSource, dnd, drag, child
     </Col>
     <Col span={self.attrs.get('right') || 18}>
       {self.children.map((child, i) => (
-        <Component key={i} self={child} mode={mode} index={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
+        <Component key={i} self={child} mode={mode} index={i} {...props} setParentHovered={drag?.setIsMouseOver} />
       ))}
     </Col>
   </Row>}</Observer>

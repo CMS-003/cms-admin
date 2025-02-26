@@ -55,7 +55,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function CCard({ self, mode, drag, children }: IAuto & IBaseComponent) {
+export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     show: false,
     close() {
@@ -67,9 +67,15 @@ export default function CCard({ self, mode, drag, children }: IAuto & IBaseCompo
   }))
   return <Observer>{() => (
     <div
-      style={self.style || {}}
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        ...self.style,
+        ...dnd?.style,
+      }}
     >
       {children}
       <Header>

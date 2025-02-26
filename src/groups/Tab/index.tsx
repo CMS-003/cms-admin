@@ -33,12 +33,19 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, source, drag, page, setSource, children }: IAuto & IBaseComponent) {
+export default function CTab({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <TabWrap
-        className={`${mode} ${drag?.classNames}`}
+        className={mode + drag.className}
         {...drag.events}
+        ref={dnd?.ref}
+        {...dnd?.draggableProps}
+        {...dnd?.dragHandleProps}
+        style={{
+          ...self.style,
+          ...dnd?.style,
+        }}
       >
         {children}
         <Tabs
@@ -49,7 +56,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
           }}
           items={self.children.map((child, i) => ({
             label: <TabItemWrap
-              className={`${mode} ${drag?.classNames}`}
+              className={mode + drag.className}
               onContextMenu={e => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -66,7 +73,7 @@ export default function CTab({ self, mode, source, drag, page, setSource, childr
               child.attrs.get('content_type') === 'template' ? (<Fragment>
                 <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
               </Fragment>) :
-                <Component mode={mode} page={page} self={child} key={i} index={i} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />
+                <Component mode={mode} self={child} key={i} index={i} {...props} setParentHovered={drag?.setIsMouseOver} />
             )
           }))}
         >

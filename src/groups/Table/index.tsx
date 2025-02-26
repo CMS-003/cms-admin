@@ -9,7 +9,7 @@ import { IResource } from '@/types'
 import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
 
-export default function CTable({ self, mode, page, drag, children }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
   const local: {
     loading: boolean,
     query: { [key: string]: string | number },
@@ -70,9 +70,19 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
     init();
   })
   return <Observer>{() => (
-    <div style={{ height: '100%', flex: 1, overflow: 'auto', ...self.style }}
-      className={`${mode} ${drag?.classNames}`}
+    <div
+      className={mode + drag.className}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        height: '100%',
+        flex: 1,
+        overflow: 'auto',
+        ...self.style,
+        ...dnd?.style,
+      }}
     >
       {children}
       <Table
@@ -96,18 +106,16 @@ export default function CTable({ self, mode, page, drag, children }: IAuto & IBa
               direction='horizontal'
               droppableId={child._id}
               sort={self.swap}
-              renderItem={({ item, dnd, index }) => (
+              renderItem={({ item, dnd }) => (
                 <Component
                   self={item}
                   mode={mode}
-                  index={index}
                   source={d}
                   setParentHovered={drag?.setIsMouseOver}
                   dnd={dnd}
                 />
               )}
             />
-            // child.children.map((sun, index) => <Observer>{() => <Component self={sun} isTitle={false} index={index} mode={mode} source={d} key={sun._id} setParentHovered={drag?.setIsMouseOver} />}</Observer>)
           )
         }))} />
     </div>

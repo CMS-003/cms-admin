@@ -8,18 +8,31 @@ const Layout = styled.div`
   display: flex;
   flex-direction: row;
 `
-export default function ComponentLayout({ self, mode, page, dnd, drag, source, setSource, children }: IAuto & IBaseComponent) {
+export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <Layout
-      style={{  flexDirection: self.attrs.get("layout") === 'horizon' || !self.attrs.get('layout') ? 'row' : 'column', ...self.style }} id={self._id}
-      className={`${mode} ${drag?.classNames}`}
+      id={self._id}
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}
       {...dnd?.dragHandleProps}
+      style={{
+        flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
+        ...self.style,
+        ...dnd?.style,
+      }}
     >
       {children}
-      {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+      {self.children.map((child, index) => (
+        <Component
+          mode={mode}
+          self={child}
+          key={index}
+          {...props}
+          setParentHovered={drag?.setIsMouseOver}
+        />
+      ))}
     </Layout>
   )}</Observer>
 }

@@ -43,7 +43,6 @@ export default function NatureSortable({
   wrap?: React.ForwardRefExoticComponent<RowProps & React.RefAttributes<HTMLDivElement>> | StyledComponent<"div", any, RowProps, never>;
   renderItem: ((arg: {
     item: any,
-    index: number,
     dnd: {
       isDragging: boolean;
       ref: DraggableProvided['innerRef'];
@@ -72,7 +71,6 @@ export default function NatureSortable({
         renderClone={(provided, snapshot, rubric) =>
           renderItem({
             item: items[rubric.source.index],
-            index: rubric.source.index,
             dnd: {
               isDragging: snapshot.isDragging,
               ref: provided.innerRef,
@@ -90,7 +88,6 @@ export default function NatureSortable({
                 <Draggable draggableId={item._id} index={index} isDragDisabled={store.app.can_drag_id !== item._id}>
                   {(provided, snapshot) => renderItem({
                     item,
-                    index,
                     dnd: {
                       isDragging: snapshot.isDragging,
                       ref: provided.innerRef,

@@ -10,7 +10,7 @@ import _ from 'lodash'
 import { DragDropContext, Droppable, Draggable, DropResult, Direction, DraggableProvided, DraggableStateSnapshot, DraggableChildrenFn } from "react-beautiful-dnd";
 import NatureSortable from '@/components/NatureSortable'
 
-export default function CForm({ self, mode, page, drag, children }: IAuto & IBaseComponent) {
+export default function CForm({ self, mode, page, drag, dnd, children }: IAuto & IBaseComponent) {
   const local: {
     source: { [key: string]: any };
     $origin: { [key: string]: any };
@@ -61,9 +61,15 @@ export default function CForm({ self, mode, page, drag, children }: IAuto & IBas
   }, [page?.query['id'], self.api])
   return <Observer>{() => (
     <FullHeight
-      style={{ width: '100%', height: '100%' }}
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        width: '100%', height: '100%',
+        ...dnd?.style,
+      }}
     >
       {children}
       <FullHeightAuto>
@@ -72,11 +78,10 @@ export default function CForm({ self, mode, page, drag, children }: IAuto & IBas
           direction='vertical'
           droppableId={self._id}
           sort={self.swap}
-          renderItem={({ item, dnd, index }) => (
+          renderItem={({ item, dnd }) => (
             <Component
               self={item}
               mode={mode}
-              index={index}
               source={local.source}
               setSource={local.setSource}
               setParentHovered={drag?.setIsMouseOver}

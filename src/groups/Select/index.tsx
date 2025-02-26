@@ -3,21 +3,25 @@ import { Select } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import events from '@/utils/event';
 
-export default function CSelect({ self, mode, drag, children }: IAuto & IBaseComponent) {
+export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     open: false,
   }))
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
       style={{
         display: 'flex',
         flexDirection: 'row',
         whiteSpace: 'nowrap',
         alignItems: 'center',
         flex: 0,
-        ...self.style
+        ...self.style,
+        ...dnd?.style,
       }}
     >
       {children}

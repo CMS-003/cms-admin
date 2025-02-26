@@ -10,7 +10,7 @@ export default function CTpl({ self, mode, source, setSource, drag, dnd, childre
   const navigate = useNavigate();
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       onClick={() => {
         if (self.widget.action === 'goto_detail') {
           navigate(`${self.widget.action_url}?id=${source._id}`)

@@ -2,10 +2,9 @@ import { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
 import { Observer, useLocalStore } from 'mobx-react'
-import { Input, message, Button, Divider, Space, Select, Tabs, Radio } from 'antd'
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { message, } from 'antd'
 import "react-contexify/dist/ReactContexify.css";
-import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
+import { contextMenu } from 'react-contexify';
 import _ from 'lodash'
 import apis from '@/api'
 import store from '@/store'
@@ -13,12 +12,15 @@ import events from '@/utils/event';
 import styled from 'styled-components';
 import { ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
-import { Acon, SortList, Style, VisualBox } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IBaseComponent } from '@/types'
+import { Style } from '@/components/index';
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto } from '@/types'
+import NatureSortable from '@/components/NatureSortable'
 import BaseComponent from './index';
+import GroupMenu from './contextmenu'
+import Edit from './edit'
+import { getDiff, findNode, collectIds } from './utils'
 import {
   TemplateBox,
-  EditItem,
   Handler,
   LineL,
   LineT,
@@ -30,53 +32,13 @@ import {
   ConerRT,
 } from './style'
 
-const { AlignAround, AlignAside, IconSVG } = Style;
-
-function getDiff(t: ITemplate | IComponent | null) {
-  if (!t) {
-    return [];
-  }
-  const results: IComponent[] = [];
-  if (t.children) {
-    t.children.forEach((child) => {
-      const diff = child.diff()
-      if (diff) {
-        results.push((child as IComponent).toJSON())
-      }
-      const subResults = getDiff(child);
-      if (subResults.length) {
-        results.push(...subResults)
-      }
-    })
-  }
-  return results;
-}
-function findNode(arr: IComponent[], id: string): IComponent | null {
-  let result: IComponent | null = null;
-  for (let i = 0; i < arr.length; i++) {
-    const v = arr[i];
-    if (v._id === id) {
-      return v;
-    }
-    result = findNode(v.children, id);
-    if (result) {
-      return result;
-    }
-  }
-  return null;
-}
-function collectIds(tree: IComponent, arr: string[]) {
-  arr.push(tree._id);
-  tree.children.forEach(t => collectIds(t, arr));
-}
-
-export function Component({ self, children, index = 0, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
     isMouseOver: false,
-    get classNames() {
-      return `component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && dragStore.isMouseOver && !store.app.isDragging ? ' hover' : ''}${store.app.editing_component_id === self._id ? ' focus' : ''}${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
+    get className() {
+      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && dragStore.isMouseOver && !store.app.isDragging ? ' hover' : ''}${store.app.editing_component_id === self._id ? ' focus' : ''}${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
     },
     setIsMouseOver: (is: boolean) => {
       dragStore.isMouseOver = is;
@@ -194,14 +156,13 @@ export function Component({ self, children, index = 0, mode, setParentHovered, d
   }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
-    const direction = ['Tab'].includes(self.type) || self.style.flexDirection === 'row' || self.attrs.get('layout') === 'horizon' || (self.type === 'Layout' && !self.attrs.get('layout')) ? 'horizontal' : 'vertical';
+    const direction = self.attrs.get('layout') === 'vertical' ? 'vertical' : 'horizontal';
     return <Observer>
       {() => (
         <Com
           self={self}
           mode={mode}
           page={page}
-          index={index}
           source={source}
           setSource={setSource}
           setParentHovered={setParentHovered}
@@ -212,7 +173,7 @@ export function Component({ self, children, index = 0, mode, setParentHovered, d
           <Handler className='handler' onMouseEnter={() => {
             store.app.setCanDragId(self._id)
           }}>
-            <IconSVG src={icon_drag} />
+            <Style.IconSVG src={icon_drag} />
           </Handler>
           <LineL className='line' />
           <LineT className='line' />
@@ -229,7 +190,7 @@ export function Component({ self, children, index = 0, mode, setParentHovered, d
   } else {
     return <div>
       <Handler className='handler' style={dnd?.isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
-        <IconSVG src={icon_drag} />
+        <Style.IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>
     </div>
@@ -404,34 +365,8 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     }
   })
 
-  const GroupMenu = (props: any) => (<ContextMenu id='group_menu'>
-    <ContextMenuItem onClick={async (e: any) => {
-      local.setEditComponent(e.props, 'base');
-    }}>编辑</ContextMenuItem>
-    <ContextMenuItem onClick={async (e: any) => {
-      local.setEditComponent(e.props, 'data');
-    }}>数据</ContextMenuItem>
-    <ContextMenuItem onClick={async (e: any) => {
-      local.setEditComponent(e.props, 'event');
-    }}>事件</ContextMenuItem>
-    <ContextMenuItem onClick={async (e: any) => {
-      local.setEditComponent(e.props, 'layout');
-    }}>布局</ContextMenuItem>
-    <ContextMenuItem onClick={(e: { props?: IComponent }) => {
-      if (e.props) {
-        events && events.emit('remove_component', e.props._id);
-      }
-    }}>删除</ContextMenuItem>
-    {/* <ContextMenuItem onClick={(e: any) => {
-      // ComponentItem.create({})
-      e.props.appendChild('type')
-      store.app.setEditComponentId(e.props._id);
-      local.editComponent = e.props
-    }}>添加子视图</ContextMenuItem> */}
-  </ContextMenu>);
-
-  return <Observer>{() => (<div style={{ display: 'flex', width: mode === 'edit' ? '90%' : '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-    <GroupMenu />
+  return <Observer>{() => (<div style={{ display: 'flex', width: '90%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+    <GroupMenu setEditComponent={local.setEditComponent} />
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
       <div className='hidden-scrollbar' style={{
         height: '100%',
@@ -450,7 +385,20 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
-              {(local.template as ITemplate).children.map((child, index) => <Component self={child} index={index} key={child._id} mode={mode} page={page} />)}
+              <NatureSortable
+                items={(local.template as ITemplate).children}
+                direction='vertical'
+                droppableId={local.template._id}
+                sort={() => { }}
+                renderItem={({ item, dnd }) => (
+                  <Component
+                    self={item}
+                    mode={mode}
+                    page={page}
+                    dnd={dnd}
+                  />
+                )}
+              />
             </TemplateBox>
           } else {
             return <div>Page NotFound</div>
@@ -459,224 +407,9 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
         }</Observer >
       </div>
     </div>
-    {local.editComponent && <div className='hidden-scroll' key={local.editComponent._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: '5%', marginRight: mode === 'edit' ? '-5%' : '' }}>
-      <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
-        <span>属性修改({local.editComponent.type})</span>
-        <Acon icon='CloseOutlined' onClick={() => {
-          local.setEditComponent(null, '')
-        }} />
-      </AlignAside>
-      <Tabs
-        style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
-        activeKey={local.editPanelKey}
-        onChange={v => {
-          local.editPanelKey = v;
-        }}
-        items={[
-          {
-            label: '基础', key: 'base', children: (
-              <ScrollWrap>
-                <EditItem>
-                  <Input addonBefore="标题" defaultValue={local.editComponent.title} onChange={e => {
-                    if (local.editComponent) {
-                      local.editComponent.setAttr('title', e.target.value);
-                    }
-                  }} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="描述" value={local.editComponent.desc} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="parent_id" value={local.editComponent.parent_id} onChange={e => {
-                    if (local.editComponent) {
-                      local.editComponent.setAttr('parent_id', e.target.value)
-                    }
-                  }} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="_id" readOnly value={local.editComponent._id} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="status" type="number" value={local.editComponent.status} onChange={e => {
-                    if (local.editComponent) {
-                      local.editComponent.setAttr('status', parseInt(e.target.value));
-                    }
-                  }} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="name" value={local.editComponent.name} />
-                </EditItem>
-                <EditItem>
-                  <Input addonBefore="icon" value={local.editComponent.icon} onChange={e => {
-                    local.editComponent?.setAttr('icon', e.target.value);
-                  }} />
-                </EditItem>
-
-              </ScrollWrap>
-            )
-          },
-          {
-            label: '数据', key: 'data', children: (
-              <ScrollWrap>
-                <EditItem>
-                  <Input addonBefore="接口" value={local.editComponent.api} onChange={e => {
-                    local.editComponent?.setAttr('api', e.target.value);
-                  }} />
-                  静态数据
-                  <SortList
-                    key={local.editComponent.resources?.length}
-                    sort={(oldIndex: number, newIndex: number) => {
-                      local.editComponent && local.editComponent.swapResource(oldIndex, newIndex);
-                    }}
-                    droppableId={local.editComponent._id}
-                    items={(local.editComponent.resources as any)}
-                    itemStyle={{ display: 'flex', alignItems: 'center' }}
-                    mode={mode}
-                    direction={'vertical'}
-                    renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
-                        <Input
-                          value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' title={resource._id} onClick={() => { }} /></CopyToClipboard>}
-                          addonAfter={<Acon icon='CloseOutlined' onClick={() => { local.editComponent?.remResource(resource._id) }}
-                          />} />
-                      </div>
-                    </Fragment>}
-                  />
-                  <Button icon={<Acon icon="add" />}>添加资源</Button>
-                </EditItem>
-                <EditItem>
-                  控件属性
-                  <Input addonBefore="字段" value={local.editComponent.widget.field} onChange={e => {
-                    local.editComponent?.setWidget('field', e.target.value);
-                  }} />
-                  <Divider type="horizontal" style={{ margin: 5 }} />
-                  <span className="ant-input-group-wrapper">
-                    <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">类型</span>
-                      <Select style={{ width: '100%' }} value={local.editComponent.widget.type} onChange={v => {
-                        if (local.editComponent) {
-                          local.editComponent.changeWidgetType(v);
-                        }
-                      }}>
-                        <Select.Option value="string">string</Select.Option>
-                        <Select.Option value="number">number</Select.Option>
-                        <Select.Option value="boolean">boolean</Select.Option>
-                        <Select.Option value="date">date</Select.Option>
-                      </Select>
-                    </span>
-                  </span>
-                  <Divider type="horizontal" style={{ margin: 5 }} />
-                  <Input addonBefore="默认值" value={local.editComponent.widget.value} onChange={e => {
-                    local.editComponent?.setWidget('value', e.target.value);
-                  }} />
-                  参考值
-                  <SortList
-                    sort={(srcIndex: number, dstIndex: number) => {
-                      const arr = _.cloneDeep(local.editComponent?.widget.refer);
-                      const curr = arr?.splice(srcIndex, 1);
-                      arr?.splice(dstIndex, 0, ...(curr || []));
-                      local.editComponent?.setWidget('refer', arr)
-                    }}
-                    droppableId={local.editComponent._id + '2'}
-                    mode={mode}
-                    direction={'vertical'}
-                    listStyle={{}}
-                    itemStyle={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}
-                    items={local.editComponent.widget.refer}
-                    renderItem={({ item, index, handler }: { item: { label: string, value: number | string }, index: number, handler: any }) => (
-                      <Input
-                        key={index}
-                        addonBefore={<div  {...handler}>
-                          <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
-                          {item.label}
-                        </div>}
-                        value={item.value}
-                        addonAfter={<Acon icon='close' onClick={() => local.editComponent?.remRefer(index)} />}
-                      />
-                    )}
-                  />
-                  <AlignAround>
-                    {local.addWidgetReferVisible
-                      ? <Fragment>
-                        <Input addonBefore='名称' />
-                        <Input addonBefore='值' />
-                        <Acon icon='check' onClick={e => {
-                          const op = e.currentTarget.parentElement;
-                          if (op && local.editComponent) {
-                            const oinputs = op.getElementsByTagName('input');
-                            if (oinputs?.length === 2) {
-                              local.editComponent.pushRefer({ label: oinputs[0].value, value: oinputs[1].value });
-                            }
-                            local.addWidgetReferVisible = false
-                          }
-                        }} />
-                      </Fragment>
-                      : <Acon icon='add' onClick={() => local.addWidgetReferVisible = true} />}
-                  </AlignAround>
-                </EditItem>
-              </ScrollWrap>
-            )
-          },
-          {
-            label: '事件', key: 'event', children: (
-              <ScrollWrap>
-                <EditItem>
-                  <Input addonBefore="跳转url" value={local.editComponent.widget.action_url} onChange={e => {
-                    local.editComponent?.setWidget('action_url', e.target.value);
-                  }} />
-                </EditItem>
-                <EditItem>
-                  <span className="ant-input-group-wrapper">
-                    <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">跳转url</span>
-                      <Select style={{ width: '100%' }} value={local.editComponent.widget.action} onChange={v => {
-                        local.editComponent?.setWidget('action', v);
-                      }} >
-                        <Select.Option value="">无</Select.Option>
-                        <Select.Option value="goto_detail">跳转详情</Select.Option>
-                        <Select.Option value="goto_url">跳转外链</Select.Option>
-                        <Select.Option value="edit">编辑</Select.Option>
-                        <Select.Option value="delete">删除</Select.Option>
-                      </Select>
-                    </span>
-                  </span>
-                </EditItem>
-              </ScrollWrap>
-            )
-          },
-          {
-            label: '布局', key: 'layout', children: (
-              <ScrollWrap>
-                <EditItem>
-                  布局方向<Divider type='vertical' />
-                  <Radio.Group value={local.editComponent.attrs.get('layout')} options={[
-                    { label: '水平', value: 'horizon' },
-                    { label: '垂直', value: 'vertical' },
-                  ]} onChange={e => {
-                    local.editComponent?.setAttrs('layout', e.target.value)
-                  }} />
-                </EditItem>
-                <EditItem>
-                  样式
-                  <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(local.editComponent.style, null, 2)} onBlur={e => {
-                    try {
-                      const style = JSON.parse(e.target.value)
-                      local.editComponent?.updateStyle(style);
-                    } catch (e) {
-
-                    } finally {
-
-                    }
-                  }} />
-                </EditItem>
-              </ScrollWrap>
-            )
-          }
-        ]}
-      />
-    </div>}
+    {local.editComponent && (
+      <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.editPanelKey = v }} />
+    )}
   </div>)
   }</Observer >
 }

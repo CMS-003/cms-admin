@@ -6,7 +6,7 @@ import NatureSortable from '@/components/NatureSortable'
 export default function ComponentFilterTag({ self, mode, children, drag, dnd, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}

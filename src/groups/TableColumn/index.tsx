@@ -5,7 +5,7 @@ export default function TableColumn({ self, mode, source, drag, isTitle = true, 
   return <Observer>{() => (
     <div
       key={self._id}
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
     >
       {children}

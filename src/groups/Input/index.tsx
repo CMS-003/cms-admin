@@ -5,7 +5,7 @@ import { Observer } from 'mobx-react'
 export default function CInput({ self, mode, source = {}, drag, dnd, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}

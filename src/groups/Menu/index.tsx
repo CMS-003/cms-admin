@@ -5,12 +5,13 @@ import NatureSortable from '@/components/NatureSortable'
 
 export default function CMenu({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div style={{ ...self.style, ...dnd?.style }}
-      className={`${mode} ${drag?.classNames}`}
+    <div
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}
       {...dnd?.dragHandleProps}
+      style={{ ...self.style, ...dnd?.style }}
     >
       {children}
       <NatureSortable
@@ -18,11 +19,10 @@ export default function CMenu({ self, mode, drag, dnd, children }: IAuto & IBase
         direction='vertical'
         droppableId={self._id}
         sort={self.swap}
-        renderItem={({ item, dnd, index }) => (
+        renderItem={({ item, dnd }) => (
           <Component
             self={item}
             mode={mode}
-            index={index}
             setParentHovered={drag?.setIsMouseOver}
             dnd={dnd}
           />

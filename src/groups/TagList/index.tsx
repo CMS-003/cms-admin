@@ -5,7 +5,7 @@ import { Input, Tag } from 'antd'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Fragment } from 'react'
 
-export default function CTags({ self, mode, source = {}, setSource, drag, children }: IAuto & IBaseComponent) {
+export default function CTags({ self, mode, source = {}, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalStore(() => ({
     addVisible: false,
     tempTag: '',
@@ -13,8 +13,16 @@ export default function CTags({ self, mode, source = {}, setSource, drag, childr
   const field = self.widget.field;
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
-      {...drag.events}>
+      className={mode + drag.className}
+      {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{
+        ...self.style,
+        ...dnd?.style,
+      }}
+    >
       {children}
       <FullWidth
       >

@@ -4,16 +4,28 @@ import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 
 
-export default function CCol({ self, mode, drag, page, source, setSource, children }: IAuto & IBaseComponent) {
+export default function CCol({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <Col style={{ minHeight: 32 }}
+    <Col
       offset={self.attrs.get('left') || 0}
       span={self.attrs.get('right') || 6}
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
+      ref={dnd?.ref}
+      {...dnd?.draggableProps}
+      {...dnd?.dragHandleProps}
+      style={{ ...self.style, ...dnd?.style }}
     >
       {children}
-      {self.children.map((child, index) => <Component mode={mode} index={index} page={page} self={child} key={index} source={source} setSource={setSource} setParentHovered={drag?.setIsMouseOver} />)}
+      {self.children.map((child, index) => (
+        <Component
+          mode={mode}
+          self={child}
+          key={index}
+          {...props}
+          setParentHovered={drag?.setIsMouseOver}
+        />
+      ))}
     </Col>
   )}</Observer>
 }

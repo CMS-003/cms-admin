@@ -64,7 +64,6 @@ export type IAuto = {
   source?: any;
   setSource?: Function;
   setParentHovered?: Function;
-  index: number;
   dnd?: {
     isDragging: boolean;
     ref: DraggableProvided['innerRef'];
@@ -84,7 +83,7 @@ export type IBaseComponent = {
     isDragOver: boolean;
     isMouseOver: boolean;
     setIsMouseOver: Function;
-    get classNames(): string;
+    get className(): string;
     events: {
       onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;

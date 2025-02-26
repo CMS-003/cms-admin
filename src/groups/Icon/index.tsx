@@ -8,7 +8,7 @@ const Icon = styled.img`
 export default function CIcon({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}

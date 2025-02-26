@@ -16,7 +16,7 @@ const MenuItem = styled.div`
 export default function CMenuItem({ self, mode, drag, dnd, children, }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
-      className={`${mode} ${drag?.classNames}`}
+      className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.draggableProps}
@@ -33,11 +33,10 @@ export default function CMenuItem({ self, mode, drag, dnd, children, }: IAuto & 
           direction='vertical'
           droppableId={self._id}
           sort={self.swap}
-          renderItem={({ item, dnd, index }) => (
+          renderItem={({ item, dnd }) => (
             <Component
               self={item}
               mode={mode}
-              index={index}
               setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
             />
