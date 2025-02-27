@@ -13,16 +13,16 @@ const MenuItem = styled.div`
     background-color: ${props => props.className === 'edit' ? 'transparent' : '#71ace3'};
   }
 `
-export default function CMenuItem({ self, mode, drag, dnd, children, }: IAuto & IBaseComponent) {
+export default function CMenuItem({ self, mode, drag, dnd, children, props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -37,8 +37,8 @@ export default function CMenuItem({ self, mode, drag, dnd, children, }: IAuto & 
             <Component
               self={item}
               mode={mode}
-              setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
+              {...props}
             />
           )}
         />

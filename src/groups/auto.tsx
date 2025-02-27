@@ -36,22 +36,18 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
-    isMouseOver: false,
     get className() {
-      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && dragStore.isMouseOver && !store.app.isDragging ? ' hover' : ''}${store.app.editing_component_id === self._id ? ' focus' : ''}${store.app.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.app.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
-    },
-    setIsMouseOver: (is: boolean) => {
-      dragStore.isMouseOver = is;
+      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id && !store.component.isDragging ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
     },
     events: {
       onDrop: (e: any) => {
         e.preventDefault();
         e.stopPropagation();
-        if (mode === 'preview' || store.app.dragingType === '') return;
+        if (mode === 'preview' || store.component.dragingType === '') return;
         dragStore.isDragOver = false;
-        if (self.status !== 0 && store.component.canDrop(store.app.dragingType, self.type)) {
-          const com = self.appendChild(store.app.dragingType)
-          store.app.setEditComponentId(com._id);
+        if (self.status !== 0 && store.component.canDrop(store.component.dragingType, self.type)) {
+          const com = self.appendChild(store.component.dragingType)
+          store.component.setEditComponentId(com._id);
         }
       },
       onDragLeave: () => {
@@ -65,16 +61,15 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
         }
       },
       onMouseEnter() {
-        dragStore.isMouseOver = true;
-        if (setParentHovered) {
-          setParentHovered(false)
+        store.component.setHoverComponentId(self._id)
+      },
+      onMouseOver() {
+        if (!store.component.hover_component_id) {
+          store.component.setHoverComponentId(self._id)
         }
       },
       onMouseLeave() {
-        dragStore.isMouseOver = false;
-        if (setParentHovered) {
-          setParentHovered(true)
-        }
+        store.component.setHoverComponentId('')
       },
       onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         e.preventDefault();
@@ -171,7 +166,7 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
           {...(props)}
         >
           <Handler className='handler' onMouseEnter={() => {
-            store.app.setCanDragId(self._id)
+            store.component.setCanDragId(self._id)
           }}>
             <Style.IconSVG src={icon_drag} />
           </Handler>
@@ -206,7 +201,7 @@ const ScrollWrap = styled.div`
   }
 `
 
-export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page?: IPageInfo, [key: string]: any }) {
+export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page: IPageInfo, [key: string]: any }) {
   const local = useLocalStore<{
     editComponent: IComponent | null;
     editPanelKey: string;
@@ -231,15 +226,15 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
-      if (mode === 'preview' || store.app.dragingType === '') {
+      if (mode === 'preview' || store.component.dragingType === '') {
         return;
       }
-      const type = store.component.types.find(it => it.name === store.app.dragingType)
+      const type = store.component.types.find(it => it.name === store.component.dragingType)
       const child = ComponentItem.create({
         _id: '',
         parent_id: '',
         tree_id: '',
-        type: store.app.dragingType,
+        type: store.component.dragingType,
         status: 1,
         order: local.template?.children.length,
         template_id: local.template?._id,
@@ -258,7 +253,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       if (local.template) {
         local.template.children.push(child)
         local.setEditComponent(local.template.children[local.template.children.length - 1]);
-        store.app.setEditComponentId(child._id);
+        store.component.setEditComponentId(child._id);
       }
     },
     onDragLeave: () => {
@@ -291,7 +286,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     setEditComponent(com: IComponent | null, key = 'base') {
       local.editComponent = com;
       local.editPanelKey = key;
-      store.app.setEditComponentId(com ? com._id : '');
+      store.component.setEditComponentId(com ? com._id : '');
     }
   }))
 
@@ -382,7 +377,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               onDragOver={local.onDragOver}
               onDragLeave={local.onDragLeave}
               onDrop={local.onDrop}
-              className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.app.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
+              className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
               style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
             >
               <NatureSortable

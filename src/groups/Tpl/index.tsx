@@ -18,12 +18,12 @@ export default function CTpl({ self, mode, source, setSource, drag, dnd, childre
       }}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         whiteSpace: 'nowrap',
         ...self.style,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

@@ -12,8 +12,7 @@ export default function CCol({ self, mode, drag, dnd, children, ...props }: IAut
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{ ...self.style, ...dnd?.style }}
     >
       {children}
@@ -23,7 +22,6 @@ export default function CCol({ self, mode, drag, dnd, children, ...props }: IAut
           self={child}
           key={index}
           {...props}
-          setParentHovered={drag?.setIsMouseOver}
         />
       ))}
     </Col>

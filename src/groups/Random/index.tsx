@@ -23,8 +23,7 @@ export default function CRandom({ self, mode, drag, dnd, children }: IAuto & IBa
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{ ...self.style, ...dnd?.style }}
     >
       {children}

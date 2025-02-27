@@ -15,12 +15,12 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
         ...self.style,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -30,7 +30,6 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
           self={child}
           key={index}
           {...props}
-          setParentHovered={drag?.setIsMouseOver}
         />
       ))}
     </Layout>

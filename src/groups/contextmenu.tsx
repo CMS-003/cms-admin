@@ -26,7 +26,7 @@ const ContextMenu = observer(({ setEditComponent }: { setEditComponent: Function
     {/* <ContextMenuItem onClick={(e: any) => {
       // ComponentItem.create({})
       e.props.appendChild('type')
-      store.app.setEditComponentId(e.props._id);
+      store.component.setEditComponentId(e.props._id);
       local.editComponent = e.props
     }}>添加子视图</ContextMenuItem> */}
   </Menu>

@@ -1,7 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Tag } from 'antd'
 import { Observer } from 'mobx-react';
-import NatureSortable from '@/components/NatureSortable'
 
 export default function ComponentFilterTag({ self, mode, children, drag, dnd, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
@@ -9,11 +8,11 @@ export default function ComponentFilterTag({ self, mode, children, drag, dnd, ..
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         flex: 0,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

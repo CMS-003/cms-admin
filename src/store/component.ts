@@ -215,9 +215,15 @@ const ComponentTypeItem = types.model({
   accepts: types.array(types.string),
 })
 
-const componentList = types.model({
+const component = types.model({
   list: types.array(ComponentItem),
   types: types.array(ComponentTypeItem),
+  editing_component_id: types.optional(types.string, ''),
+  hover_component_id: types.optional(types.string, ''),
+  dragingType: types.optional(types.string, ''),
+  dragingWidgetType: types.optional(types.string, ''),
+  can_drag_id: types.optional(types.string, ''),
+  isDragging: types.optional(types.boolean, false),
 }).views(self => ({
   getList(): IComponent[] {
     return self.list.toJSON();
@@ -237,8 +243,26 @@ const componentList = types.model({
     const result = com.accepts.includes(from) || com.accepts.includes('all');
     return result;
   },
+  setEditComponentId(id: string) {
+    self.editing_component_id = id;
+  },
+  setHoverComponentId(id: string) {
+    self.hover_component_id = id
+  },
+  setDragType(type: string) {
+    self.dragingType = type;
+  },
+  setDragWidgetType(type: string) {
+    self.dragingWidgetType = type;
+  },
+  setCanDragId(id: string) {
+    self.can_drag_id = id;
+  },
+  setIsDragging(bool: boolean) {
+    self.isDragging = bool;
+  },
   async fetch() {
 
   },
 }))
-export default componentList;
+export default component;

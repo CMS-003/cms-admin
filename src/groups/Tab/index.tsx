@@ -1,15 +1,12 @@
 import { Tabs } from "antd";
-import { Observer, useLocalStore } from "mobx-react";
+import { Observer } from "mobx-react";
 import { IAuto, IBaseComponent } from '@/types/component';
 import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
-import SortList from '@/components/SortList/';
-import TabItem from "../TabItem";
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
-import { Fragment, useEffect } from "react";
+import { Fragment } from "react";
 import Auto from '../auto'
-import { useEffectOnce } from "react-use";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -33,18 +30,18 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CTab({ self, mode, drag, dnd, children, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <TabWrap
         className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
-        {...dnd?.draggableProps}
-        {...dnd?.dragHandleProps}
+        {...dnd?.props}
         style={{
           ...self.style,
           ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
       >
         {children}
@@ -71,9 +68,9 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
             key: child._id,
             children: (
               child.attrs.get('content_type') === 'template' ? (<Fragment>
-                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} />
+                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} page={page} />
               </Fragment>) :
-                <Component mode={mode} self={child} key={i} index={i} {...props} setParentHovered={drag?.setIsMouseOver} />
+                <Component mode={mode} self={child} key={i} index={i} page={page} {...props} />
             )
           }))}
         >

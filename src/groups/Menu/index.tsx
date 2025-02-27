@@ -3,14 +3,13 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 
-export default function CMenu({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{ ...self.style, ...dnd?.style }}
     >
       {children}
@@ -23,8 +22,8 @@ export default function CMenu({ self, mode, drag, dnd, children }: IAuto & IBase
           <Component
             self={item}
             mode={mode}
-            setParentHovered={drag?.setIsMouseOver}
             dnd={dnd}
+            {...props}
           />
         )}
       />

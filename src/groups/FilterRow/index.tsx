@@ -1,10 +1,7 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
 import { Component } from '../auto'
-import Acon from '@/components/Acon'
-import SortList from '@/components/SortList'
 import { Observer } from 'mobx-react'
-import { ScrollWrap } from '../style'
 import { useEffectOnce } from 'react-use'
 import NatureSortable from '@/components/NatureSortable'
 
@@ -37,10 +34,10 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
-        {...dnd?.draggableProps}
-        {...dnd?.dragHandleProps}
+        {...dnd?.props}
         style={{
           ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
       >
         {children}
@@ -56,7 +53,6 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
               mode={mode}
               dnd={dnd}
               {...props}
-              setParentHovered={drag?.setIsMouseOver}
             />
           )}
         />

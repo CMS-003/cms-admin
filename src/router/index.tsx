@@ -2,7 +2,6 @@ import React, {
   FC,
   useEffect,
   useCallback,
-  Fragment,
 } from 'react'
 import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -18,7 +17,6 @@ import { CenterXY } from '@/components/style';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
 import Loadable from 'react-loadable';
-import Acon from '@/components/Acon';
 
 // path=pathname+search=xxxkey=fullpath
 // 除了 Page 路由中 path 不能体现 search 参数 IPage 和 IPanel 要分开
@@ -129,22 +127,6 @@ const LoadableTableDetailPage = Loadable({
   loader: () => import("@/pages/table/detail"),
   loading: LoadingPage,
 });
-const LoadableTableFormModifyPage = Loadable({
-  loader: () => import("@/pages/table/form/modify"),
-  loading: LoadingPage,
-});
-const FormPreviewPage = Loadable({
-  loader: () => import("@/pages/table/form/preview"),
-  loading: LoadingPage,
-});
-const ListModifyPage = Loadable({
-  loader: () => import('@/pages/table/list/modify'),
-  loading: LoadingPage,
-});
-const ListPreviewPage = Loadable({
-  loader: () => import('@/pages/table/list/preview'),
-  loading: LoadingPage,
-})
 
 const pageArr: IPage[] = [
   { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
@@ -153,10 +135,6 @@ const pageArr: IPage[] = [
   { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
   { title: '所有表', Content: (props: any) => <LoadableTablesPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/all' },
   { title: '表定义', Content: (props: any) => <LoadableTableDetailPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/detail' },
-  { title: '表单编辑', Content: (props: any) => <LoadableTableFormModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/modify' },
-  { title: '表单预览', Content: (props: any) => <FormPreviewPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/form/preview' },
-  { title: '列表编辑', Content: (props: any) => <ListModifyPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/list/modify' },
-  { title: '列表预览', Content: (props: any) => <ListPreviewPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/list/preview' },
   { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
   { title: '组件管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
   { title: '控件类型', Content: (props: any) => <LoadableWidgetPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/widget' },

@@ -11,7 +11,7 @@ import Page from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
 
-const ComponentTemplatePage = ({ t }: { t?: number }) => {
+const ComponentTemplatePage = () => {
   const ref = useRef(null)
   const local = useLocalStore<{
     mode: string,
@@ -46,7 +46,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
       const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
       if (result.code === 0) {
         local.templates = result.data.items
-        store.app.setEditComponentId('')
+        store.component.setEditComponentId('')
         if (local.templates.length) {
           if (!local.edit_template_id) {
             local.setEditTemplateID(local.templates[0]._id)
@@ -59,9 +59,6 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
       local.setLoading(false);
     }
   }, [])
-  useEffect(() => {
-
-  }, [t])
   useEffectOnce(() => {
     refresh()
     events.on('finished', () => {
@@ -79,10 +76,10 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
               key={item._id}
               title={item.title}
               onDragStartCapture={() => {
-                store.app.setDragType(item.name);
+                store.component.setDragType(item.name);
               }}
               onDragEndCapture={() => {
-                store.app.setDragType('')
+                store.component.setDragType('')
               }}>
               <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
               />
@@ -116,7 +113,7 @@ const ComponentTemplatePage = ({ t }: { t?: number }) => {
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'auto' }}>
             {local.loading
               ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." />
-              : <Page template_id={local.edit_template_id} mode={local.mode} />
+              : <Page template_id={local.edit_template_id} mode={local.mode} page={{ path: '', param: {}, query: {} }} />
             }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

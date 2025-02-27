@@ -11,11 +11,11 @@ export default function CIcon({ self, mode, drag, dnd, children }: IAuto & IBase
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         ...self.style,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

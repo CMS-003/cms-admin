@@ -1,13 +1,11 @@
 import { AlignAround, FullHeight, FullHeightAuto } from '@/components/style'
-import { IAuto, IBaseComponent, IComponent } from '@/types/component'
+import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalStore } from 'mobx-react'
 import { Button } from 'antd'
-import { SortList } from '@/components'
 import { Component } from '../auto'
 import { useCallback, useEffect } from 'react'
 import apis from '@/api'
 import _ from 'lodash'
-import { DragDropContext, Droppable, Draggable, DropResult, Direction, DraggableProvided, DraggableStateSnapshot, DraggableChildrenFn } from "react-beautiful-dnd";
 import NatureSortable from '@/components/NatureSortable'
 
 export default function CForm({ self, mode, page, drag, dnd, children }: IAuto & IBaseComponent) {
@@ -46,29 +44,29 @@ export default function CForm({ self, mode, page, drag, dnd, children }: IAuto &
   const getInfo = useCallback(async () => {
     if (self.api && mode === 'preview') {
       local.loading = true;
-      const resp = await apis.getInfo(self.api, page?.query['id'] as string);
+      const resp = await apis.getInfo(self.api, page.query['id'] as string);
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
       local.loading = false;
     }
-  }, [self.api, page?.query['id']])
+  }, [self.api, page.query['id']])
   const updateInfo = useCallback(async () => {
     console.log(local.getDiff(), self.api)
   }, [])
   useEffect(() => {
     getInfo();
-  }, [page?.query['id'], self.api])
+  }, [page.query['id'], self.api])
   return <Observer>{() => (
     <FullHeight
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         width: '100%', height: '100%',
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -84,8 +82,8 @@ export default function CForm({ self, mode, page, drag, dnd, children }: IAuto &
               mode={mode}
               source={local.source}
               setSource={local.setSource}
-              setParentHovered={drag?.setIsMouseOver}
               dnd={dnd}
+              page={page}
             />
           )}
         />

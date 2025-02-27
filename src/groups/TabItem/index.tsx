@@ -27,8 +27,8 @@ export default function TabItem({ self, mode, drag, children, ...props }: IAuto 
       e.preventDefault();
       e.stopPropagation();
       local.isDragOver = false;
-      if (store.component.canDrop(store.app.dragingType, self.type)) {
-        self.appendChild(store.app.dragingType)
+      if (store.component.canDrop(store.component.dragingType, self.type)) {
+        self.appendChild(store.component.dragingType)
       }
     },
     onDragLeave: () => {
@@ -50,7 +50,7 @@ export default function TabItem({ self, mode, drag, children, ...props }: IAuto 
         onDragLeave={local.onDragLeave}
         onDrop={local.onDrop} >
         {children}
-        {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props} setParentHovered={drag?.setIsMouseOver} />)}
+        {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props}/>)}
       </TabItemWrap>
     )}
   </Observer>

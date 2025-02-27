@@ -1,9 +1,7 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
 import _ from 'lodash'
-import SortList from '@/components/SortList/';
 import { Component } from '../auto'
-import Acon from '@/components/Acon';
 import { Observer } from 'mobx-react';
 import NatureSortable from '@/components/NatureSortable'
 
@@ -14,8 +12,7 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
         className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
-        {...dnd?.draggableProps}
-        {...dnd?.dragHandleProps}
+        {...dnd?.props}
         style={{ ...self.style, ...dnd?.style }}
       >
         {children}
@@ -31,7 +28,6 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
                 mode={mode}
                 dnd={dnd}
                 {...props}
-                setParentHovered={drag?.setIsMouseOver}
               />
             )}
           />

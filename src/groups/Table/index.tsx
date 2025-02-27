@@ -9,7 +9,7 @@ import { IResource } from '@/types'
 import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
 
-export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, dnd, drag, children, page }: IAuto & IBaseComponent) {
   const local: {
     loading: boolean,
     query: { [key: string]: string | number },
@@ -74,14 +74,15 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      
+      {...dnd?.props}
       style={{
         height: '100%',
         flex: 1,
         overflow: 'auto',
         ...self.style,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -97,7 +98,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} index={i} setParentHovered={drag?.setIsMouseOver} />)}</Observer>,
+          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} page={page} />)}</Observer>,
           key: child._id,
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
@@ -111,8 +112,8 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
                   self={item}
                   mode={mode}
                   source={d}
-                  setParentHovered={drag?.setIsMouseOver}
                   dnd={dnd}
+                  page={page}
                 />
               )}
             />

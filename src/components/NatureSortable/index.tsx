@@ -10,7 +10,7 @@ const Wrap = styled.div`
   // align-items: flex-start;
 `
 
-function lockAxis(isDragging: boolean, direction: Direction | undefined, style: DraggableProvided['draggableProps']['style']) {
+function lockAxis(direction: Direction | undefined, style: DraggableProvided['draggableProps']['style']) {
   if (!style) return;
   let transform = style.transform;
   if (direction) {
@@ -23,7 +23,6 @@ function lockAxis(isDragging: boolean, direction: Direction | undefined, style: 
   return {
     ...style,
     transform,
-    backgroundColor: isDragging ? 'lightblue' : '',
   };
 }
 
@@ -46,8 +45,7 @@ export default function NatureSortable({
     dnd: {
       isDragging: boolean;
       ref: DraggableProvided['innerRef'];
-      draggableProps: DraggableProvided['draggableProps'];
-      dragHandleProps: DraggableProvided['dragHandleProps'];
+      props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
       style: DraggableProvided['draggableProps']['style'];
     }
   }) => ReactElement<HTMLElement, string | JSXElementConstructor<any>>);
@@ -55,10 +53,10 @@ export default function NatureSortable({
   const Container = wrap || Wrap;
   return (
     <DragDropContext onDragStart={e => {
-      store.app.setIsDragging(true);
+      store.component.setIsDragging(true);
       restProps.onDragStart && restProps.onDragStart();
     }} onDragEnd={(result) => {
-      store.app.setIsDragging(false);
+      store.component.setIsDragging(false);
       if (result.destination) {
         restProps.sort(result.source.index, result.destination.index);
       }
@@ -74,9 +72,11 @@ export default function NatureSortable({
             dnd: {
               isDragging: snapshot.isDragging,
               ref: provided.innerRef,
-              draggableProps: provided.draggableProps,
-              dragHandleProps: provided.dragHandleProps,
-              style: lockAxis(snapshot.isDragging, direction, provided.draggableProps.style),
+              props: {
+                ...provided.draggableProps,
+                ...provided.dragHandleProps
+              },
+              style: lockAxis(direction, provided.draggableProps.style),
             },
           })
         }
@@ -85,15 +85,17 @@ export default function NatureSortable({
           <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%', flexDirection: direction === 'horizontal' ? 'row' : 'column' }}>
             {items.map((item, index) => (
               <Observer key={item._id}>{() => (
-                <Draggable draggableId={item._id} index={index} isDragDisabled={store.app.can_drag_id !== item._id}>
+                <Draggable draggableId={item._id} index={index} isDragDisabled={store.component.can_drag_id !== item._id}>
                   {(provided, snapshot) => renderItem({
                     item,
                     dnd: {
                       isDragging: snapshot.isDragging,
                       ref: provided.innerRef,
-                      draggableProps: provided.draggableProps,
-                      dragHandleProps: provided.dragHandleProps,
-                      style: lockAxis(snapshot.isDragging, direction, provided.draggableProps.style),
+                      props: {
+                        ...provided.draggableProps,
+                        ...provided.dragHandleProps
+                      },
+                      style: lockAxis(direction, provided.draggableProps.style),
                     }
                   })}
                 </Draggable>

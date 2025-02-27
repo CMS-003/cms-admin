@@ -8,8 +8,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, 
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         ...self.style, ...dnd?.style
       }}

@@ -63,15 +63,13 @@ export type IAuto = {
   children?: any;
   source?: any;
   setSource?: Function;
-  setParentHovered?: Function;
   dnd?: {
     isDragging: boolean;
     ref: DraggableProvided['innerRef'];
-    draggableProps: DraggableProvided['draggableProps'];
-    dragHandleProps: DraggableProvided['dragHandleProps'];
+    props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
     style: DraggableProvided['draggableProps']['style'];
   };
-  page?: {
+  page: {
     path: string,
     param: { [key: string]: string },
     query: { [key: string]: string },
@@ -81,14 +79,13 @@ export type IAuto = {
 export type IBaseComponent = {
   drag: {
     isDragOver: boolean;
-    isMouseOver: boolean;
-    setIsMouseOver: Function;
     get className(): string;
     events: {
       onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onDragOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
       onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     }

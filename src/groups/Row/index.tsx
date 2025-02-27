@@ -11,10 +11,10 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -31,7 +31,6 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
             mode={mode}
             dnd={dnd}
             {...props}
-            setParentHovered={drag?.setIsMouseOver}
           />
         )}
       />

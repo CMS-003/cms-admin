@@ -12,8 +12,7 @@ export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBa
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      {...dnd?.draggableProps}
-      {...dnd?.dragHandleProps}
+      {...dnd?.props}
       style={{
         display: 'flex',
         flexDirection: 'row',
@@ -22,6 +21,7 @@ export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBa
         flex: 0,
         ...self.style,
         ...dnd?.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
