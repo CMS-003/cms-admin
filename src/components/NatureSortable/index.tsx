@@ -82,7 +82,7 @@ export default function NatureSortable({
         }
       >
         {(provided) => (
-          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%', flexDirection: direction === 'horizontal' ? 'row' : 'column' }}>
+          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%', flex: 1, flexDirection: direction === 'horizontal' ? 'row' : 'column', overflow: 'auto', }}>
             {items.map((item, index) => (
               <Observer key={item._id}>{() => (
                 <Draggable draggableId={item._id} index={index} isDragDisabled={store.component.can_drag_id !== item._id}>

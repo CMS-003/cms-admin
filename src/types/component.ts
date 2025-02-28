@@ -1,6 +1,13 @@
 import { DraggableProvided } from "react-beautiful-dnd";
 import { IResource } from "./resource";
 
+export type IPageInfo = {
+  path: string;
+  param: { [key: string]: string };
+  query: { [key: string]: string };
+  setTitle: (title: string) => void;
+}
+
 export type IConfig = {
   _id?: string;
   name?: string;
@@ -69,11 +76,7 @@ export type IAuto = {
     props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
     style: DraggableProvided['draggableProps']['style'];
   };
-  page: {
-    path: string,
-    param: { [key: string]: string },
-    query: { [key: string]: string },
-  };
+  page: IPageInfo;
   [key: string]: any;
 }
 export type IBaseComponent = {

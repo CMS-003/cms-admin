@@ -83,11 +83,6 @@ const LoadableEditable = Loadable({
   loader: () => import('@/pages/template/editable'),
   loading: LoadingPage,
 });
-const LoadableTemplateForm = Loadable({
-  loader: () => import('@/pages/template/form'),
-  loading: LoadingPage,
-});
-
 const LoadableTemplatePage = Loadable({
   loader: () => import('@/pages/template'),
   loading: LoadingPage,
@@ -115,10 +110,6 @@ const LoadableVerification = Loadable({
   loader: () => import('@/pages/log/verification'),
   loading: LoadingPage,
 });
-const LoadableWidgetPage = Loadable({
-  loader: () => import("@/pages/component/widget"),
-  loading: LoadingPage,
-});
 const LoadableTablesPage = Loadable({
   loader: () => import("@/pages/table/index"),
   loading: LoadingPage,
@@ -136,10 +127,8 @@ const pageArr: IPage[] = [
   { title: '所有表', Content: (props: any) => <LoadableTablesPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/all' },
   { title: '表定义', Content: (props: any) => <LoadableTableDetailPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/detail' },
   { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
-  { title: '组件管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
-  { title: '控件类型', Content: (props: any) => <LoadableWidgetPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/widget' },
+  { title: '组件管理', Content: (props: any) => <LoadableComponentPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
   { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },
-  { title: '表单页', Content: (props: any) => <LoadableTemplateForm {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/form' },
   { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
   { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/dynamic/:id' },
   { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/editable' },
@@ -380,9 +369,22 @@ const TabPanes: FC = () => {
           key: Panel.path,
           label: Panel.title,
           children: local.reloadPath !== Panel.path ? (
-            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}><Panel.Content key={Panel.path} path={Panel.path} id={Panel.id} page={{ path: Panel.path, param: {}, query: Object.fromEntries(new URLSearchParams(Panel.path.split('?')[1])) }} store={store} setTitle={(title: string) => {
-              Panel.title = title;
-            }} /></div>
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <Panel.Content
+                key={Panel.path}
+                path={Panel.path}
+                id={Panel.id}
+                page={{
+                  path: Panel.path,
+                  param: {},
+                  query: Object.fromEntries(new URLSearchParams(Panel.path.split('?')[1])),
+                  setTitle: (title: string) => {
+                    Panel.title = title;
+                  },
+                }}
+                store={store}
+              />
+            </div>
           ) : (
             <CenterXY key={Panel.path}>
               <Alert message="刷新中..." type="info" />

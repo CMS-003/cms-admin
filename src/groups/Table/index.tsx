@@ -77,7 +77,6 @@ export default function CTable({ self, mode, dnd, drag, children, page }: IAuto 
       
       {...dnd?.props}
       style={{
-        height: '100%',
         flex: 1,
         overflow: 'auto',
         ...self.style,

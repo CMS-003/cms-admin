@@ -32,7 +32,7 @@ import {
   ConerRT,
 } from './style'
 
-export function Component({ self, children, mode, setParentHovered, dnd, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalStore(() => ({
     isDragOver: false,
@@ -82,76 +82,12 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
       },
     },
   }));
-  // 数据源
-  const dataStore: {
-    loading: boolean,
-    query: { [key: string]: string | number },
-    total: number,
-    page: number,
-    pageSize: number,
-    resources: IResource[],
-    setQuery: Function,
-    getQuery: Function,
-    setResources: (resource: IResource[]) => void,
-  } = useLocalStore(() => ({
-    loading: false,
-    // 列表类型
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    query: {},
-    setQuery(field: string, value: string | number) {
-      dataStore.query[field] = value;
-    },
-    getQuery() {
-      return {
-        page: dataStore.page,
-        page_size: dataStore.pageSize,
-        ...dataStore.query,
-      }
-    },
-    setResources(resources: IResource[]) {
-      dataStore.resources = resources;
-    },
-    resources: [],
-    // 表单类型
-    resource: null,
-  }));
-  const onSetQuery = useCallback((event: { field: string, value: string, force: boolean, template_id: string }) => {
-    if (self.template_id === event.template_id) {
-      dataStore.setQuery(event.field, event.value);
-      if (event.force) {
-        init();
-      }
-    }
-  }, []);
-  useEffectOnce(() => {
-    events.on('setQuery', onSetQuery);
-    () => {
-      events.off('setQuery', onSetQuery);
-    }
-  })
-  const init = useCallback(async () => {
-    if (self.api && mode === 'preview' && self.type !== 'Form') {
-      dataStore.loading = true;
-      const resp = await apis.getList(self.api, dataStore.getQuery());
-      if (resp.code === 0) {
-        dataStore.setResources(resp.data.items as IResource[]);
-        dataStore.total = resp.data.total || 0;
-      }
-      dataStore.loading = false;
-    }
-  }, [self.api])
-  useEffectOnce(() => {
-    init();
-  })
 
   if (self.status === 0 && mode === 'preview') {
     return null;
   }
   const Com = BaseComponent[self.type as keyof typeof BaseComponent];
   if (Com) {
-    const direction = self.attrs.get('layout') === 'vertical' ? 'vertical' : 'horizontal';
     return <Observer>
       {() => (
         <Com
@@ -160,7 +96,6 @@ export function Component({ self, children, mode, setParentHovered, dnd, source,
           page={page}
           source={source}
           setSource={setSource}
-          setParentHovered={setParentHovered}
           dnd={dnd}
           drag={dragStore}
           {...(props)}
@@ -297,9 +232,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       const { children, ...template } = resp.data as ITemplate;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
-      if (props && props.setTitle) {
-        (props.setTitle as any)(local.template.title)
-      }
+      page.setTitle(local.template.title);
       // 更新编辑中的数据
       if (local.editComponent) {
         const stack = components.map(c => c);
@@ -360,7 +293,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
     }
   })
 
-  return <Observer>{() => (<div style={{ display: 'flex', width: '90%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+  return <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     <GroupMenu setEditComponent={local.setEditComponent} />
     <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
       <div className='hidden-scrollbar' style={{
@@ -378,11 +311,12 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
               onDragLeave={local.onDragLeave}
               onDrop={local.onDrop}
               className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-              style={{ display: 'flex', flexDirection: 'column', ...toJS(local.template?.style) }}
+              style={{ ...toJS(local.template?.style) }}
             >
               <NatureSortable
                 items={(local.template as ITemplate).children}
                 direction='vertical'
+                wrap={TemplateBox}
                 droppableId={local.template._id}
                 sort={() => { }}
                 renderItem={({ item, dnd }) => (

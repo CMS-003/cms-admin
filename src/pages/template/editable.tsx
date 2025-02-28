@@ -113,7 +113,7 @@ const ComponentTemplatePage = () => {
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'auto' }}>
             {local.loading
               ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." />
-              : <Page template_id={local.edit_template_id} mode={local.mode} page={{ path: '', param: {}, query: {} }} />
+              : <Page template_id={local.edit_template_id} mode={local.mode} page={{ path: '', param: {}, query: {}, setTitle: () => { } }} />
             }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

@@ -2,6 +2,7 @@ import styled from 'styled-components'
 
 export const TemplateBox = styled.div`
   height: 100%;
+  display: flex;
   &.edit.dragover {
     background-color: #55a558;
   }
