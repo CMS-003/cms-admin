@@ -84,13 +84,13 @@ export type IBaseComponent = {
     isDragOver: boolean;
     get className(): string;
     events: {
-      onDrop: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onDragLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onDragOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseEnter: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseOver: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseLeave: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onContextMenu: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onDrop?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onDragLeave?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onDragOver?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseEnter?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseOver?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onMouseLeave?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+      onContextMenu?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     }
   }
 }

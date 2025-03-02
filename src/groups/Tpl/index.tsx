@@ -27,7 +27,7 @@ export default function CTpl({ self, mode, source, setSource, drag, dnd, childre
       }}
     >
       {children}
-      {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl(source) }}></div>}
+      {mode === 'edit' ? self.title : <div style={{ whiteSpace: 'normal' }} dangerouslySetInnerHTML={{ __html: local.tpl(source) }}></div>}
     </div>
   )
   }</Observer >

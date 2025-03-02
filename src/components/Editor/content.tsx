@@ -77,13 +77,13 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
         switch (item.component) {
           case 'Input':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-              <Input defaultValue={data[item.field]} autoFocus={item.autoFocus || false} onChange={e => {
+              <Input defaultValue={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
                 data[item.field] = e.target.value
               }} />
             </Form.Item>;
           case 'Number':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-              <Input type="number" value={data[item.field]} autoFocus={item.autoFocus || false} onChange={e => {
+              <Input type="number" value={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
                 data[item.field] = e.target.value
               }} />
             </Form.Item>;
@@ -103,7 +103,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
             </Form.Item>;
           case 'Select':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-              <Select key={item.field} defaultValue={data[item.field] || ''} onChange={(value) => {
+              <Select key={item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
                 data[item.field] = value
               }}>
                 {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}

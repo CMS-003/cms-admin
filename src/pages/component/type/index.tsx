@@ -45,7 +45,7 @@ const ComponentTypePage: React.FC = () => {
       title: '类别',
       type: 'string',
       component: IEditorComponent.Select,
-      defaultValue: '',
+      defaultValue: 'widget',
       autoFocus: false,
       value: [
         { value: '', name: '无' },

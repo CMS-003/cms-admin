@@ -31,10 +31,10 @@ export default function EditPage({ isAdd, visible, fetch, fields, data, close, .
                 data[item.field] = JSON.parse(data[item.field])
               }
               if (item.type === 'string' && !data[item.field]) {
-                data[item.field] = item.defaultValue || ''
+                data[item.field] = item.defaultValue || item.defaultValue
               }
               if (item.type === 'number') {
-                data[item.field] = parseInt(data[item.field])
+                data[item.field] = parseInt(data[item.field]) || item.defaultValue;
               }
               if (item.type === 'boolean') {
                 data[item.field] = data[item.field] ? true : false;

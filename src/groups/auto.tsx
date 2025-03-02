@@ -97,7 +97,7 @@ export function Component({ self, children, mode, dnd, source, setSource, page, 
           source={source}
           setSource={setSource}
           dnd={dnd}
-          drag={dragStore}
+          drag={mode === 'edit' ? dragStore : { isDragOver: false, className: ' component', events: {} }}
           {...(props)}
         >
           <Handler className='handler' onMouseEnter={() => {
