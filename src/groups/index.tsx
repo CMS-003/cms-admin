@@ -76,6 +76,7 @@ const components = {
   PickCard,
   RandomCard,
   IconBtn,
+  Image: IconBtn,
   Text: CText,
   Button: CButton,
   Input: CInput,
