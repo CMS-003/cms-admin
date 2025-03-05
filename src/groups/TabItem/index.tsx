@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent } from "@/types"
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
 import { Component } from "../auto"
@@ -21,7 +21,7 @@ export const TabItemWrap = styled.div`
   }
 `
 export default function TabItem({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     isDragOver: false,
     onDrop: (e: any) => {
       e.preventDefault();

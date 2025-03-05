@@ -6,6 +6,7 @@ import {
   PlusOutlined,
   CloseOutlined,
   CopyOutlined,
+  LinkOutlined,
   DragOutlined,
   PlusCircleOutlined,
   SyncOutlined,
@@ -106,7 +107,8 @@ const icons = {
   Image: PictureOutlined,
   Album: FileImageOutlined,
   Text: FontSizeOutlined,
-  Caption: () => <IconSVG src={caption} />
+  Caption: () => <IconSVG src={caption} />,
+  LinkOutlined,
 }
 const Wrap = styled.span`
   cursor: pointer;

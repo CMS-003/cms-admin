@@ -1,6 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Table } from 'antd'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { Component } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
@@ -20,7 +20,7 @@ export default function CTable({ self, mode, dnd, drag, children, page }: IAuto 
     page: number,
     page_size: number,
     setResources: (resource: IResource[]) => void
-  } = useLocalStore(() => ({
+  } = useLocalObservable(() => ({
     resources: [],
     loading: false,
     total: 0,
@@ -99,6 +99,7 @@ export default function CTable({ self, mode, dnd, drag, children, page }: IAuto 
         columns={self.children.map((child, i) => ({
           title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} page={page} />)}</Observer>,
           key: child._id,
+          width: child.style.width || '',
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
             <NatureSortable

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useEffectOnce } from 'react-use';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import apis from '@/api';
 import { ISNS } from '../../types';
 import store from '@/store';
@@ -31,7 +31,7 @@ const sns_type: { [key: string]: any } = {
 }
 
 export default function Page({ }) {
-  const local = useLocalStore<{ list: ISNS[] }>(() => ({
+  const local = useLocalObservable<{ list: ISNS[] }>(() => ({
     list: []
   }))
   const refresh = useCallback(async () => {

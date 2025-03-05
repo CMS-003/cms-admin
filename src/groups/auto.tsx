@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { message, } from 'antd'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
@@ -34,7 +34,7 @@ import {
 
 export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
-  const dragStore = useLocalStore(() => ({
+  const dragStore = useLocalObservable(() => ({
     isDragOver: false,
     get className() {
       return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id && !store.component.isDragging ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
@@ -137,7 +137,7 @@ const ScrollWrap = styled.div`
 `
 
 export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page: IPageInfo, [key: string]: any }) {
-  const local = useLocalStore<{
+  const local = useLocalObservable<{
     editComponent: IComponent | null;
     editPanelKey: string;
     template: ITemplate | null;

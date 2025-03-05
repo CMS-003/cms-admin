@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef, forwardRef } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
@@ -13,7 +13,7 @@ import Acon from '@/components/Acon';
 
 const ComponentTemplatePage = () => {
   const ref = useRef(null)
-  const local = useLocalStore<{
+  const local = useLocalObservable<{
     mode: string,
     loading: boolean,
     fetching: boolean,
@@ -98,7 +98,7 @@ const ComponentTemplatePage = () => {
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
                 <Select value={local.edit_template_id} onChange={v => {
-                  local.edit_template_id = v;
+                  local.setEditTemplateID(v)
                   refresh()
                 }}>
                   {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}

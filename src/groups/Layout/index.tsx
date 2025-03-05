@@ -17,6 +17,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
+        minHeight: self.children.length === 0 ? 25 : 'auto',
         flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
         ...self.style,
         ...dnd?.style,

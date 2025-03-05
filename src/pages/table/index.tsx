@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate } from "react-router-dom";
 import { ITable, ITableDetail } from '@/types/table';
 import { TableCard, TableTitle, SubTitle } from './style'
@@ -26,7 +26,7 @@ export default function Page() {
     showCreate: boolean;
     tables: ITableDetail[];
     setData: Function;
-  } = useLocalStore(() => ({
+  } = useLocalObservable(() => ({
     cells: 1,
     tables: [],
     loading: false,

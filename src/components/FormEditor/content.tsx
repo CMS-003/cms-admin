@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useMemo, useState, JSXElementConstructor, ReactElement, ReactFragment, ReactPortal, } from 'react'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { Form, Input, Switch, Upload, Button, Select, Spin, Row, Col } from 'antd'
 import Acon from '../Acon'
 import CodeMirror from '@uiw/react-codemirror';
@@ -60,7 +60,7 @@ interface IField<T extends keyof IEditorField> {
 }
 
 export default function EditPage({ fetch, fields, data, ...props }: { data: any, fields: IEditorField[], fetch: Function, }) {
-  const local = useLocalStore<{ jsonMap: { [key: string]: string }, attributes: { field: keyof IEditorField, name: string, value: any, disabled?: boolean }[], temp: IEditorField | null }>(() => ({
+  const local = useLocalObservable<{ jsonMap: { [key: string]: string }, attributes: { field: keyof IEditorField, name: string, value: any, disabled?: boolean }[], temp: IEditorField | null }>(() => ({
     jsonMap: {},
     attributes: [
       { field: 'title', name: '名称', value: '' },

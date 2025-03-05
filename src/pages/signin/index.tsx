@@ -1,5 +1,5 @@
 import React from 'react'
-import { Observer, useLocalStore } from 'mobx-react-lite'
+import { Observer, useLocalObservable } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
 import { useNavigate } from "react-router-dom";
 import logo from '@/asserts/images/logo.svg'
@@ -17,7 +17,7 @@ import { IconSNS } from './style';
 
 export default function SignInPage() {
   const navigate = useNavigate()
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     isFetch: false,
     username: '',
     password: '',

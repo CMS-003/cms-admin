@@ -1,10 +1,10 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import hbs from 'handlebars'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function CTpl({ self, mode, source, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value)
   }))
   const navigate = useNavigate();

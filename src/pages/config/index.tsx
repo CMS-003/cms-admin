@@ -1,5 +1,5 @@
 import { Button, notification, Space, Table, Input, Select } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
 import { IComponent, IConfig, IEditorComponent } from '../../types'
@@ -10,7 +10,7 @@ import { cloneDeep } from 'lodash'
 import Acon from '@/components/Acon';
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalStore<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, type: string, list: IConfig[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, type: string, list: IConfig[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,

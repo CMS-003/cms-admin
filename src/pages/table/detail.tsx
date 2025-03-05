@@ -1,5 +1,5 @@
 import { Fragment, useCallback } from 'react'
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import { IJsonSchema } from '@/types/table';
 import { useEffectOnce } from 'react-use';
 import JsonSchemaEditor from '@/components/JsonSchemaEditor';
@@ -17,7 +17,7 @@ export default function Page() {
     name: string;
     schema: IJsonSchema | null,
     original: IJsonSchema | null,
-  } = useLocalStore(() => ({
+  } = useLocalObservable(() => ({
     original: null,
     schema: null,
     isLoading: false,

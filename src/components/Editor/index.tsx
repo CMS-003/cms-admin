@@ -1,11 +1,11 @@
 import { Fragment, useEffect, } from 'react'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { Modal, notification, } from 'antd'
 import { IEditorField } from '@/types'
 import Content from './content'
 
 export default function EditPage({ isAdd, visible, fetch, fields, data, close, ...props }: { isAdd?: boolean, visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
-  const local = useLocalStore<{ fetching: boolean }>(() => ({
+  const local = useLocalObservable(() => ({
     fetching: false,
   }))
   useEffect(() => {

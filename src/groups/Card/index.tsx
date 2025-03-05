@@ -1,6 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import Acon from '@/components/Acon'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import { Center } from '@/components/style'
 import ResourceModal from '@/components/ResourceModal'
@@ -56,7 +56,7 @@ const ItemTitle = styled.div`
   margin: 5px 0;
 `
 export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     show: false,
     close() {
       local.show = false;

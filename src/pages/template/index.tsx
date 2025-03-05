@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, notification, Space, Table, Select } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent, ITemplate } from '@/types'
 import apis from '@/api'
@@ -11,7 +11,7 @@ import { AlignAside } from '@/components/style'
 import Acon from '@/components/Acon';
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalStore<{ showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,

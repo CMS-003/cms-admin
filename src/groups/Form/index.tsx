@@ -1,6 +1,6 @@
 import { AlignAround, FullHeight, FullHeightAuto } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { Button } from 'antd'
 import { Component } from '../auto'
 import { useCallback, useEffect } from 'react'
@@ -18,7 +18,7 @@ export default function CForm({ self, mode, page, drag, dnd, children }: IAuto &
     getDiff: Function;
     isDiff: Function;
   }
-    = useLocalStore(() => ({
+    = useLocalObservable(() => ({
       loading: false,
       source: {},
       $origin: {},

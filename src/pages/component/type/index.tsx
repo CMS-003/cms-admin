@@ -1,6 +1,6 @@
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, Image, notification, Space, Table } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent } from '@/types'
 import apis from '@/api'
@@ -12,7 +12,7 @@ import { IComponentType } from '@/types/component.js';
 import Acon from '@/components/Acon';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalStore<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,

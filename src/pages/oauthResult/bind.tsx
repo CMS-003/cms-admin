@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { Observer, useLocalStore } from 'mobx-react-lite'
+import { Observer, useLocalObservable } from 'mobx-react-lite'
 import { Button, Input, Avatar, message, Tabs, Select, Space } from 'antd'
 import { useNavigate } from "react-router-dom";
 import logo from '@/asserts/images/logo.svg'
@@ -9,7 +9,7 @@ import { useEffectOnce } from 'react-use';
 
 export default function BindPage() {
   const navigate = useNavigate()
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     isFetch: false,
     bind_token: '',
     username: '',

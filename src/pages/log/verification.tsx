@@ -1,5 +1,5 @@
 import { Button, notification, Space, Table, Input, Select } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import { ILog, IVerification } from '../../types'
 import apis from '@/api'
@@ -20,7 +20,7 @@ const Types: { [key: number]: string } = {
   6: '绑定',
 }
 const ConfigPage: React.FC = () => {
-  const local = useLocalStore<{ method: string, type: string, page: number, list: IVerification[] }>(() => ({
+  const local = useLocalObservable<{ method: string, type: string, page: number, list: IVerification[] }>(() => ({
     list: [],
     method: '',
     type: '',

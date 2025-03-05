@@ -7,7 +7,7 @@ import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 
-import { Observer, useLocalStore } from 'mobx-react'
+import { Observer, useLocalObservable } from 'mobx-react'
 import { ISimpleType, IMSTArray } from 'mobx-state-tree'
 import store from '@/store'
 
@@ -148,7 +148,7 @@ const TabPanes: FC = () => {
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const fullPath = pathname + search
-  const local = useLocalStore<{
+  const local = useLocalObservable<{
     currentTag: string;
     pushPanel(pane: IPanel): void;
     setCurrentTag(arg0: string): void;

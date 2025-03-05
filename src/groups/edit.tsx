@@ -212,13 +212,14 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                 <EditItem>
                   <span className="ant-input-group-wrapper">
                     <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">跳转url</span>
+                      <span className="ant-input-group-addon">事件类型</span>
                       <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
                         data?.setWidget('action', v);
                       }} >
                         <Select.Option value="">无</Select.Option>
                         <Select.Option value="goto_detail">跳转详情</Select.Option>
                         <Select.Option value="goto_url">跳转外链</Select.Option>
+                        <Select.Option value="copy">复制</Select.Option>
                         <Select.Option value="edit">编辑</Select.Option>
                         <Select.Option value="delete">删除</Select.Option>
                       </Select>

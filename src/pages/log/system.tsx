@@ -1,5 +1,5 @@
 import { Button, notification, Space, Table, Input, Select } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import { ILog } from '../../types'
 import apis from '@/api'
@@ -13,7 +13,7 @@ const ContntWrap = styled.span`
 `
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalStore<{ type: string, group: string, list: ILog[] }>(() => ({
+  const local = useLocalObservable<{ type: string, group: string, list: ILog[] }>(() => ({
     list: [],
     type: '',
     group: '',

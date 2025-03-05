@@ -1,5 +1,5 @@
 import { Button, notification, Space, Table, Tag, Input, Select } from 'antd';
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalObservable } from 'mobx-react';
 import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
 import { IComponent, IEditorComponent } from '../../types'
@@ -16,7 +16,7 @@ type SelectItem = {
 }
 
 const ComponentPage: React.FC = () => {
-  const local = useLocalStore<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,

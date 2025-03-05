@@ -1,6 +1,5 @@
-import { Observer, useLocalStore } from 'mobx-react'
-import { Menu as ContextMenu, Item as ContextMenuItem, contextMenu } from 'react-contexify';
-import { AlignAside, FullHeight, FullWidth } from '@/components/style'
+import { Observer, useLocalObservable } from 'mobx-react'
+import { FullHeight, FullWidth } from '@/components/style'
 import { Checkbox, Input, message, Select, Space } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
@@ -8,7 +7,7 @@ import SortList from '@/components/SortList/';
 import { IJsonSchema } from '@/types';
 import _ from 'lodash';
 import { useEffectOnce } from 'react-use';
-import { CSSProperties, Fragment, useState } from 'react';
+import { CSSProperties, Fragment } from 'react';
 import './custom.css';
 import VisualBox from '../VisualBox';
 import styled from 'styled-components'
@@ -35,7 +34,7 @@ function Item({
   isRoot = false,
   onChange,
 }: ItemArgvs) {
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     showSub: true,
     get array() {
       return data.type === 'Object' ? _.entries(data.properties) : [];
@@ -188,7 +187,7 @@ function Item({
 }
 
 export default function Editor({ wrapStyle = {}, mainStyle = {}, data, onChange }: { wrapStyle?: CSSProperties, mainStyle?: CSSProperties, data: IJsonSchema, onChange: (data: IJsonSchema) => void }) {
-  const store = useLocalStore(() => ({
+  const store = useLocalObservable(() => ({
     data,
     onChange,
     addField() {
