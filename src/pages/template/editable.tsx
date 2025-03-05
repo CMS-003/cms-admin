@@ -24,6 +24,7 @@ const ComponentTemplatePage = () => {
     selectedProjectId: string,
     setLoading: Function,
     setEditTemplateID: Function,
+    setTemplates: Function;
   }>(() => ({
     mode: 'edit',
     loading: true,
@@ -38,6 +39,9 @@ const ComponentTemplatePage = () => {
     },
     setEditTemplateID(id: string) {
       this.edit_template_id = id;
+    },
+    setTemplates(templates: ITemplate[]) {
+      this.templates = templates
     }
   }))
   const refresh = useCallback(async () => {
@@ -45,7 +49,7 @@ const ComponentTemplatePage = () => {
     try {
       const result = await apis.getTemplates({ query: { project_id: store.app.project_id } })
       if (result.code === 0) {
-        local.templates = result.data.items
+        local.setTemplates(result.data.items);
         store.component.setEditComponentId('')
         if (local.templates.length) {
           if (!local.edit_template_id) {

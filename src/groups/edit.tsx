@@ -41,7 +41,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
     }
   }))
   return (
-    <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: '5%', marginRight: '-5%' }}>
+    <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: 50 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性修改({data.type})</span>
         <Acon icon='CloseOutlined' onClick={() => {

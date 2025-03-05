@@ -158,13 +158,17 @@ const TabPanes: FC = () => {
     operateKey: string;
     setPanel(remain_panels: IPanel[]): void;
     setByIndex: Function;
-    panels: IPanel[]
+    panels: IPanel[],
+    setReloadPath: Function;
   }>(() => ({
     reloadPath: '',
     panels: [],
     currentTag: store.page.currentTag,
     isReload: true,
     operateKey: '',
+    setReloadPath(p: string) {
+      local.reloadPath = p;
+    },
     saveTags(panels: IPanel[]) {
       local.panels = panels
       // 记录当前打开的tab
@@ -242,9 +246,9 @@ const TabPanes: FC = () => {
       local.isReload = false
     }, 1000)
 
-    local.reloadPath = fullPath
+    local.setReloadPath(fullPath)
     setTimeout(() => {
-      local.reloadPath = ''
+      local.setReloadPath('')
     }, 500)
   }
 

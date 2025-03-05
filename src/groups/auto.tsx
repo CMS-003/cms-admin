@@ -222,6 +222,9 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       local.editComponent = com;
       local.editPanelKey = key;
       store.component.setEditComponentId(com ? com._id : '');
+    },
+    setEditPanelKey(v: string) {
+      local.editPanelKey = v;
     }
   }))
 

@@ -214,6 +214,7 @@ const SortableList: React.FC<SortableListProps> = ({
     }, 10)
     isAnimatingRef.current = false;
     setTimeout(() => {
+      setOffset(0)
       setIsEnd(true)
     }, 200)
   }, [onMouseMove]);

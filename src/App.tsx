@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import Layout from './layout'
 import { Route, Routes } from 'react-router-dom'
-import { Observer, useLocalStore } from 'mobx-react';
+import { Observer, useLocalStore, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { Space, Spin, Button } from 'antd'
 import apis from './api';
@@ -17,17 +17,20 @@ import events from './utils/event';
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const local = useLocalStore(() => ({
+  const local = useLocalObservable(() => ({
     booting: true,
     booted: false,
     error: false,
     setBooting(b: boolean) {
       this.booting = b;
+    },
+    setError(b: boolean) {
+      this.error = b;
     }
   }))
   const init = useCallback(async () => {
-    local.error = false;
-    local.booting = true;
+    local.setError(false)
+    local.setBooting(true)
     const result = await apis.getProfile<IUser>();
     if (result.code !== 0) {
       if (location.pathname !== '/manager/sign-in') {
