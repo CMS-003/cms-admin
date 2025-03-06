@@ -17,6 +17,7 @@ import { CenterXY } from '@/components/style';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
 import Loadable from 'react-loadable';
+import { TitleContext } from '@/groups/context';
 
 // path=pathname+search=xxxkey=fullpath
 // 除了 Page 路由中 path 不能体现 search 参数 IPage 和 IPanel 要分开
@@ -160,6 +161,7 @@ const TabPanes: FC = () => {
     setByIndex: Function;
     panels: IPanel[],
     setReloadPath: Function;
+    setPanelTitle: Function;
   }>(() => ({
     reloadPath: '',
     panels: [],
@@ -186,10 +188,14 @@ const TabPanes: FC = () => {
     },
     pushPanel(page: IPanel) {
       this.panels.push(page);
-    }
+    },
+    setPanelTitle(panel: IPanel, title: string) {
+      panel.title = title;
+    },
   }));
   const resetTabs = useCallback((): void => {
-    store.page.openedTags.forEach(tag => {
+    store.page.openedTags.forEach((tag, i) => {
+      if (store.page.openedTags.findIndex(v => v === tag) !== i) return;
       const [new_pathname, new_search] = tag.split('?');
       if (new_pathname.startsWith('/manager/dynamic')) {
         const pane = getKeyName(tag);
@@ -326,7 +332,14 @@ const TabPanes: FC = () => {
       }}
     />
   );
-
+  const setTitle = useCallback((path: string, title: string) => {
+    local.panels.forEach(p => {
+      if (p.path === path) {
+        local.setPanelTitle(p, title)
+      }
+    })
+  }, [])
+  console.log(Date.now(), 'render')
   return (
     <Observer>{() => (
       <Tabs
@@ -335,6 +348,7 @@ const TabPanes: FC = () => {
         className="tag-page"
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
+        destroyInactiveTabPane={false}
         onChange={(path: string): void => {
           local.setCurrentTag(path)
         }}
@@ -372,28 +386,15 @@ const TabPanes: FC = () => {
         items={local.panels.map((Panel, i) => ({
           key: Panel.path,
           label: Panel.title,
-          children: local.reloadPath !== Panel.path ? (
-            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          children: <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <TitleContext.Provider value={setTitle}>
               <Panel.Content
                 key={Panel.path}
                 path={Panel.path}
                 id={Panel.id}
-                page={{
-                  path: Panel.path,
-                  param: {},
-                  query: Object.fromEntries(new URLSearchParams(Panel.path.split('?')[1])),
-                  setTitle: (title: string) => {
-                    Panel.title = title;
-                  },
-                }}
-                store={store}
               />
-            </div>
-          ) : (
-            <CenterXY key={Panel.path}>
-              <Alert message="刷新中..." type="info" />
-            </CenterXY>
-          )
+            </TitleContext.Provider>
+          </div>
         }))}
       />
     )}</Observer>

@@ -7,7 +7,7 @@ import { useEffectOnce } from 'react-use';
 import store from '@/store';
 import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix, FullHeightAuto } from '@/components/style'
 import { Wrap, Card } from './style';
-import Page from '../../groups/auto'
+import AutoPage from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
 
@@ -117,7 +117,7 @@ const ComponentTemplatePage = () => {
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'auto' }}>
             {local.loading
               ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='LoadingOutlined' />} tip="加载中..." />
-              : <Page template_id={local.edit_template_id} mode={local.mode} page={{ path: '', param: {}, query: {}, setTitle: () => { } }} />
+              : <AutoPage template_id={local.edit_template_id} mode={local.mode} path="" />
             }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>

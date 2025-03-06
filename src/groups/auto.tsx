@@ -31,6 +31,7 @@ import {
   ConerLT,
   ConerRT,
 } from './style'
+import { PageContext, useSetTitleContext } from './context';
 
 export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
@@ -136,7 +137,17 @@ const ScrollWrap = styled.div`
   }
 `
 
-export default function EditablePage({ template_id, mode, page, ...props }: { template_id: string, mode: string, page: IPageInfo, [key: string]: any }) {
+export default function AutoPage({ template_id, mode, path }: { template_id: string, mode: string, path: string, [key: string]: any }) {
+  const page = useLocalObservable<IPageInfo>(() => ({
+    template_id,
+    path,
+    param: {},
+    query: Object.fromEntries(new URLSearchParams(path.split('?')[1])),
+    setQuery(field, value) {
+      this.query[field] = value;
+    },
+  }))
+  const setTitle = useSetTitleContext()
   const local = useLocalObservable<{
     editComponent: IComponent | null;
     editPanelKey: string;
@@ -235,7 +246,7 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       const { children, ...template } = resp.data as ITemplate;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
-      page.setTitle(local.template.title);
+      setTitle(path, local.template.title);
       // 更新编辑中的数据
       if (local.editComponent) {
         const stack = components.map(c => c);
@@ -295,53 +306,53 @@ export default function EditablePage({ template_id, mode, page, ...props }: { te
       }
     }
   })
-
-  return <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
-    <GroupMenu setEditComponent={local.setEditComponent} />
-    <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
-      <div className='hidden-scrollbar' style={{
-        height: '100%',
-        minWidth: 400,
-        width: '100%',
-        overflow: 'auto'
-      }}>
-        <Observer>{() => {
-          if (local.loading) {
-            return <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
-          } else if (local.template) {
-            return <TemplateBox
-              onDragOver={local.onDragOver}
-              onDragLeave={local.onDragLeave}
-              onDrop={local.onDrop}
-              className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-              style={{ ...toJS(local.template?.style) }}
-            >
-              <NatureSortable
-                items={(local.template as ITemplate).children}
-                direction='vertical'
-                wrap={TemplateBox}
-                droppableId={local.template._id}
-                sort={() => { }}
-                renderItem={({ item, dnd }) => (
-                  <Component
-                    self={item}
-                    mode={mode}
-                    page={page}
-                    dnd={dnd}
-                  />
-                )}
-              />
-            </TemplateBox>
-          } else {
-            return <div>Page NotFound</div>
+  return <PageContext.Provider value={page}>
+    <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+      <GroupMenu setEditComponent={local.setEditComponent} />
+      <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
+        <div className='hidden-scrollbar' style={{
+          height: '100%',
+          minWidth: 400,
+          width: '100%',
+          overflow: 'auto'
+        }}>
+          <Observer>{() => {
+            if (local.loading) {
+              return <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
+            } else if (local.template) {
+              return <TemplateBox
+                onDragOver={local.onDragOver}
+                onDragLeave={local.onDragLeave}
+                onDrop={local.onDrop}
+                className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
+                style={{ ...toJS(local.template?.style) }}
+              >
+                <NatureSortable
+                  items={(local.template as ITemplate).children}
+                  direction='vertical'
+                  wrap={TemplateBox}
+                  droppableId={local.template._id}
+                  sort={() => { }}
+                  renderItem={({ item, dnd }) => (
+                    <Component
+                      self={item}
+                      mode={mode}
+                      dnd={dnd}
+                    />
+                  )}
+                />
+              </TemplateBox>
+            } else {
+              return <div>Page NotFound</div>
+            }
           }
-        }
-        }</Observer >
+          }</Observer >
+        </div>
       </div>
-    </div>
-    {local.editComponent && (
-      <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.editPanelKey = v }} />
-    )}
-  </div>)
-  }</Observer >
+      {local.editComponent && (
+        <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.editPanelKey = v }} />
+      )}
+    </div>)
+    }</Observer >
+  </PageContext.Provider>
 }

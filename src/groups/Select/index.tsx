@@ -1,11 +1,15 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Select } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import events from '@/utils/event';
+import { usePageContext } from '../context';
 
 export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+  const page = usePageContext();
   const local = useLocalObservable(() => ({
     open: false,
+    setOpen(b: boolean) {
+      this.open = b
+    }
   }))
   return <Observer>{() => (
     <div
@@ -25,26 +29,29 @@ export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBa
       }}
     >
       {children}
-      {self.title}
-      <Select
-        style={{ marginLeft: 5 }}
-        open={local.open}
-        defaultValue={self.widget.value}
-        onChange={v => {
-          events.emit('setQuery', { page: self.template_id, field: self.widget.field, value: v, force: true, template_id: self.template_id })
-        }}
-        onMouseDown={(e) => {
-          if (e.button === 0) {
-            setTimeout(() => {
-              local.open = !local.open
-            }, 200)
-          }
-        }}
-      >
-        {self.widget.refer.map(t => (
-          <Select.Option key={t.value} value={t.value}>{t.label}</Select.Option>
-        ))}
-      </Select>
+      <span className="ant-input-group-wrapper">
+        <span className="ant-input-wrapper ant-input-group">
+          <span className="ant-input-group-addon">{self.title}</span>
+          <Select
+            open={local.open}
+            defaultValue={self.widget.value}
+            onChange={v => {
+              page.setQuery(self.widget.field, v)
+            }}
+            onMouseDown={(e) => {
+              if (e.button === 0) {
+                setTimeout(() => {
+                  local.setOpen(!local.open)
+                }, 200)
+              }
+            }}
+          >
+            {self.widget.refer.map(t => (
+              <Select.Option key={t.value} value={t.value}>{t.label}</Select.Option>
+            ))}
+          </Select>
+        </span>
+      </span>
     </div>
   )}</Observer>
 }

@@ -114,7 +114,8 @@ const Wrap = styled.span`
   cursor: pointer;
     cursor:pointer;
   &:hover { 
-    opacity: 0.4;
+    opacity: 0.7;
+    color: var(--ant-primary-color-hover);
   }
 `;
 export type Icon = keyof typeof icons;

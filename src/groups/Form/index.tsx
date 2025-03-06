@@ -3,12 +3,14 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button } from 'antd'
 import { Component } from '../auto'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 import apis from '@/api'
 import _ from 'lodash'
 import NatureSortable from '@/components/NatureSortable'
+import { usePageContext } from '../context'
 
-export default function CForm({ self, mode, page, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+  const page = usePageContext();
   const local: {
     source: { [key: string]: any };
     $origin: { [key: string]: any };
@@ -17,14 +19,20 @@ export default function CForm({ self, mode, page, drag, dnd, children }: IAuto &
     updateSource: Function;
     getDiff: Function;
     isDiff: Function;
+    setLoading: Function;
   }
     = useLocalObservable(() => ({
       loading: false,
       source: {},
       $origin: {},
-      setSource: (d: any) => {
-        local.source = d;
-        local.$origin = d;
+      setSource: function () {
+        const args = arguments;
+        if (args.length === 1) {
+          local.source = args[0];
+          local.$origin = args[0];
+        } else {
+          local.source[args[0]] = args[1];
+        }
       },
       updateSource: (field: string, value: any) => (local.source as any)[field] = value,
       getDiff() {
@@ -39,16 +47,19 @@ export default function CForm({ self, mode, page, drag, dnd, children }: IAuto &
       },
       isDiff() {
         return !_.isEmpty(local.getDiff())
+      },
+      setLoading(b: boolean) {
+        local.loading = b
       }
     }));
   const getInfo = useCallback(async () => {
     if (self.api && mode === 'preview') {
-      local.loading = true;
+      local.setLoading(true)
       const resp = await apis.getInfo(self.api, page.query['id'] as string);
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
-      local.loading = false;
+      local.setLoading(false)
     }
   }, [self.api, page.query['id']])
   const updateInfo = useCallback(async () => {

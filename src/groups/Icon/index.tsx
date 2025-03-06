@@ -6,9 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { message } from 'antd'
 
-const Icon = styled.img`
-
-`
 export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
   return <Observer>{() => (
@@ -30,7 +27,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
       }}
     >
       {children}
-      <CopyToClipboard
+      {mode === 'preview' ? <CopyToClipboard
         text={source[self.widget.field] || self.widget.value}
         onCopy={() => {
           if (self.widget.action === 'copy') {
@@ -45,7 +42,16 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
             navigate(`${self.widget.action_url}?id=${source._id}`)
           }
         }} />
-      </CopyToClipboard>
+      </CopyToClipboard> :
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, ...(self.style) }} onClick={() => {
+          if (self.widget.action === 'goto_url') {
+            window.open(source[self.widget.field] || self.widget.value)
+          } else if (self.widget.action === 'goto_detail') {
+            navigate(`${self.widget.action_url}?id=${source._id}`)
+          }
+        }} />
+      }
+
     </div>
   )}</Observer>
 }

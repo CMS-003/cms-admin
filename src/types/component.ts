@@ -2,10 +2,11 @@ import { DraggableProvided } from "react-beautiful-dnd";
 import { IResource } from "./resource";
 
 export type IPageInfo = {
+  template_id: string;
   path: string;
   param: { [key: string]: string };
-  query: { [key: string]: string };
-  setTitle: (title: string) => void;
+  query: { [key: string]: string | number };
+  setQuery: (field: string, value: number | string) => void;
 }
 
 export type IConfig = {
@@ -76,7 +77,6 @@ export type IAuto = {
     props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
     style: DraggableProvided['draggableProps']['style'];
   };
-  page: IPageInfo;
   [key: string]: any;
 }
 export type IBaseComponent = {

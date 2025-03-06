@@ -8,73 +8,60 @@ import { useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
+import { usePageContext } from '../context'
+import { toJS } from 'mobx'
 
-export default function CTable({ self, mode, dnd, drag, children, page }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
+  const page = usePageContext()
   const local: {
     loading: boolean,
-    query: { [key: string]: string | number },
-    setQuery: Function,
-    getQuery: Function,
     resources: IResource[],
     total: number,
-    page: number,
-    page_size: number,
-    setResources: (resource: IResource[]) => void
+    setResources: (resource: IResource[]) => void;
+    setValue: Function;
   } = useLocalObservable(() => ({
     resources: [],
     loading: false,
     total: 0,
-    page: 1,
-    page_size: 20,
-    query: {},
     setResources(resources: IResource[]) {
       local.resources = resources;
     },
-    setQuery(field: string, value: string | number) {
-      local.query[field] = value;
-    },
-    getQuery() {
-      return {
-        page: local.page,
-        page_size: local.page_size,
-        ...local.query,
+    setValue(field: 'loading' | 'total', value: boolean | number) {
+      switch (field) {
+        case 'loading': local.loading = value as boolean; break;
+        case 'total': local.total = value as number; break;
+        default: break;
       }
     }
   }));
-  const onSetQuery = useCallback((event: { field: string, value: string, force: boolean, template_id: string }) => {
-    if (self.template_id === event.template_id) {
-      local.setQuery(event.field, event.value);
-      if (event.force) {
-        init();
-      }
+  const onSetQuery = useCallback((event: { target: { template_id: string, path: string } }) => {
+    if (self.template_id === event.target.template_id) {
+      init();
     }
   }, []);
-  useEffectOnce(() => {
-    events.on('setQuery', onSetQuery);
-    () => {
-      events.off('setQuery', onSetQuery);
-    }
-  })
   const init = useCallback(async () => {
     if (self.api && mode === 'preview') {
-      local.loading = true;
-      const resp = await apis.getList(self.api, local.getQuery());
+      local.setValue('loading', true)
+      const resp = await apis.getList(self.api, page.query);
       if (resp.code === 0) {
         local.setResources(resp.data.items as IResource[]);
-        local.total = (resp as any).count || resp.data.total || 0;
+        local.setValue('total', (resp as any).count || resp.data.total || 0)
       }
-      local.loading = false;
+      local.setValue('loading', false)
     }
   }, [self.api])
   useEffectOnce(() => {
     init();
+    events.on('PageQuery', onSetQuery);
+    () => {
+      events.off('PageQuery', onSetQuery);
+    }
   })
   return <Observer>{() => (
     <div
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
-      
       {...dnd?.props}
       style={{
         flex: 1,
@@ -87,17 +74,17 @@ export default function CTable({ self, mode, dnd, drag, children, page }: IAuto 
       {children}
       <Table
         loading={local.loading}
-        pagination={{ total: local.total, pageSize: local.page_size }}
+        pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
         sticky={true}
         dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', }] : local.resources}
         onChange={p => {
-          local.page = p.pageSize !== local.page_size ? 1 : p.current as number;
-          local.page_size = p.pageSize as number;
+          page.setQuery('page', p.current as number);
+          page.setQuery('page_size', p.pageSize as number);
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} page={page} />)}</Observer>,
+          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} />)}</Observer>,
           key: child._id,
           width: child.style.width || '',
           dataIndex: self.widget.field,
@@ -112,8 +99,10 @@ export default function CTable({ self, mode, dnd, drag, children, page }: IAuto 
                   self={item}
                   mode={mode}
                   source={d}
+                  setSource={(field: string, value: any) => {
+                    d[field] = value
+                  }}
                   dnd={dnd}
-                  page={page}
                 />
               )}
             />
