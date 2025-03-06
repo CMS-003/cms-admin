@@ -174,8 +174,13 @@ const TabPanes: FC = () => {
     saveTags(panels: IPanel[]) {
       local.panels = panels
       // 记录当前打开的tab
-      const tags = local.panels.map((item: IPanel) => item.path) as IMSTArray<ISimpleType<string>>;
-      store.page.setOpenedTags(tags)
+      const tags: string[] = [];
+      local.panels.map((item: IPanel) => item.path).forEach(path => {
+        if (!tags.includes(path)) {
+          tags.push(path)
+        }
+      })
+      store.page.setOpenedTags(tags as IMSTArray<ISimpleType<string>>)
     },
     setPanel(pages: IPanel[]) {
       local.panels = pages
@@ -339,7 +344,6 @@ const TabPanes: FC = () => {
       }
     })
   }, [])
-  console.log(Date.now(), 'render')
   return (
     <Observer>{() => (
       <Tabs
