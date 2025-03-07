@@ -1,5 +1,7 @@
-import React, {
+import {
   FC,
+  lazy,
+  Suspense,
   useEffect,
   useCallback,
 } from 'react'
@@ -16,7 +18,6 @@ import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
 import OAuthFailPage from '@/pages/oauthResult/fail';
-import Loadable from 'react-loadable';
 import { TitleContext } from '@/groups/context';
 
 // path=pathname+search=xxxkey=fullpath
@@ -62,64 +63,21 @@ function getPanelByPath(path: string): IPanel {
   }
 }
 
-function LoadingPage() {
-  return <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-    <Spin spinning />
-  </div>
-}
+const LoadableConfigPage = lazy(() => import('@/pages/config'))
+const LoadableProjectPage = lazy(() => import('@/pages/project'))
+const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
+const LoadableEditable = lazy(() => import('@/pages/template/editable'))
+const LoadableTemplatePage = lazy(() => import('@/pages/template'))
 
-const LoadableConfigPage = Loadable({
-  loader: () => import('@/pages/config'),
-  loading: LoadingPage,
-});
-const LoadableProjectPage = Loadable({
-  loader: () => import('@/pages/project'),
-  loading: LoadingPage,
-});
-const LoadableUserBind = Loadable({
-  loader: () => import('@/pages/user/bind'),
-  loading: LoadingPage,
-});
-const LoadableEditable = Loadable({
-  loader: () => import('@/pages/template/editable'),
-  loading: LoadingPage,
-});
-const LoadableTemplatePage = Loadable({
-  loader: () => import('@/pages/template'),
-  loading: LoadingPage,
-});
+const LoadableDynamicPage = lazy(() => import('@/pages/dynamic'))
 
-const LoadableDynamicPage = Loadable({
-  loader: () => import('@/pages/dynamic'),
-  loading: LoadingPage,
-});
+const LoadableComponentPage = lazy(() => import('@/pages/component'))
 
-const LoadableComponentPage = Loadable({
-  loader: () => import('@/pages/component'),
-  loading: LoadingPage,
-});
-
-const LoadableComponentTypePage = Loadable({
-  loader: () => import('@/pages/component/type'),
-  loading: LoadingPage,
-});
-const LoadableLogSystem = Loadable({
-  loader: () => import('@/pages/log/system'),
-  loading: LoadingPage,
-});
-const LoadableVerification = Loadable({
-  loader: () => import('@/pages/log/verification'),
-  loading: LoadingPage,
-});
-const LoadableTablesPage = Loadable({
-  loader: () => import("@/pages/table/index"),
-  loading: LoadingPage,
-});
-const LoadableTableDetailPage = Loadable({
-  loader: () => import("@/pages/table/detail"),
-  loading: LoadingPage,
-});
-
+const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
+const LoadableLogSystem = lazy(() => import('@/pages/log/system'))
+const LoadableVerification = lazy(() => import('@/pages/log/verification'))
+const LoadableTablesPage = lazy(() => import('@/pages/table'))
+const LoadableTableDetailPage = lazy(() => import('@/pages/table/detail'))
 const templateArr: IPage[] = [
   { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
@@ -378,11 +336,13 @@ const TabPanes: FC = () => {
           children: local.reloadPath !== Panel.path ? (
             <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               <TitleContext.Provider value={setTitle}>
-                <Panel.Content
-                  key={Panel.path}
-                  path={Panel.path}
-                  id={Panel.id}
-                />
+                <Suspense fallback={<CenterXY><Spin spinning /></CenterXY>}>
+                  <Panel.Content
+                    key={Panel.path}
+                    path={Panel.path}
+                    id={Panel.id}
+                  />
+                </Suspense>
               </TitleContext.Provider>
             </div>
           ) : (
