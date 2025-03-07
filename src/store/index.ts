@@ -34,8 +34,8 @@ const app = IApp.create({
 // 用户信息状态
 const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey('access_token') || '' } });
 const page = IPage.create({
-  currentTag: storage.getKey('current-tag') || '',
-  openedTags: storage.getKey('opened-tags') || [],
+  currentPage: storage.getKey('current-tag') || '',
+  openedPages: storage.getKey('opened-tags') || [],
   defaultOpened: getOpenedKeys(window.location.pathname)
 })
 const router = IRouter.create();

@@ -41,14 +41,14 @@ type IPage = {
   uniques?: string[];
 }
 
-function getKeyName(key: string): IPanel {
-  const [_pathname, _search] = key.split('?');
-  const [, id = ''] = /^\/manager\/dynamic\/([^\/]+)[/]?$/.exec(_pathname) || [];
-  const Page = id ? Pages['/manager/dynamic/:id'] : Pages[_pathname];
+function getPanelByPath(path: string): IPanel {
+  const [pathname, _search] = path.split('?');
+  const [, id = ''] = /^\/manager\/dynamic\/([^\/]+)[/]?$/.exec(pathname) || [];
+  const Page = id ? Templates['/manager/dynamic/:id'] : Templates[pathname];
   return Page ? {
     title: Page.title,
     Content: Page.Content,
-    path: key,
+    path,
     id,
     closable: Page.closable,
   } : {
@@ -58,7 +58,7 @@ function getKeyName(key: string): IPanel {
     },
     closable: true,
     id,
-    path: key
+    path
   }
 }
 
@@ -120,7 +120,7 @@ const LoadableTableDetailPage = Loadable({
   loading: LoadingPage,
 });
 
-const pageArr: IPage[] = [
+const templateArr: IPage[] = [
   { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
@@ -139,9 +139,9 @@ const pageArr: IPage[] = [
   { title: '第三方账号绑定', Content: (props: any) => <LoadableUserBind {...props} />, closable: true, route: process.env.PUBLIC_URL + '/user/bind' },
 ];
 
-const Pages: { [key: string]: IPage } = {};
-pageArr.forEach(p => {
-  Pages[p.route] = p;
+const Templates: { [key: string]: IPage } = {};
+templateArr.forEach(p => {
+  Templates[p.route] = p;
 });
 
 // 多页签组件
@@ -150,9 +150,7 @@ const TabPanes: FC = () => {
   const { pathname, search } = useLocation()
   const fullPath = pathname + search
   const local = useLocalObservable<{
-    currentTag: string;
     pushPanel(pane: IPanel): void;
-    setCurrentTag(arg0: string): void;
     saveTags(panels: IPanel[]): void;
     isReload: boolean;
     reloadPath: string;
@@ -162,10 +160,10 @@ const TabPanes: FC = () => {
     panels: IPanel[],
     setReloadPath: Function;
     setPanelTitle: Function;
+    remPanel: Function;
   }>(() => ({
     reloadPath: '',
     panels: [],
-    currentTag: store.page.currentTag,
     isReload: true,
     operateKey: '',
     setReloadPath(p: string) {
@@ -180,7 +178,7 @@ const TabPanes: FC = () => {
           tags.push(path)
         }
       })
-      store.page.setOpenedTags(tags as IMSTArray<ISimpleType<string>>)
+      store.page.setOpenedPages(tags as IMSTArray<ISimpleType<string>>)
     },
     setPanel(pages: IPanel[]) {
       local.panels = pages
@@ -188,39 +186,30 @@ const TabPanes: FC = () => {
     setByIndex(index: number, key: keyof IPanel, value: IPanel) {
       local.panels[index][key] = value;
     },
-    setCurrentTag(key: string) {
-      local.currentTag = key;
-    },
     pushPanel(page: IPanel) {
       this.panels.push(page);
+    },
+    remPanel(i: number) {
+      local.panels.splice(i, 1)
     },
     setPanelTitle(panel: IPanel, title: string) {
       panel.title = title;
     },
   }));
   const resetTabs = useCallback((): void => {
-    store.page.openedTags.forEach((tag, i) => {
-      if (store.page.openedTags.findIndex(v => v === tag) !== i) return;
-      const [new_pathname, new_search] = tag.split('?');
-      if (new_pathname.startsWith('/manager/dynamic')) {
-        const pane = getKeyName(tag);
-        local.pushPanel(pane);
-      } else if (Pages[new_pathname]) {
-        if (-1 !== local.panels.findIndex(pane => pane.path === tag)) {
-          // 重复render处理
-          return
-        }
-        const pane = getKeyName(tag)
+    // search 参数处理
+    if (Templates[pathname] && !store.page.openedPages.includes(fullPath)) {
+      store.page.addPage(fullPath)
+    }
+    store.page.setCurrentPage(store.page.openedPages.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
+    store.page.openedPages.forEach((tag, i) => {
+      if (store.page.openedPages.findIndex(v => v === tag) !== i) return;
+      const [new_pathname] = tag.split('?');
+      if ((Templates[new_pathname] || new_pathname.startsWith('/manager/dynamic')) && local.panels.findIndex(p => p.path === tag) === -1) {
+        const pane = getPanelByPath(tag)
         local.pushPanel(pane)
       }
     })
-    // search 参数处理
-    if (Pages[pathname] && !store.page.openedTags.includes(fullPath)) {
-      const pane = getKeyName(fullPath)
-      local.pushPanel(pane)
-      store.page.addTag(fullPath)
-    }
-    local.setCurrentTag(store.page.openedTags.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
   }, [local, pathname, search])
 
   // 初始化页面
@@ -233,12 +222,9 @@ const TabPanes: FC = () => {
     const delIndex = local.panels.findIndex(
       (item: IPanel) => item.path === targetTag
     )
-    local.panels.splice(delIndex, 1)
-    if (targetTag !== fullPath) {
-      return
-    }
+    local.remPanel(delIndex)
     // 删除当前tab，地址往前推
-    const nextPath = store.page.openedTags[delIndex - 1] || store.page.openedTags[delIndex - 1] || process.env.PUBLIC_URL + '/dashboard'
+    const nextPath = store.page.openedPages[delIndex - 1] || store.page.openedPages[delIndex - 1] || process.env.PUBLIC_URL + '/dashboard'
     local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {
@@ -247,6 +233,9 @@ const TabPanes: FC = () => {
     // } else {
     //   navigate(nextPath)
     // }
+    if (targetTag !== fullPath) {
+      return
+    }
     navigate(nextPath)
   }
 
@@ -271,13 +260,11 @@ const TabPanes: FC = () => {
 
   useEffect(() => {
     // 当前的路由和上一次的一样，无效的新tab，return
-    if (fullPath === local.currentTag) {
+    if (fullPath === store.page.currentPage) {
       return
     };
-    // 保存到 storage 中
-    store.page.setCurrentTag(fullPath)
     // 保存这次的路由地址
-    local.setCurrentTag(fullPath)
+    store.page.setCurrentPage(fullPath)
 
     const index = local.panels.findIndex(
       (_: IPanel) => _.path === fullPath
@@ -286,17 +273,15 @@ const TabPanes: FC = () => {
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
       local.setByIndex(index, 'path', fullPath)
-      local.setCurrentTag(fullPath)
       return
     }
     // 添加新tab并保存起来
-    const Page = getKeyName(fullPath);
+    const Page = getPanelByPath(fullPath);
     local.pushPanel(Page)
     local.saveTags(local.panels)
-    local.setCurrentTag(fullPath)
   }, [local, pathname, resetTabs, search])
 
-  // const isDisabled = () => local.currentTag === '/dashboard'
+  // const isDisabled = () => store.page.currentPage === '/dashboard'
   // tab右击菜单
   const menu = (
     <Menu
@@ -328,7 +313,7 @@ const TabPanes: FC = () => {
         if (e.key === 'refresh') {
           refreshTab()
         } else if (e.key === 'close') {
-          remove(local.currentTag)
+          remove(store.page.currentPage)
         } else if (e.key === 'closeOther') {
           removeAll(false)
         } else if (e.key === 'closeAll') {
@@ -337,6 +322,7 @@ const TabPanes: FC = () => {
       }}
     />
   );
+  // context 里匿名函数会造成每次重新渲染
   const setTitle = useCallback((path: string, title: string) => {
     local.panels.forEach(p => {
       if (p.path === path) {
@@ -347,18 +333,17 @@ const TabPanes: FC = () => {
   return (
     <Observer>{() => (
       <Tabs
-        activeKey={local.currentTag}
+        activeKey={store.page.currentPage}
         style={{ height: '100%', overflow: 'hidden' }}
         className="tag-page"
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
         destroyInactiveTabPane={false}
         onChange={(path: string): void => {
-          local.setCurrentTag(path)
+          store.page.setCurrentPage(path)
         }}
         onEdit={(targetTag: string | any, action: string) => {
           action === 'remove' && remove(targetTag)
-          local.saveTags(local.panels)
         }}
         renderTabBar={(props, DefaultTabBar) => (
           <DefaultTabBar {...props} >
@@ -377,7 +362,7 @@ const TabPanes: FC = () => {
           </DefaultTabBar>
         )}
         onTabClick={(targetTag: string) => {
-          if (targetTag === local.currentTag) {
+          if (targetTag === store.page.currentPage) {
             return;
           }
           const { path } = local.panels.filter(
@@ -390,15 +375,21 @@ const TabPanes: FC = () => {
         items={local.panels.map((Panel, i) => ({
           key: Panel.path,
           label: Panel.title,
-          children: <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <TitleContext.Provider value={setTitle}>
-              <Panel.Content
-                key={Panel.path}
-                path={Panel.path}
-                id={Panel.id}
-              />
-            </TitleContext.Provider>
-          </div>
+          children: local.reloadPath !== Panel.path ? (
+            <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <TitleContext.Provider value={setTitle}>
+                <Panel.Content
+                  key={Panel.path}
+                  path={Panel.path}
+                  id={Panel.id}
+                />
+              </TitleContext.Provider>
+            </div>
+          ) : (
+            <CenterXY key={Panel.path}>
+              <Alert message="刷新中..." type="info" />
+            </CenterXY>
+          )
         }))}
       />
     )}</Observer>

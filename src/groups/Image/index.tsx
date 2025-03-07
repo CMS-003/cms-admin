@@ -16,7 +16,7 @@ export default function CImage({ self, mode, drag, dnd, children }: IAuto & IBas
       }}
     >
       {children}
-      <Image style={{ width: 24, height: 24, ...self.style }} src={store.app.imageLine + (self.attrs.get('url') || '/images/nocover.jpg')} />
+      <Image preview={false} style={{ width: 24, height: 24, ...self.style }} src={store.app.imageLine + (self.attrs.get('url') || '/images/nocover.jpg')} />
     </div>
   )}</Observer>
 }
