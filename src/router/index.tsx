@@ -182,7 +182,7 @@ const TabPanes: FC = () => {
     )
     local.remPanel(delIndex)
     // 删除当前tab，地址往前推
-    const nextPath = store.page.openedPages[delIndex - 1] || store.page.openedPages[delIndex - 1] || process.env.PUBLIC_URL + '/dashboard'
+    const nextPath = store.page.openedPages[delIndex - 1] || store.page.openedPages[delIndex + 1] || process.env.PUBLIC_URL + '/dashboard'
     local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {
@@ -191,9 +191,6 @@ const TabPanes: FC = () => {
     // } else {
     //   navigate(nextPath)
     // }
-    if (targetTag !== fullPath) {
-      return
-    }
     navigate(nextPath)
   }
 
@@ -228,6 +225,7 @@ const TabPanes: FC = () => {
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
       local.setByIndex(index, 'path', fullPath)
+      store.page.setCurrentPage(fullPath)
       return
     }
     // 添加新tab并保存起来
@@ -240,46 +238,7 @@ const TabPanes: FC = () => {
   }, [local, pathname, resetTabs, search])
 
   // const isDisabled = () => store.page.currentPage === '/dashboard'
-  // tab右击菜单
-  const menu = (
-    <Menu
-      items={[
-        {
-          key: 'refresh',
-          // icon: <Acon icon="ReloadOutlined" />,
-          label: '刷新',
-          disabled: false,
-        },
-        {
-          key: 'close',
-          // icon: <Acon icon="CloseOutlined" />,
-          label: '关闭',
-        },
-        {
-          key: 'closeOther',
-          // icon: <Acon icon="CloseOutlined" />,
-          label: '关闭其他',
-        },
-        {
-          key: 'closeAll',
-          // icon: <Acon icon="CloseOutlined" />,
-          label: '关闭所有',
-        },
-      ]}
-      onClick={e => {
-        // e.domEvent.stopPropagation()
-        if (e.key === 'refresh') {
-          refreshTab()
-        } else if (e.key === 'close') {
-          remove(store.page.currentPage)
-        } else if (e.key === 'closeOther') {
-          removeAll(false)
-        } else if (e.key === 'closeAll') {
-          removeAll(true)
-        }
-      }}
-    />
-  );
+
   // context 里匿名函数会造成每次重新渲染
   const setTitle = useCallback((path: string, title: string) => {
     local.panels.forEach(p => {
@@ -306,7 +265,48 @@ const TabPanes: FC = () => {
         renderTabBar={(props, DefaultTabBar) => (
           <DefaultTabBar {...props} >
             {node => (<Dropdown
-              overlay={menu}
+              overlay={(
+                <Menu
+                  items={[
+                    {
+                      key: 'refresh',
+                      // icon: <Acon icon="ReloadOutlined" />,
+                      label: '刷新',
+                      disabled: false,
+                    },
+                    {
+                      key: 'close',
+                      // icon: <Acon icon="CloseOutlined" />,
+                      label: '关闭',
+                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                    },
+                    {
+                      key: 'closeOther',
+                      // icon: <Acon icon="CloseOutlined" />,
+                      label: '关闭其他',
+                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                    },
+                    {
+                      key: 'closeAll',
+                      // icon: <Acon icon="CloseOutlined" />,
+                      label: '关闭所有',
+                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                    },
+                  ]}
+                  onClick={e => {
+                    // e.domEvent.stopPropagation()
+                    if (e.key === 'refresh') {
+                      refreshTab()
+                    } else if (e.key === 'close') {
+                      remove(store.page.currentPage)
+                    } else if (e.key === 'closeOther') {
+                      removeAll(false)
+                    } else if (e.key === 'closeAll') {
+                      removeAll(true)
+                    }
+                  }}
+                />
+              )}
               placement="bottomLeft"
               trigger={['contextMenu']}
             >
