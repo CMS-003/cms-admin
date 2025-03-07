@@ -221,9 +221,6 @@ const TabPanes: FC = () => {
     if (fullPath === store.page.currentPage) {
       return
     };
-    // 保存这次的路由地址
-    store.page.setCurrentPage(fullPath)
-
     const index = local.panels.findIndex(
       (_: IPanel) => _.path === fullPath
     )
@@ -237,6 +234,9 @@ const TabPanes: FC = () => {
     const Page = getPanelByPath(fullPath);
     local.pushPanel(Page)
     local.saveTags(local.panels)
+    // 保存这次的路由地址
+    store.page.setCurrentPage(fullPath)
+
   }, [local, pathname, resetTabs, search])
 
   // const isDisabled = () => store.page.currentPage === '/dashboard'
