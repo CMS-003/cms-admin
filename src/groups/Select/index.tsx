@@ -31,7 +31,7 @@ export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBa
       {children}
       <span className="ant-input-group-wrapper">
         <span className="ant-input-wrapper ant-input-group">
-          <span className="ant-input-group-addon">{self.title}</span>
+          {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             open={local.open}
             defaultValue={self.widget.value}

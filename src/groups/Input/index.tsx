@@ -16,7 +16,7 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setSource, 
       }}
     >
       {children}
-      <Input value={source[self.widget.field]} onChange={e => {
+      <Input value={source[self.widget.field]} style={self.style} onChange={e => {
         setSource && setSource(self.widget.field, e.target.value);
       }} />
     </div>

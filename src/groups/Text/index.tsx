@@ -16,7 +16,7 @@ export default function CText({ self, mode, source = {}, drag, dnd, children }: 
       }}
     >
       {children}
-      {mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}
+      <span style={{ lineHeight: 1.5, display: 'inherit' }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
     </div>
   )}</Observer>
 }

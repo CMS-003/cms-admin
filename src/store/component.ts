@@ -74,6 +74,7 @@ export const ComponentItem = types.model('Component', {
     _id: types.string,
     title: types.optional(types.string, ''),
     cover: types.optional(types.string, ''),
+    status: types.optional(types.number, 0),
   })), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
@@ -210,6 +211,7 @@ const ComponentTypeItem = types.model({
   _id: types.string,
   name: types.string,
   title: types.string,
+  status: types.optional(types.number, 0),
   cover: types.optional(types.string, ''),
   group: types.optional(types.string, ''),
   accepts: types.array(types.string),

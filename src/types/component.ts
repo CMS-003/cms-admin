@@ -100,6 +100,7 @@ export type IComponentType = {
   name: string;
   group: string;
   title: string;
+  status: number;
   accepts: string[];
 }
 

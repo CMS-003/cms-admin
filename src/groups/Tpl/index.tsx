@@ -1,3 +1,4 @@
+import CONST from '@/constant'
 import { IAuto, IBaseComponent } from '@/types/component'
 import hbs from 'handlebars'
 import { Observer, useLocalObservable } from 'mobx-react'
@@ -12,7 +13,7 @@ export default function CTpl({ self, mode, source, setSource, drag, dnd, childre
     <div
       className={mode + drag.className}
       onClick={() => {
-        if (self.widget.action === 'goto_detail') {
+        if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
           navigate(`${self.widget.action_url}?id=${source._id}`)
         }
       }}

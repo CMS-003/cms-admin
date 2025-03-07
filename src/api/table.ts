@@ -40,7 +40,7 @@ const apis = {
       url = path;
       query = Object.assign({}, qs.parse(params), query);
     }
-    const result = await shttp.get<ITable>(`${url}?${qs.stringify(query)}`)
+    const result = await shttp.get<IResource>(`${url}?${qs.stringify(query)}`)
     return result
   },
   createData: async (table: string, data: any) => {

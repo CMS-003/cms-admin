@@ -77,7 +77,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
         pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
         sticky={true}
-        dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', }] : local.resources}
+        dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', status: 0 }] : local.resources}
         onChange={p => {
           page.setQuery('page', p.current as number);
           page.setQuery('page_size', p.pageSize as number);

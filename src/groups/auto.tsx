@@ -161,6 +161,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
     onDrop: any;
     remComponent: Function;
     setEditComponent: Function;
+    setEditPanelKey: Function;
   }>(() => ({
     editComponent: null,
     editPanelKey: 'base',
@@ -241,6 +242,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
 
   const refresh = useCallback(async () => {
     local.setLoading(true)
+    local.setEditComponent(null)
     try {
       const resp = await apis.getTemplateComponents(template_id)
       const { children, ...template } = resp.data as ITemplate;
@@ -350,7 +352,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
         </div>
       </div>
       {local.editComponent && (
-        <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.editPanelKey = v }} />
+        <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.setEditPanelKey(v) }} />
       )}
     </div>)
     }</Observer >

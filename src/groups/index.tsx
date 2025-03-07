@@ -24,6 +24,7 @@ import Radio from './Radio'
 import Field from './Field'
 import Upload from './Upload'
 import Tags from './TagList'
+import Objects from './ObjectList'
 import Tpl from './Tpl'
 
 /**
@@ -92,6 +93,7 @@ const components = {
   Radio,
   Tpl,
   Tags,
+  Objects,
   Upload,
 }
 

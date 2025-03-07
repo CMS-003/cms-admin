@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import {
   EditItem,
 } from './style'
+import CONST from "@/constant";
 const { AlignAround, AlignAside } = Style;
 
 const ScrollWrap = styled.div`
@@ -93,7 +94,19 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     data?.setAttr('icon', e.target.value);
                   }} />
                 </EditItem>
+                <EditItem>
+                  属性
+                  <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(data.attrs, null, 2)} onBlur={e => {
+                    try {
+                      const attrs = JSON.parse(e.target.value)
+                      data?.setAttr('attrs', attrs);
+                    } catch (e) {
 
+                    } finally {
+
+                    }
+                  }} />
+                </EditItem>
               </ScrollWrap>
             )
           },
@@ -142,10 +155,10 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           data.changeWidgetType(v);
                         }
                       }}>
-                        <Select.Option value="string">string</Select.Option>
-                        <Select.Option value="number">number</Select.Option>
-                        <Select.Option value="boolean">boolean</Select.Option>
-                        <Select.Option value="date">date</Select.Option>
+                        <Select.Option value="string">文本</Select.Option>
+                        <Select.Option value="number">数字</Select.Option>
+                        <Select.Option value="boolean">布尔</Select.Option>
+                        <Select.Option value="date">日期</Select.Option>
                       </Select>
                     </span>
                   </span>
@@ -217,11 +230,13 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         data?.setWidget('action', v);
                       }} >
                         <Select.Option value="">无</Select.Option>
-                        <Select.Option value="goto_detail">跳转详情</Select.Option>
-                        <Select.Option value="goto_url">跳转外链</Select.Option>
-                        <Select.Option value="copy">复制</Select.Option>
-                        <Select.Option value="edit">编辑</Select.Option>
-                        <Select.Option value="delete">删除</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>业内跳转</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.COPY}>复制</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.GET}>获取数据</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.POST}>发送POST</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.UPDATE}>修改数据</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.DELETE}>删除数据</Select.Option>
                       </Select>
                     </span>
                   </span>
