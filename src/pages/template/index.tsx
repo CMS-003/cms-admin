@@ -133,7 +133,7 @@ const ComponentTemplatePage: React.FC = () => {
   return (<Observer>{() => <div style={{ padding: '0 10px' }}>
     <AlignAside>
       <Space>
-        <Select defaultValue="" onChange={v => {
+        <Select defaultValue={store.app.project_id === 'manager' ? '' : store.app.project_id} onChange={v => {
           local.selectedProjectId = v;
           refresh()
         }}>

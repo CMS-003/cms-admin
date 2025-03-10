@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const TableCard = styled.div`
   flex: 1;
   max-width: 180px;
-  min-height: 250px;
+  min-height: 180px;
   margin-left: 10px;
   margin-bottom: 10px;
   padding: 8px;
