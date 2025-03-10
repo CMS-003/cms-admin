@@ -28,7 +28,7 @@ export default function Page() {
   }));
 
   const init = useCallback(async () => {
-    const resp = await apis.getTableSchema(local.name);
+    const resp = await apis.getSchemaInfo(local.name);
     if (resp.code === 0) {
       local.schema = resp.data;
       local.original = cloneDeep(resp.data);
@@ -60,7 +60,7 @@ export default function Page() {
           if (local.schema) {
             try {
               local.isLoading = true;
-              await apis.updateTableSchema(local.name, { schema: local.schema });
+              await apis.updateSchema(local.name, { schema: local.schema });
               local.original = cloneDeep(local.schema);
             } finally {
               local.isLoading = false;

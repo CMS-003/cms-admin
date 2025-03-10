@@ -4,6 +4,8 @@ const CONST = {
   storage_prefix: 'cms_',
   ACTION_TYPE: {
     'COPY': 'COPY',
+    'FILTER': 'FILTER',
+    'SEARCH': 'SEARCH',
     'GET': 'GET',
     'POST': 'POST',
     'UPDATE': 'UPDATE',

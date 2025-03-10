@@ -39,6 +39,7 @@ import {
   PictureOutlined,
   FileImageOutlined,
   FontSizeOutlined,
+  ApiOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
@@ -109,6 +110,8 @@ const icons = {
   Text: FontSizeOutlined,
   Caption: () => <IconSVG src={caption} />,
   LinkOutlined,
+  ApiOutlined,
+  Api: ApiOutlined,
 }
 const Wrap = styled.span`
   cursor: pointer;

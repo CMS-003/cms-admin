@@ -1,13 +1,15 @@
 import { AlignAround, FullHeight, FullHeightAuto } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Button } from 'antd'
+import { Button, message } from 'antd'
 import { Component } from '../auto'
 import { useCallback, useContext, useEffect } from 'react'
 import apis from '@/api'
 import _ from 'lodash'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
+import { toJS } from 'mobx'
+import { IResource } from '@/types'
 
 export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
   const page = usePageContext();
@@ -36,13 +38,16 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
       },
       updateSource: (field: string, value: any) => (local.source as any)[field] = value,
       getDiff() {
+        const keys1 = Object.keys(local.$origin);
+        const keys2 = Object.keys(local.source);
+        const s = new Set([...keys1, ...keys2]);
         const result: { [key: string]: any } = {};
-        for (let key in local.$origin) {
+        s.forEach(key => {
           const equal = _.isEqual((local.$origin as any)[key], (local.source as any)[key]);
           if (!equal) {
             result[key] = local.source[key]
           }
-        }
+        })
         return result;
       },
       isDiff() {
@@ -53,9 +58,9 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
       }
     }));
   const getInfo = useCallback(async () => {
-    if (self.api && mode === 'preview') {
+    if (self.api && mode === 'preview' && page.query.id) {
       local.setLoading(true)
-      const resp = await apis.getInfo(self.api, page.query['id'] as string);
+      const resp = await apis.getDataInfo(self.api, page.query['id'] as string);
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
@@ -63,7 +68,20 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
     }
   }, [self.api, page.query['id']])
   const updateInfo = useCallback(async () => {
-    console.log(local.getDiff(), self.api)
+    try {
+      local.setLoading(true)
+      const data = toJS(local.source) as IResource;
+      const result = await (local.source._id ? apis.putData(self.api, data) : apis.createData(self.api, data));
+      if (result.code === 0) {
+        local.setSource(result.data)
+      } else {
+        message.warn('请求失败', 1)
+      }
+    } catch (e) {
+
+    } finally {
+      local.setLoading(false)
+    }
   }, [])
   useEffect(() => {
     getInfo();

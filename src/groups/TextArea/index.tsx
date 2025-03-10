@@ -2,7 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { Input } from 'antd'
 
-export default function CTextArea({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTextArea({ self, mode, drag, dnd, source, setSource, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={mode + drag.className}
@@ -16,7 +16,11 @@ export default function CTextArea({ self, mode, drag, dnd, children }: IAuto & I
       }}
     >
       {children}
-      <Input.TextArea />
+      <Input.TextArea value={source[self.widget.field]}
+        onChange={(e => {
+          setSource && setSource(self.widget.field, e.target.value)
+        })}
+      />
     </div>
   )}</Observer>
 }

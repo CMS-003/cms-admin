@@ -76,15 +76,15 @@ const LoadableComponentPage = lazy(() => import('@/pages/component'))
 const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
 const LoadableLogSystem = lazy(() => import('@/pages/log/system'))
 const LoadableVerification = lazy(() => import('@/pages/log/verification'))
-const LoadableTablesPage = lazy(() => import('@/pages/table'))
-const LoadableTableDetailPage = lazy(() => import('@/pages/table/detail'))
+const LoadableSchemasPage = lazy(() => import('@/pages/schema'))
+const LoadableSchemaInfolPage = lazy(() => import('@/pages/schema/detail'))
 const templateArr: IPage[] = [
   { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
   { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
-  { title: '所有表', Content: (props: any) => <LoadableTablesPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/all' },
-  { title: '表定义', Content: (props: any) => <LoadableTableDetailPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/tables/detail' },
+  { title: '所有表', Content: (props: any) => <LoadableSchemasPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/all' },
+  { title: '表定义', Content: (props: any) => <LoadableSchemaInfolPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/info' },
   { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
   { title: '组件管理', Content: (props: any) => <LoadableComponentPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
   { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },

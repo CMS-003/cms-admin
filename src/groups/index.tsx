@@ -26,6 +26,7 @@ import Upload from './Upload'
 import Tags from './TagList'
 import Objects from './ObjectList'
 import Tpl from './Tpl'
+import CodeEditor from './CodeEditor'
 
 /**
  * 组件与属性 attr
@@ -95,6 +96,7 @@ const components = {
   Tags,
   Objects,
   Upload,
+  CodeEditor,
 }
 
 export default components;

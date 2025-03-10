@@ -10,6 +10,7 @@ import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { toJS } from 'mobx'
+import CONST from '@/constant'
 
 export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -42,7 +43,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
   const init = useCallback(async () => {
     if (self.api && mode === 'preview') {
       local.setValue('loading', true)
-      const resp = await apis.getList(self.api, page.query);
+      const resp = await apis.getDataList(self.api, page.query);
       if (resp.code === 0) {
         local.setResources(resp.data.items as IResource[]);
         local.setValue('total', (resp as any).count || resp.data.total || 0)
@@ -52,9 +53,9 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
   }, [self.api])
   useEffectOnce(() => {
     init();
-    events.on('PageQuery', onSetQuery);
+    events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     () => {
-      events.off('PageQuery', onSetQuery);
+      events.off(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     }
   })
   return <Observer>{() => (

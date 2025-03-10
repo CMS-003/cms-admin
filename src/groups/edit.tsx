@@ -230,9 +230,11 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         data?.setWidget('action', v);
                       }} >
                         <Select.Option value="">无</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>业内跳转</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.COPY}>复制</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.FILTER}>过滤</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.SEARCH}>搜索</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.GET}>获取数据</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.POST}>发送POST</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.UPDATE}>修改数据</Select.Option>

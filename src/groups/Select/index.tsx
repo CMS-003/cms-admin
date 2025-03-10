@@ -1,9 +1,11 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Select } from 'antd'
+import { Select, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { usePageContext } from '../context';
+import CONST from '@/constant';
+import apis from '@/api';
 
-export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CSelect({ self, mode, drag, dnd, source, children }: IAuto & IBaseComponent) {
   const page = usePageContext();
   const local = useLocalObservable(() => ({
     open: false,
@@ -34,9 +36,23 @@ export default function CSelect({ self, mode, drag, dnd, children }: IAuto & IBa
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             open={local.open}
-            defaultValue={self.widget.value}
-            onChange={v => {
-              page.setQuery(self.widget.field, v)
+            defaultValue={self.widget.action === CONST.ACTION_TYPE.FILTER ? self.widget.value : (source || {})[self.widget.field]}
+            onChange={async (v) => {
+              if (self.widget.action === CONST.ACTION_TYPE.FILTER) {
+                page.setQuery(self.widget.field, v)
+              } else if (self.widget.action === CONST.ACTION_TYPE.UPDATE) {
+                const old = source[self.widget.value]
+                try {
+                  const result = await apis.putData(self.api, { _id: source._id, [self.widget.field]: v })
+                  if (result.code === 0) {
+
+                  } else {
+                    message.warn(result.message);
+                  }
+                } catch (e) {
+                  message.warn('修改失败')
+                }
+              }
             }}
             onMouseDown={(e) => {
               if (e.button === 0) {

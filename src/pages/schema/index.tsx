@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate } from "react-router-dom";
-import { ITable, ITableDetail } from '@/types/table';
+import {ISchema } from '@/types/table';
 import { TableCard, TableTitle, SubTitle } from './style'
 import apis from '@/api';
 import Acon from '@/components/Acon';
@@ -24,7 +24,7 @@ export default function Page() {
     schema: any;
     loading: boolean | undefined;
     showCreate: boolean;
-    tables: ITableDetail[];
+    tables: ISchema[];
     setData: Function;
   } = useLocalObservable(() => ({
     cells: 1,
@@ -38,7 +38,7 @@ export default function Page() {
     }
   }));
   const refresh = useCallback(async () => {
-    const resp = await apis.getTables();
+    const resp = await apis.getSchemaAll();
     if (resp.code === 0) {
       local.tables = resp.data.items;
     }
@@ -55,42 +55,9 @@ export default function Page() {
         {tables.map(table => (
           <TableCard key={table.name}>
             <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
-              navigate(process.env.PUBLIC_URL + `/tables/detail?name=${table.name}`);
+              navigate(process.env.PUBLIC_URL + `/schema/info?name=${table.name}`);
             }} /></TableTitle>
             <span>{table.title}</span>
-            <SubTitle>表单视图 <Acon icon='PlusCircleOutlined' onClick={() => {
-              navigate(process.env.PUBLIC_URL + '/tables/form/modify?table=' + table.name);
-            }} /></SubTitle>
-            {table.forms.map(view => (
-              <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
-                <span>{view.name}</span>
-                <div>
-                  <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                    navigate(process.env.PUBLIC_URL + `/tables/form/modify?table=${table.name}&id=${view._id}`);
-                  }} />
-                  <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                    navigate(`${process.env.PUBLIC_URL}/tables/form/preview?title=${view.name}&view_id=${view._id}`);
-                  }} />
-                </div>
-              </AlignAside>
-            ))}
-            <br />
-            <SubTitle>列表视图 <Acon icon='PlusCircleOutlined' onClick={() => {
-              navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}`);
-            }} /></SubTitle>
-            {table.lists.map(view => (
-              <AlignAside key={view._id} style={{ fontSize: 13, borderBottom: '1px solid #e4e4e4' }}>
-                <span className='txt-omit'>{view.name}</span>
-                <div style={{ whiteSpace: 'nowrap' }}>
-                  <Acon icon='FormOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                    navigate(`${process.env.PUBLIC_URL}/tables/list/modify?table=${table.name}&id=${view._id}`);
-                  }} />
-                  <Acon icon='FileSearchOutlined' style={{ margin: 5, cursor: 'pointer' }} onClick={() => {
-                    navigate(`${process.env.PUBLIC_URL}/tables/list/preview?view_id=${view._id}`);
-                  }} />
-                </div>
-              </AlignAside>
-            ))}
           </TableCard>
         ))}
       </AlignAside>
@@ -136,7 +103,7 @@ export default function Page() {
         try {
           local.loading = true;
           const { name, ...data } = toJS(local.schema);
-          const resp = await apis.createTableSchema(name, data);
+          const resp = await apis.createSchema(name, data);
           if (resp.code === 0) {
             refresh();
             local.showCreate = false;
