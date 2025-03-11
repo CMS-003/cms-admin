@@ -32,6 +32,7 @@ import {
   ConerRT,
 } from './style'
 import { PageContext, useSetTitleContext } from './context';
+import { CenterXY } from '@/components/style';
 
 export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
@@ -165,7 +166,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
   }>(() => ({
     editComponent: null,
     editPanelKey: 'base',
-    loading: true,
+    loading: false,
     template: null,
     addWidgetReferVisible: false,
     isDragOver: false,
@@ -241,6 +242,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
   }))
 
   const refresh = useCallback(async () => {
+    if (!template_id) return;
     local.setLoading(true)
     local.setEditComponent(null)
     try {
@@ -345,7 +347,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
                 />
               </TemplateBox>
             } else {
-              return <div>Page NotFound</div>
+              return <CenterXY>NotFound</CenterXY>
             }
           }
           }</Observer >

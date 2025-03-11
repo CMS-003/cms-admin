@@ -15,7 +15,7 @@ const ComponentTemplatePage: React.FC = () => {
     showEditPage: false,
     list: [],
     temp: null,
-    selectedProjectId: '',
+    selectedProjectId: store.app.project_id === 'manager' ? '' : store.app.project_id,
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
     openEditor(data: ITemplate) {
       local.temp = data
@@ -133,7 +133,7 @@ const ComponentTemplatePage: React.FC = () => {
   return (<Observer>{() => <div style={{ padding: '0 10px' }}>
     <AlignAside>
       <Space>
-        <Select defaultValue={store.app.project_id === 'manager' ? '' : store.app.project_id} onChange={v => {
+        <Select defaultValue={local.selectedProjectId} onChange={v => {
           local.selectedProjectId = v;
           refresh()
         }}>
