@@ -1,5 +1,5 @@
 import { types } from 'mobx-state-tree'
-import storage from '../storage'
+import storage from '../utils/storage'
 
 const app = types.model('app', {
   isSignIn: types.boolean,

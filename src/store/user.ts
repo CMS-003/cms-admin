@@ -1,6 +1,6 @@
 import { IModelType, IStateTreeNode, types, _NotCustomized, ISimpleType, IMaybe, IOptionalIType, ValidOptionalValues } from 'mobx-state-tree'
 import constant from '../constant'
-import storage from '../storage'
+import storage from '../utils/storage'
 
 const user = types.model('UserItem', {
   info: types.maybe(types.model({

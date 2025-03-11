@@ -1,5 +1,5 @@
 import { types, ISimpleType, IMSTArray } from 'mobx-state-tree'
-import storage from '../storage'
+import storage from '../utils/storage'
 
 const route: any = types.model('route', {
   id: types.string,
@@ -33,7 +33,7 @@ const router = types.model({
     self.list = list
   },
   setCurrentPath(path: string) {
-    const p = path && self.openedPanels.includes(path) ? path : '/dashboard';
+    const p = path && self.openedPanels.includes(path) ? path : '/manager/dashboard';
     storage.setKey('current-path', p);
     self.currentPath = p;
   },

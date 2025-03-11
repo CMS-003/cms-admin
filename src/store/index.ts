@@ -5,7 +5,7 @@ import IRouter from './router'
 import IComponent from './component'
 import IProject from './project'
 import constant from '../constant'
-import storage from '../storage'
+import storage from '../utils/storage'
 
 function getOpenedKeys(path: string): string[] {
   const keys: string[] = [];
