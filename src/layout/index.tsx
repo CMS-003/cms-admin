@@ -56,7 +56,7 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
               label: project.title,
               key: project._id,
               style: { backgroundColor: project._id === store.app.project_id ? '#aaa' : '' },
-              icon: <img src={project.cover} alt="" style={{ width: 24, height: 24 }} />
+              icon: project.cover ? <img src={project.cover} alt="" style={{ width: 24, height: 24 }} /> : null
             }))}
           />}>
             <div style={{ flexDirection: collapsed ? 'column' : 'row', color: 'white', display: 'flex', alignItems: 'center' }}>

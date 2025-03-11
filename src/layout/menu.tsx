@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import Acon from '@/components/Acon';
 import store from '@/store'
-import { get } from 'lodash'
 import { Observer } from 'mobx-react';
 
 const keyPathMap: { [key: string]: string } = {}
@@ -49,12 +48,15 @@ const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: 
       <Menu
         defaultSelectedKeys={[selectedKey]}
         selectedKeys={[selectedKey]}
-        defaultOpenKeys={store.page.defaultOpened}
+        defaultOpenKeys={store.router.openedMenu}
         mode="inline"
         theme="dark"
         items={tree}
         onClick={(e: any) => {
           navigate(keyPathMap[e.key])
+        }}
+        onOpenChange={keys => {
+          store.router.setOpenedMenu(keys);
         }}
       />
     </div>

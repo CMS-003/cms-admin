@@ -136,7 +136,7 @@ const TabPanes: FC = () => {
           tags.push(path)
         }
       })
-      store.page.setOpenedPages(tags as IMSTArray<ISimpleType<string>>)
+      store.router.setOpenedPanels(tags as IMSTArray<ISimpleType<string>>)
     },
     setPanel(pages: IPanel[]) {
       local.panels = pages
@@ -156,12 +156,12 @@ const TabPanes: FC = () => {
   }));
   const resetTabs = useCallback((): void => {
     // search 参数处理
-    if (Templates[pathname] && !store.page.openedPages.includes(fullPath)) {
-      store.page.addPage(fullPath)
+    if (Templates[pathname] && !store.router.openedPanels.includes(fullPath)) {
+      store.router.addPanel(fullPath)
     }
-    store.page.setCurrentPage(store.page.openedPages.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
-    store.page.openedPages.forEach((tag, i) => {
-      if (store.page.openedPages.findIndex(v => v === tag) !== i) return;
+    store.router.setCurrentPath(store.router.openedPanels.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
+    store.router.openedPanels.forEach((tag, i) => {
+      if (store.router.openedPanels.findIndex(v => v === tag) !== i) return;
       const [new_pathname] = tag.split('?');
       if ((Templates[new_pathname] || new_pathname.startsWith('/manager/dynamic')) && local.panels.findIndex(p => p.path === tag) === -1) {
         const pane = getPanelByPath(tag)
@@ -182,7 +182,7 @@ const TabPanes: FC = () => {
     )
     local.remPanel(delIndex)
     // 删除当前tab，地址往前推
-    const nextPath = store.page.openedPages[delIndex - 1] || store.page.openedPages[delIndex + 1] || process.env.PUBLIC_URL + '/dashboard'
+    const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || process.env.PUBLIC_URL + '/dashboard'
     local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {
@@ -215,7 +215,7 @@ const TabPanes: FC = () => {
 
   useEffect(() => {
     // 当前的路由和上一次的一样，无效的新tab，return
-    if (fullPath === store.page.currentPage) {
+    if (fullPath === store.router.currentPath) {
       return
     };
     const index = local.panels.findIndex(
@@ -225,7 +225,7 @@ const TabPanes: FC = () => {
     // 新tab已存在，重新覆盖掉（解决带参数地址数据错乱问题）
     if (index > -1) {
       local.setByIndex(index, 'path', fullPath)
-      store.page.setCurrentPage(fullPath)
+      store.router.setCurrentPath(fullPath)
       return
     }
     // 添加新tab并保存起来
@@ -233,7 +233,7 @@ const TabPanes: FC = () => {
     local.pushPanel(Page)
     local.saveTags(local.panels)
     // 保存这次的路由地址
-    store.page.setCurrentPage(fullPath)
+    store.router.setCurrentPath(fullPath)
 
   }, [local, pathname, resetTabs, search])
 
@@ -250,17 +250,21 @@ const TabPanes: FC = () => {
   return (
     <Observer>{() => (
       <Tabs
-        activeKey={store.page.currentPage}
+        activeKey={store.router.currentPath}
         style={{ height: '100%', overflow: 'hidden' }}
         className="tag-page"
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
         destroyInactiveTabPane={false}
         onChange={(path: string): void => {
-          store.page.setCurrentPage(path)
+          store.router.setCurrentPath(path)
         }}
         onEdit={(targetTag: string | any, action: string) => {
-          action === 'remove' && remove(targetTag)
+          if (local.panels.length === 1 && targetTag === '/manager/dashboard') {
+
+          } else {
+            action === 'remove' && remove(targetTag)
+          }
         }}
         renderTabBar={(props, DefaultTabBar) => (
           <DefaultTabBar {...props} >
@@ -278,19 +282,19 @@ const TabPanes: FC = () => {
                       key: 'close',
                       // icon: <Acon icon="CloseOutlined" />,
                       label: '关闭',
-                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
                     },
                     {
                       key: 'closeOther',
                       // icon: <Acon icon="CloseOutlined" />,
                       label: '关闭其他',
-                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
                     },
                     {
                       key: 'closeAll',
                       // icon: <Acon icon="CloseOutlined" />,
                       label: '关闭所有',
-                      disabled: local.panels.length === 1 && store.page.currentPage.startsWith('/manager/dashboard'),
+                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
                     },
                   ]}
                   onClick={e => {
@@ -298,7 +302,7 @@ const TabPanes: FC = () => {
                     if (e.key === 'refresh') {
                       refreshTab()
                     } else if (e.key === 'close') {
-                      remove(store.page.currentPage)
+                      remove(store.router.currentPath)
                     } else if (e.key === 'closeOther') {
                       removeAll(false)
                     } else if (e.key === 'closeAll') {
@@ -320,7 +324,7 @@ const TabPanes: FC = () => {
           </DefaultTabBar>
         )}
         onTabClick={(targetTag: string) => {
-          if (targetTag === store.page.currentPage) {
+          if (targetTag === store.router.currentPath) {
             return;
           }
           const { path } = local.panels.filter(

@@ -1,4 +1,5 @@
-import { types } from 'mobx-state-tree'
+import { types, ISimpleType, IMSTArray } from 'mobx-state-tree'
+import storage from '../storage'
 
 const route: any = types.model('route', {
   id: types.string,
@@ -16,10 +17,14 @@ const route: any = types.model('route', {
 }));
 
 const router = types.model({
-  list: types.array(route),
   currentPath: types.optional(types.string, ''),
-  openedMenu: types.array(route),
-}).views(self=>({
+  // 路由菜单部分
+  list: types.array(route),
+  openedMenu: types.array(types.string),
+  defaultOpened: types.array(types.string),
+  // 标签页部分
+  openedPanels: types.array(types.string),
+}).views(self => ({
   getList() {
     return self.list
   }
@@ -28,19 +33,33 @@ const router = types.model({
     self.list = list
   },
   setCurrentPath(path: string) {
-
+    const p = path && self.openedPanels.includes(path) ? path : '/dashboard';
+    storage.setKey('current-path', p);
+    self.currentPath = p;
   },
-  setOpenKey(key: string) {
-
-  },
-  setSelectKey(key: string[]) {
-
-  },
-  addOpenedMenu(key: object) {
-
+  setOpenedMenu(keys: string[]) {
+    self.openedMenu = keys as IMSTArray<ISimpleType<string>>;
+    storage.setKey('opened-menu', keys);
   },
   getOpenedMenu() {
     return self.openedMenu;
+  },
+  setOpenedPanels(items: IMSTArray<ISimpleType<string>>) {
+    self.openedPanels = items;
+    storage.setKey('opened-panels', items)
+  },
+  addPanel(tag: string) {
+    if (!self.openedPanels.includes(tag)) {
+      self.openedPanels.push(tag)
+      return true
+    }
+    return false
+  },
+  closePanel(tag: string) {
+    const index = self.openedPanels.findIndex(item => item === tag)
+    if (index !== -1) {
+      self.openedPanels.splice(index, 1)
+    }
   },
 }))
 export default router;
