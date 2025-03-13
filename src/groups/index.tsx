@@ -1,6 +1,7 @@
 import Menu from './Menu'
 import MenuItem from './MenuItem'
 import Tab from './Tab'
+import Tabbar from './Tabbar'
 import TabItem from './TabItem'
 import Filter from './Filter'
 import FilterRow from './FilterRow'
@@ -69,6 +70,7 @@ import CodeEditor from './CodeEditor'
 const components = {
   Menu,
   MenuItem,
+  Tabbar,
   Tab,
   TabItem,
   Filter,
