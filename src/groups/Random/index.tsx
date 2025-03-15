@@ -24,7 +24,7 @@ export default function CRandom({ self, mode, drag, dnd, children }: IAuto & IBa
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      style={{ ...self.style, ...dnd?.style }}
+      style={{ flex: 0, ...self.style, ...dnd?.style }}
     >
       {children}
       <Header>

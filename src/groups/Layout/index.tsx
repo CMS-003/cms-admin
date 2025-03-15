@@ -3,12 +3,15 @@ import styled from 'styled-components'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
+import { usePageContext } from '../context'
 
 const Layout = styled.div`
   display: flex;
   flex-direction: row;
+  ${(props) => (props as any)['data-isDragging'] ? "background-color: lightblue !important;" : ""}
 `
 export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+  const page = usePageContext()
   return <Observer>{() => (
     <Layout
       id={self._id}
@@ -16,23 +19,37 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
+      data-isDragging={dnd?.isDragging}
       style={{
         minHeight: self.children.length === 0 ? 25 : 'auto',
         flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
         ...self.style,
         ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      {self.children.map((child, index) => (
+      <NatureSortable
+        items={self.children}
+        direction={self.attrs.get("layout") === 'horizontal' ? 'horizontal' : 'vertical'}
+        droppableId={self._id}
+        sort={self.swap}
+        renderItem={({ item, dnd }) => (
+          <Component
+            mode={mode}
+            self={item}
+            dnd={dnd}
+            page={page}
+          />
+        )}
+      />
+      {/* {self.children.map((child, index) => (
         <Component
           mode={mode}
           self={child}
           key={index}
           {...props}
         />
-      ))}
+      ))} */}
     </Layout>
   )}</Observer>
 }

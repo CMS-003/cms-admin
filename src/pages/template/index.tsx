@@ -66,7 +66,11 @@ const ComponentTemplatePage: React.FC = () => {
       component: IEditorComponent.Select,
       defaultValue: '',
       autoFocus: false,
-      value: [{ name: '页面', value: 'page' }, { name: '表单', value: 'form' }],
+      value: [
+        { name: '页面', value: 'page' },
+        { name: '表单', value: 'form' },
+        { name: '应用', value: 'app' },
+      ],
     },
     {
       field: 'desc',
@@ -131,26 +135,22 @@ const ComponentTemplatePage: React.FC = () => {
     refresh()
   })
   return (<Observer>{() => <div style={{ padding: '0 10px' }}>
-    <AlignAside>
-      <Space>
-        <Select defaultValue={local.selectedProjectId} onChange={v => {
-          local.selectedProjectId = v;
-          refresh()
-        }}>
-          <Select.Option value="">全部</Select.Option>
-          {store.project.list.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
-        </Select>
-        <Button type="primary" onClick={() => {
-          refresh()
-        }}>搜索</Button>
-      </Space>
-      <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
-        < Button type="primary" onClick={e => {
-          local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
-          local.showEditPage = true
-        }}>新增</Button>
-      </Space>
-    </AlignAside>
+    <Space style={{ padding: '8px 0' }}>
+      <Select defaultValue={local.selectedProjectId} onChange={v => {
+        local.selectedProjectId = v;
+        refresh()
+      }}>
+        <Select.Option value="">全部</Select.Option>
+        {store.project.list.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
+      </Select>
+      <Button type="primary" onClick={() => {
+        refresh()
+      }}>搜索</Button>
+      < Button type="primary" onClick={e => {
+        local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
+        local.showEditPage = true
+      }}>新增</Button>
+    </Space>
     <Editor
       visible={local.showEditPage}
       close={() => { local.showEditPage = false; local.temp = null }}

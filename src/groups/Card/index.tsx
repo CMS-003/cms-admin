@@ -72,6 +72,7 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
+        flex: 0,
         ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
