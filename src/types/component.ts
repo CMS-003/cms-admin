@@ -58,6 +58,7 @@ export type IComponent = {
   removeChild: Function;
   addResource: Function;
   remResource: Function;
+  getApi: (id: string) => string;
   swap: (srcIndex: number, dstIndex: number) => void;
   swapResource: Function;
   toJSON: Function;

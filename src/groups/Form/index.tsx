@@ -60,7 +60,7 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
   const getInfo = useCallback(async () => {
     if (self.api && mode === 'preview' && page.query.id) {
       local.setLoading(true)
-      const resp = await apis.getDataInfo(self.api, page.query['id'] as string);
+      const resp = await apis.getDataInfo(self.getApi(page.query['id'] as string));
       if (resp.code === 0) {
         local.setSource(resp.data);
       }

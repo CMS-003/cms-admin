@@ -1,12 +1,15 @@
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
-import { Component } from '../auto'
-import { toJS } from 'mobx';
+import { useEffectOnce } from 'react-use';
 
 export default function Editor({ self, mode, drag, dnd, source, setSource, children }: IAuto & IBaseComponent) {
+  useEffectOnce(() => {
+    if (!source._id && setSource) {
+      setSource(self.widget.field, self.widget.value)
+    }
+  })
   return <Observer>{() => (
     <div
       className={mode + drag.className}

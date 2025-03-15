@@ -40,6 +40,7 @@ import {
   FileImageOutlined,
   FontSizeOutlined,
   ApiOutlined,
+  RadarChartOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
@@ -112,6 +113,7 @@ const icons = {
   LinkOutlined,
   ApiOutlined,
   Api: ApiOutlined,
+  spider: RadarChartOutlined,
 }
 const Wrap = styled.span`
   cursor: pointer;

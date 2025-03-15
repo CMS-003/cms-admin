@@ -49,7 +49,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
             navigate(`${self.widget.action_url}?id=${source._id}`)
           } else if (self.widget.action === CONST.ACTION_TYPE.DELETE && self.api) {
             try {
-              const result = await apis.destroyData(self.api, self._id)
+              const result = await apis.destroyData(self.getApi(source._id))
               if (result.code === 0) {
                 events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
               } else {

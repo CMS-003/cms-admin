@@ -43,7 +43,7 @@ export default function CSelect({ self, mode, drag, dnd, source, children }: IAu
               } else if (self.widget.action === CONST.ACTION_TYPE.UPDATE) {
                 const old = source[self.widget.value]
                 try {
-                  const result = await apis.putData(self.api, { _id: source._id, [self.widget.field]: v })
+                  const result = await apis.putData(self.getApi(source._id), { [self.widget.field]: v })
                   if (result.code === 0) {
 
                   } else {

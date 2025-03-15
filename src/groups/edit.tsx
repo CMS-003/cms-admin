@@ -163,7 +163,8 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     </span>
                   </span>
                   <Divider type="horizontal" style={{ margin: 5 }} />
-                  <Input addonBefore="默认值" value={data.widget.value} onChange={e => {
+                  默认值
+                  <Input.TextArea value={data.widget.value} onChange={e => {
                     data?.setWidget('value', e.target.value);
                   }} />
                   参考值

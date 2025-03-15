@@ -32,22 +32,19 @@ const apis = {
     const result = await shttp.get<IResource>(`${url}?${qs.stringify(query)}`)
     return result
   },
-  getDataInfo: async (url: string, id: string) => {
-    url = url.replace(':id', id);
+  getDataInfo: async (url: string) => {
     const result = await shttp.get<IResource>(url)
     return result
   },
-  putData: async (url: string, data: Partial<IResource> & { _id: string }) => {
-    url = url.replace(':id', data._id);
+  putData: async (url: string, data: Partial<IResource>) => {
     const result = await shttp.put<IResource>(url, data);
     return result;
   },
   createData: async (url: string, data: any) => {
-    const result = await shttp.post<IResource>(url.replace(':id', ''), data)
+    const result = await shttp.post<IResource>(url, data)
     return result
   },
-  destroyData: async (url: string, id: string) => {
-    url = url.replace(':id', id);
+  destroyData: async (url: string) => {
     const result = await shttp.delete<IResource>(url)
     return result
   },

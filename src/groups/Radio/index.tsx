@@ -1,8 +1,14 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
+import { useEffectOnce } from 'react-use';
 
 export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, children }: IAuto & IBaseComponent) {
+  useEffectOnce(() => {
+    if (!source._id && setSource) {
+      setSource(self.widget.field, self.widget.value)
+    }
+  })
   return <Observer>{() => (
     <div
       className={mode + drag.className}
