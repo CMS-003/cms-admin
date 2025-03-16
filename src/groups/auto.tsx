@@ -138,7 +138,7 @@ const ScrollWrap = styled.div`
   }
 `
 
-export default function AutoPage({ template_id, mode, path }: { template_id: string, mode: string, path: string, [key: string]: any }) {
+export default function AutoPage({ template_id, mode, path, close }: { template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
   const page = useLocalObservable<IPageInfo>(() => ({
     template_id,
     path,
@@ -147,6 +147,7 @@ export default function AutoPage({ template_id, mode, path }: { template_id: str
     setQuery(field, value) {
       this.query[field] = value;
     },
+    close: close
   }))
   const setTitle = useSetTitleContext()
   const local = useLocalObservable<{

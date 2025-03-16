@@ -67,9 +67,10 @@ const ComponentTemplatePage: React.FC = () => {
       defaultValue: '',
       autoFocus: false,
       value: [
+        { name: '应用', value: 'app' },
         { name: '页面', value: 'page' },
         { name: '表单', value: 'form' },
-        { name: '应用', value: 'app' },
+        { name: '对话框', value: 'modal' },
       ],
     },
     {

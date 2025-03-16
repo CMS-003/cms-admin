@@ -345,6 +345,7 @@ const TabPanes: FC = () => {
                     key={Panel.path}
                     path={Panel.path}
                     id={Panel.id}
+                    close={() => { remove(store.router.currentPath) }}
                   />
                 </Suspense>
               </TitleContext.Provider>

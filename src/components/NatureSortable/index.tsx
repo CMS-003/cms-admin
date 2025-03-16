@@ -32,11 +32,13 @@ export default function NatureSortable({
   items,
   renderItem,
   wrap,
+  style = {},
   ...restProps
 }: {
   droppableId: string;
   direction?: Direction;
   items: any[];
+  style?: CSSProperties,
   onDragStart?: () => void;
   sort: (sourceIndex: number, destinationIndex: number) => void;
   wrap?: React.ForwardRefExoticComponent<RowProps & React.RefAttributes<HTMLDivElement>> | StyledComponent<"div", any, RowProps, never>;
@@ -82,7 +84,14 @@ export default function NatureSortable({
         }
       >
         {(provided) => (
-          <Container ref={provided.innerRef} {...provided.droppableProps} style={{ width: '100%', display: 'flex', flex: 1, flexDirection: direction === 'horizontal' ? 'row' : 'column', overflow: 'auto', }}>
+          <Container ref={provided.innerRef} {...provided.droppableProps} style={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: direction === 'horizontal' ? 'row' : 'column',
+            overflow: 'auto',
+            ...style,            
+            flex: 1,
+          }}>
             {items.map((item, index) => (
               <Observer key={item._id}>{() => (
                 <Draggable draggableId={item._id} index={index} isDragDisabled={store.component.can_drag_id !== item._id}>

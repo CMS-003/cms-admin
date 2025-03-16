@@ -71,7 +71,7 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
-      const result = await (local.source._id ? apis.putData(self.api, data) : apis.createData(self.api, data));
+      const result = await (local.source._id ? apis.putData(self.getApi(page.query['id'] as string), data) : apis.createData(self.getApi(page.query['id'] as string), data));
       if (result.code === 0) {
         local.setSource(result.data)
       } else {

@@ -73,7 +73,7 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
             key: child._id,
             children: (
               child.attrs.get('content_type') === 'template' ? (<Fragment>
-                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} path={page.path} />
+                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} path={page.path} close={page.close}/>
               </Fragment>) :
                 <Component mode={mode} self={child} key={i} index={i} {...props} />
             )

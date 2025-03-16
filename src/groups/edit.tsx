@@ -233,6 +233,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Select.Option value="">无</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.MODAL}>对话框</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.COPY}>复制</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.FILTER}>过滤</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.SEARCH}>搜索</Select.Option>

@@ -6,7 +6,10 @@ export const PageContext = createContext<IPageInfo>({
   path: '',
   param: {},
   query: {},
-  setQuery(){
+  setQuery() {
+
+  },
+  close() {
 
   },
 });

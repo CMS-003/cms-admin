@@ -3,6 +3,7 @@ const CONST = {
   REFRESH_TOKEN: 'refresh_token',
   storage_prefix: 'cms_',
   ACTION_TYPE: {
+    'MODAL': 'MODAL',
     'COPY': 'COPY',
     'FILTER': 'FILTER',
     'SEARCH': 'SEARCH',

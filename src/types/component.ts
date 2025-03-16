@@ -7,6 +7,7 @@ export type IPageInfo = {
   param: { [key: string]: string };
   query: { [key: string]: string | number };
   setQuery: (field: string, value: number | string) => void;
+  close: Function;
 }
 
 export type IConfig = {

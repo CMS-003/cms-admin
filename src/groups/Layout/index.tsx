@@ -8,7 +8,7 @@ import { usePageContext } from '../context'
 const Layout = styled.div`
   display: flex;
   flex-direction: row;
-  ${(props) => (props as any)['data-isDragging'] ? "background-color: lightblue !important;" : ""}
+  ${(props) => (props as any)['data-isdragging'] ? "background-color: lightblue !important;" : ""}
 `
 export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -19,7 +19,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      data-isDragging={dnd?.isDragging}
+      data-isdragging={dnd?.isDragging}
       style={{
         minHeight: self.children.length === 0 ? 25 : 'auto',
         flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
@@ -29,9 +29,10 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
     >
       {children}
       <NatureSortable
-        items={self.children}
-        direction={self.attrs.get("layout") === 'horizontal' ? 'horizontal' : 'vertical'}
         droppableId={self._id}
+        direction={self.attrs.get("layout") === 'horizontal' ? 'horizontal' : 'vertical'}
+        style={self.style}
+        items={self.children}
         sort={self.swap}
         renderItem={({ item, dnd }) => (
           <Component
@@ -39,6 +40,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
             self={item}
             dnd={dnd}
             page={page}
+            {...props}
           />
         )}
       />
