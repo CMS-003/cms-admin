@@ -33,7 +33,8 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
           local.source = args[0];
           local.$origin = args[0];
         } else {
-          local.source[args[0]] = args[1];
+          // local.source[args[0]] = args[1];
+          _.set(local.source, args[0], args[1])
         }
       },
       updateSource: (field: string, value: any) => (local.source as any)[field] = value,
@@ -103,6 +104,7 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
         <NatureSortable
           items={self.children}
           direction='vertical'
+          disabled={mode === 'preview'}
           droppableId={self._id}
           sort={self.swap}
           renderItem={({ item, dnd }) => (

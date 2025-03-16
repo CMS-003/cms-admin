@@ -335,6 +335,7 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
                 <NatureSortable
                   items={(local.template as ITemplate).children}
                   direction='vertical'
+                  disabled={mode === 'preview'}
                   wrap={TemplateBox}
                   droppableId={local.template._id}
                   sort={() => { }}

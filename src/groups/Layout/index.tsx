@@ -31,6 +31,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       <NatureSortable
         droppableId={self._id}
         direction={self.attrs.get("layout") === 'horizontal' ? 'horizontal' : 'vertical'}
+        disabled={mode === 'preview'}
         style={self.style}
         items={self.children}
         sort={self.swap}

@@ -29,6 +29,7 @@ function lockAxis(direction: Direction | undefined, style: DraggableProvided['dr
 export default function NatureSortable({
   droppableId,
   direction,
+  disabled = false,
   items,
   renderItem,
   wrap,
@@ -36,6 +37,7 @@ export default function NatureSortable({
   ...restProps
 }: {
   droppableId: string;
+  disabled?: boolean,
   direction?: Direction;
   items: any[];
   style?: CSSProperties,
@@ -44,6 +46,7 @@ export default function NatureSortable({
   wrap?: React.ForwardRefExoticComponent<RowProps & React.RefAttributes<HTMLDivElement>> | StyledComponent<"div", any, RowProps, never>;
   renderItem: ((arg: {
     item: any,
+    index?: number,
     dnd: {
       isDragging: boolean;
       ref: DraggableProvided['innerRef'];
@@ -89,14 +92,15 @@ export default function NatureSortable({
             display: 'flex',
             flexDirection: direction === 'horizontal' ? 'row' : 'column',
             overflow: 'auto',
-            ...style,            
+            ...style,
             flex: 1,
           }}>
             {items.map((item, index) => (
-              <Observer key={item._id}>{() => (
-                <Draggable draggableId={item._id} index={index} isDragDisabled={store.component.can_drag_id !== item._id}>
+              <Observer key={item._id || index}>{() => (
+                <Draggable draggableId={item._id || index.toString()} index={index} isDragDisabled={disabled || (item._id && store.component.can_drag_id !== item._id)}>
                   {(provided, snapshot) => renderItem({
                     item,
+                    index,
                     dnd: {
                       isDragging: snapshot.isDragging,
                       ref: provided.innerRef,

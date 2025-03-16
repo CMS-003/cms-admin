@@ -27,7 +27,7 @@ export default function Editor({ self, mode, drag, dnd, source, setSource, child
         key={self._id}
         value={source[self.widget.field]}
         className="code-mirror"
-        style={{ minHeight: 300 }}
+        style={{ border: '1px dotted grey' }}
         extensions={[json()]}
         onChange={(value, options) => {
           if (setSource) {

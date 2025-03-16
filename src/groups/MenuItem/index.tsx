@@ -31,6 +31,7 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
         <NatureSortable
           items={self.children}
           direction='vertical'
+          disabled={mode === 'preview'}
           droppableId={self._id}
           sort={self.swap}
           renderItem={({ item, dnd }) => (

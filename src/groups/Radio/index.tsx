@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
+import _ from 'lodash'
 
 export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -28,7 +29,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, 
         if (self.widget) {
           setSource && setSource(self.widget.field, e.target.value);
         }
-      }} value={source[self.widget.field]} />
+      }} value={_.get(source, self.widget.field)} />
     </div>
   )
   }</Observer >

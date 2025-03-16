@@ -22,6 +22,7 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
       <NatureSortable
         items={self.children}
         direction='horizontal'
+        disabled={mode === 'preview'}
         droppableId={self._id}
         wrap={Row}
         sort={self.swap}

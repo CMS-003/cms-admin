@@ -44,6 +44,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         <NatureSortable
           items={self.children}
           direction='horizontal'
+          disabled={mode === 'preview'}
           droppableId={self._id}
           sort={self.swap}
           wrap={Row}

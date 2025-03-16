@@ -22,6 +22,7 @@ import Form from './Form'
 import Row from './Row'
 import Col from './Col'
 import Radio from './Radio'
+import CheckBox from './Checkbox'
 import Field from './Field'
 import Upload from './Upload'
 import Tags from './TagList'
@@ -99,6 +100,7 @@ const components = {
   Objects,
   Upload,
   CodeEditor,
+  CheckBox,
 }
 
 export default components;

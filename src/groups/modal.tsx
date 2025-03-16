@@ -11,6 +11,7 @@ export default function ModalPage({ template_id, path, close }: { template_id: s
       onCancel={() => {
         close()
       }}
+      footer={null}
     >
       <AutoPage template_id={template_id} mode={'preview'} path={path} close={close} />
     </Modal>

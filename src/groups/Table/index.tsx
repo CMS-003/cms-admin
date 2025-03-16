@@ -93,6 +93,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
             <NatureSortable
               items={child.children}
               direction='horizontal'
+              disabled={mode === 'preview'}
               droppableId={child._id}
               sort={self.swap}
               renderItem={({ item, dnd }) => (
