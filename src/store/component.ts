@@ -62,9 +62,9 @@ export const ComponentItem = types.model('Component', {
   attrs: types.map(types.union(types.string, types.number)),
   widget: types.model({
     field: types.optional(types.string, ''),
-    value: types.optional(types.union(types.string, types.number), ''),
+    value: types.optional(types.union(types.string, types.number, types.boolean), ''),
     type: types.enumeration(['string', 'number', 'boolean', 'date']),
-    refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number), label: types.string })), []),
+    refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),
     action_url: types.optional(types.string, ''),
   }),
@@ -96,16 +96,24 @@ export const ComponentItem = types.model('Component', {
     self[key] = value;
   },
   setWidget(k: 'field' | 'value', v: string) {
-    if (self.widget) {
-      self.widget[k] = v;
+    if (k === 'field') {
+      self.widget.field = v;
+    } else {
+      if (self.widget.type === 'boolean') {
+        self.widget.value = ['1', 'true', 'TRUE'].includes(v)
+      } else if (self.widget.type === 'number') {
+        self.widget.value = parseInt(v) || 0
+      }
     }
   },
-  changeWidgetType(type: 'string' | 'number') {
+  changeWidgetType(type: 'string' | 'number' | 'boolean') {
     if (type === self.widget.type) {
       return;
     } else if (type === 'number') {
       self.widget.value = parseInt(self.widget.value as string);
       self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
+    } else if (type === 'boolean') {
+      self.widget.value = ['1', 'true', 'TRUE'].includes(self.widget.value as any) as boolean;
     } else {
       self.widget.value = self.widget.value.toString();
       self.widget.refer.forEach(r => r.value = r.value.toString());
@@ -113,6 +121,13 @@ export const ComponentItem = types.model('Component', {
     self.widget.type = type;
   },
   pushRefer(t: { label: string, value: string }) {
+    let v: any = t.value;
+    if (self.widget.type === 'boolean') {
+      v = ['1', 'true', 'TRUE'].includes(v)
+    } else if (self.widget.type === 'number') {
+      v = parseInt(v) || 0
+    }
+    t.value = v;
     self.widget.refer.push(t);
   },
   remRefer(n: number) {

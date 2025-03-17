@@ -164,7 +164,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   </span>
                   <Divider type="horizontal" style={{ margin: 5 }} />
                   默认值
-                  <Input.TextArea value={data.widget.value} onChange={e => {
+                  <Input.TextArea value={data.widget.value.toString()} onChange={e => {
                     data?.setWidget('value', e.target.value);
                   }} />
                   参考值

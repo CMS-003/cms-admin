@@ -14,11 +14,19 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
     showAdd: boolean;
     source: any;
     setSource: (field: string, value: any) => void;
+    set: (s: any) => void;
+    setAdd: (b: boolean) => void;
   }>(() => ({
     showAdd: false,
     source: {},
     setSource(key: string, value: any) {
       local.source[key] = value;
+    },
+    set(s) {
+      local.source = s;
+    },
+    setAdd(b) {
+      local.showAdd = b;
     }
   }));
   return <Observer>{() => (
@@ -101,17 +109,17 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
         {local.showAdd
           ? <Space>
             <Acon icon="close" onClick={() => {
-              local.showAdd = false;
-              local.source = {}
+              local.setAdd(false)
+              local.set({})
             }} />
             <Acon icon="check" onClick={() => {
-              local.showAdd = false;
+              local.setAdd(false)
               setSource && setSource(self.widget.field, [...(source[self.widget.field] || []), local.source])
-              local.source = {};
+              local.set({})
             }} />
           </Space>
           : <Acon icon="PlusOutlined" onClick={() => {
-            local.showAdd = true
+            local.setAdd(true)
           }} />
         }
 

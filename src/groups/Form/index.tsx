@@ -33,8 +33,13 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
           local.source = args[0];
           local.$origin = args[0];
         } else {
-          // local.source[args[0]] = args[1];
-          _.set(local.source, args[0], args[1])
+          let v = args[1];
+          switch (args[2]) {
+            case 'boolean': v = ['1', 'true', 'TRUE'].includes(v); break;
+            case 'number': v = parseInt(v) || 0; break;
+            default: break;
+          }
+          _.set(local.source, args[0], v)
         }
       },
       updateSource: (field: string, value: any) => (local.source as any)[field] = value,
@@ -72,7 +77,7 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
-      const result = await (local.source._id ? apis.putData(self.getApi(page.query['id'] as string), data) : apis.createData(self.getApi(page.query['id'] as string), data));
+      const result = await (page.query.id ? apis.putData(self.getApi(page.query['id'] as string), data) : apis.createData(self.getApi(page.query['id'] as string), data));
       if (result.code === 0) {
         local.setSource(result.data)
       } else {

@@ -41,7 +41,7 @@ export default function CSelect({ self, mode, drag, dnd, source, children }: IAu
               if (self.widget.action === CONST.ACTION_TYPE.FILTER) {
                 page.setQuery(self.widget.field, v)
               } else if (self.widget.action === CONST.ACTION_TYPE.UPDATE) {
-                const old = source[self.widget.value]
+                const old = source[self.widget.value as string]
                 try {
                   const result = await apis.putData(self.getApi(source._id), { [self.widget.field]: v })
                   if (result.code === 0) {
@@ -62,8 +62,8 @@ export default function CSelect({ self, mode, drag, dnd, source, children }: IAu
               }
             }}
           >
-            {self.widget.refer.map(t => (
-              <Select.Option key={t.value} value={t.value}>{t.label}</Select.Option>
+            {self.widget.refer.map((t, i) => (
+              <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
             ))}
           </Select>
         </span>

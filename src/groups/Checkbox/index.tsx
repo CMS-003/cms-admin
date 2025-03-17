@@ -22,9 +22,14 @@ export default function CCheckbox({ self, mode, source = {}, drag, dnd, setSourc
       }}
     >
       {children}
-      <Checkbox checked={source[self.widget.field]} style={{ lineHeight: 2 }} onChange={e => {
+      <Checkbox checked={source[self.widget.field]} style={{ lineHeight: '35px' }} onChange={e => {
         setSource && setSource(self.widget.field, e.target.checked);
       }} />
+      <span style={{ marginLeft: 5 }}>
+        {self.widget.refer.map(refer => (
+          ['1', 'true', 'TRUE'].includes(refer.value as string) === source[self.widget.field] && refer.label
+        ))}
+      </span>
     </div>
   )}</Observer>
 }

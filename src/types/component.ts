@@ -42,7 +42,7 @@ export type IComponent = {
   attrs: any;
   api: string;
   resources?: IResource[];
-  widget: { field: string, value: string | number, type: 'boolean' | 'number' | 'string' | 'date', refer: { label: string, value: string | number }[], action: string, action_url: string, },
+  widget: { field: string, value: string | number | boolean, type: 'boolean' | 'number' | 'string' | 'date', refer: { label: string, value: string | number | boolean }[], action: string, action_url: string, },
 
   children: IComponent[];
   data?: IResource[];

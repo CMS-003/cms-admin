@@ -77,7 +77,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
           }
         }} />
       }
-      {local.template_id && <ModalPage template_id={local.template_id} path={`?id=${local.id}`} close={() => { page.close() }} />}
+      {local.template_id && <ModalPage template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', '') }} />}
     </div>
   )}</Observer>
 }
