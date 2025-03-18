@@ -95,15 +95,17 @@ export const ComponentItem = types.model('Component', {
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
   },
-  setWidget(k: 'field' | 'value', v: string) {
-    if (k === 'field') {
-      self.widget.field = v;
-    } else {
+  setWidget(k: 'field' | 'value' | 'action' | 'action_url', v: string) {
+    if (k === 'value') {
       if (self.widget.type === 'boolean') {
         self.widget.value = ['1', 'true', 'TRUE'].includes(v)
       } else if (self.widget.type === 'number') {
         self.widget.value = parseInt(v) || 0
+      } else {
+        self.widget.value = v;
       }
+    } else {
+      self.widget[k] = v;
     }
   },
   changeWidgetType(type: 'string' | 'number' | 'boolean') {

@@ -1,4 +1,4 @@
-import { observer, useLocalObservable } from "mobx-react"
+import { Observer, observer, useLocalObservable } from "mobx-react"
 import { makeAutoObservable } from "mobx"
 import { Fragment } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio } from 'antd'
@@ -169,11 +169,12 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   }} />
                   参考值
                   <SortList
+                    key={data.widget.refer.length}
                     sort={(srcIndex: number, dstIndex: number) => {
-                      const arr = cloneDeep(data?.widget.refer);
-                      const curr = arr?.splice(srcIndex, 1);
-                      arr?.splice(dstIndex, 0, ...(curr || []));
-                      data?.setWidget('refer', arr)
+                      const arr = cloneDeep(data.widget.refer);
+                      const curr = arr.splice(srcIndex, 1);
+                      arr.splice(dstIndex, 0, ...(curr || []));
+                      data.setWidget('refer', arr)
                     }}
                     droppableId={data._id + '2'}
                     mode={'edit'}
@@ -189,7 +190,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           {item.label}
                         </div>}
                         value={item.value}
-                        addonAfter={<Acon icon='close' onClick={() => data?.remRefer(index)} />}
+                        addonAfter={<Acon icon='close' onClick={() => { data.remRefer(index); }} />}
                       />
                     )}
                   />
@@ -228,7 +229,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     <span className="ant-input-wrapper ant-input-group">
                       <span className="ant-input-group-addon">事件类型</span>
                       <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
-                        data?.setWidget('action', v);
+                        data.setWidget('action', v);
                       }} >
                         <Select.Option value="">无</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
