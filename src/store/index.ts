@@ -25,7 +25,7 @@ const app = IApp.create({
   isSignIn: false,
   isDebug: false,
   lastVisitedAt: 0,
-  imageLines: ['/manager'],
+  imageLines: [''],
   baseURL: process.env.NODE_ENV === 'development' ? '' : "/gw/manager",
   project_id: storage.getKey('project_id') || '',
 });
