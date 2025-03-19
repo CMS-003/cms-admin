@@ -9,14 +9,13 @@ export default function CText({ self, mode, source = {}, drag, dnd, children }: 
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        lineHeight: 2.5,
         ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <span style={{ lineHeight: 1.5, display: 'inherit' }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
+      <span className='two-line-ellipsis' style={{ lineHeight: 1.5, wordBreak: 'break-all' }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
     </div>
   )}</Observer>
 }

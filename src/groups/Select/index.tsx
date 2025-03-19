@@ -36,7 +36,7 @@ export default function CSelect({ self, mode, drag, dnd, source, children }: IAu
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             open={local.open}
-            defaultValue={self.widget.action === CONST.ACTION_TYPE.FILTER ? self.widget.value : (source || {})[self.widget.field]}
+            defaultValue={self.widget.action === CONST.ACTION_TYPE.FILTER || mode === 'edit' ? self.widget.value : (source || {})[self.widget.field]}
             onChange={async (v) => {
               if (self.widget.action === CONST.ACTION_TYPE.FILTER) {
                 page.setQuery(self.widget.field, v)

@@ -203,7 +203,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           const op = e.currentTarget.parentElement;
                           if (op && data) {
                             const oinputs = op.getElementsByTagName('input');
-                            if (oinputs?.length === 2) {
+                            if (oinputs?.length === 2 && oinputs[0].value && oinputs[1].value) {
                               data.pushRefer({ label: oinputs[0].value, value: oinputs[1].value });
                             }
                             local.setVisible(false)

@@ -89,7 +89,7 @@ export const ComponentItem = types.model('Component', {
     return false;
   },
   getApi(id: string) {
-    return self.api.replace(':id', id);
+    return self.api.replace(':id', id || '');
   }
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
