@@ -48,7 +48,7 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
       >
         {children}
         <Tabs
-          activeKey={self.attrs.get('selected_id')}
+          activeKey={self.attrs.selected_id}
           tabBarExtraContent={{ right: <Acon icon={(self.icon as Icon) || 'BarsOutlined'} /> }}
           onChange={activeKey => {
             self.setAttrs('selected_id', activeKey)
@@ -69,8 +69,8 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
             </TabItemWrap>,
             key: child._id,
             children: (
-              child.attrs.get('content_type') === 'template' ? (<Fragment>
-                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} path={page.path} close={page.close}/>
+              child.attrs.content_type === 'template' ? (<Fragment>
+                <Auto mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close}/>
               </Fragment>) :
                 <Component mode={mode} self={child} key={i} index={i} {...props} />
             )

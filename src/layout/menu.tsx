@@ -12,7 +12,7 @@ export function transform(tree: any, collapsed = true) {
   if (!tree) {
     return [];
   }
-  const path = process.env.PUBLIC_URL + tree.attrs.get('path')
+  const path = process.env.PUBLIC_URL + tree.attrs.path
   const node: any = { label: tree.title, key: path || tree._id, children: [] }
   keyPathMap[node.key] = path
   pathKeyMap[path] = node.key

@@ -33,6 +33,7 @@ import {
 } from './style'
 import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
+import { v4 } from 'uuid';
 
 export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
   // 拖拽事件
@@ -138,6 +139,21 @@ const ScrollWrap = styled.div`
   }
 `
 
+function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
+  const new_node: any = _.omit(node, ['$new', '$selected', 'children', '$origin', '_id']);
+  new_node._id = v4();
+  new_node.$new = true;
+  if (parent_node) {
+    new_node.parent_id = parent_node._id;
+    new_node.tree_id = parent_node.tree_id;
+    new_node.template_id = parent_node.template_id;
+  } else {
+    new_node.tree_id = new_node._id;
+  }
+  new_node.children = node.children.map(v => editCopyID(v, new_node));
+  return new_node;
+}
+
 export default function AutoPage({ template_id, mode, path, close }: { template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
   const page = useLocalObservable<IPageInfo>(() => ({
     template_id,
@@ -162,6 +178,8 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
     onDragLeave: any;
     onDrop: any;
     remComponent: Function;
+    copyComponent: Function;
+    pasteComponent: Function;
     setEditComponent: Function;
     setEditPanelKey: Function;
   }>(() => ({
@@ -232,6 +250,27 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
         }
       }
     },
+    copyComponent: (id: string) => {
+      let com: IComponent | null | undefined = null;
+      if (local.template && local.template.children) {
+        com = local.template.children.find(v => v._id === id);
+      }
+      if (com) {
+        console.log(com)
+      } else {
+        message.info('只能复制一级tree组件')
+      }
+    },
+    pasteComponent: (text: string) => {
+      try {
+        const data = JSON.parse(text);
+        data.template_id = local.template?._id || '';
+        const dealed_component = editCopyID(data, null);
+        local.template?.children.push(ComponentItem.create(dealed_component));
+      } catch (e) {
+        console.log(e, text)
+      }
+    },
     setEditComponent(com: IComponent | null, key = 'base') {
       local.editComponent = com;
       local.editPanelKey = key;
@@ -297,16 +336,27 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
   const eventRemoveComponent = useCallback(async (id: string) => {
     local.remComponent(id)
   }, []);
+  const eventCopyComponent = useCallback(async (id: string) => {
+    local.copyComponent(id);
+  }, []);
+  const eventPasteComponent = useCallback(async (text: string) => {
+    console.log(text, 'event')
+    local.pasteComponent(text)
+  }, []);
   useEffect(() => {
     local.setEditComponent(null)
   }, [mode])
   useEffectOnce(() => {
     refresh()
     events.on('editable', eventHandle)
+    events.on('copy_component', eventCopyComponent)
+    events.on('paste_component', eventPasteComponent)
     events.on('remove_component', eventRemoveComponent)
     return () => {
       if (events) {
         events.off('editable', eventHandle);
+        events.off('copy_component', eventCopyComponent)
+        events.off('paste_component', eventPasteComponent)
         events.off('remove_component', eventRemoveComponent)
       }
     }
@@ -333,6 +383,7 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
                 style={{ ...toJS(local.template?.style) }}
               >
                 <NatureSortable
+                  key={local.template.children.length}
                   items={(local.template as ITemplate).children}
                   direction='vertical'
                   disabled={mode === 'preview'}

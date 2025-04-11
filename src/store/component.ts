@@ -59,7 +59,7 @@ export const ComponentItem = types.model('Component', {
   createdAt: types.maybe(IsoDate),
   updatedAt: types.maybe(IsoDate),
   style: types.optional(types.frozen(), {}),
-  attrs: types.map(types.union(types.string, types.number)),
+  attrs: types.optional(types.frozen(), {}),
   widget: types.model({
     field: types.optional(types.string, ''),
     value: types.optional(types.union(types.string, types.number, types.boolean), ''),
@@ -137,9 +137,9 @@ export const ComponentItem = types.model('Component', {
   },
   setAttrs(key: string, value: string | number | null) {
     if (value === null) {
-      self.attrs.delete(key)
+      delete self.attrs[key]
     } else {
-      self.attrs.set(key, value)
+      self.attrs[key] = value
     }
   },
   updateStyle(s: { [key: string]: number | string }) {
@@ -216,7 +216,7 @@ export const ComponentItem = types.model('Component', {
   },
   afterCreate() {
     if (self._id) {
-      self.$origin = self.toJSON() as any;
+      self.$origin = self.$new ? {} : self.toJSON() as any;
     } else {
       self.$new = true;
       self._id = v4();

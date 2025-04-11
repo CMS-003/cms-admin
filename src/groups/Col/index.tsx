@@ -7,8 +7,8 @@ import { Component } from '../auto'
 export default function CCol({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <Col
-      offset={self.attrs.get('left') || 0}
-      span={self.attrs.get('right') || 6}
+      offset={self.attrs.left || 0}
+      span={self.attrs.right || 6}
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}

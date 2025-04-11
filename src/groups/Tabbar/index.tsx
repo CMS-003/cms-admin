@@ -48,7 +48,7 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
       >
         {children}
         <Tabs
-          activeKey={self.attrs.get('selected_id')}
+          activeKey={self.attrs.selected_id}
           tabBarStyle={{ width: '100%' }}
           tabPosition='bottom'
           centered={true}
@@ -72,8 +72,8 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
             </TabItemWrap>,
             key: child._id,
             children: (
-              child.attrs.get('content_type') === 'template' ? (<Fragment>
-                <Auto mode={'preview'} template_id={child.attrs.get('template_id')} path={page.path} close={page.close}/>
+              child.attrs.content_type === 'template' ? (<Fragment>
+                <Auto mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close}/>
               </Fragment>) :
                 <Component mode={mode} self={child} key={i} index={i} {...props} />
             )

@@ -1,7 +1,7 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
-import { makeAutoObservable } from "mobx"
+import { makeAutoObservable, toJS } from "mobx"
 import { Fragment } from 'react';
-import { Input, Button, Divider, Select, Tabs, Radio } from 'antd'
+import { Input, Button, Divider, Select, Tabs, Radio, message, Space } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { cloneDeep } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
@@ -44,10 +44,15 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
   return (
     <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: 50 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
-        <span>属性修改({data.type})</span>
-        <Acon icon='CloseOutlined' onClick={() => {
-          setData(null, '')
-        }} />
+        <span>属性({data.type})</span>
+        <Space>
+          <CopyToClipboard text={JSON.stringify(toJS(data))} onCopy={() => { message.success('复制成功') }}>
+            <Acon icon="copy" />
+          </CopyToClipboard>
+          <Acon icon='CloseOutlined' onClick={() => {
+            setData(null, '')
+          }} />
+        </Space>
       </AlignAside>
       <Tabs
         style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
@@ -254,7 +259,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
               <ScrollWrap>
                 <EditItem>
                   布局方向<Divider type='vertical' />
-                  <Radio.Group value={data.attrs.get('layout')} options={[
+                  <Radio.Group value={data.attrs.layout} options={[
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },
                   ]} onChange={e => {

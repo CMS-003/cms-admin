@@ -135,7 +135,7 @@ const ComponentTemplatePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <div style={{ padding: '0 10px' }}>
+  return (<Observer>{() => <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0 10px', overflow: 'hidden' }}>
     <Space style={{ padding: '8px 0' }}>
       <Select defaultValue={local.selectedProjectId} onChange={v => {
         local.selectedProjectId = v;
@@ -160,21 +160,21 @@ const ComponentTemplatePage: React.FC = () => {
       fields={fields}
     />
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="_id" dataSource={local.list} >
-        <Table.Column title="名称" dataIndex="title" />
-        <Table.Column title="标识名称" dataIndex="name" />
-        <Table.Column title="序号" dataIndex="order" />
-        <Table.Column title="类型" dataIndex="type" />
-        <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
-          <Space size="middle" >
-            <Acon icon="FormOutlined" onClick={
-              () => {
-                local.openEditor(cloneDeep(record))
-              }
-            } />
-          </Space>
-        )} />
-      </Table>
+    <Table pagination={false} rowKey="_id" dataSource={local.list} >
+      <Table.Column title="名称" dataIndex="title" />
+      <Table.Column title="标识名称" dataIndex="name" />
+      <Table.Column title="序号" dataIndex="order" />
+      <Table.Column title="类型" dataIndex="type" />
+      <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
+        <Space size="middle" >
+          <Acon icon="FormOutlined" onClick={
+            () => {
+              local.openEditor(cloneDeep(record))
+            }
+          } />
+        </Space>
+      )} />
+    </Table>
     </div>
   </div>}</Observer>);
 };

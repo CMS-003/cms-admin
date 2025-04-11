@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, forwardRef } from 'react';
-import { Button, Space, Select, Image, Divider, Switch, Spin } from 'antd';
+import { Button, Space, Select, Image, Divider, Switch, Spin, message } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
@@ -112,6 +112,27 @@ const ComponentTemplatePage = () => {
               </Space>
               <Divider type="vertical" />
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
+              <Divider type="vertical" />
+              < Button type="primary" onClick={async (e) => {
+                try {
+                  // 请求剪贴板读取权限
+                  const clipboardItems = await navigator.clipboard.read();
+                  // 遍历剪贴板项
+                  for (const clipboardItem of clipboardItems) {
+                    // 获取文本内容
+                    for (const type of clipboardItem.types) {
+                      if (type === 'text/plain') {
+                        const blob = await clipboardItem.getType(type);
+                        const text = await blob.text();
+                        events.emit('paste_component', text)
+                      }
+                    }
+                  }
+                } catch (err) {
+                  console.error('无法读取剪贴板:', err);
+                  message.error('无法访问剪贴板，请确保已授予权限');
+                }
+              }}>粘贴</Button>
             </AlignAside>
           </FullHeightFix>
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'auto' }}>

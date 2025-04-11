@@ -79,7 +79,9 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
       const data = toJS(local.source) as IResource;
       const result = await (page.query.id ? apis.putData(self.getApi(page.query['id'] as string), data) : apis.createData(self.getApi(page.query['id'] as string), data));
       if (result.code === 0) {
-        local.setSource(result.data)
+        if (result.data) {
+          local.setSource(result.data)
+        }
       } else {
         message.warn('请求失败', 1)
       }

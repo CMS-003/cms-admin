@@ -41,6 +41,7 @@ import {
   FontSizeOutlined,
   ApiOutlined,
   RadarChartOutlined,
+  FieldTimeOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
@@ -114,6 +115,7 @@ const icons = {
   ApiOutlined,
   Api: ApiOutlined,
   spider: RadarChartOutlined,
+  FieldTimeOutlined,
 }
 const Wrap = styled.span`
   cursor: pointer;

@@ -37,7 +37,7 @@ export default function CButton({ self, mode, drag, dnd, children }: IAuto & IBa
       }}
     >
       {children}
-      <Button type={self.attrs.get('type') || 'primary'} icon={self.icon ? <Acon icon={self.icon as any} /> : null} onClick={() => {
+      <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon as any} /> : null} onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.SEARCH) {
           page.setQuery('page', 1)
           events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })

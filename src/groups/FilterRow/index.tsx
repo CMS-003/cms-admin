@@ -23,7 +23,7 @@ const Row = styled.div`
 export default function CFilterRow({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
-      if (child.attrs.get('selected')) {
+      if (child.attrs.selected) {
         child.setAttr('$selected', true)
       }
     })
@@ -37,7 +37,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         {...dnd?.props}
         style={{
           ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
+          backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
       >
         {children}

@@ -22,7 +22,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       data-isdragging={dnd?.isDragging}
       style={{
         minHeight: self.children.length === 0 ? 25 : 'auto',
-        flexDirection: self.attrs.get("layout") === 'horizontal' ? 'row' : 'column',
+        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
         ...self.style,
         ...dnd?.style,
       }}
@@ -30,7 +30,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       {children}
       <NatureSortable
         droppableId={self._id}
-        direction={self.attrs.get("layout") === 'horizontal' ? 'horizontal' : 'vertical'}
+        direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
         disabled={mode === 'preview'}
         style={self.style}
         items={self.children}
