@@ -4,9 +4,20 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import Acon from '@/components/Acon';
 import store from '@/store'
 import { Observer } from 'mobx-react';
+import styled from 'styled-components';
 
 const keyPathMap: { [key: string]: string } = {}
 const pathKeyMap: { [key: string]: string } = {}
+const NoScrollbar = styled.div`
+  flex: 1;
+  overflow: auto;
+  &::scroll-bar {
+    display: none;
+  }
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`
 
 export function transform(tree: any, collapsed = true) {
   if (!tree) {
@@ -44,7 +55,7 @@ const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: 
     }
   }, [location.pathname, location.search])
   return <Observer>{() => (
-    <div style={{ flex: 1 }}>
+    <NoScrollbar>
       <Menu
         defaultSelectedKeys={[selectedKey]}
         selectedKeys={[selectedKey]}
@@ -59,7 +70,7 @@ const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: 
           store.router.setOpenedMenu(keys);
         }}
       />
-    </div>
+    </NoScrollbar>
   )}</Observer>;
 };
 

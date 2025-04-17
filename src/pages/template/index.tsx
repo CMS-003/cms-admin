@@ -141,7 +141,6 @@ const ComponentTemplatePage: React.FC = () => {
         local.selectedProjectId = v;
         refresh()
       }}>
-        <Select.Option value="">全部</Select.Option>
         {store.project.list.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
       </Select>
       <Button type="primary" onClick={() => {

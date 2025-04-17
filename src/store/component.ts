@@ -136,11 +136,13 @@ export const ComponentItem = types.model('Component', {
     self.widget.refer.splice(n, 1);
   },
   setAttrs(key: string, value: string | number | null) {
+    const attr = _.cloneDeep(self.attrs);
     if (value === null) {
-      delete self.attrs[key]
+      delete attr[key]
     } else {
-      self.attrs[key] = value
+      attr[key] = value
     }
+    self.attrs = attr;
   },
   updateStyle(s: { [key: string]: number | string }) {
     self.style = s;
