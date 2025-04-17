@@ -10,8 +10,11 @@ import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { toJS } from 'mobx'
 import { IResource } from '@/types'
+import events from '@/utils/event';
+import { pick } from 'lodash';
+import CONST from '@/constant';
 
-export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
   const local: {
     source: { [key: string]: any };
@@ -81,6 +84,8 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
       if (result.code === 0) {
         if (result.data) {
           local.setSource(result.data)
+          events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
+          page.close()
         }
       } else {
         message.warn('请求失败', 1)
@@ -127,7 +132,7 @@ export default function CForm({ self, mode, drag, dnd, children }: IAuto & IBase
         />
       </FullHeightAuto>
       <AlignAround style={{ padding: 8 }}>
-        <Button loading={local.loading} disabled={!local.isDiff()} type='primary' onClick={updateInfo}>保存</Button>
+        <Button loading={local.loading} disabled={!local.isDiff()} type='primary' onClick={updateInfo}>保存并关闭</Button>
       </AlignAround>
     </FullHeight>
 

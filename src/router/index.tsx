@@ -191,7 +191,9 @@ const TabPanes: FC = () => {
     // } else {
     //   navigate(nextPath)
     // }
-    navigate(nextPath)
+    if (targetTag === store.router.currentPath) {
+      navigate(nextPath)
+    }
   }
 
   // 刷新当前 tab

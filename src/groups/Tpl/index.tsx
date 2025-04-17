@@ -1,12 +1,23 @@
 import CONST from '@/constant'
 import { IAuto, IBaseComponent } from '@/types/component'
-import hbs from 'handlebars'
+import * as T from 'squirrelly'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
+import moment from 'moment'
+
+T.filters.define('date', function (str) {
+  return new Date(str);
+});
+T.filters.define('format', function (o, format) {
+  if (o instanceof Date) {
+    return moment(o).format(format);
+  }
+  return o;
+})
 
 export default function CTpl({ self, mode, source, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
-    tpl: hbs.compile(self.widget.value)
+    tpl: T.compile(self.widget.value as string, { useWith: true })
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
@@ -28,7 +39,7 @@ export default function CTpl({ self, mode, source, setSource, drag, dnd, childre
       }}
     >
       {children}
-      {mode === 'edit' ? self.title : <div style={{ whiteSpace: 'normal' }} dangerouslySetInnerHTML={{ __html: local.tpl(source) }}></div>}
+      {mode === 'edit' ? self.title : <div style={{ whiteSpace: 'normal' }} dangerouslySetInnerHTML={{ __html: local.tpl(source || {}, T.getConfig({ useWith: true })) }}></div>}
     </div>
   )
   }</Observer >

@@ -47,7 +47,7 @@ export default function CButton({ self, mode, drag, dnd, children }: IAuto & IBa
           local.setValue('template_id', self.widget.action_url)
         }
       }}>{self.title}</Button>
-      {local.template_id && <ModalPage template_id={local.template_id} path={''} close={() => {
+      {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={''} close={() => {
         // page.close() // 调这个就关闭标签页了
         local.setValue('template_id', '')
       }} />}

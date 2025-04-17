@@ -35,7 +35,7 @@ import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 
-export function Component({ self, children, mode, dnd, source, setSource, page, ...props }: IAuto) {
+export function Component({ self, children, mode, dnd, source, setSource, page, parent, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
@@ -97,6 +97,7 @@ export function Component({ self, children, mode, dnd, source, setSource, page, 
           self={self}
           mode={mode}
           page={page}
+          parent={parent}
           source={source}
           setSource={setSource}
           dnd={dnd}
@@ -154,7 +155,7 @@ function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
   return new_node;
 }
 
-export default function AutoPage({ template_id, mode, path, close }: { template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
+export default function AutoPage({ parent, template_id, mode, path, close }: { parent?: IPageInfo, template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
   const page = useLocalObservable<IPageInfo>(() => ({
     template_id,
     path,
@@ -395,6 +396,7 @@ export default function AutoPage({ template_id, mode, path, close }: { template_
                       self={item}
                       mode={mode}
                       dnd={dnd}
+                      parent={parent}
                     />
                   )}
                 />

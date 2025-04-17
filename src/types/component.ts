@@ -70,6 +70,7 @@ export type IComponent = {
 export type IAuto = {
   self: IComponent;
   mode: string;
+  parent?: IPageInfo;
   children?: any;
   source?: any;
   setSource?: Function;

@@ -11,7 +11,7 @@ import CONST from '@/constant'
 import apis from '@/api';
 import ModalPage from '../modal';
 
-export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto & IBaseComponent) {
+export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
   const page = usePageContext();
   const local = useLocalObservable(() => ({
@@ -63,7 +63,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
             try {
               const result = await apis.destroyData(self.getApi(source._id))
               if (result.code === 0) {
-                events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
+                events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
               } else {
                 message.warn(result.message);
               }
@@ -77,7 +77,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children }: IAuto
           }
         }} />
       }
-      {local.template_id && <ModalPage template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', '') }} />}
+      {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', ''); }} />}
     </div>
   )}</Observer>
 }
