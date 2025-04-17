@@ -144,11 +144,19 @@ function Item({
                 }
               }} />
             </VisualBox>
-            <VisualBox visible={data.type === 'Object'}>
+            <VisualBox visible={['Object', 'Array'].includes(data.type)}>
               <Acon icon='PlusOutlined' color='#36b3f9' onClick={() => {
-                if (!data.properties) data.properties = {};
-                const new_field = `field_${local.array.length}`;
-                data.properties[new_field] = { type: 'String', properties: {}, comment: '' };
+                if (data.type === 'Object') {
+                  if (!data.properties) data.properties = {};
+                  const new_field = `field_${local.array.length}`;
+                  data.properties[new_field] = { type: 'String', properties: {}, comment: '' };
+                } else {
+                  if (data.items) {
+                    data.items.push({ type: 'String', properties: {}, comment: '' })
+                  } else {
+                    data.items = [{ type: 'String', properties: {}, comment: '' }]
+                  }
+                }
                 onChange && onChange();
               }} />
             </VisualBox>
