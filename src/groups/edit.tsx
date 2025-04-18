@@ -1,7 +1,7 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
 import { makeAutoObservable, toJS } from "mobx"
 import { Fragment } from 'react';
-import { Input, Button, Divider, Select, Tabs, Radio, message, Space } from 'antd'
+import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { cloneDeep } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
@@ -11,6 +11,7 @@ import {
   EditItem,
 } from './style'
 import CONST from "@/constant";
+import QueryModal from "./queriesModal";
 const { AlignAround, AlignAside } = Style;
 
 const ScrollWrap = styled.div`
@@ -22,23 +23,19 @@ const ScrollWrap = styled.div`
   }
 `
 
-class local {
-  addWidgetReferVisible = false
-
-  constructor() {
-    makeAutoObservable(this)
-  }
-
-  setVisible(v: boolean) {
-    this.addWidgetReferVisible = v
-  }
-}
-
 const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent, setData: Function, tabkey: string, setTabkey: Function }) => {
   const local = useLocalObservable(() => ({
     addWidgetReferVisible: false,
+    q: '',
     setVisible(b: boolean) {
       local.addWidgetReferVisible = b;
+    },
+    setQ(q: string) {
+      local.q = q;
+    },
+    showQueryModal: false,
+    setShowQueryModal(show: boolean) {
+      local.showQueryModal = show;
     }
   }))
   return (
@@ -116,12 +113,34 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             )
           },
           {
-            label: '数据', key: 'data', children: (
+            label: '查询', key: 'query', children: (
               <ScrollWrap>
                 <EditItem>
                   <Input addonBefore="接口" value={data.api} onChange={e => {
                     data?.setAttr('api', e.target.value);
                   }} />
+                </EditItem>
+                <EditItem>
+                  条件 <Acon icon='PlusCircleOutlined' onClick={() => {
+                    local.setShowQueryModal(true)
+                  }} />
+                  {data.queries.map(id => (
+                    <Input key={id} readOnly value={id} addonAfter={
+                      <Space>
+                        <Acon icon="SafetyOutlined" />
+                        <Acon icon="delete" />
+                      </Space>
+                    } />
+                  ))}
+                  <QueryModal show={local.showQueryModal} q={local.q} close={() => local.setShowQueryModal(false)} />
+                </EditItem>
+              </ScrollWrap>
+            )
+          },
+          {
+            label: '数据', key: 'data', children: (
+              <ScrollWrap>
+                <EditItem>
                   静态数据
                   <SortList
                     key={data.resources?.length}

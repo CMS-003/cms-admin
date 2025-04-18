@@ -23,13 +23,13 @@ const apis = {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/schemas/${name}/fields`);
     return result;
   },
-  getDataList: async (url: string, query: { [key: string]: any } = {}) => {
+  getDataList: async <T>(url: string, query: { [key: string]: any } = {}) => {
     if (url.includes('?')) {
       const [path, params] = url.split('?');
       url = path;
       query = Object.assign({}, qs.parse(params), query);
     }
-    const result = await shttp.get<IResource>(`${url}?${qs.stringify(query)}`)
+    const result = await shttp.get<T | IResource>(`${url}?${qs.stringify(query)}`)
     return result
   },
   getDataInfo: async (url: string) => {

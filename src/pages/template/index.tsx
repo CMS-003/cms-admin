@@ -11,7 +11,8 @@ import { AlignAside } from '@/components/style'
 import Acon from '@/components/Acon';
 
 const ComponentTemplatePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ loading: boolean, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
+    loading: false,
     showEditPage: false,
     list: [],
     temp: null,
@@ -120,9 +121,16 @@ const ComponentTemplatePage: React.FC = () => {
     },
   ])
   const refresh = useCallback(async () => {
-    const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
-    if (result.code === 0) {
-      local.list = result.data.items
+    try {
+      local.loading = true;
+      const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
+      if (result.code === 0) {
+        local.list = result.data.items
+      }
+    } catch (e) {
+
+    } finally {
+      local.loading = false;
     }
   }, [])
   const editTemplate = useCallback(async (params: { body: any }) => {
@@ -159,21 +167,26 @@ const ComponentTemplatePage: React.FC = () => {
       fields={fields}
     />
     <div style={{ flex: 1, overflowY: 'auto' }}>
-    <Table pagination={false} rowKey="_id" dataSource={local.list} >
-      <Table.Column title="名称" dataIndex="title" />
-      <Table.Column title="标识名称" dataIndex="name" />
-      <Table.Column title="序号" dataIndex="order" />
-      <Table.Column title="类型" dataIndex="type" />
-      <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
-        <Space size="middle" >
-          <Acon icon="FormOutlined" onClick={
-            () => {
-              local.openEditor(cloneDeep(record))
-            }
-          } />
-        </Space>
-      )} />
-    </Table>
+      <Table pagination={false} rowKey="_id" dataSource={local.list} >
+        <Table.Column title="名称" dataIndex="title" />
+        <Table.Column title="标识名称" dataIndex="name" />
+        <Table.Column title="序号" dataIndex="order" />
+        <Table.Column title="类型" dataIndex="type" />
+        <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
+          <Space size="middle" >
+            <Acon icon="FormOutlined" onClick={
+              () => {
+                local.openEditor(cloneDeep(record))
+              }
+            } />
+            <Acon icon="DeleteOutlined" onClick={async () => {
+              local.loading = true;
+              await apis.delTemplate(record._id);
+              refresh()
+            }} />
+          </Space>
+        )} />
+      </Table>
     </div>
   </div>}</Observer>);
 };

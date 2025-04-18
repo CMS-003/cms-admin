@@ -76,6 +76,7 @@ export const ComponentItem = types.model('Component', {
     cover: types.optional(types.string, ''),
     status: types.optional(types.number, 0),
   })), []),
+  queries: types.optional(types.array(types.string), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
   toJSON() {
