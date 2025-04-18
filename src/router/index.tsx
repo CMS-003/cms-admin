@@ -42,12 +42,12 @@ type IPage = {
   uniques?: string[];
 }
 
-function getPanelByPath(path: string): IPanel {
+function getPanelByPath(path: string, title?: string): IPanel {
   const [pathname, _search] = path.split('?');
   const [, id = ''] = /^\/manager\/dynamic\/([^\/]+)[/]?$/.exec(pathname) || [];
   const Page = id ? Templates['/manager/dynamic/:id'] : Templates[pathname];
   return Page ? {
-    title: Page.title,
+    title: title || Page.title,
     Content: Page.Content,
     path,
     id,
@@ -130,13 +130,13 @@ const TabPanes: FC = () => {
     saveTags(panels: IPanel[]) {
       local.panels = panels
       // 记录当前打开的tab
-      const tags: string[] = [];
-      local.panels.map((item: IPanel) => item.path).forEach(path => {
-        if (!tags.includes(path)) {
-          tags.push(path)
+      const tags: { path: string; title?: string }[] = [];
+      local.panels.map((item: IPanel) => ({ path: item.path, title: item.title })).forEach(pl => {
+        if (!tags.find(v => v.path === pl.path)) {
+          tags.push(pl)
         }
       })
-      store.router.setOpenedPanels(tags as IMSTArray<ISimpleType<string>>)
+      store.router.setOpenedPanels(tags as any)
     },
     setPanel(pages: IPanel[]) {
       local.panels = pages
@@ -152,19 +152,20 @@ const TabPanes: FC = () => {
     },
     setPanelTitle(panel: IPanel, title: string) {
       panel.title = title;
+      local.saveTags(local.panels)
     },
   }));
   const resetTabs = useCallback((): void => {
     // search 参数处理
-    if (Templates[pathname] && !store.router.openedPanels.includes(fullPath)) {
+    if (Templates[pathname] && !store.router.openedPanels.find(v => v.path === fullPath)) {
       store.router.addPanel(fullPath)
     }
-    store.router.setCurrentPath(store.router.openedPanels.includes(fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
+    store.router.setCurrentPath(store.router.openedPanels.find(v => v.path === fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
     store.router.openedPanels.forEach((tag, i) => {
       if (store.router.openedPanels.findIndex(v => v === tag) !== i) return;
-      const [new_pathname] = tag.split('?');
-      if ((Templates[new_pathname] || new_pathname.startsWith('/manager/dynamic')) && local.panels.findIndex(p => p.path === tag) === -1) {
-        const pane = getPanelByPath(tag)
+      const [new_pathname] = tag.path.split('?');
+      if ((Templates[new_pathname] || new_pathname.startsWith('/manager/dynamic')) && local.panels.findIndex(p => p.path === tag.path) === -1) {
+        const pane = getPanelByPath(tag.path, tag.title)
         local.pushPanel(pane)
       }
     })
@@ -192,7 +193,7 @@ const TabPanes: FC = () => {
     //   navigate(nextPath)
     // }
     if (targetTag === store.router.currentPath) {
-      navigate(nextPath)
+      navigate(nextPath.path)
     }
   }
 
@@ -244,7 +245,7 @@ const TabPanes: FC = () => {
   // context 里匿名函数会造成每次重新渲染
   const setTitle = useCallback((path: string, title: string) => {
     local.panels.forEach(p => {
-      if (p.path === path) {
+      if (p.path === path && title !== p.title) {
         local.setPanelTitle(p, title)
       }
     })

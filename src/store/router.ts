@@ -1,4 +1,4 @@
-import { types, ISimpleType, IMSTArray } from 'mobx-state-tree'
+import { types, ISimpleType, IMSTArray, IModelType, IOptionalIType, IArrayType, IStateTreeNode, _NotCustomized } from 'mobx-state-tree'
 import storage from '../utils/storage'
 
 const route: any = types.model('route', {
@@ -23,7 +23,10 @@ const router = types.model({
   openedMenu: types.array(types.string),
   defaultOpened: types.array(types.string),
   // 标签页部分
-  openedPanels: types.array(types.string),
+  openedPanels: types.array(types.model('panel_tab', {
+    path: types.string,
+    title: types.optional(types.string, ''),
+  })),
 }).views(self => ({
   getList() {
     return self.list
@@ -33,7 +36,7 @@ const router = types.model({
     self.list = list
   },
   setCurrentPath(path: string) {
-    const p = path && self.openedPanels.includes(path) ? path : '/manager/dashboard';
+    const p = path && self.openedPanels.find(v => v.path === path) ? path : '/manager/dashboard';
     storage.setKey('current-path', p);
     self.currentPath = p;
   },
@@ -44,19 +47,19 @@ const router = types.model({
   getOpenedMenu() {
     return self.openedMenu;
   },
-  setOpenedPanels(items: IMSTArray<ISimpleType<string>>) {
+  setOpenedPanels(items: (IMSTArray<IModelType<{ path: ISimpleType<string>; title: IOptionalIType<ISimpleType<string>, [undefined]>; }, {}, _NotCustomized, _NotCustomized>> & IStateTreeNode<IArrayType<IModelType<{ path: ISimpleType<string>; title: IOptionalIType<ISimpleType<string>, [undefined]>; }, {}, _NotCustomized, _NotCustomized>>>)) {
     self.openedPanels = items;
     storage.setKey('opened-panels', items)
   },
-  addPanel(tag: string) {
-    if (!self.openedPanels.includes(tag)) {
-      self.openedPanels.push(tag)
+  addPanel(path: string, title: string = '') {
+    if (!self.openedPanels.find(v => v.path === path)) {
+      self.openedPanels.push({ path, title })
       return true
     }
     return false
   },
   closePanel(tag: string) {
-    const index = self.openedPanels.findIndex(item => item === tag)
+    const index = self.openedPanels.findIndex(item => item.path === tag)
     if (index !== -1) {
       self.openedPanels.splice(index, 1)
     }
