@@ -1,5 +1,5 @@
 import { Observer, useLocalObservable } from "mobx-react";
-import { Modal, Table } from "antd";
+import { Button, Checkbox, Input, Modal, Space, Table } from "antd";
 import { useCallback, useEffect } from "react";
 import apis from "@/api";
 
@@ -11,10 +11,11 @@ type Query = {
   limit?: number;
 }
 
-export default function QueryModal({ show, q = '', close }: { show: boolean, q: string, close: Function }) {
+export default function QueryModal({ show, q = '', queries, setQueries, close }: { show: boolean, q: string, queries: string[], setQueries: Function, close: Function }) {
   const local = useLocalObservable<{
     loading: boolean;
     page: number;
+    size: number;
     q: any;
     total: number;
     list: Query[],
@@ -23,6 +24,7 @@ export default function QueryModal({ show, q = '', close }: { show: boolean, q: 
     list: [],
     total: 0,
     page: 1,
+    size: 20,
     q: q,
   }));
   const getData = useCallback(async () => {
@@ -50,10 +52,33 @@ export default function QueryModal({ show, q = '', close }: { show: boolean, q: 
       onCancel={() => {
         close()
       }}
+      bodyStyle={{
+        padding: 10
+      }}
+
       footer={null}
     >
+      <Space style={{ marginBottom: 8 }}>
+        <Input defaultValue={local.q} onChange={(v) => {
+          local.q = v.target.value
+        }} />
+        <Button type="primary" loading={local.loading} onClick={() => { getData() }}>搜索</Button>
+      </Space>
       <Table
+        loading={local.loading}
         dataSource={local.list}
+        pagination={{ total: local.total, pageSize: local.size }}
+        components={{
+          body: {
+            cell: (props: any) => (
+              <td {...props} style={{ ...props.style, paddingBlock: '12px' }} />
+            ),
+          }
+        }}
+        onChange={(pagination) => {
+          local.page = pagination.current || 1;
+          getData();
+        }}
         columns={[
           {
             title: 'id',
@@ -62,7 +87,7 @@ export default function QueryModal({ show, q = '', close }: { show: boolean, q: 
           },
           {
             title: '名称',
-            key: 'title',
+            key: '_id',
             render: (v, record, index) => (<span>{record.title}</span>)
           },
           {
@@ -79,6 +104,11 @@ export default function QueryModal({ show, q = '', close }: { show: boolean, q: 
             title: '修改时间',
             key: 'updatedAt',
             render: (v, record, index) => (<span>{record._id}</span>)
+          },
+          {
+            title: '',
+            key: '_id',
+            render: (v, record, index) => (<Checkbox checked={queries.includes(record._id)} onChange={e => { setQueries(e.target.checked ? [...queries, record._id] : queries.filter(q => q !== record._id)) }} />)
           },
         ]}
       />

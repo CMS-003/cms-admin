@@ -74,6 +74,8 @@ export const ComponentItem = types.model('Component', {
     _id: types.string,
     title: types.optional(types.string, ''),
     cover: types.optional(types.string, ''),
+    poster: types.optional(types.string, ''),
+    thumbnail: types.optional(types.string, ''),
     status: types.optional(types.number, 0),
   })), []),
   queries: types.optional(types.array(types.string), []),

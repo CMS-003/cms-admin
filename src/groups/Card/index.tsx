@@ -7,7 +7,7 @@ import ResourceModal from '@/components/ResourceModal'
 import { IResource } from '@/types/resource'
 import _ from 'lodash'
 import { Fragment } from 'react'
-import { Image } from 'antd'
+import store from '@/store'
 
 const Header = styled.div`
  font-weight: 600;
@@ -86,7 +86,7 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
         <ScrollWrap>
           {self.resources?.map(item => (<Fragment key={item._id}>
             <ItemWrap>
-              <div style={{ width: 150, height: 120, backgroundImage: `url(${"https://u67631x482.vicp.fun" + (item.cover || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
+              <div style={{ width: 150, height: 120, backgroundImage: `url(${store.app.imageLine + (item.poster || item.thumbnail || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
               <ItemTitle >{item.title}</ItemTitle>
             </ItemWrap>
           </Fragment>))}

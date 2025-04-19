@@ -10,6 +10,9 @@ const ContextMenu = observer(({ setEditComponent }: { setEditComponent: Function
       setEditComponent(e.props, 'base');
     }}>编辑</ContextMenuItem>
     <ContextMenuItem onClick={async (e: any) => {
+      setEditComponent(e.props, 'query');
+    }}>查询</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
       setEditComponent(e.props, 'data');
     }}>数据</ContextMenuItem>
     <ContextMenuItem onClick={async (e: any) => {

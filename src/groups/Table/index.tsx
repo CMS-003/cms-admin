@@ -88,6 +88,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
           title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} />)}</Observer>,
           key: child._id,
           width: child.style.width || '',
+          align: child.attrs.align || 'left',
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
             <NatureSortable

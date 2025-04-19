@@ -132,7 +132,12 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       </Space>
                     } />
                   ))}
-                  <QueryModal show={local.showQueryModal} q={local.q} close={() => local.setShowQueryModal(false)} />
+                  <QueryModal
+                    show={local.showQueryModal}
+                    queries={data.queries}
+                    setQueries={(queries: string[]) => data.setAttr('queries', queries)}
+                    q={local.q}
+                    close={() => local.setShowQueryModal(false)} />
                 </EditItem>
               </ScrollWrap>
             )

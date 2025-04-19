@@ -183,7 +183,7 @@ const TabPanes: FC = () => {
     )
     local.remPanel(delIndex)
     // 删除当前tab，地址往前推
-    const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || process.env.PUBLIC_URL + '/dashboard'
+    const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || { path: process.env.PUBLIC_URL + '/dashboard' }
     local.saveTags(local.panels)
     // 如果当前tab关闭后，上一个tab无权限，就一起关掉
     // if (!isAuthorized(tabKey) && nextPath !== '/') {
