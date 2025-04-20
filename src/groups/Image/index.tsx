@@ -3,7 +3,7 @@ import { Image } from 'antd';
 import store from '@/store';
 import { Observer } from 'mobx-react';
 
-export default function CImage({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CImage({ self, mode, drag, dnd, source, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <div
       className={mode + drag.className}
@@ -16,7 +16,7 @@ export default function CImage({ self, mode, drag, dnd, children }: IAuto & IBas
       }}
     >
       {children}
-      <Image preview={false} style={{ width: 24, height: 24, ...self.style }} src={store.app.imageLine + (self.attrs.url || '/images/nocover.jpg')} />
+      <Image preview={false} style={{ ...self.style }} src={store.app.imageLine + (source ? source[self.widget.field] || '/images/nocover.jpg' : '/images/nocover.jpg')} />
     </div>
   )}</Observer>
 }

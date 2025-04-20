@@ -36,6 +36,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         ref={dnd?.ref}
         {...dnd?.props}
         style={{
+          minHeight: 28,
           ...dnd?.style,
           backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}

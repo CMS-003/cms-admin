@@ -363,9 +363,9 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     }
   })
   return <PageContext.Provider value={page}>
-    <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+    <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
       <GroupMenu setEditComponent={local.setEditComponent} />
-      <div style={{ display: 'flex', flex: 1, justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? '#1890ff 0 0 10px' : '' }}>
+      <div style={{ display: 'flex', width: '100%', padding: 4, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 10px' : '' }}>
         <div className='hidden-scrollbar' style={{
           height: '100%',
           minWidth: 400,

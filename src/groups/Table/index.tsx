@@ -74,6 +74,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
     >
       {children}
       <Table
+        tableLayout='auto'
         loading={local.loading}
         pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
