@@ -35,6 +35,27 @@ export const IsoDate = types.custom({
 function deepEqual(a: any, b: any) {
   return _.isEqual(a, b);
 }
+export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any }) {
+  // 判断是否为完整 URL（包含协议）
+  const hasProtocol = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(rawUrl);
+
+  // 构造 URL 对象：相对路径需要提供一个 base（location.href 可用）
+  const base = window.location.origin;
+  const url = hasProtocol ? new URL(rawUrl) : new URL(rawUrl, base);
+
+  // 合并 query 参数
+  const params = new URLSearchParams(url.search);
+  for (const [key, value] of Object.entries(additionalQuery)) {
+    params.set(key, value); // 会覆盖已有 key
+  }
+
+  url.search = params.toString();
+
+  // 返回
+  return hasProtocol
+    ? url.toString()                         // 完整 URL：返回完整的带 host 的 URL
+    : url.pathname + url.search;            // 相对路径：去掉 host，只保留路径和 query
+}
 
 type ComponentItemKeys = 'title' | 'name'
 
@@ -64,6 +85,7 @@ export const ComponentItem = types.model('Component', {
     field: types.optional(types.string, ''),
     value: types.optional(types.union(types.string, types.number, types.boolean), ''),
     type: types.enumeration(['string', 'number', 'boolean', 'date']),
+    in: types.optional(types.string, 'body'),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),
     action_url: types.optional(types.string, ''),
@@ -91,8 +113,12 @@ export const ComponentItem = types.model('Component', {
     }
     return false;
   },
-  getApi(id: string) {
-    return self.api.replace(':id', id || '');
+  getApi(id: string, query?: any) {
+    let url = self.api.replace(':id', id || '');
+    if (query) {
+      url = mergeQuery(url, query)
+    }
+    return url;
   }
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {

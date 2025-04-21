@@ -35,7 +35,7 @@ import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 
-export function Component({ self, children, mode, dnd, source, setSource, page, parent, ...props }: IAuto) {
+export function Component({ self, children, mode, dnd, query, source, setSource, page, parent, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
@@ -98,6 +98,7 @@ export function Component({ self, children, mode, dnd, source, setSource, page, 
           mode={mode}
           page={page}
           parent={parent}
+          query={query}
           source={source}
           setSource={setSource}
           dnd={dnd}

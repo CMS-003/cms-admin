@@ -27,7 +27,11 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, 
         minHeight: 35,
       }} options={self.widget.refer} onChange={e => {
         if (self.widget) {
-          setSource && setSource(self.widget.field, e.target.value, self.widget.type);
+          let v = e.target.value;
+          if (self.widget.type === 'number') {
+            v = parseInt(v);
+          }
+          setSource && setSource(self.widget.field, v);
         }
       }} value={_.get(source, self.widget.field)} />
     </div>

@@ -18,6 +18,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
   const page = usePageContext();
   const local: {
     source: { [key: string]: any };
+    query: { [key: string]: any };
     $origin: { [key: string]: any };
     loading: boolean;
     setSource: Function;
@@ -29,20 +30,25 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     = useLocalObservable(() => ({
       loading: false,
       source: {},
+      query: {},
       $origin: {},
       setSource: function () {
-        const args = arguments;
+        const args = Array.from(arguments);
+        let type = 'body';
+        if (args.length === 3) {
+          type = args.pop();
+        }
         if (args.length === 1) {
           local.source = args[0];
           local.$origin = args[0];
         } else {
           let v = args[1];
-          switch (args[2]) {
-            case 'boolean': v = ['1', 'true', 'TRUE'].includes(v); break;
-            case 'number': v = parseInt(v) || 0; break;
-            default: break;
+          if (type === 'body') {
+            _.set(local.source, args[0], v)
           }
-          _.set(local.source, args[0], v)
+          if (type === 'query') {
+            local.query[args[0]] = args[1]
+          }
         }
       },
       updateSource: (field: string, value: any) => (local.source as any)[field] = value,
@@ -80,7 +86,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
-      const result = await (page.query.id ? apis.putData(self.getApi(page.query['id'] as string), data) : apis.createData(self.getApi(page.query['id'] as string), data));
+      const result = await (page.query.id ? apis.putData(self.getApi(page.query['id'] as string, local.query), data) : apis.createData(self.getApi(page.query['id'] as string, local.query), data));
       if (result.code === 0) {
         if (result.data) {
           local.setSource(result.data)
@@ -123,6 +129,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
             <Component
               self={item}
               mode={mode}
+              query={local.query}
               source={local.source}
               setSource={local.setSource}
               dnd={dnd}
@@ -132,7 +139,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         />
       </FullHeightAuto>
       <AlignAround style={{ padding: 8 }}>
-        <Button loading={local.loading} disabled={!local.isDiff()} type='primary' onClick={updateInfo}>保存并关闭</Button>
+        <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={updateInfo}>保存并关闭</Button>
       </AlignAround>
     </FullHeight>
 

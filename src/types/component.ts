@@ -43,7 +43,18 @@ export type IComponent = {
   api: string;
   resources?: IResource[];
   queries: string[];
-  widget: { field: string, value: string | number | boolean, type: 'boolean' | 'number' | 'string' | 'date', refer: { label: string, value: string | number | boolean }[], action: string, action_url: string, },
+  widget: {
+    field: string, value: string | number | boolean,
+    // body query
+    in: string,
+    type: 'boolean' | 'number' | 'string' | 'date',
+    refer: {
+      label: string,
+      value: string | number | boolean
+    }[],
+    action: string,
+    action_url: string,
+  },
 
   children: IComponent[];
   data?: IResource[];
@@ -60,7 +71,7 @@ export type IComponent = {
   removeChild: Function;
   addResource: Function;
   remResource: Function;
-  getApi: (id: string) => string;
+  getApi: (id: string, query?: { [key: string]: any }) => string;
   swap: (srcIndex: number, dstIndex: number) => void;
   swapResource: Function;
   toJSON: Function;
@@ -73,6 +84,7 @@ export type IAuto = {
   mode: string;
   parent?: IPageInfo;
   children?: any;
+  query?: any;
   source?: any;
   setSource?: Function;
   dnd?: {

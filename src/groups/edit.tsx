@@ -113,88 +113,43 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             )
           },
           {
-            label: '查询', key: 'query', children: (
+            label: '控件', key: 'query', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="接口" value={data.api} onChange={e => {
-                    data?.setAttr('api', e.target.value);
-                  }} />
-                </EditItem>
-                <EditItem>
-                  条件 <Acon icon='PlusCircleOutlined' onClick={() => {
-                    local.setShowQueryModal(true)
-                  }} />
-                  {data.queries.map(id => (
-                    <Input key={id} readOnly value={id} addonAfter={
-                      <Space>
-                        <Acon icon="SafetyOutlined" />
-                        <Acon icon="delete" />
-                      </Space>
-                    } />
-                  ))}
-                  <QueryModal
-                    show={local.showQueryModal}
-                    queries={data.queries}
-                    setQueries={(queries: string[]) => data.setAttr('queries', queries)}
-                    q={local.q}
-                    close={() => local.setShowQueryModal(false)} />
-                </EditItem>
-              </ScrollWrap>
-            )
-          },
-          {
-            label: '数据', key: 'data', children: (
-              <ScrollWrap>
-                <EditItem>
-                  静态数据
-                  <SortList
-                    key={data.resources?.length}
-                    sort={(oldIndex: number, newIndex: number) => {
-                      data && data.swapResource(oldIndex, newIndex);
-                    }}
-                    droppableId={data._id}
-                    items={(data.resources as any)}
-                    itemStyle={{ display: 'flex', alignItems: 'center' }}
-                    mode={'edit'}
-                    direction={'vertical'}
-                    renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
-                        <Input
-                          value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' title={resource._id} onClick={() => { }} /></CopyToClipboard>}
-                          addonAfter={<Acon icon='CloseOutlined' onClick={() => { data?.remResource(resource._id) }}
-                          />} />
-                      </div>
-                    </Fragment>}
-                  />
-                  <Button icon={<Acon icon="add" />}>添加资源</Button>
-                </EditItem>
-                <EditItem>
-                  控件属性
-                  <Input addonBefore="字段" value={data.widget.field} onChange={e => {
-                    data?.setWidget('field', e.target.value);
-                  }} />
-                  <Divider type="horizontal" style={{ margin: 5 }} />
-                  <span className="ant-input-group-wrapper">
-                    <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">类型</span>
-                      <Select style={{ width: '100%' }} value={data.widget.type} onChange={v => {
-                        if (data) {
-                          data.changeWidgetType(v);
-                        }
-                      }}>
-                        <Select.Option value="string">文本</Select.Option>
-                        <Select.Option value="number">数字</Select.Option>
-                        <Select.Option value="boolean">布尔</Select.Option>
-                        <Select.Option value="date">日期</Select.Option>
-                      </Select>
+                  <Space direction='vertical'>
+                    <span className="ant-input-group-wrapper">
+                      <span className="ant-input-wrapper ant-input-group">
+                        <span className="ant-input-group-addon">参数位置</span>
+                        <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', backgroundColor: '#d9d9d9' }}>
+                          <Radio.Group options={[{ label: 'body', value: 'body' }, { label: 'query', value: 'query' }]} value={data.widget.in} onChange={(e) => {
+                            console.log(e.target.value)
+                            data.setWidget('in', e.target.value)
+                          }} />
+                        </div>
+                      </span>
                     </span>
-                  </span>
-                  <Divider type="horizontal" style={{ margin: 5 }} />
+                    <Input addonBefore="参数字段" value={data.widget.field} onChange={e => {
+                      data.setWidget('field', e.target.value);
+                    }} />
+                    <span className="ant-input-group-wrapper">
+                      <span className="ant-input-wrapper ant-input-group">
+                        <span className="ant-input-group-addon">参数类型</span>
+                        <Select style={{ width: '100%' }} value={data.widget.type} onChange={v => {
+                          if (data) {
+                            data.changeWidgetType(v);
+                          }
+                        }}>
+                          <Select.Option value="string">文本</Select.Option>
+                          <Select.Option value="number">数字</Select.Option>
+                          <Select.Option value="boolean">布尔</Select.Option>
+                          <Select.Option value="date">日期</Select.Option>
+                        </Select>
+                      </span>
+                    </span>
+                  </Space>
                   默认值
                   <Input.TextArea value={data.widget.value.toString()} onChange={e => {
-                    data?.setWidget('value', e.target.value);
+                    data.setWidget('value', e.target.value);
                   }} />
                   参考值
                   <SortList
@@ -241,6 +196,61 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       </Fragment>
                       : <Acon icon='add' onClick={() => local.setVisible(true)} />}
                   </AlignAround>
+                </EditItem>
+              </ScrollWrap>
+            )
+          },
+          {
+            label: '数据', key: 'data', children: (
+              <ScrollWrap>
+                <EditItem>
+                  <Input addonBefore="接口" value={data.api} onChange={e => {
+                    data?.setAttr('api', e.target.value);
+                  }} />
+                </EditItem>
+                <EditItem>
+                  条件 <Acon icon='PlusCircleOutlined' onClick={() => {
+                    local.setShowQueryModal(true)
+                  }} />
+                  {data.queries.map(id => (
+                    <Input key={id} readOnly value={id} addonAfter={
+                      <Space>
+                        <Acon icon="SafetyOutlined" />
+                        <Acon icon="delete" />
+                      </Space>
+                    } />
+                  ))}
+                  <QueryModal
+                    show={local.showQueryModal}
+                    queries={data.queries}
+                    setQueries={(queries: string[]) => data.setAttr('queries', queries)}
+                    q={local.q}
+                    close={() => local.setShowQueryModal(false)} />
+                </EditItem>
+                <EditItem>
+                  静态数据
+                  <SortList
+                    key={data.resources?.length}
+                    sort={(oldIndex: number, newIndex: number) => {
+                      data && data.swapResource(oldIndex, newIndex);
+                    }}
+                    droppableId={data._id}
+                    items={(data.resources as any)}
+                    itemStyle={{ display: 'flex', alignItems: 'center' }}
+                    mode={'edit'}
+                    direction={'vertical'}
+                    renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
+                      <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                        <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
+                        <Input
+                          value={resource.title}
+                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' title={resource._id} onClick={() => { }} /></CopyToClipboard>}
+                          addonAfter={<Acon icon='CloseOutlined' onClick={() => { data?.remResource(resource._id) }}
+                          />} />
+                      </div>
+                    </Fragment>}
+                  />
+                  <Button icon={<Acon icon="add" />}>添加资源</Button>
                 </EditItem>
               </ScrollWrap>
             )
