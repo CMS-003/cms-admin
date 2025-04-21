@@ -113,7 +113,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             )
           },
           {
-            label: '控件', key: 'query', children: (
+            label: '控件', key: 'widget', children: (
               <ScrollWrap>
                 <EditItem>
                   <Space direction='vertical'>
