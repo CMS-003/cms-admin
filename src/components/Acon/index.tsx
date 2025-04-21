@@ -42,6 +42,7 @@ import {
   ApiOutlined,
   RadarChartOutlined,
   FieldTimeOutlined,
+  MessageOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
@@ -71,6 +72,8 @@ const icons = {
   search: SearchOutlined,
   BarsOutlined,
   bars: BarsOutlined,
+  MessageOutlined,
+  messages: MessageOutlined,
   LeftOutlined,
   left: LeftOutlined,
   RightOutlined,
