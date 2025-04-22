@@ -89,11 +89,13 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="name" value={data.name} />
+                  <Input addonBefore="name" value={data.name} onChange={e => {
+                    data.setAttr('name', e.target.value);
+                  }} />
                 </EditItem>
                 <EditItem>
                   <Input addonBefore="icon" value={data.icon} onChange={e => {
-                    data?.setAttr('icon', e.target.value);
+                    data.setAttr('icon', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
