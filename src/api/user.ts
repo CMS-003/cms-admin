@@ -6,8 +6,12 @@ const user = {
     const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
     return result;
   },
-  SignOut: async () => {
-    const result = await shttp.post('/api/v1/users/sign-out', {});
+  SignOut: async (data: any) => {
+    const result = await shttp.post('/api/v1/users/sign-out', data);
+    return result;
+  },
+  refresh: async (data: { refresh_token: string }) => {
+    const result = await shttp.post<{ refresh_token: string, access_token: string, type: string }>('/api/v1/users/refresh', data);
     return result;
   },
   getProfile: async <T>() => {

@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, notification, Space, Table, Select } from 'antd';
+import { Button, notification, Space, Table, Select, message } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent, ITemplate } from '@/types'
@@ -131,6 +131,8 @@ const ComponentTemplatePage: React.FC = () => {
       const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
       if (result.code === 0) {
         local.list = result.data.items
+      } else {
+        message.warn(result.message)
       }
     } catch (e) {
 

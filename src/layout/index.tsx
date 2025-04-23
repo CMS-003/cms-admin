@@ -20,12 +20,13 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
   const logout = useCallback(async () => {
     setLogout(true);
     try {
-      store.user.setAccessToken('')
-      await apis.SignOut()
+      await apis.SignOut({ refresh_token: store.user.getRefreshToken() })
       navigate('/manager/sign-in')
     } catch (e) {
       navigate('/manager/sign-in')
     } finally {
+      store.user.setAccessToken('')
+      store.user.setRefreshToken('')
       setLogout(false)
     }
   }, [])

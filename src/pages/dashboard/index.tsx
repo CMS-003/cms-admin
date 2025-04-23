@@ -1,9 +1,12 @@
-import { Observer } from "mobx-react";
+import { Observer, useLocalObservable } from "mobx-react";
 import SortableList, { DataItem, Direction } from "./SortableList"
 import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
 import Sortable from 'components/Order';
 import { SortProvider, useSort } from 'components/Order/context';
 import { useEffect, useRef, useState } from "react";
+import { Button, message } from "antd";
+import apis from "@/api";
+import store from "@/store";
 
 const initialItems: { id: string, text: string }[] = [
   { id: 'a', text: 'ItemA' },
@@ -85,10 +88,29 @@ function Temp({ item, index }: { item: any, index: number }) {
 
 export default function Page() {
   const [order, setOrder] = useState<any[]>(initialItems);
+  const local = useLocalObservable(() => ({
+    loading: false,
+  }))
   return <Observer>{() => (
     <div style={{ margin: '0 auto' }}>
       dashboard
       <h2>Horizontal Sortable List</h2>
+      <Button loading={local.loading} onClick={async () => {
+        try {
+          local.loading = true;
+          const res = await apis.refresh({ refresh_token: store.user.getRefreshToken() })
+          if (res.code === 0 && res.data) {
+            store.user.setAccessToken(res.data.access_token)
+            store.user.setRefreshToken(res.data.refresh_token)
+          } else {
+            message.error(res.message)
+          }
+        } catch (e) {
+          console.log(e);
+        } finally {
+          local.loading = false;
+        }
+      }}>刷新token</Button>
       <Sortable
         items={order}
         sort={(srcIndex: number, dstIndex: number) => {

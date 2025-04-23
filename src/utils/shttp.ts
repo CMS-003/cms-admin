@@ -165,36 +165,50 @@ class Request<T> {
     _.set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
     const response = instance.request(option)
     const result = await new Promise<any>((resolve, reject) => {
-      response.then(res => {
+      response.then(async (res) => {
         //业务代码 可根据需求自行处理
         const body = res.data;
         if (res.status !== 200) {
-
-          //特定状态码 处理特定的需求
-          if (this.data.code === 101010) {
-            message.warn('您的账号已登出或超时，即将登出...');
-            console.log('登录异常，执行登出...');
-            window.location.href = '/manager/sign-in'
-          }
           //数据请求错误 使用reject将错误返回
           resolve(body as BaseBizError);
-        } else if (res.data.code === 101010 && window.location.pathname !== '/manager/sign-in') {
-          message.warn('您的账号已登出或超时，即将登出...');
-          console.log('登录异常，执行登出...');
-          window.location.href = '/manager/sign-in'
-          resolve(body as BaseBizError);
+        } else if (res.data.code === 101010 && window.location.pathname !== '/manager/sign-in' && !option.url?.startsWith('/api/v1/users/refresh')) {
+          // 自动刷新逻辑
+          shttp.post<{ access_token: string, refresh_token: string }>('/api/v1/users/refresh', { refresh_token: store.user.getRefreshToken() })
+            .then(rResp => {
+              if (rResp.code !== 0 || !rResp?.data?.access_token || !rResp.data.refresh_token) {
+                throw new Error('refresh fail')
+              } else {
+                store.user.setAccessToken(rResp.data.access_token)
+                store.user.setRefreshToken(rResp.data.refresh_token)
+                _.set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
+                instance.request(option).then(resp2 => {
+                  if (resp2.status === 200 && resp2.data.code === 0) {
+                    cb && cb(resp2.data)
+                    resolve(resp2.data as BaseResultWrapper<T>)
+                  } else {
+                    throw new Error('retry fail')
+                  }
+                })
+              }
+            })
+            .catch(e => {
+              message.warn('您的账号已登出或超时，即将登出...');
+              console.log('登录异常，执行登出...');
+              window.location.href = '/manager/sign-in'
+              resolve(body as BaseBizError);
+            });
         } else {
           if (cb) {
             cb(body)
           }
-          if (body.data && _.isArray(body.data.list)) {
-            body.data.items = body.data.list
-          } else if (_.isArray(body.data)) {
-            body.data = {
-              items: body.data,
-              total: 0,
-            }
-          }
+          // if (body.data && _.isArray(body.data.list)) {
+          //   body.data.items = body.data.list
+          // } else if (_.isArray(body.data)) {
+          //   body.data = {
+          //     items: body.data,
+          //     total: 0,
+          //   }
+          // }
           //数据请求正确 使用resolve将结果返回
           resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
         }

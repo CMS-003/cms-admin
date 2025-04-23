@@ -48,6 +48,7 @@ export default function SignInPage() {
               const res = await apis.SignIn({ type: 'account', account: local.username, value: local.password })
               if (res.code === 0) {
                 store.user.setAccessToken(res.data.access_token)
+                store.user.setRefreshToken(res.data.refresh_token)
                 const result = await apis.getProfile<IUser>();
                 if (result.code === 0) {
                   store.user.setInfo(result.data.item as any)
