@@ -15,7 +15,7 @@ export default function CText({ self, mode, source = {}, drag, dnd, children }: 
       }}
     >
       {children}
-      <span className='two-line-ellipsis' style={{ lineHeight: 1.5, wordBreak: 'break-all' }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
+      <span className='two-line-ellipsis' style={{ lineHeight: 1.5, wordBreak: 'break-all', ...self.style }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
     </div>
   )}</Observer>
 }

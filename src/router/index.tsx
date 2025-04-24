@@ -74,8 +74,6 @@ const LoadableDynamicPage = lazy(() => import('@/pages/dynamic'))
 const LoadableComponentPage = lazy(() => import('@/pages/component'))
 
 const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
-const LoadableLogSystem = lazy(() => import('@/pages/log/system'))
-const LoadableVerification = lazy(() => import('@/pages/log/verification'))
 const LoadableSchemasPage = lazy(() => import('@/pages/schema'))
 const LoadableSchemaInfolPage = lazy(() => import('@/pages/schema/detail'))
 const templateArr: IPage[] = [
@@ -91,8 +89,6 @@ const templateArr: IPage[] = [
   { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
   { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/dynamic/:id' },
   { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/editable' },
-  { title: '系统日志', Content: (props: any) => <LoadableLogSystem {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/system' },
-  { title: '验证码', Content: (props: any) => <LoadableVerification {...props} />, closable: true, route: process.env.PUBLIC_URL + '/log/verification-code' },
   { title: '', Content: function (props: any) { return <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} /> }, closable: true, route: process.env.PUBLIC_URL + '/result/404' },
   { title: '第三方账号绑定', Content: (props: any) => <LoadableUserBind {...props} />, closable: true, route: process.env.PUBLIC_URL + '/user/bind' },
 ];
