@@ -43,7 +43,7 @@ hbs.registerHelper('formatDate', function (o, format) {
   return o;
 });
 
-export default function CTpl({ self, mode, source, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value as string, {})
   }))

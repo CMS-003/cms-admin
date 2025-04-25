@@ -22,6 +22,20 @@ export type IConfig = {
   data: any;
 }
 
+export type IWidget = {
+  field: string,
+  value: any;
+  // body query
+  in: string;
+  type: 'boolean' | 'number' | 'string' | 'json';
+  refer: {
+    label: string;
+    value: string | number | boolean;
+  }[];
+  action: string;
+  action_url: string;
+}
+
 export type IComponent = {
   _id: string;
   parent_id: string;
@@ -43,18 +57,7 @@ export type IComponent = {
   api: string;
   resources?: IResource[];
   queries: string[];
-  widget: {
-    field: string, value: string | number | boolean,
-    // body query
-    in: string,
-    type: 'boolean' | 'number' | 'string' | 'date',
-    refer: {
-      label: string,
-      value: string | number | boolean
-    }[],
-    action: string,
-    action_url: string,
-  },
+  widget: IWidget;
 
   children: IComponent[];
   data?: IResource[];
@@ -85,8 +88,8 @@ export type IAuto = {
   parent?: IPageInfo;
   children?: any;
   query?: any;
-  source?: any;
-  setSource?: Function;
+  source: any;
+  setDataField: (widget: IWidget, value: any) => void;
   dnd?: {
     isDragging: boolean;
     ref: DraggableProvided['innerRef'];
@@ -141,12 +144,4 @@ export type IEditorField = {
   autoFocus?: boolean;
   value: { value: string | number | boolean, name: string }[];
   fetch?: Function;
-}
-export type IWidget = {
-  _id: string;
-  title: string;
-  cover: string;
-  desc: string;
-  order: number;
-  status: number;
 }

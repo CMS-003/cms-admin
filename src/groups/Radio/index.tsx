@@ -4,10 +4,10 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import _ from 'lodash'
 
-export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, children }: IAuto & IBaseComponent) {
+export default function CRadio({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
-    if (!source._id && setSource) {
-      setSource(self.widget.field, self.widget.value)
+    if (!source._id) {
+      setDataField(self.widget, self.widget.value)
     }
   })
   return <Observer>{() => (
@@ -31,7 +31,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setSource, 
           if (self.widget.type === 'number') {
             v = parseInt(v);
           }
-          setSource && setSource(self.widget.field, v);
+          setDataField(self.widget, v);
         }
       }} value={_.get(source, self.widget.field)} />
     </div>

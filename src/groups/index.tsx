@@ -21,6 +21,7 @@ import TableColumn from './TableColumn'
 import Form from './Form'
 import Row from './Row'
 import Col from './Col'
+import Switch from './Switch'
 import Radio from './Radio'
 import CheckBox from './Checkbox'
 import Field from './Field'
@@ -101,6 +102,7 @@ const components = {
   Upload,
   CodeEditor,
   CheckBox,
+  Switch,
 }
 
 export default components;

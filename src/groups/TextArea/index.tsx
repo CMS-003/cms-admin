@@ -3,10 +3,10 @@ import { Observer } from 'mobx-react'
 import { Input } from 'antd'
 import { useEffectOnce } from 'react-use';
 
-export default function CTextArea({ self, mode, drag, dnd, source, setSource, children }: IAuto & IBaseComponent) {
+export default function CTextArea({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
-    if (!source._id && setSource) {
-      setSource(self.widget.field, self.widget.value)
+    if (!source._id) {
+      setDataField(self.widget, self.widget.value)
     }
   })
   return <Observer>{() => (
@@ -24,7 +24,7 @@ export default function CTextArea({ self, mode, drag, dnd, source, setSource, ch
       {children}
       <Input.TextArea value={source[self.widget.field]}
         onChange={(e => {
-          setSource && setSource(self.widget.field, e.target.value)
+          setDataField(self.widget, e.target.value)
         })}
       />
     </div>

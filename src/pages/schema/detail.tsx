@@ -9,6 +9,7 @@ import { cloneDeep } from 'lodash';
 import apis from '@/api';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Acon from '@/components/Acon';
+import { runInAction } from 'mobx';
 
 export default function Page() {
   const local: {
@@ -17,6 +18,7 @@ export default function Page() {
     name: string;
     schema: IJsonSchema | null,
     original: IJsonSchema | null,
+    setLoading: (b: boolean) => void,
   } = useLocalObservable(() => ({
     original: null,
     schema: null,
@@ -24,14 +26,19 @@ export default function Page() {
     name: new URL(window.location.href).searchParams.get('name') || '',
     get diffed() {
       return JSON.stringify(local.schema) !== JSON.stringify(local.original);
+    },
+    setLoading(b: boolean) {
+      local.isLoading = b
     }
   }));
 
   const init = useCallback(async () => {
     const resp = await apis.getSchemaInfo(local.name);
     if (resp.code === 0) {
-      local.schema = resp.data;
-      local.original = cloneDeep(resp.data);
+      runInAction(() => {
+        local.schema = resp.data;
+        local.original = cloneDeep(resp.data);
+      })
     }
   }, []);
   useEffectOnce(() => {
@@ -53,17 +60,19 @@ export default function Page() {
         mainStyle={{ margin: '0 auto', width: '50%', minWidth: 800 }}
         data={local.schema}
         onChange={data => {
-          
+
         }} />
       <AlignAround style={{ height: 50, flex: 'none' }}>
         <Button type='primary' loading={local.isLoading} disabled={!local.diffed} onClick={async () => {
           if (local.schema) {
             try {
-              local.isLoading = true;
+              local.setLoading(true)
               await apis.updateSchema(local.name, { schema: local.schema });
-              local.original = cloneDeep(local.schema);
+              runInAction(() => {
+                local.original = cloneDeep(local.schema);
+              })
             } finally {
-              local.isLoading = false;
+              local.setLoading(false)
             }
           }
         }}>保存</Button>

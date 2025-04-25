@@ -1,26 +1,43 @@
 
 import { Center, FullHeight } from '@/components/style'
-import { IAuto, IBaseComponent } from '@/types/component'
+import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import _ from 'lodash'
 import NatureSortable from '@/components/NatureSortable'
 import { Component } from '../auto'
+import { runInAction } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Fragment } from 'react'
 import { Acon } from '@/components'
 import { Space } from 'antd'
 
-export default function ObjectList({ self, mode, drag, dnd, source, setSource, children, ...props }: IAuto & IBaseComponent) {
+export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
     showAdd: boolean;
     source: any;
-    setSource: (field: string, value: any) => void;
+    setDataField: (field: IWidget, value: any) => void;
     set: (s: any) => void;
     setAdd: (b: boolean) => void;
   }>(() => ({
     showAdd: false,
     source: {},
-    setSource(key: string, value: any) {
-      local.source[key] = value;
+    setDataField(widget: IWidget, value: any) {
+      switch (widget.type) {
+        case 'boolean':
+          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+          break;
+        case 'number':
+          value = parseFloat(value) || 0
+          break;
+        case 'json':
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            return;
+          }
+          break;
+        default: break;
+      }
+      local.source[widget.field] = value;
     },
     set(s) {
       local.source = s;
@@ -60,7 +77,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
                   self={child}
                   mode={mode}
                   source={item}
-                  setSource={(field: string, value: any) => {
+                  setDataField={(widget: IWidget, value: any) => {
 
                   }}
                   {...props}
@@ -80,6 +97,28 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
               self={item}
               mode={mode}
               dnd={dnd}
+              source={item}
+              setDataField={(widget: IWidget, value: any) => {
+                switch (widget.type) {
+                  case 'boolean':
+                    value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                    break;
+                  case 'number':
+                    value = parseFloat(value) || 0
+                    break;
+                  case 'json':
+                    try {
+                      value = JSON.parse(value);
+                    } catch (e) {
+                      return;
+                    }
+                    break;
+                  default: break;
+                }
+                runInAction(() => {
+                  item[widget.field] = value
+                })
+              }}
               {...props}
             />
           )}
@@ -95,8 +134,8 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
                 mode={mode}
                 dnd={dnd}
                 source={local.source}
-                setSource={(field: string, value: any) => {
-                  local.setSource(field, value)
+                setDataField={(widget: IWidget, value: any) => {
+                  local.setDataField(widget, value)
                 }}
               />
             ))
@@ -113,8 +152,9 @@ export default function ObjectList({ self, mode, drag, dnd, source, setSource, c
               local.set({})
             }} />
             <Acon icon="check" onClick={() => {
+              // TODO: 请求创建接口
               local.setAdd(false)
-              setSource && setSource(self.widget.field, [...(source[self.widget.field] || []), local.source])
+              setDataField(self.widget, [...(source[self.widget.field] || []), local.source])
               local.set({})
             }} />
           </Space>

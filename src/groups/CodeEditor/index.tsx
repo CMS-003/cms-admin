@@ -6,10 +6,10 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 
-export default function Editor({ self, mode, drag, dnd, source, setSource, children }: IAuto & IBaseComponent) {
+export default function Editor({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
-    if (!source._id && setSource) {
-      setSource(self.widget.field, self.widget.value)
+    if (!source._id) {
+      setDataField(self.widget, self.widget.value)
     }
   })
   return <Observer>{() => (
@@ -33,9 +33,7 @@ export default function Editor({ self, mode, drag, dnd, source, setSource, child
         style={{ border: '1px dotted grey' }}
         extensions={[javascript()]}
         onChange={(value, options) => {
-          if (setSource) {
-            setSource(self.widget.field, value)
-          }
+          setDataField(self.widget, value)
         }}
       />
     </div>

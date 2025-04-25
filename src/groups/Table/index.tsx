@@ -1,4 +1,4 @@
-import { IAuto, IBaseComponent } from '@/types/component'
+import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Table } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Component } from '../auto'
@@ -9,7 +9,6 @@ import { IResource } from '@/types'
 import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
-import { toJS } from 'mobx'
 import CONST from '@/constant'
 
 export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
@@ -86,7 +85,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} key={child._id} />)}</Observer>,
+          title: <Observer>{() => (<Component self={child} mode={mode} source={{}} setDataField={() => { }} key={child._id} />)}</Observer>,
           key: child._id,
           width: child.style.width || '',
           align: child.attrs.align || 'left',
@@ -103,8 +102,24 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
                   self={item}
                   mode={mode}
                   source={d}
-                  setSource={(field: string, value: any) => {
-                    d[field] = value
+                  setDataField={(widget: IWidget, value: any) => {
+                    switch (widget.type) {
+                      case 'boolean':
+                        value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                        break;
+                      case 'number':
+                        value = parseFloat(value) || 0
+                        break;
+                      case 'json':
+                        try {
+                          value = JSON.parse(value);
+                        } catch (e) {
+                          return;
+                        }
+                        break;
+                      default: break;
+                    }
+                    d[widget.field] = value
                   }}
                   dnd={dnd}
                 />

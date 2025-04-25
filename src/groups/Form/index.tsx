@@ -1,5 +1,5 @@
 import { AlignAround, FullHeight, FullHeightAuto } from '@/components/style'
-import { IAuto, IBaseComponent } from '@/types/component'
+import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button, message } from 'antd'
 import { Component } from '../auto'
@@ -22,7 +22,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     $origin: { [key: string]: any };
     loading: boolean;
     setSource: Function;
-    updateSource: Function;
+    setDataField: (widget: IWidget, value: any) => void;
     getDiff: Function;
     isDiff: Function;
     setLoading: Function;
@@ -51,7 +51,29 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           }
         }
       },
-      updateSource: (field: string, value: any) => (local.source as any)[field] = value,
+      setDataField: (widget: IWidget, value: any) => {
+        switch (widget.type) {
+          case 'boolean':
+            value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+            break;
+          case 'number':
+            value = parseFloat(value) || 0
+            break;
+          case 'json':
+            try {
+              value = JSON.parse(value);
+            } catch (e) {
+              return;
+            }
+            break;
+          default: break;
+        }
+        if (widget.in === 'query') {
+          local.query[widget.field] = value;
+        } else {
+          local.source[widget.field] = value
+        }
+      },
       getDiff() {
         const keys1 = Object.keys(local.$origin);
         const keys2 = Object.keys(local.source);
@@ -131,7 +153,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
               mode={mode}
               query={local.query}
               source={local.source}
-              setSource={local.setSource}
+              setDataField={local.setDataField}
               dnd={dnd}
               page={page}
             />

@@ -35,7 +35,7 @@ import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 
-export function Component({ self, children, mode, dnd, query, source, setSource, page, parent, ...props }: IAuto) {
+export function Component({ self, children, mode, dnd, query, source, setDataField, page, parent, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
@@ -100,7 +100,7 @@ export function Component({ self, children, mode, dnd, query, source, setSource,
           parent={parent}
           query={query}
           source={source}
-          setSource={setSource}
+          setDataField={setDataField}
           dnd={dnd}
           drag={mode === 'edit' ? dragStore : { isDragOver: false, className: ' component', events: {} }}
           {...(props)}
@@ -216,7 +216,9 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         accepts: [],
         children: [],
         widget: {
-          type: 'string'
+          type: 'string',
+          value: '',
+          in: 'body'
         }
       });
       if (local.template) {
@@ -314,7 +316,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       local.setLoading(false);
     }
   }, [])
-  const eventHandle = useCallback(async (id: string) => {
+  const afterUpdateTemplate = useCallback(async (id: string) => {
     if (id === template_id) {
       const diff = getDiff(local.template);
       if (diff.length) {
@@ -330,19 +332,16 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         } finally {
           events.emit('finished')
         }
-      } else {
-        message.warn('数据无变化')
       }
     }
   }, [])
-  const eventRemoveComponent = useCallback(async (id: string) => {
+  const onRemoveComponent = useCallback(async (id: string) => {
     local.remComponent(id)
   }, []);
-  const eventCopyComponent = useCallback(async (id: string) => {
+  const onCopyComponent = useCallback(async (id: string) => {
     local.copyComponent(id);
   }, []);
-  const eventPasteComponent = useCallback(async (text: string) => {
-    console.log(text, 'event')
+  const onPasteComponent = useCallback(async (text: string) => {
     local.pasteComponent(text)
   }, []);
   useEffect(() => {
@@ -350,16 +349,16 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   }, [mode])
   useEffectOnce(() => {
     refresh()
-    events.on('editable', eventHandle)
-    events.on('copy_component', eventCopyComponent)
-    events.on('paste_component', eventPasteComponent)
-    events.on('remove_component', eventRemoveComponent)
+    events.on('editable', afterUpdateTemplate)
+    events.on('copy_component', onCopyComponent)
+    events.on('paste_component', onPasteComponent)
+    events.on('remove_component', onRemoveComponent)
     return () => {
       if (events) {
-        events.off('editable', eventHandle);
-        events.off('copy_component', eventCopyComponent)
-        events.off('paste_component', eventPasteComponent)
-        events.off('remove_component', eventRemoveComponent)
+        events.off('editable', afterUpdateTemplate);
+        events.off('copy_component', onCopyComponent)
+        events.off('paste_component', onPasteComponent)
+        events.off('remove_component', onRemoveComponent)
       }
     }
   })
@@ -398,6 +397,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                       mode={mode}
                       dnd={dnd}
                       parent={parent}
+                      source={{}}
+                      setDataField={() => { }}
                     />
                   )}
                 />

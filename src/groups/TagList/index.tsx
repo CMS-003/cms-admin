@@ -5,7 +5,7 @@ import { Input, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Fragment } from 'react'
 
-export default function CTags({ self, mode, source = {}, setSource, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTags({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     addVisible: false,
     tempTag: '',
@@ -34,10 +34,8 @@ export default function CTags({ self, mode, source = {}, setSource, drag, dnd, c
       <FullWidth style={{ flexWrap: 'wrap' }}>
         {((source[field] || []) as string[]).map((tag, i) => (
           <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
-            if (setSource) {
-              const rest = source[field].filter((v: string) => v !== tag)
-              setSource(field, rest)
-            }
+            const rest = source[field].filter((v: string) => v !== tag)
+            setDataField(self.widget, rest)
           }}>{tag}</Tag>
         ))}
       </FullWidth>
@@ -48,8 +46,8 @@ export default function CTags({ self, mode, source = {}, setSource, drag, dnd, c
           }} addonAfter={(
             <Fragment>
               <Acon icon='check' onClick={() => {
-                if (setSource && local.tempTag && !source[field].includes(local.tempTag)) {
-                  setSource(field, [...source[field], local.tempTag])
+                if (local.tempTag && !source[field].includes(local.tempTag)) {
+                  setDataField(self.widget, [...source[field], local.tempTag])
                 }
                 local.setValue('tempTag', '')
                 local.setValue('addVisible', false)

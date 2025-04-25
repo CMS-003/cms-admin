@@ -96,16 +96,16 @@ function Item({
             <Acon icon='DragOutlined' />
           </Handler>
         </VisualBox>
-        <Input className='border-radius-5' defaultValue={field} style={{ flex: 1, marginRight: 8 }} disabled={local.is_disabled || isRoot} onChange={e => {
-          // TODO: 修改 field
-          // data.properties[field] = e.target.value;
-          // onChange && onChange();
-        }} onBlur={(e) => {
-          if (field !== e.target.value) {
-            local.renameKey(field, e.target.value);
-            onChange && onChange();
-          }
-        }} />
+        <Input className='border-radius-5'
+          style={{ flex: 1, marginRight: 8 }}
+          defaultValue={field}
+          disabled={local.is_disabled || isRoot}
+          onBlur={(e) => {
+            if (field !== e.target.value) {
+              local.renameKey(field, e.target.value);
+              onChange && onChange();
+            }
+          }} />
         <Space size={25} >
           <Checkbox />
           <Select
