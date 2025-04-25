@@ -164,7 +164,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }} beforeUpload={(f) => {
                   return true
                 }}>
-                <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : 'http://localhost:3334' + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
+                <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : store.app.imageLine + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
                   <Acon icon='UploadOutlined' style={{}} /> 上传
                 </Button>
