@@ -22,7 +22,7 @@ function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) 
 }
 const apis = {
   getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10): Promise<BaseResultWrapper<ITemplate & { children: IComponent[] }>> => {
-    const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/api/v2/templates/${template_id}/components?page=${page}&size=${size}`);
+    const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/api/v1/templates/${template_id}/components?page=${page}&size=${size}`);
     return new Promise((resolve, reject) => {
       import('../store').then(store => {
         if (store.default.component.types.length) {

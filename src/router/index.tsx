@@ -281,7 +281,7 @@ const TabPanes: FC = () => {
                       key: 'close',
                       // icon: <Acon icon="CloseOutlined" />,
                       label: '关闭',
-                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
+                      disabled: node.key === '/manager/dashboard',
                     },
                     {
                       key: 'closeOther',

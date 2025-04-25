@@ -16,9 +16,10 @@ type SelectItem = {
 }
 
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string, total: number }>(() => ({
     showEditPage: false,
     list: [],
+    total: 0,
     temp: null,
     types: store.component.types.map(it => ({ name: it.title, value: it.name })),
     projects: store.project.list.map(it => ({ name: it.title, value: it._id })),
@@ -34,6 +35,7 @@ const ComponentPage: React.FC = () => {
     const result = await apis.getComponents({ query: { project_id: local.selectedProjectId } })
     if (result.code === 0) {
       local.list = result.data.items
+      local.total = result.data.total
     }
   }, [local])
   const [fields] = useState([
@@ -171,7 +173,7 @@ const ComponentPage: React.FC = () => {
     refresh()
   })
   return (
-    <Observer>{() => (<div style={{ padding: '0 10px' }}>
+    <Observer>{() => (<div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0 10px', overflow: 'hidden' }}>
       <AlignAside style={{ margin: 10 }}>
         <Space>
           模板页:
@@ -200,36 +202,38 @@ const ComponentPage: React.FC = () => {
         fields={fields}
         fetch={addComponent}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
-        <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-          <span><Acon icon={record.icon as Icon} />{title}</span>
-        )} />
-        <Table.Column title="组件类型" dataIndex="name" />
-        <Table.Column title="分类类型" dataIndex="type" />
-        <Table.Column title="可接受子组件" dataIndex="accepts" render={(accepts: string[], record, i: number) => (<span key={i} >
-          {
-            accepts.map((name, j) => {
-              let color = name.length > 5 ? 'geekblue' : 'green';
-              return (
-                <Tag color={color} key={j}>
-                  {name.toUpperCase()}
-                </Tag>
-              );
-            })
-          }
-        </span >)} />
-        <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
-          <Space size="middle">
-            <Acon icon='FormOutlined' onClick={() => {
-              local.openEditor(cloneDeep(record))
-            }} />
-            <Acon icon='DeleteOutlined' onClick={async () => {
-              await apis.destroyComponent({ params: { _id: record._id } })
-              await refresh()
-            }} />
-          </Space>
-        )} />
-      </Table>
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'], total: local.total, pageSize: 20 }} sticky={true} rowKey="_id" dataSource={local.list}>
+          <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
+            <span><Acon icon={record.icon as Icon} />{title}</span>
+          )} />
+          <Table.Column title="组件类型" dataIndex="name" />
+          <Table.Column title="分类类型" dataIndex="type" />
+          <Table.Column title="可接受子组件" dataIndex="accepts" render={(accepts: string[], record, i: number) => (<span key={i} >
+            {
+              accepts.map((name, j) => {
+                let color = name.length > 5 ? 'geekblue' : 'green';
+                return (
+                  <Tag color={color} key={j}>
+                    {name.toUpperCase()}
+                  </Tag>
+                );
+              })
+            }
+          </span >)} />
+          <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
+            <Space size="middle">
+              <Acon icon='FormOutlined' onClick={() => {
+                local.openEditor(cloneDeep(record))
+              }} />
+              <Acon icon='DeleteOutlined' onClick={async () => {
+                await apis.destroyComponent({ params: { _id: record._id } })
+                await refresh()
+              }} />
+            </Space>
+          )} />
+        </Table>
+      </div>
     </div>)
     }
     </Observer >

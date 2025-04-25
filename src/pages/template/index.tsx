@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useState } from 'react';
-import { Button, notification, Space, Table, Select, message } from 'antd';
+import { Button, notification, Space, Table, Select, message, Popconfirm } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent, ITemplate } from '@/types'
@@ -173,8 +173,14 @@ const ComponentTemplatePage: React.FC = () => {
       fetch={editTemplate}
       fields={fields}
     />
-    <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="_id" dataSource={local.list} >
+    <div style={{ flex: 1, paddingBottom: 10, overflowY: 'hidden' }}>
+      <Table
+        sticky={true}
+        tableLayout='auto'
+        pagination={false}
+        rowKey="_id"
+        dataSource={local.list}
+      >
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
         <Table.Column title="序号" dataIndex="order" />
@@ -186,11 +192,14 @@ const ComponentTemplatePage: React.FC = () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Acon icon="DeleteOutlined" onClick={async () => {
+            <Popconfirm title='是否确认删除' okText='是' cancelText='否' onConfirm={async () => {
               local.loading = true;
               await apis.delTemplate(record._id);
               refresh()
-            }} />
+            }}>
+              <Acon icon="DeleteOutlined" />
+            </Popconfirm>
+
           </Space>
         )} />
       </Table>

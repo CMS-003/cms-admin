@@ -108,8 +108,8 @@ const ComponentTypePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <div style={{ padding: '0 10px', height: '100%', display: 'flex', flexDirection: 'column' }}>
-    <Space style={{ padding: 10, width: '100%', justifyContent: 'end' }}>
+  return (<Observer>{() => <div style={{ padding: 10, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Space style={{ padding: '0 10px 10px', width: '100%', justifyContent: 'end' }}>
       <Button type="primary" onClick={e => {
         local.openEditor({})
       }}>添加</Button>
@@ -126,7 +126,7 @@ const ComponentTypePage: React.FC = () => {
     />
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="_id" dataSource={local.list} style={{ overflow: 'auto' }}>
+      <Table pagination={false} rowKey="_id" dataSource={local.list} sticky={true} style={{ overflow: 'auto' }}>
         <Table.Column title="序号" dataIndex="order" width={60} />
         <Table.Column title="名称" dataIndex="title" render={(title, record: IComponent) => (
           <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
