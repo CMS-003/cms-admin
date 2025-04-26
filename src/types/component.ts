@@ -89,6 +89,7 @@ export type IAuto = {
   children?: any;
   query?: any;
   source: any;
+  initField?: boolean;
   setDataField: (widget: IWidget, value: any) => void;
   dnd?: {
     isDragging: boolean;

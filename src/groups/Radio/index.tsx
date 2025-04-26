@@ -26,13 +26,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
         alignItems: 'center',
         minHeight: 35,
       }} options={self.widget.refer} onChange={e => {
-        if (self.widget) {
-          let v = e.target.value;
-          if (self.widget.type === 'number') {
-            v = parseInt(v);
-          }
-          setDataField(self.widget, v);
-        }
+        setDataField(self.widget, e.target.value);
       }} value={_.get(source, self.widget.field)} />
     </div>
   )

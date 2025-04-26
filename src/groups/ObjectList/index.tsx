@@ -14,13 +14,13 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
   const local = useLocalObservable<{
     showAdd: boolean;
     source: any;
-    setDataField: (field: IWidget, value: any) => void;
+    setTempDataField: (field: IWidget, value: any) => void;
     set: (s: any) => void;
     setAdd: (b: boolean) => void;
   }>(() => ({
     showAdd: false,
     source: {},
-    setDataField(widget: IWidget, value: any) {
+    setTempDataField(widget: IWidget, value: any) {
       switch (widget.type) {
         case 'boolean':
           value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
@@ -77,8 +77,27 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                   self={child}
                   mode={mode}
                   source={item}
+                  initField={false}
                   setDataField={(widget: IWidget, value: any) => {
-
+                    switch (widget.type) {
+                      case 'boolean':
+                        value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
+                        break;
+                      case 'number':
+                        value = parseFloat(value) || 0
+                        break;
+                      case 'json':
+                        try {
+                          value = JSON.parse(value);
+                        } catch (e) {
+                          return;
+                        }
+                        break;
+                      default: break;
+                    }
+                    runInAction(() => {
+                      item[widget.field] = value
+                    })
                   }}
                   {...props}
                 />
@@ -135,7 +154,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 dnd={dnd}
                 source={local.source}
                 setDataField={(widget: IWidget, value: any) => {
-                  local.setDataField(widget, value)
+                  local.setTempDataField(widget, value)
                 }}
               />
             ))
