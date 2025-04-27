@@ -23,6 +23,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       style={{
         minHeight: self.children.length === 0 ? 25 : 'auto',
         flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        flex: 1,
         ...self.style,
         ...dnd?.style,
       }}
@@ -45,14 +46,6 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
           />
         )}
       />
-      {/* {self.children.map((child, index) => (
-        <Component
-          mode={mode}
-          self={child}
-          key={index}
-          {...props}
-        />
-      ))} */}
     </Layout>
   )}</Observer>
 }

@@ -13,18 +13,14 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        ...self.style,
         ...dnd?.style,
+        flex: self.style.flex,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
       <Input value={source[self.widget.field]} style={self.style} onChange={e => {
-        if (self.widget.action === CONST.ACTION_TYPE.FILTER) {
-          self.widget.field && page.setQuery(self.widget.field, e.target.value)
-        } else {
-          setDataField(self.widget, e.target.value);
-        }
+        setDataField(self.widget, e.target.value);
       }} />
     </div>
   )}</Observer>

@@ -26,23 +26,23 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
       }}
     >
       {children}
-      <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
-      <div style={{ paddingLeft: 24 }}>
-        <NatureSortable
-          items={self.children}
-          direction='vertical'
-          disabled={mode === 'preview'}
-          droppableId={self._id}
-          sort={self.swap}
-          renderItem={({ item, dnd }) => (
-            <Component
-              self={item}
-              mode={mode}
-              dnd={dnd}
-              {...props}
-            />
-          )}
-        />
+      <div style={{ flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column' }}>
+        <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
+          <NatureSortable
+            items={self.children}
+            direction='vertical'
+            disabled={mode === 'preview'}
+            droppableId={self._id}
+            sort={self.swap}
+            renderItem={({ item, dnd }) => (
+              <Component
+                self={item}
+                mode={mode}
+                dnd={dnd}
+                {...props}
+              />
+            )}
+          />
       </div>
     </div>
   )}</Observer>

@@ -1,18 +1,22 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Select, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { usePageContext } from '../context';
 import CONST from '@/constant';
 import apis from '@/api';
+import { useEffectOnce } from 'react-use';
 
-export default function CSelect({ self, mode, drag, dnd, source, children }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
+  // TODO: 编辑状态下右键会触发下拉
+  const data = self.widget.in === 'body' ? source : query;
   const local = useLocalObservable(() => ({
     open: false,
     setOpen(b: boolean) {
       this.open = b
     }
   }))
+  useEffectOnce(() => {
+    setDataField(self.widget, self.widget.value)
+  })
   return <Observer>{() => (
     <div
       className={mode + drag.className}
@@ -36,29 +40,28 @@ export default function CSelect({ self, mode, drag, dnd, source, children }: IAu
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             open={local.open}
-            defaultValue={self.widget.action === CONST.ACTION_TYPE.FILTER || mode === 'edit' ? self.widget.value : (source || {})[self.widget.field]}
+            value={data[self.widget.field]}
             onChange={async (v) => {
-              if (self.widget.action === CONST.ACTION_TYPE.FILTER) {
-                page.setQuery(self.widget.field, v)
-              } else if (self.widget.action === CONST.ACTION_TYPE.UPDATE) {
-                const old = source[self.widget.value as string]
+              const old = data[self.widget.value as string]
+              setDataField(self.widget, v)
+              if (self.widget.action === CONST.ACTION_TYPE.UPDATE && self.api) {
                 try {
-                  const result = await apis.putData(self.getApi(source._id), { [self.widget.field]: v })
+                  const result = await apis.putData(self.getApi(data._id), { [self.widget.field]: v })
                   if (result.code === 0) {
 
                   } else {
+                    setDataField(self.widget, old)
                     message.warn(result.message);
                   }
                 } catch (e) {
+                  setDataField(self.widget, old)
                   message.warn('修改失败')
                 }
               }
             }}
             onMouseDown={(e) => {
               if (e.button === 0) {
-                setTimeout(() => {
-                  local.setOpen(!local.open)
-                }, 200)
+                local.setOpen(!local.open)
               }
             }}
           >

@@ -37,8 +37,6 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        lineHeight: '35px',
-        ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
@@ -47,12 +45,10 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       {mode === 'preview' && self.widget.action === CONST.ACTION_TYPE.COPY ? <CopyToClipboard
         text={source[self.widget.field] || self.widget.value}
         onCopy={() => {
-          if (self.widget.action === CONST.ACTION_TYPE.COPY) {
-            message.success('复制成功', 1)
-          }
+          message.success('复制成功', 1)
         }}
       >
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, ...(self.style) }} />
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, lineHeight: '35px', ...(self.style) }} />
       </CopyToClipboard> :
         (
           self.widget.action === CONST.ACTION_TYPE.DELETE && self.api

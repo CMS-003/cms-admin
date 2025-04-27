@@ -4,14 +4,15 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { Component } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
-import { useCallback } from 'react'
+import { Fragment, useCallback, useEffect } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import CONST from '@/constant'
+import { runInAction } from 'mobx'
 
-export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, dnd, drag, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
   const local: {
     loading: boolean,
@@ -42,7 +43,7 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
   const init = useCallback(async () => {
     if (self.api && mode === 'preview') {
       local.setValue('loading', true)
-      const resp = await apis.getDataList(self.api, page.query);
+      const resp = await apis.getDataList(self.getApi('', page.query), query);
       if (resp.code === 0) {
         local.setResources(resp.data.items as IResource[]);
         local.setValue('total', (resp as any).count || resp.data.total || 0)
@@ -50,13 +51,13 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
       local.setValue('loading', false)
     }
   }, [self.api])
-  useEffectOnce(() => {
+  useEffect(() => {
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     () => {
       events.off(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     }
-  })
+  }, [onSetQuery])
   return <Observer>{() => (
     <div
       className={mode + drag.className}
@@ -91,40 +92,75 @@ export default function CTable({ self, mode, dnd, drag, children }: IAuto & IBas
           align: child.attrs.align || 'left',
           dataIndex: self.widget.field,
           render: (t: string, d: any) => (
-            <NatureSortable
-              items={child.children}
-              direction='horizontal'
-              disabled={mode === 'preview'}
-              droppableId={child._id}
-              sort={self.swap}
-              renderItem={({ item, dnd }) => (
-                <Component
-                  self={item}
-                  mode={mode}
-                  source={d}
-                  setDataField={(widget: IWidget, value: any) => {
-                    switch (widget.type) {
-                      case 'boolean':
-                        value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-                        break;
-                      case 'number':
-                        value = parseFloat(value) || 0
-                        break;
-                      case 'json':
-                        try {
-                          value = JSON.parse(value);
-                        } catch (e) {
-                          return;
-                        }
-                        break;
-                      default: break;
-                    }
-                    d[widget.field] = value
-                  }}
-                  dnd={dnd}
-                />
-              )}
-            />
+            mode === 'edit' ?
+              <NatureSortable
+                items={child.children}
+                direction='horizontal'
+                disabled={false}
+                droppableId={child._id}
+                sort={self.swap}
+                renderItem={({ item, dnd, index }) => (
+                  <Component
+                    key={index}
+                    self={item}
+                    mode={mode}
+                    source={d}
+                    setDataField={(widget: IWidget, value: any) => {
+                      switch (widget.type) {
+                        case 'boolean':
+                          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                          break;
+                        case 'number':
+                          value = parseFloat(value) || 0
+                          break;
+                        case 'json':
+                          try {
+                            value = JSON.parse(value);
+                          } catch (e) {
+                            return;
+                          }
+                          break;
+                        default: break;
+                      }
+                      runInAction(() => {
+                        d[widget.field] = value
+                      })
+                    }}
+                    dnd={dnd}
+                  />
+                )}
+              />
+              : (<Fragment>
+                {child.children.map((item, k) => (
+                  <Component
+                    key={k}
+                    self={item}
+                    mode={mode}
+                    source={d}
+                    setDataField={(widget: IWidget, value: any) => {
+                      switch (widget.type) {
+                        case 'boolean':
+                          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                          break;
+                        case 'number':
+                          value = parseFloat(value) || 0
+                          break;
+                        case 'json':
+                          try {
+                            value = JSON.parse(value);
+                          } catch (e) {
+                            return;
+                          }
+                          break;
+                        default: break;
+                      }
+                      runInAction(() => {
+                        d[widget.field] = value
+                      })
+                    }}
+                  />
+                ))}
+              </Fragment>)
           )
         }))} />
     </div>

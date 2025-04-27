@@ -5,7 +5,6 @@ const CONST = {
   ACTION_TYPE: {
     'MODAL': 'MODAL',
     'COPY': 'COPY',
-    'FILTER': 'FILTER',
     'SEARCH': 'SEARCH',
     'GET': 'GET',
     'POST': 'POST',

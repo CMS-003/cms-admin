@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource, IAuto } from '@/types'
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget } from '@/types'
 import NatureSortable from '@/components/NatureSortable'
 import BaseComponent from './index';
 import GroupMenu from './contextmenu'
@@ -172,6 +172,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     editComponent: IComponent | null;
     editPanelKey: string;
     template: ITemplate | null;
+    query: { [key: string]: string | number };
     isDragOver: boolean;
     loading: boolean;
     addWidgetReferVisible: boolean;
@@ -184,11 +185,13 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     pasteComponent: Function;
     setEditComponent: Function;
     setEditPanelKey: Function;
+    setDataField: (widget: IWidget, value: any) => void;
   }>(() => ({
     editComponent: null,
     editPanelKey: 'base',
     loading: false,
     template: null,
+    query: {},
     addWidgetReferVisible: false,
     isDragOver: false,
     onDrop: (e: any) => {
@@ -282,7 +285,30 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     },
     setEditPanelKey(v: string) {
       local.editPanelKey = v;
-    }
+    },
+    setDataField: (widget: IWidget, value: any) => {
+      if (!widget.field) {
+        return;
+      }
+      switch (widget.type) {
+        case 'boolean':
+          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+          break;
+        case 'number':
+          value = parseFloat(value) || 0
+          break;
+        case 'json':
+          // template type 为 form 才有
+          try {
+            value = JSON.parse(value);
+          } catch (e) {
+            return;
+          }
+          break;
+        default: break;
+      }
+      local.query[widget.field] = value;
+    },
   }))
 
   const refresh = useCallback(async () => {
@@ -370,7 +396,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           height: '100%',
           minWidth: 400,
           width: '100%',
-          overflow: 'auto'
+          overflow: 'hidden'
         }}>
           <Observer>{() => {
             if (local.loading) {
@@ -380,7 +406,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 onDragOver={local.onDragOver}
                 onDragLeave={local.onDragLeave}
                 onDrop={local.onDrop}
-                className={`component ${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
+                className={`${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
                 style={{ ...toJS(local.template?.style) }}
               >
                 <NatureSortable
@@ -398,7 +424,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                       dnd={dnd}
                       parent={parent}
                       source={{}}
-                      setDataField={() => { }}
+                      query={local.query}
+                      setDataField={local.setDataField}
                     />
                   )}
                 />

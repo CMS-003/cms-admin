@@ -34,9 +34,11 @@ code {
   display: flex;
   flex-direction: column;
 }
+
 .ant-layout-sider-children {
   overflow: auto;
 }
+
 .ant-layout-sider-children::-webkit-scrollbar {
   display: none;
 }
@@ -110,9 +112,15 @@ code {
   box-sizing: border-box;
 }
 
-/* 为拖拽handler提供位置 */
 .component.edit {
-  padding-left: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+/* 为拖拽handler提供位置 */
+.component.edit::before {
+  content: '';
+  padding-left: 20px !important;
 }
 
 .component.preview>.handler,

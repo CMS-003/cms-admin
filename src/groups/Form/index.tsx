@@ -1,7 +1,7 @@
-import { AlignAround, FullHeight, FullHeightAuto } from '@/components/style'
+import { AlignAround, Center, FullHeight, FullHeightAuto } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Button, message } from 'antd'
+import { Button, message, Space } from 'antd'
 import { Component } from '../auto'
 import { useCallback, useContext, useEffect } from 'react'
 import apis from '@/api'
@@ -52,6 +52,9 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         }
       },
       setDataField: (widget: IWidget, value: any) => {
+        if (!widget.field) {
+          return;
+        }
         switch (widget.type) {
           case 'boolean':
             value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
@@ -104,7 +107,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       local.setLoading(false)
     }
   }, [self.api, page.query['id']])
-  const updateInfo = useCallback(async () => {
+  const updateInfo = useCallback(async (close = false) => {
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
@@ -112,8 +115,11 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       if (result.code === 0) {
         if (result.data) {
           local.setSource(result.data)
+          // 刷新父页面列表
           events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
-          page.close()
+          if (close) {
+            page.close()
+          }
         }
       } else {
         message.warn('请求失败', 1)
@@ -160,10 +166,12 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           )}
         />
       </FullHeightAuto>
-      <AlignAround style={{ padding: 8 }}>
-        <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={updateInfo}>保存并关闭</Button>
-      </AlignAround>
+      <Center>
+        <Space style={{ padding: 8 }}>
+          <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+          <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+        </Space>
+      </Center>
     </FullHeight>
-
   )}</Observer>
 }

@@ -10,7 +10,11 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      style={{ ...self.style, ...dnd?.style }}
+      style={{
+        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        ...self.style,
+        ...dnd?.style
+      }}
     >
       {children}
       <NatureSortable

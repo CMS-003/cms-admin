@@ -88,12 +88,11 @@ export default function NatureSortable({
       >
         {(provided) => (
           <Container ref={provided.innerRef} {...provided.droppableProps} style={{
-            width: '100%',
             display: 'flex',
             flexDirection: direction === 'horizontal' ? 'row' : 'column',
             overflow: 'auto',
-            ...style,
             flex: 1,
+            ...style,
           }}>
             {items.map((item, index) => (
               <Observer key={item._id || index}>{() => (

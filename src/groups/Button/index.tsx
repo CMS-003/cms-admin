@@ -9,7 +9,7 @@ import CONST from '@/constant';
 import { Acon } from '@/components';
 import ModalPage from '../modal';
 
-export default function CButton({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CButton({ self, mode, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
   const navigate = useNavigate()
   const page = usePageContext()
   const local = useLocalObservable(() => ({
@@ -39,7 +39,15 @@ export default function CButton({ self, mode, drag, dnd, children }: IAuto & IBa
       {children}
       <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon as any} /> : null} onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.SEARCH) {
-          page.setQuery('page', 1)
+          setDataField({
+            field: 'page',
+            type: 'number',
+            value: 1,
+            in: 'query',
+            action: '',
+            action_url: '',
+            refer: []
+          }, 1)
           events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
         } else if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
           navigate(`${self.widget.action_url}?id=`)
@@ -52,5 +60,6 @@ export default function CButton({ self, mode, drag, dnd, children }: IAuto & IBa
         local.setValue('template_id', '')
       }} />}
     </div>
-  )}</Observer>
+  )
+  }</Observer >
 }

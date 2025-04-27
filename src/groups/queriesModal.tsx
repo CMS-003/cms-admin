@@ -2,6 +2,7 @@ import { Observer, useLocalObservable } from "mobx-react";
 import { Button, Checkbox, Input, Modal, Space, Table } from "antd";
 import { useCallback, useEffect } from "react";
 import apis from "@/api";
+import { runInAction } from "mobx";
 
 type Query = {
   _id: string;
@@ -18,7 +19,8 @@ export default function QueryModal({ show, q = '', queries, setQueries, close }:
     size: number;
     q: any;
     total: number;
-    list: Query[],
+    list: Query[];
+    setLoading: (b: boolean) => void;
   }>(() => ({
     loading: false,
     list: [],
@@ -26,19 +28,24 @@ export default function QueryModal({ show, q = '', queries, setQueries, close }:
     page: 1,
     size: 20,
     q: q,
+    setLoading(b) {
+      local.loading = b
+    }
   }));
   const getData = useCallback(async () => {
     try {
-      local.loading = true;
+      local.setLoading(true)
       const resp = await apis.getDataList('/api/gatling/4CiPccfDG', { page: local.page, q: local.q })
       if (resp.code === 0) {
-        local.list = (resp.data.items as Query[]) || [];
-        local.total = resp.data.total || 0;
+        runInAction(() => {
+          local.list = (resp.data.items as Query[]) || [];
+          local.total = resp.data.total || 0;
+        })
       }
     } catch (e) {
 
     } finally {
-      local.loading = false;
+      local.setLoading(false)
     }
   }, []);
   useEffect(() => {
