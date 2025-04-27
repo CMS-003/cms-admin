@@ -211,3 +211,12 @@ code {
 .component.edit.cantdrag {
   background-color: #df3540;
 }
+
+.DraftEditor-root {
+  height: 400px !important;
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 5px;
+  overflow-x: auto;
+  flex: 1;
+}

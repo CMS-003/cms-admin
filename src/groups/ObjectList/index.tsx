@@ -116,7 +116,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               self={item}
               mode={mode}
               dnd={dnd}
-              source={item}
+              source={{}}
               setDataField={(widget: IWidget, value: any) => {
                 switch (widget.type) {
                   case 'boolean':
@@ -135,7 +135,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                   default: break;
                 }
                 runInAction(() => {
-                  item[widget.field] = value
+                  // item[widget.field] = value
                 })
               }}
               {...props}

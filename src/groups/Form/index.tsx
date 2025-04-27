@@ -141,6 +141,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       {...dnd?.props}
       style={{
         width: '100%', height: '100%',
+        flexDirection: 'column',
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}

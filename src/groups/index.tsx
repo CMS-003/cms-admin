@@ -30,6 +30,7 @@ import Tags from './TagList'
 import Objects from './ObjectList'
 import Tpl from './Tpl'
 import CodeEditor from './CodeEditor'
+import Editor from './Editor'
 
 /**
  * 组件与属性 attr
@@ -103,6 +104,7 @@ const components = {
   CodeEditor,
   CheckBox,
   Switch,
+  Editor,
 }
 
 export default components;
