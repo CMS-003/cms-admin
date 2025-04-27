@@ -15,7 +15,9 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
     }
   }))
   useEffectOnce(() => {
-    setDataField(self.widget, self.widget.value)
+    if (!source._id || mode === 'edit') {
+      setDataField(self.widget, self.widget.value)
+    }
   })
   return <Observer>{() => (
     <div

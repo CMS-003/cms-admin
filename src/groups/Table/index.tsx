@@ -12,7 +12,7 @@ import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 
-export default function CTable({ self, mode, dnd, drag, query, children }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
   const local: {
     loading: boolean,
@@ -79,7 +79,7 @@ export default function CTable({ self, mode, dnd, drag, query, children }: IAuto
         pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
         sticky={true}
-        dataSource={mode === 'edit' ? [{ _id: 'mock', title: 'mock', status: 0 }] : local.resources}
+        dataSource={mode === 'edit' ? [source] : local.resources}
         onChange={p => {
           page.setQuery('page', p.current as number);
           page.setQuery('page_size', p.pageSize as number);

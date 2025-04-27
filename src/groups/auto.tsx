@@ -173,6 +173,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     editPanelKey: string;
     template: ITemplate | null;
     query: { [key: string]: string | number };
+    source: { [key: string]: string | number };
     isDragOver: boolean;
     loading: boolean;
     addWidgetReferVisible: boolean;
@@ -191,6 +192,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     editPanelKey: 'base',
     loading: false,
     template: null,
+    source: {},
     query: {},
     addWidgetReferVisible: false,
     isDragOver: false,
@@ -286,6 +288,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     setEditPanelKey(v: string) {
       local.editPanelKey = v;
     },
+    // 非表单动态页,没有 source 但为了编辑体现数据
     setDataField: (widget: IWidget, value: any) => {
       if (!widget.field) {
         return;
@@ -307,7 +310,11 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           break;
         default: break;
       }
-      local.query[widget.field] = value;
+      if (widget.in === 'query') {
+        local.query[widget.field] = value;
+      } else {
+        local.source[widget.field] = value;
+      }
     },
   }))
 
@@ -423,7 +430,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                       mode={mode}
                       dnd={dnd}
                       parent={parent}
-                      source={{}}
+                      source={local.source}
                       query={local.query}
                       setDataField={local.setDataField}
                     />
