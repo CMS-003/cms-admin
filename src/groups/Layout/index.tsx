@@ -23,8 +23,8 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       style={{
         minHeight: self.children.length === 0 ? 25 : 'auto',
         flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
-        flex: 1,
-        ...self.style,
+        flex: self.attrs.flex ? 1 : 0,
+        // ...self.style,
         ...dnd?.style,
       }}
     >
@@ -33,7 +33,11 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
         droppableId={self._id}
         direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
         disabled={mode === 'preview'}
-        style={self.style}
+        style={{
+          flex: 1,
+          flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+          ...self.style,
+        }}
         items={self.children}
         sort={self.swap}
         renderItem={({ item, dnd }) => (

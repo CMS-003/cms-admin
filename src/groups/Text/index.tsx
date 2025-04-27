@@ -9,7 +9,8 @@ export default function CText({ self, mode, source = {}, drag, dnd, children }: 
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        ...self.style,
+        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        flex: self.attrs.flex ? 1 : 0,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}

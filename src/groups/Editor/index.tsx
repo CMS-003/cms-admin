@@ -35,10 +35,10 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
       }}
     >
       {children}
-      <Editor editorState={editorState} onChange={(v) => {
+      {source[self.widget.field] && <Editor editorState={editorState} onChange={(v: any) => {
         setEditorState(v)
         // setDataField(self.widget, value)
-      }} />
+      }} />}
     </div>
   )}</Observer>
 }

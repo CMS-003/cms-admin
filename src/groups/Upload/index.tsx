@@ -7,8 +7,8 @@ import styled from 'styled-components'
 const Preview = styled.div`
   display: flex;
   flex-direction: column;
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   justify-content: center;
   align-items: center;
   background-size: cover;

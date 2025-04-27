@@ -38,6 +38,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       {...dnd?.props}
       style={{
         ...dnd?.style,
+        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        flex: self.attrs.flex ? 1 : 0,
+        display: 'flex',
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >

@@ -4,6 +4,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import CONST from '@/constant';
 import apis from '@/api';
 import { useEffectOnce } from 'react-use';
+import { runInAction } from 'mobx';
 
 export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
   // TODO: 编辑状态下右键会触发下拉
@@ -15,7 +16,7 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
     }
   }))
   useEffectOnce(() => {
-    if (!source._id || mode === 'edit') {
+    if (!source._id || mode === 'edit' || self.widget.in === 'query') {
       setDataField(self.widget, self.widget.value)
     }
   })
@@ -41,7 +42,6 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
         <span className="ant-input-wrapper ant-input-group">
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
-            open={local.open}
             value={data[self.widget.field]}
             onChange={async (v) => {
               const old = data[self.widget.value as string]
@@ -59,11 +59,6 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
                   setDataField(self.widget, old)
                   message.warn('修改失败')
                 }
-              }
-            }}
-            onMouseDown={(e) => {
-              if (e.button === 0) {
-                local.setOpen(!local.open)
               }
             }}
           >
