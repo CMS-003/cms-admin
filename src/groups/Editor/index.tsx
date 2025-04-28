@@ -4,6 +4,7 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
 import 'draft-js/dist/Draft.css';
+import { ComponentWrap } from '../style';
 
 export default function CEditor({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
   const [editorState, setEditorState] = React.useState(
@@ -23,7 +24,7 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -39,6 +40,6 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
         setEditorState(v)
         // setDataField(self.widget, value)
       }} />}
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

@@ -1,4 +1,4 @@
-import { AlignAround, Center, FullHeight, FullHeightAuto } from '@/components/style'
+import { AlignAround, Center, FullHeight, FullHeightAuto, FullWidthAuto } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button, message, Space } from 'antd'
@@ -13,6 +13,7 @@ import { IResource } from '@/types'
 import events from '@/utils/event';
 import { pick } from 'lodash';
 import CONST from '@/constant';
+import { ComponentWrap } from '../style';
 
 export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
@@ -134,45 +135,47 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     getInfo();
   }, [page.query['id'], self.api])
   return <Observer>{() => (
-    <FullHeight
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        width: '100%', height: '100%',
-        flexDirection: 'column',
+        width: '100%',
+        height: '100%',
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <FullHeightAuto>
-        <NatureSortable
-          items={self.children}
-          direction='vertical'
-          disabled={mode === 'preview'}
-          droppableId={self._id}
-          sort={self.swap}
-          renderItem={({ item, dnd }) => (
-            <Component
-              self={item}
-              mode={mode}
-              query={local.query}
-              source={local.source}
-              setDataField={local.setDataField}
-              dnd={dnd}
-              page={page}
-            />
-          )}
-        />
-      </FullHeightAuto>
-      <Center>
-        <Space style={{ padding: 8 }}>
-          <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
-          <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
-        </Space>
-      </Center>
-    </FullHeight>
+      <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
+        <FullHeightAuto style={{ overflow: 'initial' }}>
+          <NatureSortable
+            items={self.children}
+            direction='vertical'
+            disabled={mode === 'preview'}
+            droppableId={self._id}
+            sort={self.swap}
+            renderItem={({ item, dnd }) => (
+              <Component
+                self={item}
+                mode={mode}
+                query={local.query}
+                source={local.source}
+                setDataField={local.setDataField}
+                dnd={dnd}
+                page={page}
+              />
+            )}
+          />
+        </FullHeightAuto>
+        <Center>
+          <Space style={{ padding: 8 }}>
+            <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+            <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+          </Space>
+        </Center>
+      </FullWidthAuto>
+    </ComponentWrap>
   )}</Observer>
 }

@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { Input } from 'antd'
 import { useEffectOnce } from 'react-use';
+import { ComponentWrap } from '../style';
 
 export default function CTextArea({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -10,7 +11,7 @@ export default function CTextArea({ self, mode, drag, dnd, source, setDataField,
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -27,6 +28,6 @@ export default function CTextArea({ self, mode, drag, dnd, source, setDataField,
           setDataField(self.widget, e.target.value)
         })}
       />
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

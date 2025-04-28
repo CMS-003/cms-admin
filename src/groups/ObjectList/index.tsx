@@ -9,6 +9,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { Fragment } from 'react'
 import { Acon } from '@/components'
 import { Space } from 'antd'
+import { ComponentWrap } from '../style';
 
 export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
@@ -47,12 +48,12 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
     }
   }));
   return <Observer>{() => (
-    <FullHeight key={self.children.length}
+    <ComponentWrap key={self.children.length}
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      style={{ ...self.style, ...dnd?.style }}
+      style={{ height: '100%', justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
     >
       {children}
       {mode === 'preview'
@@ -69,7 +70,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               key={index}
               ref={dnd2?.ref}
               {...dnd2?.props}
-              style={{ padding: 4, ...dnd2?.style }}
+              style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, ...dnd2?.style }}
             >
               {self.children.map(child => (
                 <Component
@@ -110,6 +111,8 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
           direction='vertical'
           disabled={mode === 'preview'}
           droppableId={self._id}
+
+          style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
           sort={self.swap}
           renderItem={({ item, dnd }) => (
             <Component
@@ -163,7 +166,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
         </Fragment>
 
       )}
-      <Center>
+      <Center style={{ padding: 10 }}>
         {local.showAdd
           ? <Space>
             <Acon icon="close" onClick={() => {
@@ -183,6 +186,6 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
         }
 
       </Center>
-    </FullHeight>
+    </ComponentWrap>
   )}</Observer>
 }

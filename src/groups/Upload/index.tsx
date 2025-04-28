@@ -3,6 +3,7 @@ import { UploadOutlined } from '@ant-design/icons'
 import { Button, Upload } from 'antd'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
+import { ComponentWrap } from '../style';
 
 const Preview = styled.div`
   display: flex;
@@ -18,7 +19,7 @@ const Preview = styled.div`
 
 export default function CUpload({ self, mode, drag, dnd, source = {}, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -35,6 +36,6 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, children }
           <Button icon={<UploadOutlined />}></Button>
         </Preview>
       </Upload>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

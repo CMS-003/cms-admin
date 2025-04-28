@@ -5,41 +5,32 @@ import CONST from '@/constant';
 import apis from '@/api';
 import { useEffectOnce } from 'react-use';
 import { runInAction } from 'mobx';
+import { ComponentWrap } from '../style';
 
 export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
   // TODO: 编辑状态下右键会触发下拉
   const data = self.widget.in === 'body' ? source : query;
-  const local = useLocalObservable(() => ({
-    open: false,
-    setOpen(b: boolean) {
-      this.open = b
-    }
-  }))
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.in === 'query') {
       setDataField(self.widget, self.widget.value)
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        display: 'flex',
-        flexDirection: 'row',
         whiteSpace: 'nowrap',
-        alignItems: 'center',
         flex: 0,
-        ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <span className="ant-input-group-wrapper">
-        <span className="ant-input-wrapper ant-input-group">
+      <span className="ant-input-group-wrapper" style={self.style}>
+        <span className="ant-input-wrapper ant-input-group" style={{ width: 'auto' }}>
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             value={data[self.widget.field]}
@@ -68,6 +59,6 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
           </Select>
         </span>
       </span>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

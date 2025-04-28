@@ -11,6 +11,7 @@ import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
+import { ComponentWrap } from '../style';
 
 export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -59,7 +60,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
     }
   }, [onSetQuery])
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -163,6 +164,6 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
               </Fragment>)
           )
         }))} />
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

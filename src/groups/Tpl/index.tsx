@@ -5,6 +5,8 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
 import store from '@/store'
+import { ComponentWrap } from '../style';
+import styled from 'styled-components'
 
 // @ts-ignore
 hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
@@ -43,13 +45,14 @@ hbs.registerHelper('formatDate', function (o, format) {
   return o;
 });
 
+
 export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value as string, {})
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
@@ -60,15 +63,15 @@ export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto 
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        whiteSpace: 'nowrap',
-        ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      {mode === 'edit' ? self.title : <div style={{ whiteSpace: 'normal' }} dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
-    </div>
+      <div style={{ lineHeight: '32px' }}>
+        {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
+      </div>
+    </ComponentWrap>
   )
   }</Observer >
 }

@@ -3,6 +3,7 @@ import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import _ from 'lodash'
+import { ComponentWrap } from '../style';
 
 export default function CRadio({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -11,7 +12,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -28,7 +29,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
       }} options={self.widget.refer} onChange={e => {
         setDataField(self.widget, e.target.value);
       }} value={_.get(source, self.widget.field)} />
-    </div>
+    </ComponentWrap>
   )
   }</Observer >
 }

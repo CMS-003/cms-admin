@@ -12,6 +12,7 @@ import {
 } from './style'
 import CONST from "@/constant";
 import QueryModal from "./queriesModal";
+import { FullWidth } from "@/components/style";
 const { AlignAround, AlignAside } = Style;
 
 const ScrollWrap = styled.div`
@@ -171,10 +172,10 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     renderItem={({ item, index, handler }: { item: { label: string, value: number | string }, index: number, handler: any }) => (
                       <Input
                         key={index}
-                        addonBefore={<div  {...handler}>
-                          <Acon icon='DragOutlined' style={{ marginRight: 5 }} />
+                        addonBefore={<FullWidth>
+                          <Acon icon='DragOutlined' style={{ marginRight: 5 }}  {...handler} />
                           {item.label}
-                        </div>}
+                        </FullWidth>}
                         value={item.value}
                         addonAfter={<Acon icon='close' onClick={() => { data.remRefer(index); }} />}
                       />

@@ -3,11 +3,12 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Input } from 'antd'
 import { Observer } from 'mobx-react'
 import { usePageContext } from '../context';
+import { ComponentWrap } from '../style';
 
 export default function CInput({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
   const page = usePageContext();
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -22,6 +23,6 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
       <Input value={source[self.widget.field]} style={self.style} onChange={e => {
         setDataField(self.widget, e.target.value);
       }} />
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

@@ -4,6 +4,7 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import NatureSortable from '@/components/NatureSortable'
+import { ComponentWrap } from '../style';
 
 const Wrap = styled.div`
   display: flex;
@@ -30,13 +31,13 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
   })
   return <Observer>
     {() => (
-      <Wrap key={self.children.length}
+      <ComponentWrap key={self.children.length}
         className={mode + drag.className}
         {...drag.events}
         ref={dnd?.ref}
         {...dnd?.props}
         style={{
-          minHeight: 28,
+          overflowX: 'auto',
           ...dnd?.style,
           backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
@@ -58,7 +59,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
             />
           )}
         />
-      </Wrap>
+      </ComponentWrap>
     )}
   </Observer>
 }

@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Checkbox } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
+import { ComponentWrap } from '../style';
 
 export default function CCheckbox({ self, mode, query = {}, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -10,7 +11,7 @@ export default function CCheckbox({ self, mode, query = {}, source = {}, drag, d
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -32,6 +33,6 @@ export default function CCheckbox({ self, mode, query = {}, source = {}, drag, d
           ))}
         </span>
       </div>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

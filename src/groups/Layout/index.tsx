@@ -4,27 +4,21 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
+import { ComponentWrap } from '../style';
 
-const Layout = styled.div`
-  display: flex;
-  flex-direction: row;
-  ${(props) => (props as any)['data-isdragging'] ? "background-color: lightblue !important;" : ""}
-`
 export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext()
   return <Observer>{() => (
-    <Layout
+    <ComponentWrap
       id={self._id}
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      data-isdragging={dnd?.isDragging}
       style={{
-        minHeight: self.children.length === 0 ? 25 : 'auto',
-        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        minHeight: self.children.length === 0 ? 32 : 'auto',
         flex: self.attrs.flex ? 1 : 0,
-        // ...self.style,
+        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         ...dnd?.style,
       }}
     >
@@ -50,6 +44,6 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
           />
         )}
       />
-    </Layout>
+    </ComponentWrap>
   )}</Observer>
 }

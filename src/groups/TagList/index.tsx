@@ -4,6 +4,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Fragment } from 'react'
+import { ComponentWrap } from '../style';
 
 export default function CTags({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -19,7 +20,7 @@ export default function CTags({ self, mode, source = {}, setDataField, drag, dnd
   }))
   const field = self.widget.field;
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -59,6 +60,6 @@ export default function CTags({ self, mode, source = {}, setDataField, drag, dnd
           <Acon icon='add' onClick={() => local.setValue('addVisible', true)} />
         </span>}
       </div>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

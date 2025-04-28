@@ -3,11 +3,12 @@ import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 import NatureSortable from '@/components/NatureSortable'
+import { ComponentWrap } from '../style';
 
 
 export default function CRow({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <Row
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -15,15 +16,14 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
       style={{
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
-    >
+      }}>
       {children}
-      <Col span={0} style={{ minHeight: 32, display: 'block' }} />
       <NatureSortable
         items={self.children}
         direction='horizontal'
         disabled={mode === 'preview'}
         droppableId={self._id}
+        style={{ flex: 1 }}
         wrap={Row}
         sort={self.swap}
         renderItem={({ item, dnd }) => (
@@ -35,6 +35,6 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
           />
         )}
       />
-    </Row>
+    </ComponentWrap>
   )}</Observer>
 }

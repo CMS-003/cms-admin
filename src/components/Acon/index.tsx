@@ -121,8 +121,10 @@ const icons = {
   FieldTimeOutlined,
 }
 const Wrap = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-    cursor:pointer;
   &:hover { 
     opacity: 0.7;
     color: var(--ant-primary-color-hover);
@@ -142,7 +144,7 @@ export default function Acon(prop: {
   const Image: any = icons[prop.icon]
   if (Image && !prop.hidden) {
     return <Wrap style={{ ...prop.style, color: prop.color, fontSize: prop.size }} onClick={prop.onClick}>
-      <Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
+      {prop.title}<Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
     </Wrap>
   }
   return null;

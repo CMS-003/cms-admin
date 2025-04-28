@@ -90,7 +90,8 @@ export default function NatureSortable({
           <Container ref={provided.innerRef} {...provided.droppableProps} style={{
             display: 'flex',
             flexDirection: direction === 'horizontal' ? 'row' : 'column',
-            overflow: 'auto',
+            flexWrap: 'nowrap',
+            // overflow: 'auto',
             flex: 1,
             ...style,
           }}>

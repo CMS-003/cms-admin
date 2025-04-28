@@ -4,6 +4,7 @@ import Acon, { Icon } from '@/components/Acon'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
+import { ComponentWrap } from '../style';
 
 const MenuItem = styled.div`
   color: #333;
@@ -15,7 +16,7 @@ const MenuItem = styled.div`
 `
 export default function CMenuItem({ self, mode, drag, dnd, children, props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -44,6 +45,6 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
             )}
           />
       </div>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

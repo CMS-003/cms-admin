@@ -2,17 +2,17 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
+import { ComponentWrap } from '../style';
 
 export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
         flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
-        ...self.style,
         ...dnd?.style
       }}
     >
@@ -32,6 +32,6 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
           />
         )}
       />
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

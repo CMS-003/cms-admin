@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
+import { ComponentWrap } from '../style';
 
 
 export default function CCol({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
@@ -9,7 +10,7 @@ export default function CCol({ self, mode, drag, dnd, children, ...props }: IAut
     <Col
       offset={self.attrs.left || 0}
       span={self.attrs.right || 6}
-      className={mode + drag.className}
+      className={mode + drag.className + ComponentWrap.styledComponentId}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}

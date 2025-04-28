@@ -2,15 +2,16 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
+import { ComponentWrap } from '../style';
 
 export default function CField({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
-  return <Observer>{() => <Row
-    className={mode + drag.className}
+  return <Observer>{() => <ComponentWrap
+    className={'ant-row ' + mode + drag.className}
     {...drag.events}
     ref={dnd?.ref}
     {...dnd?.props}
     style={{
-      paddingTop: 8, paddingBottom: 8,
+      paddingTop: 5, paddingBottom: 5,
       ...dnd?.style,
       backgroundColor: dnd?.isDragging ? 'lightblue' : '',
     }}
@@ -24,5 +25,5 @@ export default function CField({ self, mode, dnd, drag, children, ...props }: IA
         <Component key={i} self={child} mode={mode} index={i} {...props} />
       ))}
     </Col>
-  </Row>}</Observer>
+  </ComponentWrap>}</Observer>
 }

@@ -3,6 +3,7 @@ import { Switch } from 'antd'
 import { runInAction } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
+import { ComponentWrap } from '../style';
 
 export default function CCheckbox({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
   const IN = self.widget.in || 'body';
@@ -27,7 +28,7 @@ export default function CCheckbox({ self, mode, query = {}, source = {}, drag, d
     }
   })
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -46,6 +47,6 @@ export default function CCheckbox({ self, mode, query = {}, source = {}, drag, d
           setDataField(self.widget, checked)
         }} />
       </div>
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

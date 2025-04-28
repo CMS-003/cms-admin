@@ -10,6 +10,7 @@ import { pick } from 'lodash';
 import CONST from '@/constant'
 import apis from '@/api';
 import ModalPage from '../modal';
+import { ComponentWrap } from '../style';
 
 export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
     }
   }))
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
@@ -38,7 +39,6 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       {...dnd?.props}
       style={{
         ...dnd?.style,
-        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
         flex: self.attrs.flex ? 1 : 0,
         display: 'flex',
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
@@ -51,7 +51,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           message.success('复制成功', 1)
         }}
       >
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, lineHeight: '35px', ...(self.style) }} />
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} />
       </CopyToClipboard> :
         (
           self.widget.action === CONST.ACTION_TYPE.DELETE && self.api
@@ -68,9 +68,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
                 message.error('操作异常');
               }
             }}>
-              <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, ...(self.style) }} />
+              <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} />
             </Popconfirm>
-            : <Acon icon={self.icon || 'PlusOutlined' as any} style={{ width: 24, height: 24, ...(self.style) }} onClick={async () => {
+            : <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
               if (self.widget.action === CONST.ACTION_TYPE.OPEN_URL) {
                 window.open(source[self.widget.field] || self.widget.value)
               } else if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
@@ -84,6 +84,6 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
 
       }
       {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', ''); }} />}
-    </div>
+    </ComponentWrap>
   )}</Observer>
 }

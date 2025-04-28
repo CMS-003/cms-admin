@@ -24,7 +24,7 @@
 - ✅ 可视化编辑后,再修改保存提示无变化
 - ✅ source和setSource
 - ✅ widget的类型问题整数1和字符串1
-- page root info
+- ✅ page root info
 - ✅ sort & editable 事件.
   - enter时显示popover层比右键+dragHandler好
 - ✅ dnd 克隆模式需设置整个拖动(记录全局可拖动id,其他都不可拖动)
@@ -44,10 +44,12 @@
   - ✅ 去掉renderItem包裹的div
 - 编辑面板
   - ✅ 基础：title/desc/parent_id/_id/
-  - ✅ 数据: api/resources/widget_field/widget_value/widget_type/layout(1/-1)/flex(0/1)/
+  - ✅ 数据: api/resources/flex(0/1)/
+  - 控件: widget_field/widget_value/widget_type/widget_in/widget_refer
   - ✅ 事件: widget_action/
   - ✅ 布局: layout/style
 - 重写Table
+- 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
 
 ## 代码库学习
 
@@ -79,7 +81,21 @@
 ## 表单与列表
 
 - ✅ 列模板使用hbs语法
-  - 
+  - 封面显示
+  ```handlebars
+  <div style="width:120px;height:80px;background:url(
+  {{~ store.app.imageLine ~}}
+  {{~#if poster~}}
+    {{poster}}
+  {{~else~}}
+    {{~#if thumbnail ~}}
+      {{thumbnail}}
+    {{~else~}}
+      /images/nocover.jpg
+    {{~/if~}}
+  {{~/if~}}
+  ) center center no-repeat;background-size: contain;border-radius:3px;"></div>
+  ```
 
 ## 问题与方案
 

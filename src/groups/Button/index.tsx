@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import CONST from '@/constant';
 import { Acon } from '@/components';
 import ModalPage from '../modal';
+import { ComponentWrap } from '../style';
 
 export default function CButton({ self, mode, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
     }
   }))
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
@@ -59,7 +60,7 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
         // page.close() // 调这个就关闭标签页了
         local.setValue('template_id', '')
       }} />}
-    </div>
+    </ComponentWrap>
   )
   }</Observer >
 }

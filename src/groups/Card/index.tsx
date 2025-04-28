@@ -2,12 +2,13 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import Acon from '@/components/Acon'
 import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
-import { Center } from '@/components/style'
+import { Center, FullHeight } from '@/components/style'
 import ResourceModal from '@/components/ResourceModal'
 import { IResource } from '@/types/resource'
 import _ from 'lodash'
 import { Fragment } from 'react'
 import store from '@/store'
+import { ComponentWrap } from '../style';
 
 const Header = styled.div`
  font-weight: 600;
@@ -66,43 +67,44 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
     }
   }))
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
         flex: 0,
-        ...self.style,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <Header>
-        {self.title}
-      </Header>
-      <Content>
-        <ScrollWrap>
-          {self.resources?.map(item => (<Fragment key={item._id}>
-            <ItemWrap>
-              <div style={{ width: 150, height: 120, backgroundImage: `url(${store.app.imageLine + (item.poster || item.thumbnail || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
-              <ItemTitle >{item.title}</ItemTitle>
-            </ItemWrap>
-          </Fragment>))}
-        </ScrollWrap>
-      </Content>
-      {local.show && <ResourceModal onClose={() => {
-        local.close()
-      }} onAdd={(d: IResource) => {
-        self.addResource(_.pick(d, ['_id', 'title', 'cover']))
-      }} />}
-      {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
-        local.open()
-      }}>
-        添加资源<Acon icon='PlusOutlined' />
-      </Center>}
-    </div>
+      <FullHeight>
+        <Header>
+          {self.title}
+        </Header>
+        <Content>
+          <ScrollWrap>
+            {self.resources?.map(item => (<Fragment key={item._id}>
+              <ItemWrap>
+                <div style={{ width: 150, height: 120, backgroundImage: `url(${store.app.imageLine + (item.poster || item.thumbnail || '/images/poster/nocover.jpg')})`, backgroundSize: 'cover', backgroundPosition: 'center center' }}></div>
+                <ItemTitle >{item.title}</ItemTitle>
+              </ItemWrap>
+            </Fragment>))}
+          </ScrollWrap>
+        </Content>
+        {local.show && <ResourceModal onClose={() => {
+          local.close()
+        }} onAdd={(d: IResource) => {
+          self.addResource(_.pick(d, ['_id', 'title', 'cover']))
+        }} />}
+        {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
+          local.open()
+        }}>
+          <Acon icon='PlusOutlined' title='添加资源' />
+        </Center>}
+      </FullHeight>
+    </ComponentWrap>
   )
   }</Observer >
 }

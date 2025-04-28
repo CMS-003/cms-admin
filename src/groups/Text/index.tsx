@@ -1,22 +1,33 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
+import { ComponentWrap } from '../style';
+import styled from 'styled-components';
+
+const Text = styled.span`
+  line-height: 1.5;
+  word-break: break-all;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`
 
 export default function CText({ self, mode, source = {}, drag, dnd, children }: IAuto & IBaseComponent) {
   return <Observer>{() => (
-    <div
+    <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
         flex: self.attrs.flex ? 1 : 0,
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <span className='two-line-ellipsis' style={{ lineHeight: 1.5, wordBreak: 'break-all', ...self.style }}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</span>
-    </div>
+      <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</Text>
+    </ComponentWrap>
   )}</Observer>
 }

@@ -49,6 +49,10 @@ code {
   background-color: aliceblue;
 }
 
+.cm-editor {
+  height: 100%;
+}
+
 .ant-modal {
   width: 1000px !important;
 }
@@ -99,117 +103,6 @@ code {
 .ant-table {
   flex: 1;
   overflow: auto;
-}
-
-/* 组件编辑状态样式 */
-/* .focus 选中状态(蓝色) 
-   .hover 悬浮状态(红色) 
-   .delete 删除状态(灰色)
- */
-.component {
-  position: relative;
-  flex: 1;
-  box-sizing: border-box;
-}
-
-.component.edit {
-  display: flex;
-  flex-direction: row;
-}
-
-/* 为拖拽handler提供位置 */
-.component.edit::before {
-  content: '';
-  padding-left: 20px !important;
-}
-
-.component.preview>.handler,
-.component.preview>.line,
-.component.preview>.coner {
-  display: none;
-}
-
-.component.edit.focus>.handler {
-  visibility: visible;
-  opacity: 1;
-  background-color: #1890ff40;
-}
-
-.component.edit.focus>.handler::after {
-  height: 100%;
-  content: '';
-  margin-right: -1px;
-  border-right: 1px dashed #1890ff;
-  z-index: 4;
-}
-
-.component.edit.hover>.handler {
-  visibility: visible;
-  opacity: 1;
-  background-color: #cc000040;
-}
-
-.component.edit.hover>.handler::after {
-  height: 100%;
-  content: '';
-  margin-right: -1px;
-  border-right: 1px dashed #df3540;
-  z-index: 4;
-}
-
-.component.edit>.line {
-  position: absolute;
-  z-index: 4;
-  visibility: hidden;
-  border: 0 dashed transparent;
-}
-
-.component.edit.focus>.line {
-  border-color: #1890ff;
-  visibility: visible;
-}
-
-.component.edit.hover>.line {
-  border-color: #df3540;
-  visibility: visible;
-  z-index: 5;
-}
-
-.component.edit>.coner {
-  position: absolute;
-  z-index: 2;
-  width: 2px;
-  height: 2px;
-  border-style: solid;
-  visibility: hidden;
-}
-
-.component.edit.focus>.coner {
-  border-color: #1890ff;
-  visibility: visible;
-}
-
-.component.edit.hover>.coner {
-  border-color: #df3540;
-  visibility: visible;
-}
-
-.component.edit.delete {
-  background: repeating-linear-gradient(45deg,
-      gray 0px,
-      gray 10px,
-      white 10px,
-      white 20px);
-  background-clip: padding-box;
-  opacity: 0.6;
-}
-
-.component.edit.dragover {
-  background-color: #7cd77f;
-}
-
-.component.edit.cantdrag {
-  background-color: #df3540;
 }
 
 .DraftEditor-root {

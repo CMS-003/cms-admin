@@ -3,6 +3,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import store from '@/store'
 import { Component } from "../auto"
+import { ComponentWrap } from '../style';
 
 export const TabItemWrap = styled.div`
   height: 100%;
@@ -44,14 +45,16 @@ export default function TabItem({ self, mode, drag, children, ...props }: IAuto 
   }))
   return <Observer>
     {() => (
-      <TabItemWrap
+      <ComponentWrap
         className={mode + drag.className}
         onDragOver={local.onDragOver}
         onDragLeave={local.onDragLeave}
-        onDrop={local.onDrop} >
-        {children}
-        {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props}/>)}
-      </TabItemWrap>
+        onDrop={local.onDrop}>
+        {/* {children} */}
+        <TabItemWrap>
+          {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props} />)}
+        </TabItemWrap>
+      </ComponentWrap>
     )}
   </Observer>
 }
