@@ -231,7 +231,7 @@ const shttp = {
   delete<T>(url: string) {
     return new Request<(BaseResultWrapper<T> & BaseResultsWrapper<T>)>('delete', url)
   },
-  patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
+  patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('patch', url, params, config),
 };
 
 export default shttp;
