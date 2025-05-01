@@ -23,6 +23,10 @@ const apis = {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/schemas/${name}/fields`);
     return result;
   },
+  fetch: async<T>({ method, url }: { method: 'get' | 'put' | 'patch' | 'delete' | 'post', url: string }, data?: any) => {
+    const result = await shttp[method]<T | IResource>(url, data)
+    return result;
+  },
   getDataList: async <T>(url: string, query: { [key: string]: any } = {}) => {
     if (url.includes('?')) {
       const [path, params] = url.split('?');
@@ -34,18 +38,6 @@ const apis = {
   },
   getDataInfo: async (url: string) => {
     const result = await shttp.get<IResource>(url)
-    return result
-  },
-  putData: async (url: string, data: Partial<IResource>) => {
-    const result = await shttp.put<IResource>(url, data);
-    return result;
-  },
-  createData: async (url: string, data: any) => {
-    const result = await shttp.post<IResource>(url, data)
-    return result
-  },
-  destroyData: async (url: string) => {
-    const result = await shttp.delete<IResource>(url)
     return result
   },
 }

@@ -20,23 +20,26 @@ export default function Editor({ self, mode, drag, dnd, source, setDataField, ch
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        ...self.style,
         ...dnd?.style,
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
-      <CodeMirror
-        key={self._id}
-        value={source[self.widget.field]}
-        className="code-mirror"
-        theme={vscodeDark}
-        style={{ border: '1px dotted grey', flex: 1, minHeight: 400 }}
-        extensions={[javascript()]}
-        onChange={(value, options) => {
-          setDataField(self.widget, value)
-        }}
-      />
+      <div style={{ width: '100%', }}>
+        <CodeMirror
+          key={self._id}
+          value={source[self.widget.field]}
+          className="code-mirror"
+          theme={vscodeDark}
+          style={{ border: '1px dotted grey' }}
+          extensions={[javascript()]}
+          onChange={(value, options) => {
+            setDataField(self.widget, value)
+          }}
+        />
+      </div>
     </ComponentWrap>
   )}</Observer>
 }

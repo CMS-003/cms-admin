@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Center, FullHeight } from '@/components/style'
 import ResourceModal from '@/components/ResourceModal'
 import { IResource } from '@/types/resource'
-import _ from 'lodash'
+import { pick } from 'lodash'
 import { Fragment } from 'react'
 import store from '@/store'
 import { ComponentWrap } from '../style';
@@ -96,7 +96,7 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
         {local.show && <ResourceModal onClose={() => {
           local.close()
         }} onAdd={(d: IResource) => {
-          self.addResource(_.pick(d, ['_id', 'title', 'cover']))
+          self.addResource(pick(d, ['_id', 'title', 'cover']))
         }} />}
         {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
           local.open()

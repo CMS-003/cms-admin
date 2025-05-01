@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
-import { Table } from 'antd'
+import { Table, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Component } from '../auto'
 import { useEffectOnce } from 'react-use'
@@ -12,6 +12,9 @@ import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 import { ComponentWrap } from '../style';
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
+import { AlignAside } from '@/components/style'
+import { VisualBox } from '@/components'
 
 export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -42,16 +45,16 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
     }
   }, []);
   const init = useCallback(async () => {
-    if (self.api && mode === 'preview') {
+    if (self.widget.action === 'FETCH' && mode === 'preview') {
       local.setValue('loading', true)
-      const resp = await apis.getDataList(self.getApi('', page.query), query);
+      const resp = await apis.fetch(self.getApi('', page.query), query);
       if (resp.code === 0) {
-        local.setResources(resp.data.items as IResource[]);
-        local.setValue('total', (resp as any).count || resp.data.total || 0)
+        local.setResources((resp.data as any).items as IResource[]);
+        local.setValue('total', (resp.data as any).total || 0)
       }
       local.setValue('loading', false)
     }
-  }, [self.api])
+  }, [self.widget.action])
   useEffect(() => {
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
@@ -87,7 +90,27 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           init();
         }}
         columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<Component self={child} mode={mode} source={{}} setDataField={() => { }} key={child._id} />)}</Observer>,
+          title: <Observer>{() => (<div key={i}>
+            <VisualBox visible={mode === 'edit'}>
+              <AlignAside>
+                <ArrowLeftOutlined onClick={() => {
+                  if (i !== 0) {
+                    runInAction(() => {
+                      self.swap(i, i - 1)
+                    })
+                  }
+                }} />
+                <ArrowRightOutlined onClick={() => {
+                  if (i !== self.children.length - 1) {
+                    runInAction(() => {
+                      self.swap(i, i + 1)
+                    })
+                  }
+                }} />
+              </AlignAside>
+            </VisualBox>
+            <Component self={child} mode={mode} source={{}} setDataField={() => { }} key={child._id} />
+          </div>)}</Observer>,
           key: child._id,
           width: child.style.width || '',
           align: child.attrs.align || 'left',

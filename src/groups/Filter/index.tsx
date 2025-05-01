@@ -1,6 +1,5 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
-import _ from 'lodash'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react';
 import NatureSortable from '@/components/NatureSortable'

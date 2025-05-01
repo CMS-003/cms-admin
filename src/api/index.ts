@@ -9,7 +9,7 @@ import resource from './resource'
 import componentType from './component-type'
 import schema from './schema'
 import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
-import _ from 'lodash'
+import { keyBy } from 'lodash'
 import qs from 'qs'
 
 function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) {
@@ -26,7 +26,7 @@ const apis = {
     return new Promise((resolve, reject) => {
       import('../store').then(store => {
         if (store.default.component.types.length) {
-          const map = _.keyBy(store.default.component.types, 'type')
+          const map = keyBy(store.default.component.types, 'type')
           results.data.children.forEach(child => fillAccepts(child, map))
         }
         resolve(results)

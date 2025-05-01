@@ -6,12 +6,10 @@ const CONST = {
     'MODAL': 'MODAL',
     'COPY': 'COPY',
     'SEARCH': 'SEARCH',
-    'GET': 'GET',
-    'POST': 'POST',
-    'UPDATE': 'UPDATE',
-    'DELETE': 'DELETE',
+    'FETCH': 'FETCH',
     'OPEN_URL': 'OPEN_URL',
     'GOTO_PAGE': 'GOTO_PAGE',
+    'PREVIEW_IMAGE': 'PREVIEW_IMAGE',
   }
 };
 

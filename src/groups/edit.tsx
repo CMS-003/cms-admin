@@ -262,8 +262,8 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '事件', key: 'event', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="跳转url" value={data.widget.action_url} onChange={e => {
-                    data?.setWidget('action_url', e.target.value);
+                  <Input addonBefore="跳转url" value={data.widget.url} onChange={e => {
+                    data?.setWidget('url', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
@@ -279,10 +279,8 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.GET}>获取数据</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.POST}>发送POST</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.UPDATE}>修改数据</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.DELETE}>删除数据</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.PREVIEW_IMAGE}>图片预览</Select.Option>
                       </Select>
                     </span>
                   </span>

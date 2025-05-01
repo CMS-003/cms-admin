@@ -5,7 +5,7 @@ import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
 import SortList from '@/components/SortList/';
 import { IJsonSchema } from '@/types';
-import _ from 'lodash';
+import { entries, isUndefined, clone } from 'lodash';
 import { useEffectOnce } from 'react-use';
 import { CSSProperties, Fragment } from 'react';
 import './custom.css';
@@ -37,17 +37,17 @@ function Item({
   const local = useLocalObservable(() => ({
     showSub: true,
     get array() {
-      return data.type === 'Object' ? _.entries(data.properties) : [];
+      return data.type === 'Object' ? entries(data.properties) : [];
     },
     setShowSub(b = false) {
       local.showSub = b
     },
     get is_disabled() {
-      return !_.isUndefined(data.const);
+      return !isUndefined(data.const);
     },
     sortKey(oi: number, ni: number) {
       if (oi === ni) return;
-      const keys = _.clone(local.array);
+      const keys = clone(local.array);
       const [removed] = keys.splice(oi, 1);
       keys.splice(ni, 0, removed);
       const newProperties: { [key: string]: IJsonSchema } = {};

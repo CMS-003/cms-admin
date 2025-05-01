@@ -5,7 +5,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { message, } from 'antd'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
-import _ from 'lodash'
+import { omit } from 'lodash'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
@@ -142,7 +142,7 @@ const ScrollWrap = styled.div`
 `
 
 function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
-  const new_node: any = _.omit(node, ['$new', '$selected', 'children', '$origin', '_id']);
+  const new_node: any = omit(node, ['$new', '$selected', 'children', '$origin', '_id']);
   new_node._id = v4();
   new_node.$new = true;
   if (parent_node) {

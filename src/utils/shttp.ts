@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { message } from 'antd'
 import store from '../store'
-import _ from 'lodash';
+import { set, isArray } from 'lodash';
 
 //基础URL，axios将会自动拼接在url前
 //process.env.NODE_ENV 判断是否为开发环境 根据不同环境使用不同的baseURL 方便调试
@@ -122,7 +122,7 @@ interface Request<T> {
   data?: any;
   params?: any;
   headers?: any;
-  then(fn?: Function): PromiseLike<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>;
+  then(fn?: Function): PromiseLike<(BaseResultWrapper<T> & BaseResultsWrapper<T>)>;
 }
 class Request<T> {
   constructor(method: string, url: string) {
@@ -162,7 +162,7 @@ class Request<T> {
     if (this.headers) {
       option.headers = this.headers
     }
-    _.set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
+    set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
     const response = instance.request(option)
     const result = await new Promise<any>((resolve, reject) => {
       response.then(async (res) => {
@@ -180,7 +180,7 @@ class Request<T> {
               } else {
                 store.user.setAccessToken(rResp.data.access_token)
                 store.user.setRefreshToken(rResp.data.refresh_token)
-                _.set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
+                set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
                 instance.request(option).then(resp2 => {
                   if (resp2.status === 200 && resp2.data.code === 0) {
                     cb && cb(resp2.data)
@@ -201,9 +201,9 @@ class Request<T> {
           if (cb) {
             cb(body)
           }
-          // if (body.data && _.isArray(body.data.list)) {
+          // if (body.data && isArray(body.data.list)) {
           //   body.data.items = body.data.list
-          // } else if (_.isArray(body.data)) {
+          // } else if (isArray(body.data)) {
           //   body.data = {
           //     items: body.data,
           //     total: 0,
@@ -229,7 +229,7 @@ const shttp = {
   post: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('post', url, params, config),
   put: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('put', url, params, config),
   delete<T>(url: string) {
-    return new Request<BaseBizError | (BaseResultWrapper<T> & BaseResultsWrapper<T>)>('delete', url)
+    return new Request<(BaseResultWrapper<T> & BaseResultsWrapper<T>)>('delete', url)
   },
   patch: <T>(url: string, params?: object, config?: AxiosRequestConfig) => requestHandler<T>('delete', url, params, config),
 };

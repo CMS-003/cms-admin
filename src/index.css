@@ -60,6 +60,7 @@ code {
 .ant-modal .ant-modal-body {
   max-height: 700px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tag-page .ant-tabs-nav-wrap {
@@ -106,7 +107,6 @@ code {
 }
 
 .DraftEditor-root {
-  height: 400px !important;
   background-color: #ffffff;
   border-radius: 5px;
   padding: 5px;

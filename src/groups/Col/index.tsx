@@ -14,7 +14,7 @@ export default function CCol({ self, mode, drag, dnd, children, ...props }: IAut
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      style={{ ...self.style, ...dnd?.style }}
+      style={{ minWidth: 0, overflowX: 'auto', flexShrink: 1, ...self.style, ...dnd?.style }}
     >
       {children}
       {self.children.map((child, index) => (

@@ -7,8 +7,8 @@ import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
-import { AlignAside } from '@/components/style'
 import Acon from '@/components/Acon';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 const ComponentTemplatePage: React.FC = () => {
   const local = useLocalObservable<{ loading: boolean, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
@@ -181,6 +181,15 @@ const ComponentTemplatePage: React.FC = () => {
         rowKey="_id"
         dataSource={local.list}
       >
+        <Table.Column title="" width={50} dataIndex="_id" render={(_id: string) => {
+          return <CopyToClipboard
+            text={_id}
+            onCopy={() => {
+              message.success('已复制', 1)
+            }}>
+            <Acon icon='copy' />
+          </CopyToClipboard>
+        }} />
         <Table.Column title="名称" dataIndex="title" />
         <Table.Column title="标识名称" dataIndex="name" />
         <Table.Column title="序号" dataIndex="order" />

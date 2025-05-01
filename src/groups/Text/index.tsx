@@ -2,6 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
+import { isNil } from 'lodash';
 
 const Text = styled.span`
   line-height: 1.5;
@@ -27,7 +28,7 @@ export default function CText({ self, mode, source = {}, drag, dnd, children }: 
       }}
     >
       {children}
-      <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (source[self.widget.field] || self.title)}</Text>
+      <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.title)}</Text>
     </ComponentWrap>
   )}</Observer>
 }

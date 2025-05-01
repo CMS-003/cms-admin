@@ -33,7 +33,7 @@ export type IWidget = {
     value: string | number | boolean;
   }[];
   action: string;
-  action_url: string;
+  url: string;
 }
 
 export type IComponent = {
@@ -74,7 +74,7 @@ export type IComponent = {
   removeChild: Function;
   addResource: Function;
   remResource: Function;
-  getApi: (id: string, query?: { [key: string]: any }) => string;
+  getApi: (id: string, query?: { [key: string]: any }) => { method: 'get' | 'put' | 'post' | 'delete' | 'patch', url: string };
   swap: (srcIndex: number, dstIndex: number) => void;
   swapResource: Function;
   toJSON: Function;

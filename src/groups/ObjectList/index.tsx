@@ -1,7 +1,6 @@
 
 import { Center, FullHeight } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
-import _ from 'lodash'
 import NatureSortable from '@/components/NatureSortable'
 import { Component } from '../auto'
 import { runInAction } from 'mobx';
@@ -56,136 +55,135 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
       style={{ height: '100%', justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
     >
       {children}
-      {mode === 'preview'
-        ? <NatureSortable
-          items={source[self.widget.field] || []}
-          direction='vertical'
-          droppableId={self._id}
-          sort={() => {
+      <FullHeight style={{ flex: 1 }}>
+        {mode === 'preview'
+          ? <NatureSortable
+            items={source[self.widget.field] || []}
+            direction='vertical'
+            droppableId={self._id}
+            sort={() => {
 
-          }}
-          style={{ overflow: 'initial' }}
-          renderItem={({ item, dnd: dnd2, index }) => (
-            <div
-              key={index}
-              ref={dnd2?.ref}
-              {...dnd2?.props}
-              style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, ...dnd2?.style }}
-            >
-              {self.children.map(child => (
+            }}
+            style={{ overflow: 'initial' }}
+            renderItem={({ item, dnd: dnd2, index }) => (
+              <div
+                key={index}
+                ref={dnd2?.ref}
+                {...dnd2?.props}
+                style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, ...dnd2?.style }}
+              >
+                {self.children.map(child => (
+                  <Component
+                    key={child._id}
+                    self={child}
+                    mode={mode}
+                    source={item}
+                    initField={false}
+                    setDataField={(widget: IWidget, value: any) => {
+                      switch (widget.type) {
+                        case 'boolean':
+                          value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
+                          break;
+                        case 'number':
+                          value = parseFloat(value) || 0
+                          break;
+                        case 'json':
+                          try {
+                            value = JSON.parse(value);
+                          } catch (e) {
+                            return;
+                          }
+                          break;
+                        default: break;
+                      }
+                      runInAction(() => {
+                        item[widget.field] = value
+                      })
+                    }}
+                    {...props}
+                  />
+                ))}
+              </div>
+            )}
+          />
+          : <NatureSortable
+            items={self.children}
+            direction='vertical'
+            disabled={mode === 'preview'}
+            droppableId={self._id}
+
+            style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
+            sort={self.swap}
+            renderItem={({ item, dnd }) => (
+              <Component
+                self={item}
+                mode={mode}
+                dnd={dnd}
+                source={{}}
+                setDataField={(widget: IWidget, value: any) => {
+                  switch (widget.type) {
+                    case 'boolean':
+                      value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                      break;
+                    case 'number':
+                      value = parseFloat(value) || 0
+                      break;
+                    case 'json':
+                      try {
+                        value = JSON.parse(value);
+                      } catch (e) {
+                        return;
+                      }
+                      break;
+                    default: break;
+                  }
+                  runInAction(() => {
+                    // item[widget.field] = value
+                  })
+                }}
+                {...props}
+              />
+            )}
+          />
+        }
+        {local.showAdd && (
+          <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, border: '1px dashed #ccc' }}>
+            {
+              self.children.map(child => (
                 <Component
                   key={child._id}
                   self={child}
                   mode={mode}
-                  source={item}
-                  initField={false}
+                  dnd={dnd}
+                  source={local.source}
                   setDataField={(widget: IWidget, value: any) => {
-                    switch (widget.type) {
-                      case 'boolean':
-                        value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
-                        break;
-                      case 'number':
-                        value = parseFloat(value) || 0
-                        break;
-                      case 'json':
-                        try {
-                          value = JSON.parse(value);
-                        } catch (e) {
-                          return;
-                        }
-                        break;
-                      default: break;
-                    }
-                    runInAction(() => {
-                      item[widget.field] = value
-                    })
+                    local.setTempDataField(widget, value)
                   }}
-                  {...props}
                 />
-              ))}
-            </div>
-          )}
-        />
-        : <NatureSortable
-          items={self.children}
-          direction='vertical'
-          disabled={mode === 'preview'}
-          droppableId={self._id}
-
-          style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
-          sort={self.swap}
-          renderItem={({ item, dnd }) => (
-            <Component
-              self={item}
-              mode={mode}
-              dnd={dnd}
-              source={{}}
-              setDataField={(widget: IWidget, value: any) => {
-                switch (widget.type) {
-                  case 'boolean':
-                    value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-                    break;
-                  case 'number':
-                    value = parseFloat(value) || 0
-                    break;
-                  case 'json':
-                    try {
-                      value = JSON.parse(value);
-                    } catch (e) {
-                      return;
-                    }
-                    break;
-                  default: break;
-                }
-                runInAction(() => {
-                  // item[widget.field] = value
-                })
-              }}
-              {...props}
-            />
-          )}
-        />
-      }
-      {local.showAdd && (
-        <Fragment>
-          {
-            self.children.map(child => (
-              <Component
-                key={child._id}
-                self={child}
-                mode={mode}
-                dnd={dnd}
-                source={local.source}
-                setDataField={(widget: IWidget, value: any) => {
-                  local.setTempDataField(widget, value)
-                }}
-              />
-            ))
+              ))
+            }
+          </div>
+        )}
+        <Center style={{ padding: 10 }}>
+          {local.showAdd
+            ? <Space>
+              <Acon icon="close" onClick={() => {
+                local.setAdd(false)
+                local.set({})
+              }} />
+              <Acon icon="check" onClick={() => {
+                // TODO: 请求创建接口
+                local.setAdd(false)
+                setDataField(self.widget, [...(source[self.widget.field] || []), local.source])
+                local.set({})
+              }} />
+            </Space>
+            : <Acon icon="PlusOutlined" onClick={() => {
+              local.setAdd(true)
+            }} />
           }
-
-        </Fragment>
-
-      )}
-      <Center style={{ padding: 10 }}>
-        {local.showAdd
-          ? <Space>
-            <Acon icon="close" onClick={() => {
-              local.setAdd(false)
-              local.set({})
-            }} />
-            <Acon icon="check" onClick={() => {
-              // TODO: 请求创建接口
-              local.setAdd(false)
-              setDataField(self.widget, [...(source[self.widget.field] || []), local.source])
-              local.set({})
-            }} />
-          </Space>
-          : <Acon icon="PlusOutlined" onClick={() => {
-            local.setAdd(true)
-          }} />
-        }
-
-      </Center>
+        </Center>
+      </FullHeight>
     </ComponentWrap>
   )}</Observer>
 }

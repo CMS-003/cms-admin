@@ -36,7 +36,7 @@ import Editor from './Editor'
  * 组件与属性 attr
  * Layout: layout(0,1)
  * HotArea: columns(number)
- * Button: type, action, action_url
+ * Button: type, action, url
  * Icon: 
  * Tags: 依赖source的字符串数组
  * Text

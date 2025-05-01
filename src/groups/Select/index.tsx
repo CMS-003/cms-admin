@@ -37,9 +37,9 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
             onChange={async (v) => {
               const old = data[self.widget.value as string]
               setDataField(self.widget, v)
-              if (self.widget.action === CONST.ACTION_TYPE.UPDATE && self.api) {
+              if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
                 try {
-                  const result = await apis.putData(self.getApi(data._id), { [self.widget.field]: v })
+                  const result = await apis.fetch(self.getApi(data._id), { [self.widget.field]: v })
                   if (result.code === 0) {
 
                   } else {

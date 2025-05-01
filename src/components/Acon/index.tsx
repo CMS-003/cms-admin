@@ -140,10 +140,12 @@ export default function Acon(prop: {
   hidden?: boolean,
   style?: React.CSSProperties,
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
+  [key: string]: any;
 }) {
+  const { icon, size, color, rotate, title, hidden, style, ...props } = prop;
   const Image: any = icons[prop.icon]
   if (Image && !prop.hidden) {
-    return <Wrap style={{ ...prop.style, color: prop.color, fontSize: prop.size }} onClick={prop.onClick}>
+    return <Wrap style={{ ...prop.style, color: prop.color, fontSize: prop.size }} onClick={prop.onClick} {...props}>
       {prop.title}<Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
     </Wrap>
   }

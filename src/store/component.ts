@@ -1,6 +1,6 @@
 import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
 import { IComponent, IComponentType, IResource } from '@/types'
-import _, { } from 'lodash'
+import { isEqual, omit, cloneDeep } from 'lodash'
 import { v4 } from 'uuid'
 
 function validateDate(str: string) {
@@ -33,7 +33,7 @@ export const IsoDate = types.custom({
   }
 });
 function deepEqual(a: any, b: any) {
-  return _.isEqual(a, b);
+  return isEqual(a, b);
 }
 export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any }) {
   // 判断是否为完整 URL（包含协议）
@@ -88,7 +88,7 @@ export const ComponentItem = types.model('Component', {
     in: types.optional(types.string, 'body'),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),
-    action_url: types.optional(types.string, ''),
+    url: types.optional(types.string, ''),
   }),
   accepts: types.optional(types.array(types.string), []),
   api: types.optional(types.string, ''),
@@ -105,7 +105,7 @@ export const ComponentItem = types.model('Component', {
 }).views(self => ({
   toJSON() {
     const data = getSnapshot(self);
-    return _.omit(data, ['data', 'children', '$origin', '$selected', '$new'])
+    return omit(data, ['data', 'children', '$origin', '$selected', '$new'])
   },
   diff() {
     if (!deepEqual(self.$origin, this.toJSON())) {
@@ -114,17 +114,24 @@ export const ComponentItem = types.model('Component', {
     return false;
   },
   getApi(id: string, query?: any) {
-    let url = self.api.replace(':id', id || '');
+    let method: 'get' | 'put' | 'post' | 'delete' | 'patch' = 'get';
+    let url = self.widget.url.replace(':id', id || '');
+    if (/^(get|put|post|delete|patch\:)/.test(url)) {
+      const index = url.indexOf(':');
+      // @ts-ignore
+      method = url.substring(0, index);
+      url = url.substring(index + 1);
+    }
     if (query) {
       url = mergeQuery(url, query)
     }
-    return url;
+    return { method, url };
   }
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
   },
-  setWidget(k: 'field' | 'value' | 'action' | 'action_url', v: string) {
+  setWidget(k: 'field' | 'value' | 'action' | 'url', v: string) {
     if (k === 'value') {
       if (self.widget.type === 'boolean') {
         self.widget.value = ['1', 'true', 'TRUE'].includes(v)
@@ -165,7 +172,7 @@ export const ComponentItem = types.model('Component', {
     self.widget.refer.splice(n, 1);
   },
   setAttrs(key: string, value: string | number | null) {
-    const attr = _.cloneDeep(self.attrs);
+    const attr = cloneDeep(self.attrs);
     if (value === null) {
       delete attr[key]
     } else {

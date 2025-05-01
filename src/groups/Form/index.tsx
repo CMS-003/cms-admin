@@ -5,13 +5,12 @@ import { Button, message, Space } from 'antd'
 import { Component } from '../auto'
 import { useCallback, useContext, useEffect } from 'react'
 import apis from '@/api'
-import _ from 'lodash'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
-import { toJS } from 'mobx'
+import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick, set, isEqual, isEmpty } from 'lodash';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 
@@ -45,7 +44,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         } else {
           let v = args[1];
           if (type === 'body') {
-            _.set(local.source, args[0], v)
+            set(local.source, args[0], v)
           }
           if (type === 'query') {
             local.query[args[0]] = args[1]
@@ -84,7 +83,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         const s = new Set([...keys1, ...keys2]);
         const result: { [key: string]: any } = {};
         s.forEach(key => {
-          const equal = _.isEqual((local.$origin as any)[key], (local.source as any)[key]);
+          const equal = isEqual((local.$origin as any)[key], (local.source as any)[key]);
           if (!equal) {
             result[key] = local.source[key]
           }
@@ -92,32 +91,43 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         return result;
       },
       isDiff() {
-        return !_.isEmpty(local.getDiff())
+        return !isEmpty(local.getDiff())
       },
       setLoading(b: boolean) {
         local.loading = b
       }
     }));
   const getInfo = useCallback(async () => {
-    if (self.api && mode === 'preview' && page.query.id) {
+    if (self.widget.action === 'FETCH' && mode === 'preview' && page.query.id) {
       local.setLoading(true)
-      const resp = await apis.getDataInfo(self.getApi(page.query['id'] as string));
+      const resp = await apis.fetch(self.getApi(page.query['id'] as string));
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
       local.setLoading(false)
     }
-  }, [self.api, page.query['id']])
+  }, [self.widget.action, page.query['id']])
   const updateInfo = useCallback(async (close = false) => {
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
-      const result = await (page.query.id ? apis.putData(self.getApi(page.query['id'] as string, local.query), data) : apis.createData(self.getApi(page.query['id'] as string, local.query), data));
+      const { url } = self.getApi(page.query.id as string, local.query)
+      const result = await (page.query.id ? apis.fetch<IResource>({ method: 'put', url }, data) : apis.fetch<IResource>({ method: 'post', url }, data));
       if (result.code === 0) {
+        runInAction(() => {
+          if (result.data) {
+            local.$origin = result.data as any;
+            local.setSource(result.data)
+            page.setQuery('id', result.data._id)
+          }
+        })
         if (result.data) {
-          local.setSource(result.data)
           // 刷新父页面列表
           events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
+          if (close) {
+            page.close()
+          }
+        } else {
           if (close) {
             page.close()
           }
@@ -133,7 +143,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
   }, [])
   useEffect(() => {
     getInfo();
-  }, [page.query['id'], self.api])
+  }, [page.query['id'], self.widget.action])
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
@@ -149,7 +159,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     >
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
-        <FullHeightAuto style={{ overflow: 'initial' }}>
+        <FullHeightAuto>
           <NatureSortable
             items={self.children}
             direction='vertical'
@@ -171,8 +181,8 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         </FullHeightAuto>
         <Center>
           <Space style={{ padding: 8 }}>
-            <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
-            <Button loading={local.loading} disabled={!local.isDiff() && _.isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+            <Button loading={local.loading} disabled={!local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+            <Button loading={local.loading} disabled={!local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
           </Space>
         </Center>
       </FullWidthAuto>
