@@ -116,7 +116,7 @@ export const ComponentItem = types.model('Component', {
   getApi(id: string, query?: any) {
     let method: 'get' | 'put' | 'post' | 'delete' | 'patch' = 'get';
     let url = self.widget.url.replace(':id', id || '');
-    if (/^(get|put|post|delete|patch\:)/.test(url)) {
+    if (/^(get|put|post|delete|patch)\:/.test(url)) {
       const index = url.indexOf(':');
       // @ts-ignore
       method = url.substring(0, index);
