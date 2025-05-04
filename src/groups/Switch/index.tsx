@@ -1,12 +1,11 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Switch } from 'antd'
-import { runInAction } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
 
 export default function CCheckbox({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
-  const IN = self.widget.in || 'body';
   const local = useLocalObservable(() => ({
     TRUE: '开启',
     FALSE: '关闭',
@@ -43,7 +42,7 @@ export default function CCheckbox({ self, mode, query = {}, source = {}, drag, d
       <div style={{ lineHeight: '32px' }}>
         {self.title && <span style={{ marginRight: 10 }}>{self.title}</span>}
         {/* @ts-ignore */}
-        <Switch checkedChildren={local.TRUE} unCheckedChildren={local.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(source[self.widget.field])} onChange={checked => {
+        <Switch checkedChildren={local.TRUE} unCheckedChildren={local.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(self.widget.in === 'body' ? source[self.widget.field] : query[self.widget.field])} onChange={checked => {
           setDataField(self.widget, checked)
         }} />
       </div>
