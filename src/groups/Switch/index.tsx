@@ -5,7 +5,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
 
-export default function CCheckbox({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     TRUE: '开启',
     FALSE: '关闭',

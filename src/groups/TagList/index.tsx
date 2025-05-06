@@ -26,7 +26,7 @@ export default function CTags({ self, mode, source = {}, setDataField, drag, dnd
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        ...self.style,
+        flexDirection: 'column',
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
@@ -56,7 +56,7 @@ export default function CTags({ self, mode, source = {}, setDataField, drag, dnd
               <Acon icon='close' style={{ marginLeft: 10 }} onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
             </Fragment>
           )} />
-        ) : <span style={{ border: '1px dashed #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
+        ) : <span style={{ border: '1px dotted #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
           <Acon icon='add' onClick={() => local.setValue('addVisible', true)} />
         </span>}
       </div>

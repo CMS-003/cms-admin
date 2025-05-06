@@ -164,7 +164,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             }
           </div>
         )}
-        <Center style={{ padding: 10 }}>
+        <Center style={{ margin: 4, padding: 10, borderRadius: 5, backgroundColor: 'lightblue' }}>
           {local.showAdd
             ? <Space>
               <Acon icon="close" onClick={() => {

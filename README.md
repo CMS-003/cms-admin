@@ -45,11 +45,11 @@
 - 编辑面板
   - ✅ 基础：title/desc/parent_id/_id/
   - ✅ 数据: api/resources/flex(0/1)/
-  - 控件: widget_field/widget_value/widget_type/widget_in/widget_refer
+  - ✅ 控件: widget_field/widget_value/widget_type/widget_in/widget_refer
   - ✅ 事件: widget_action/
   - ✅ 布局: layout/style
 - 重写Table
-- 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
+- ✅ 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
 
 ## 代码库学习
 
