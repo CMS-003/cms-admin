@@ -88,10 +88,10 @@ export const ComponentItem = types.model('Component', {
     in: types.optional(types.string, 'body'),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),
-    url: types.optional(types.string, ''),
+    method: types.optional(types.string, ''),
   }),
   accepts: types.optional(types.array(types.string), []),
-  api: types.optional(types.string, ''),
+  url: types.optional(types.string, ''),
   resources: types.optional(types.array(types.model({
     _id: types.string,
     title: types.optional(types.string, ''),
@@ -114,24 +114,17 @@ export const ComponentItem = types.model('Component', {
     return false;
   },
   getApi(id: string, query?: any) {
-    let method: 'get' | 'put' | 'post' | 'delete' | 'patch' = 'get';
-    let url = self.widget.url.replace(':id', id || '');
-    if (/^(get|put|post|delete|patch)\:/.test(url)) {
-      const index = url.indexOf(':');
-      // @ts-ignore
-      method = url.substring(0, index);
-      url = url.substring(index + 1);
-    }
+    let url = self.url.replace(':id', id || '');
     if (query) {
       url = mergeQuery(url, query)
     }
-    return { method, url };
+    return url;
   }
 })).actions(self => ({
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
   },
-  setWidget(k: 'field' | 'value' | 'action' | 'url', v: string) {
+  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'in', v: string) {
     if (k === 'value') {
       if (self.widget.type === 'boolean') {
         self.widget.value = ['1', 'true', 'TRUE'].includes(v)
@@ -205,7 +198,7 @@ export const ComponentItem = types.model('Component', {
       desc: '',
       order: self.children.length,
       status: 1,
-      api: '',
+      url: '',
       widget: { field: '', value: '', type: 'string', refer: [], action: '', in: 'body' },
       createdAt: new Date(),
       updatedAt: new Date(),

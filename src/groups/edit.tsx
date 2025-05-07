@@ -125,7 +125,6 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <span className="ant-input-group-addon">参数位置</span>
                         <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', backgroundColor: '#d9d9d9' }}>
                           <Radio.Group options={[{ label: 'body', value: 'body' }, { label: 'query', value: 'query' }]} value={data.widget.in} onChange={(e) => {
-                            console.log(e.target.value)
                             data.setWidget('in', e.target.value)
                           }} />
                         </div>
@@ -207,9 +206,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '数据', key: 'data', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="接口" value={data.api} onChange={e => {
-                    data?.setAttr('api', e.target.value);
-                  }} />
+
                 </EditItem>
                 <EditItem>
                   条件 <Acon icon='PlusCircleOutlined' onClick={() => {
@@ -262,9 +259,42 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '事件', key: 'event', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="跳转url" value={data.widget.url} onChange={e => {
-                    data?.setWidget('url', e.target.value);
-                  }} />
+                  {
+                    (data.widget.action === CONST.ACTION_TYPE.GOTO_PAGE || data.widget.action === CONST.ACTION_TYPE.OPEN_URL)
+                    && <Input addonBefore="跳转url" value={data.url} onChange={e => {
+                      data.setAttr('url', e.target.value);
+                    }} />
+                  }
+                  {
+                    data.widget.action === CONST.ACTION_TYPE.MODAL && <Input addonBefore='模板id' value={data.widget.method} onChange={e => {
+                      data.setAttr('method', e.target.value);
+                    }} />
+                  }
+                  {
+                    data.widget.action === CONST.ACTION_TYPE.PREVIEW && <Select defaultValue={data.widget.method} onChange={v => {
+                      data.setWidget('method', v);
+                    }}>
+                      <Select.Option value='image'>图片</Select.Option>
+                      <Select.Option value='video'>视频</Select.Option>
+                    </Select>
+                  }
+                  {data.widget.action === CONST.ACTION_TYPE.FETCH && <Input addonBefore={data.widget.action === CONST.ACTION_TYPE.FETCH
+                    ? <Select value={data.widget.method} onChange={v => {
+                      data.setWidget('method', v);
+                    }}>
+                      <Select.Option value="AUTO">AUTO</Select.Option>
+                      <Select.Option value="GET">GET</Select.Option>
+                      <Select.Option value="PUT">PUT</Select.Option>
+                      <Select.Option value="POST">POST</Select.Option>
+                      <Select.Option value="DELETE">DELETE</Select.Option>
+                      <Select.Option value="PATCH">PATCH</Select.Option>
+                    </Select>
+                    : '接口'}
+                    value={data.url}
+                    readOnly={data.widget.action !== CONST.ACTION_TYPE.FETCH}
+                    onChange={e => {
+                      data.setAttr('url', e.target.value);
+                    }} />}
                 </EditItem>
                 <EditItem>
                   <span className="ant-input-group-wrapper">
@@ -280,7 +310,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.PREVIEW_IMAGE}>图片预览</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
                       </Select>
                     </span>
                   </span>

@@ -56,7 +56,7 @@ export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto 
       className={mode + drag.className}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
-          navigate(`${self.widget.url}?id=${source._id}`)
+          navigate(`${self.url}?id=${source._id}`)
         }
       }}
       {...drag.events}

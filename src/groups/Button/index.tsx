@@ -46,14 +46,14 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
             value: 1,
             in: 'query',
             action: '',
-            url: '',
+            method: '',
             refer: []
           }, 1)
           events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
-        } else if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
-          navigate(`${self.widget.url}?id=`)
+        } else if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE || self.widget.action === CONST.ACTION_TYPE.OPEN_URL) {
+          navigate(`${self.url}?id=`)
         } else if (self.widget.action === CONST.ACTION_TYPE.MODAL) {
-          local.setValue('template_id', self.widget.url)
+          local.setValue('template_id', self.widget.method)
         }
       }}>{self.title}</Button>
       {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={''} close={() => {

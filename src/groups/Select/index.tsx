@@ -34,12 +34,13 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             value={data[self.widget.field]}
+            disabled={mode === 'edit'}
             onChange={async (v) => {
               const old = data[self.widget.value as string]
               setDataField(self.widget, v)
               if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
                 try {
-                  const result = await apis.fetch(self.getApi(data._id), { [self.widget.field]: v })
+                  const result = await apis.fetch(self.widget.method, self.getApi(data._id), { [self.widget.field]: v })
                   if (result.code === 0) {
 
                   } else {

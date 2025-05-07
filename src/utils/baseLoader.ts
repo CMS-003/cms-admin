@@ -88,7 +88,6 @@ function createItemsLoader<T>(model: IAnyType, fn: Function, customs: { [key: st
           self.page = self.page - 1
         }
       } catch (err: any) {
-        console.log(Object.keys(err))
         const data = (err['response'] && err['response']['data']) || err
         // 加载失败
         if (data && data.code) {

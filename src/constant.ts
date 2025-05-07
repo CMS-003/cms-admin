@@ -9,7 +9,7 @@ const CONST = {
     'FETCH': 'FETCH',
     'OPEN_URL': 'OPEN_URL',
     'GOTO_PAGE': 'GOTO_PAGE',
-    'PREVIEW_IMAGE': 'PREVIEW_IMAGE',
+    'PREVIEW': 'PREVIEW',
   }
 };
 
