@@ -311,7 +311,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         default: break;
       }
       if (widget.in === 'query') {
-        local.query[widget.field] = value;
+        page.setQuery(widget.field, value)
       } else {
         local.source[widget.field] = value;
       }
@@ -431,7 +431,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                       dnd={dnd}
                       parent={parent}
                       source={local.source}
-                      query={local.query}
+                      query={page.query}
                       setDataField={local.setDataField}
                     />
                   )}

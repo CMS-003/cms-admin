@@ -4,7 +4,7 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
 
-export default function CCheckbox({ self, mode, query = {}, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CCheckbox({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)

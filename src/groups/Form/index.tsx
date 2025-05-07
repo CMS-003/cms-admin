@@ -170,7 +170,6 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
               <Component
                 self={item}
                 mode={mode}
-                query={local.query}
                 source={local.source}
                 setDataField={local.setDataField}
                 dnd={dnd}
