@@ -41,10 +41,6 @@ export interface BaseResponse {
   statusText: string;
 }
 
-export interface BaseBizError {
-  code: number,
-  message: string,
-}
 // 后台响应数据格式
 export interface BaseResultWrapper<T> {
   code: number,
@@ -170,7 +166,7 @@ class Request<T> {
         const body = res.data;
         if (res.status !== 200) {
           //数据请求错误 使用reject将错误返回
-          resolve(body as BaseBizError);
+          resolve(body);
         } else if (res.data.code === 101010 && window.location.pathname !== '/manager/sign-in' && !option.url?.startsWith('/api/v1/users/refresh')) {
           // 自动刷新逻辑
           shttp.post<{ access_token: string, refresh_token: string }>('/api/v1/users/refresh', { refresh_token: store.user.getRefreshToken() })
@@ -195,7 +191,7 @@ class Request<T> {
               message.warn('您的账号已登出或超时，即将登出...');
               console.log('登录异常，执行登出...');
               window.location.href = '/manager/sign-in'
-              resolve(body as BaseBizError);
+              resolve(body);
             });
         } else {
           if (cb) {
@@ -214,7 +210,7 @@ class Request<T> {
         }
       }).catch(error => {
         message.warn(`网络错误：${error.message}`);
-        resolve({ code: -1, message: error.message } as BaseBizError);
+        resolve({ code: -1, message: error.message });
       })
     });
     return result;

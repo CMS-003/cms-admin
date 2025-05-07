@@ -100,7 +100,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
   const getInfo = useCallback(async () => {
     if (self.widget.action === 'FETCH' && mode === 'preview' && page.query.id) {
       local.setLoading(true)
-      const resp = await apis.fetch(self.getApi(page.query['id'] as string));
+      const resp = await apis.fetch('get', self.getApi(page.query['id'] as string));
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
@@ -111,8 +111,8 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     try {
       local.setLoading(true)
       const data = toJS(local.source) as IResource;
-      const { url } = self.getApi(page.query.id as string, local.query)
-      const result = await (page.query.id ? apis.fetch<IResource>({ method: 'put', url }, data) : apis.fetch<IResource>({ method: 'post', url }, data));
+      const url = self.getApi(page.query.id as string, local.query)
+      const result = await (page.query.id ? apis.fetch<IResource>('put', url, data) : apis.fetch<IResource>('post', url, data));
       if (result.code === 0) {
         runInAction(() => {
           if (result.data) {

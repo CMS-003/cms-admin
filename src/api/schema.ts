@@ -23,8 +23,12 @@ const apis = {
     const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/schemas/${name}/fields`);
     return result;
   },
-  fetch: async<T>({ method, url }: { method: 'get' | 'put' | 'patch' | 'delete' | 'post', url: string }, data?: any) => {
-    const result = await shttp[method]<T | IResource>(url, data)
+  fetch: async<T>(method: string, url: string, data?: any) => {
+    method = method.toLowerCase();
+    if (!['get', 'post', 'put', 'delete', 'patch'].includes(method)) {
+      throw new Error('NotSupportMethod')
+    }
+    const result = await shttp[method as 'get' | 'post' | 'put' | 'delete' | 'patch']<T | IResource>(url, data)
     return result;
   },
   getDataList: async <T>(url: string, query: { [key: string]: any } = {}) => {

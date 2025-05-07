@@ -97,7 +97,7 @@ const ComponentTemplatePage = () => {
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
-                <Select value={local.edit_template_id} onChange={v => {
+                <Select value={local.edit_template_id} style={{ width: 200 }} onChange={v => {
                   local.setEditTemplateID(v)
                   refresh()
                 }}>

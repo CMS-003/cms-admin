@@ -30,7 +30,10 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
   }));
   const request = useCallback(async () => {
     try {
-      const result = await apis.fetch(self.getApi(source._id))
+      if (self.widget.action !== CONST.ACTION_TYPE.FETCH) {
+        return;
+      }
+      const result = await apis.fetch(self.widget.method, self.getApi(source._id))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
       } else {
@@ -46,7 +49,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       className={mode + drag.className}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
-          navigate(`${self.widget.url}?id=${source._id}`)
+          navigate(`${self.widget.method}?id=${source._id}`)
         }
       }}
       {...drag.events}
@@ -88,16 +91,16 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>
         <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
-          navigate(`${self.widget.url}?id=${source._id}`)
+          navigate(`${self.widget.method}?id=${source._id}`)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.MODAL}>
         <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
           local.setValue('id', source._id)
-          local.setValue('template_id', self.widget.url)
+          local.setValue('template_id', self.widget.method)
         }} />
       </VisualBox>
-      <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.PREVIEW_IMAGE}>
+      <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.PREVIEW && self.widget.method === 'image'}>
         <Popover trigger='click' content={<div>
           <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} />
         </div>}>

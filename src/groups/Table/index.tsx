@@ -47,7 +47,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
   const init = useCallback(async () => {
     if (self.widget.action === 'FETCH' && mode === 'preview') {
       local.setValue('loading', true)
-      const resp = await apis.fetch(self.getApi('', page.query), query);
+      const resp = await apis.fetch(self.widget.method, self.getApi('', Object.assign({}, page.query, query)));
       if (resp.code === 0) {
         local.setResources((resp.data as any).items as IResource[]);
         local.setValue('total', (resp.data as any).total || 0)
@@ -118,6 +118,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           render: (t: string, d: any) => (
             mode === 'edit' ?
               <NatureSortable
+                key={t}
                 items={child.children}
                 direction='horizontal'
                 disabled={false}
@@ -154,7 +155,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                   />
                 )}
               />
-              : (<Fragment>
+              : (<Fragment key={t}>
                 {child.children.map((item, k) => (
                   <Component
                     key={k}

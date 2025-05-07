@@ -44,12 +44,20 @@
   - ✅ 去掉renderItem包裹的div
 - 编辑面板
   - ✅ 基础：title/desc/parent_id/_id/
-  - ✅ 数据: api/resources/flex(0/1)/
-  - 控件: widget_field/widget_value/widget_type/widget_in/widget_refer
+  - ✅ 数据: resources/queries/url
+  - ✅ 控件: widget_field/widget_value/widget_type/widget_in/widget_refer
+    - field 字段名
+    - type 字段数据类型.string/number/boolean/object 或 array
+    - value
+    - refer
+    - in body/query
+    - action 事件类型
+    - method => action 为 FETCH 时,method 是请求 method 类型; 为 MODAL 时,method 是模板 id;为 PREVIEW 时,是预览类型 image/video
   - ✅ 事件: widget_action/
   - ✅ 布局: layout/style
 - 重写Table
-- 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
+- ✅ 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
+- 多可视化编辑页
 
 ## 代码库学习
 
