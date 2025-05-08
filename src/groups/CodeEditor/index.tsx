@@ -23,6 +23,8 @@ export default function Editor({ self, mode, drag, dnd, source, setDataField, ch
         ...dnd?.style,
         overflowX: 'auto',
         whiteSpace: 'nowrap',
+        position: 'absolute',
+        width: '100%',
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
