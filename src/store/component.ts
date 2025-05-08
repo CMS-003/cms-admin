@@ -57,7 +57,7 @@ export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any
     : url.pathname + url.search;            // 相对路径：去掉 host，只保留路径和 query
 }
 
-type ComponentItemKeys = 'title' | 'name'
+type ComponentItemKeys = 'title' | 'name' | 'project_id'
 
 export const ComponentItem = types.model('Component', {
   // 编辑用属性
@@ -85,7 +85,7 @@ export const ComponentItem = types.model('Component', {
     field: types.optional(types.string, ''),
     value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen()), ''),
     type: types.enumeration(['string', 'number', 'boolean', 'json']),
-    in: types.optional(types.string, 'body'),
+    query: types.optional(types.boolean, false),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),
     method: types.optional(types.string, ''),
@@ -124,17 +124,20 @@ export const ComponentItem = types.model('Component', {
   setAttr(key: ComponentItemKeys, value: any) {
     self[key] = value;
   },
-  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'in', v: string) {
+  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'query', v: string | boolean) {
     if (k === 'value') {
+      const str = v as string;
       if (self.widget.type === 'boolean') {
-        self.widget.value = ['1', 'true', 'TRUE'].includes(v)
+        self.widget.value = ['1', 'true', 'TRUE'].includes(str)
       } else if (self.widget.type === 'number') {
-        self.widget.value = parseInt(v) || 0
+        self.widget.value = parseInt(str) || 0
       } else {
         self.widget.value = v;
       }
-    } else {
-      self.widget[k] = v;
+    } else if (k === 'query') {
+      self.widget.query = v ? true : false;
+    } else if (['action', 'field', 'method'].includes(k)) {
+      self.widget.action = v as string;
     }
   },
   changeWidgetType(type: 'string' | 'number' | 'boolean') {
@@ -199,7 +202,7 @@ export const ComponentItem = types.model('Component', {
       order: self.children.length,
       status: 1,
       url: '',
-      widget: { field: '', value: '', type: 'string', refer: [], action: '', in: 'body' },
+      widget: { field: '', value: '', type: 'string', refer: [], action: '', method: '', query: false },
       createdAt: new Date(),
       updatedAt: new Date(),
       accepts: self.toJSON().accepts,

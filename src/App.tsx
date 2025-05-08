@@ -97,7 +97,7 @@ function App() {
           <Route path={"/manager/oauth/bind"} element={<BindPage />} />
           <Route path={"/manager/oauth/success"} element={<SuccessPage />} />
           <Route path={"/manager/oauth/fail"} element={<FailPage />} />
-          <Route path="/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
+          <Route path="/manager/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
         </Routes>}
       </div>
     )}</Observer>

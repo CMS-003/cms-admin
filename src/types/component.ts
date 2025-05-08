@@ -25,8 +25,8 @@ export type IConfig = {
 export type IWidget = {
   field: string,
   value: any;
-  // body query
-  in: string;
+  // 仅用于查询
+  query: boolean;
   type: 'boolean' | 'number' | 'string' | 'json';
   refer: {
     label: string;
@@ -39,6 +39,7 @@ export type IWidget = {
 export type IComponent = {
   _id: string;
   parent_id: string;
+  project_id: string;
   tree_id: string;
   template_id: string;
   title: string;

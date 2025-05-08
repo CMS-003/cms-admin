@@ -44,7 +44,7 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
             field: 'page',
             type: 'number',
             value: 1,
-            in: 'query',
+            query: true,
             action: '',
             method: '',
             refer: []

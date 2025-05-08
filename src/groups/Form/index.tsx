@@ -71,7 +71,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
             break;
           default: break;
         }
-        if (widget.in === 'query') {
+        if (widget.query) {
           local.query[widget.field] = value;
         } else {
           local.source[widget.field] = value
@@ -180,8 +180,8 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         </FullHeightAuto>
         <Center>
           <Space style={{ padding: 8 }}>
-            <Button loading={local.loading} disabled={!local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
-            <Button loading={local.loading} disabled={!local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
           </Space>
         </Center>
       </FullWidthAuto>

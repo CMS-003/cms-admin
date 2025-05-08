@@ -42,7 +42,7 @@ export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd
       <div style={{ lineHeight: '32px' }}>
         {self.title && <span style={{ marginRight: 10 }}>{self.title}</span>}
         {/* @ts-ignore */}
-        <Switch checkedChildren={local.TRUE} unCheckedChildren={local.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(self.widget.in === 'body' ? source[self.widget.field] : query[self.widget.field])} onChange={checked => {
+        <Switch checkedChildren={local.TRUE} unCheckedChildren={local.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(!self.widget.query ? source[self.widget.field] : query[self.widget.field])} onChange={checked => {
           setDataField(self.widget, checked)
         }} />
       </div>

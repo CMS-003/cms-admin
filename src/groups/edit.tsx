@@ -1,7 +1,7 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
 import { makeAutoObservable, toJS } from "mobx"
 import { Fragment } from 'react';
-import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal } from 'antd'
+import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { cloneDeep } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
@@ -73,7 +73,14 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <Input addonBefore="描述" value={data.desc} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="parent_id" value={data.parent_id} onChange={e => {
+                  <Input addonBefore="项目id" value={data.project_id} onChange={e => {
+                    if (data) {
+                      data.setAttr('project_id', e.target.value)
+                    }
+                  }} />
+                </EditItem>
+                <EditItem>
+                  <Input addonBefore="上级id" value={data.parent_id} onChange={e => {
                     if (data) {
                       data.setAttr('parent_id', e.target.value)
                     }
@@ -83,7 +90,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <Input addonBefore="_id" readOnly value={data._id} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="status" type="number" value={data.status} onChange={e => {
+                  <Input addonBefore="状态" type="number" value={data.status} onChange={e => {
                     if (data) {
                       data.setAttr('status', parseInt(e.target.value));
                     }
@@ -95,7 +102,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="icon" value={data.icon} onChange={e => {
+                  <Input addonBefore="图标" value={data.icon} onChange={e => {
                     data.setAttr('icon', e.target.value);
                   }} />
                 </EditItem>
@@ -122,10 +129,10 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <Space direction='vertical'>
                     <span className="ant-input-group-wrapper">
                       <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">参数位置</span>
-                        <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', backgroundColor: '#d9d9d9' }}>
-                          <Radio.Group options={[{ label: 'body', value: 'body' }, { label: 'query', value: 'query' }]} value={data.widget.in} onChange={(e) => {
-                            data.setWidget('in', e.target.value)
+                        <span className="ant-input-group-addon">仅供查询</span>
+                        <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', borderLeft: '1px solid #d9d9d9' }}>
+                          <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
+                            data.setWidget('query', checked)
                           }} />
                         </div>
                       </span>

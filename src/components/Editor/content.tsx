@@ -72,7 +72,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
     }
   })
   return <Observer>{() => (<Fragment>
-    <Form>
+    <Form style={{ padding: 20, height: '100%', overflow: 'auto' }}>
       {fields.map(item => {
         switch (item.component) {
           case 'Input':

@@ -4,7 +4,7 @@ import logo from '@/asserts/images/logo.svg';
 import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import store from '@/store';
 import { useEffectOnce } from 'react-use';
 import apis from '@/api'
@@ -12,7 +12,7 @@ import Acon from '@/components/Acon';
 
 const { Content, Sider } = Layout;
 
-const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: number }) => {
+const CLayout: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: number }) => {
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false);
   const [logouting, setLogout] = useState(false);
@@ -36,6 +36,9 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
       setProjectTitle(project.title);
     }
   })
+  if (location.pathname === '/manager') {
+    return <Navigate to={'/manager/dashboard'} />
+  }
   return (
     <Layout style={{ height: '100vh' }}>
       <Sider theme='dark' className="app-slider" collapsible collapsed={collapsed} onCollapse={value => {
@@ -94,4 +97,4 @@ const App: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: nu
   );
 };
 
-export default App;
+export default CLayout;

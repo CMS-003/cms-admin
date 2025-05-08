@@ -212,6 +212,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         status: 1,
         order: local.template?.children.length,
         template_id: local.template?._id,
+        project_id: local.template?.project_id,
         title: '无',
         name: '',
         cover: '',
@@ -221,9 +222,13 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         accepts: [],
         children: [],
         widget: {
+          field: '',
           type: 'string',
           value: '',
-          in: 'body'
+          query: false,
+          action: '',
+          method: '',
+          refer: [],
         }
       });
       if (local.template) {
@@ -310,7 +315,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           break;
         default: break;
       }
-      if (widget.in === 'query') {
+      if (widget.query) {
         page.setQuery(widget.field, value)
       } else {
         local.source[widget.field] = value;
