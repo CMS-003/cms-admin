@@ -47,11 +47,6 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
-      onClick={() => {
-        if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
-          navigate(`${self.widget.method}?id=${source._id}`)
-        }
-      }}
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
