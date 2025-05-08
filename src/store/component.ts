@@ -137,7 +137,7 @@ export const ComponentItem = types.model('Component', {
     } else if (k === 'query') {
       self.widget.query = v ? true : false;
     } else if (['action', 'field', 'method'].includes(k)) {
-      self.widget.action = v as string;
+      self.widget[k] = v as string;
     }
   },
   changeWidgetType(type: 'string' | 'number' | 'boolean') {
@@ -236,6 +236,14 @@ export const ComponentItem = types.model('Component', {
     const [removed] = self.resources.splice(oldIndex, 1);
     const old = getSnapshot(removed);
     self.resources.splice(newIndex, 0, old);
+  },
+  swapRefer(oldIndex: number, newIndex: number) {
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const [removed] = self.widget.refer.splice(oldIndex, 1);
+    const old = getSnapshot(removed);
+    self.widget.refer.splice(newIndex, 0, old);
   },
   swap(oldIndex: number, newIndex: number) {
     if (oldIndex === newIndex) {

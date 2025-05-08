@@ -78,6 +78,7 @@ export type IComponent = {
   getApi: (id: string, query?: { [key: string]: any }) => string;
   swap: (srcIndex: number, dstIndex: number) => void;
   swapResource: Function;
+  swapRefer: Function;
   toJSON: Function;
   pushRefer: Function;
   remRefer: Function;

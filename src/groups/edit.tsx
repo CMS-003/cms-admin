@@ -163,12 +163,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   参考值
                   <SortList
                     key={data.widget.refer.length}
-                    sort={(srcIndex: number, dstIndex: number) => {
-                      const arr = cloneDeep(data.widget.refer);
-                      const curr = arr.splice(srcIndex, 1);
-                      arr.splice(dstIndex, 0, ...(curr || []));
-                      data.setWidget('refer', arr)
-                    }}
+                    sort={data.swapRefer}
                     droppableId={data._id + '2'}
                     mode={'edit'}
                     direction={'vertical'}
