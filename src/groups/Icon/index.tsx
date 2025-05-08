@@ -91,7 +91,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>
         <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
-          navigate(`${self.widget.method}?id=${source._id}`)
+          navigate(`${self.url}?id=${source._id}`)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.MODAL}>
