@@ -39,11 +39,11 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
       }
     }
   }));
-  const onSetQuery = useCallback((event: { target: { template_id: string, path: string } }) => {
+  const onSetQuery = function (event: { target: { template_id: string, path: string } }) {
     if (self.template_id === event.target.template_id) {
       init();
     }
-  }, []);
+  };
   const init = useCallback(async () => {
     if (self.widget.action === 'FETCH' && mode === 'preview') {
       local.setValue('loading', true)
@@ -55,13 +55,13 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
       local.setValue('loading', false)
     }
   }, [self.widget.action])
-  useEffect(() => {
+  useEffectOnce(() => {
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
-    () => {
+    return () => {
       events.off(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     }
-  }, [onSetQuery])
+  })
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
