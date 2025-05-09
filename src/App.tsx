@@ -12,6 +12,7 @@ import FailPage from './pages/oauthResult/fail'
 import store from './store'
 import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
+import { ws } from '@/utils/ws'
 import events from './utils/event';
 
 function App() {
@@ -78,6 +79,9 @@ function App() {
     }
   }, [location.pathname]);
   useEffectOnce(() => {
+    ws.on('connect', () => {
+      console.log('connected');
+    });
     window.goto = function (url: string) {
       navigate(url);
     }

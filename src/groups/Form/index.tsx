@@ -13,6 +13,7 @@ import events from '@/utils/event';
 import { pick, set, isEqual, isEmpty } from 'lodash';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
+import { useEffectOnce } from 'react-use'
 
 export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
@@ -26,6 +27,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     getDiff: Function;
     isDiff: Function;
     setLoading: Function;
+    setSubStatus: Function;
   }
     = useLocalObservable(() => ({
       loading: false,
@@ -34,21 +36,12 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       $origin: {},
       setSource: function () {
         const args = Array.from(arguments);
-        let type = 'body';
-        if (args.length === 3) {
-          type = args.pop();
-        }
         if (args.length === 1) {
           local.source = args[0];
           local.$origin = args[0];
         } else {
           let v = args[1];
-          if (type === 'body') {
-            set(local.source, args[0], v)
-          }
-          if (type === 'query') {
-            local.query[args[0]] = args[1]
-          }
+          set(local.source, args[0], v)
         }
       },
       setDataField: (widget: IWidget, value: any) => {
@@ -95,6 +88,15 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       },
       setLoading(b: boolean) {
         local.loading = b
+      },
+      setSubStatus(type: 'chapters' | 'images' | 'videos', _id: string, status: number) {
+        if (local.source[type]) {
+          local.source[type].forEach((doc: any) => {
+            if (doc._id === _id) {
+              doc.status = status;
+            }
+          })
+        }
       }
     }));
   const getInfo = useCallback(async () => {
@@ -141,9 +143,29 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       local.setLoading(false)
     }
   }, [])
+  const changeResource = function (data: any) {
+    if (self.name === 'resource_detail') {
+      const resource_id = data.resource_id;
+      if (data.resource_type === 'resource' && resource_id === local.source._id) {
+        local.setSource('status', data.status)
+      } else if (data.resource_type === 'chapter') {
+        local.setSubStatus('chapters', resource_id, data.status)
+      } else if (data.resource_type === 'video') {
+        local.setSubStatus('videos', resource_id, data.status)
+      } else if (data.resource_type === 'image') {
+        local.setSubStatus('images', resource_id, data.status);
+      }
+    }
+  }
   useEffect(() => {
     getInfo();
   }, [page.query['id'], self.widget.action])
+  useEffectOnce(() => {
+    events.on('event', changeResource);
+    return () => {
+      events.off('event', changeResource)
+    }
+  })
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}

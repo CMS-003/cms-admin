@@ -24,6 +24,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
     total: number,
     setResources: (resource: IResource[]) => void;
     setValue: Function;
+    changeResource: Function;
   } = useLocalObservable(() => ({
     resources: [],
     loading: false,
@@ -36,6 +37,15 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
         case 'loading': local.loading = value as boolean; break;
         case 'total': local.total = value as number; break;
         default: break;
+      }
+    },
+    changeResource(data: any) {
+      if (data.resource_type === 'resource') {
+        local.resources.forEach(resource => {
+          if (resource._id === data.resource_id) {
+            resource.status = data.status;
+          }
+        })
       }
     }
   }));
@@ -58,8 +68,10 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
   useEffectOnce(() => {
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
+    events.on('event', local.changeResource)
     return () => {
       events.off(CONST.ACTION_TYPE.SEARCH, onSetQuery);
+      events.off('event', local.changeResource)
     }
   })
   return <Observer>{() => (
