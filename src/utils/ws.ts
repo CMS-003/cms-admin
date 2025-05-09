@@ -10,7 +10,7 @@ export const ws = io(window.location.origin, {
 ws.on('disconnect', () => {
   console.log('disconnected');
 });
-ws.on('message', (data) => {
+ws.on('message', (data: any) => {
   const key = `${data.module}-${data.name}`;
   console.log(data, 'ws')
   if (data.action === 'download') {

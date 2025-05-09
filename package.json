@@ -77,6 +77,7 @@
     "@types/react-copy-to-clipboard": "^5.0.6",
     "@types/react-dom": "^18.0.5",
     "@types/react-loadable": "^5.5.11",
+    "@types/socket.io-client": "1.4.36",
     "@types/styled-components": "^5.1.25",
     "@types/uuid": "^9.0.3",
     "cross-env": "^7.0.3",
