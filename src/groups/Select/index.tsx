@@ -4,11 +4,9 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import CONST from '@/constant';
 import apis from '@/api';
 import { useEffectOnce } from 'react-use';
-import { runInAction } from 'mobx';
 import { ComponentWrap } from '../style';
 
 export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
-  // TODO: 编辑状态下右键会触发下拉
   const data = !self.widget.query ? source : query;
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
