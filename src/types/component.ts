@@ -27,7 +27,7 @@ export type IWidget = {
   value: any;
   // 仅用于查询
   query: boolean;
-  type: 'boolean' | 'number' | 'string' | 'json';
+  type: 'boolean' | 'number' | 'string' | 'json' | 'array';
   refer: {
     label: string;
     value: string | number | boolean;

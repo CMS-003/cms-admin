@@ -10,6 +10,7 @@ const Preview = styled.div`
   flex-direction: column;
   width: 150px;
   height: 150px;
+  border-radius: 5px;
   justify-content: center;
   align-items: center;
   background-size: cover;

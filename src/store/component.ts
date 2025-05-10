@@ -84,7 +84,7 @@ export const ComponentItem = types.model('Component', {
   widget: types.model({
     field: types.optional(types.string, ''),
     value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen()), ''),
-    type: types.enumeration(['string', 'number', 'boolean', 'json']),
+    type: types.enumeration(['string', 'number', 'boolean', 'json', 'array']),
     query: types.optional(types.boolean, false),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
     action: types.optional(types.string, ''),

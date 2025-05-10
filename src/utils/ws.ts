@@ -1,7 +1,7 @@
 import io from 'socket.io-client';
 import { notification, Modal } from 'antd'
 import events from './event'
-console.log('fuck')
+
 export const ws = io(window.location.origin, {
   path: '/ws',
   reconnectionAttempts: 3

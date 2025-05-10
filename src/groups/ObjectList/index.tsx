@@ -3,9 +3,8 @@ import { Center, FullHeight } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import NatureSortable from '@/components/NatureSortable'
 import { Component } from '../auto'
-import { runInAction } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Fragment } from 'react'
 import { Acon } from '@/components'
 import { Space } from 'antd'
 import { ComponentWrap } from '../style';
@@ -173,8 +172,10 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               }} />
               <Acon icon="check" onClick={() => {
                 // TODO: 请求创建接口
+                const videos = (toJS(source[self.widget.field]))
+                videos.push(toJS(local.source))
+                setDataField(self.widget, videos)
                 local.setAdd(false)
-                setDataField(self.widget, [...(source[self.widget.field] || []), local.source])
                 local.set({})
               }} />
             </Space>

@@ -151,7 +151,8 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           <Select.Option value="string">文本</Select.Option>
                           <Select.Option value="number">数字</Select.Option>
                           <Select.Option value="boolean">布尔</Select.Option>
-                          <Select.Option value="json">数组或对象</Select.Option>
+                          <Select.Option value="json">对象</Select.Option>
+                          <Select.Option value="array">数组</Select.Option>
                         </Select>
                       </span>
                     </span>

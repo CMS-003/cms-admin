@@ -13,6 +13,7 @@ import ModalPage from '../modal';
 import { ComponentWrap } from '../style';
 import { useCallback } from 'react';
 import store from '@/store';
+import hbs from 'handlebars'
 
 export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
@@ -81,7 +82,8 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.OPEN_URL}>
         <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
-          window.open(source[self.widget.field] || self.widget.value)
+          const url = hbs.compile(self.url)(source)
+          window.open(url)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>

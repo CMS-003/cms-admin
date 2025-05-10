@@ -54,11 +54,13 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
         }
       },
       onDragLeave: () => {
+        if (mode === 'preview') return;
         dragStore.isDragOver = false;
       },
       onDragOver: (e: any) => {
         e.preventDefault();
         e.stopPropagation();
+        if (mode === 'preview') return;
         if (!dragStore.isDragOver) {
           dragStore.isDragOver = true;
         }
@@ -238,11 +240,13 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       }
     },
     onDragLeave: () => {
+      if (mode === 'preview') return;
       local.isDragOver = false;
     },
     onDragOver: (e: any) => {
       e.preventDefault();
       e.stopPropagation();
+      if (mode === 'preview') return;
       if (!local.isDragOver) {
         local.isDragOver = true;
       }
