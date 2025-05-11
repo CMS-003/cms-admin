@@ -6,8 +6,9 @@ import { Component } from '../auto'
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Acon } from '@/components'
-import { Space } from 'antd'
+import { Space, message } from 'antd'
 import { ComponentWrap } from '../style';
+import apis from '@/api';
 
 export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
@@ -170,13 +171,24 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 local.setAdd(false)
                 local.set({})
               }} />
-              <Acon icon="check" onClick={() => {
-                // TODO: 请求创建接口
+              <Acon icon="check" onClick={async () => {
                 const videos = (toJS(source[self.widget.field]))
-                videos.push(toJS(local.source))
-                setDataField(self.widget, videos)
-                local.setAdd(false)
-                local.set({})
+                const video = toJS(local.source)
+                const url = self.getApi(source._id)
+                try {
+                  const resp = await apis.fetch(self.widget.method, url, video);
+                  if (resp.code === 0) {
+                    videos.push(resp.data);
+                    setDataField(self.widget, videos)
+                  } else {
+                    message.error('请求失败')
+                  }
+                } catch (e) {
+                  console.log(e)
+                } finally {
+                  local.setAdd(false)
+                  local.set({})
+                }
               }} />
             </Space>
             : <Acon icon="PlusOutlined" onClick={() => {

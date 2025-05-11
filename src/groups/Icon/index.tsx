@@ -34,7 +34,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       if (self.widget.action !== CONST.ACTION_TYPE.FETCH) {
         return;
       }
-      const result = await apis.fetch(self.widget.method, self.getApi(source._id))
+      const result = await apis.fetch(self.widget.method, self.getApi(source._id), source)
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
       } else {

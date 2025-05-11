@@ -2,11 +2,15 @@ import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input } from 'antd'
 import { Observer } from 'mobx-react'
-import { usePageContext } from '../context';
 import { ComponentWrap } from '../style';
+import { useEffectOnce } from 'react-use';
 
-export default function CInput({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CHidden({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+  useEffectOnce(() => {
+    if (!source._id || mode === 'edit' || self.widget.query) {
+      setDataField(self.widget, self.widget.value)
+    }
+  })
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
@@ -20,7 +24,7 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
       }}
     >
       {children}
-      <Input addonBefore={self.title || null} value={source[self.widget.field]} style={self.style} onChange={e => {
+      <Input type={mode === 'preview' ? 'hidden' : 'text'} disabled readOnly value={mode === 'preview' ? source[self.widget.field] : self.widget.field} style={self.style} onChange={e => {
         setDataField(self.widget, e.target.value);
       }} />
     </ComponentWrap>

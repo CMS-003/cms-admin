@@ -3,6 +3,7 @@ import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
 import { isNil } from 'lodash';
+import { useEffectOnce } from 'react-use';
 
 const Text = styled.div`
   line-height: 1.5;
@@ -15,7 +16,12 @@ const Text = styled.div`
   white-space: nowrap;
 `
 
-export default function CText({ self, mode, source = {}, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CText({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
+  useEffectOnce(() => {
+    if (!source._id || mode === 'edit' || self.widget.query) {
+      setDataField(self.widget, self.widget.value)
+    }
+  })
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
