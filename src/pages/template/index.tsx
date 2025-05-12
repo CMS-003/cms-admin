@@ -10,6 +10,7 @@ import store from '@/store';
 import Acon from '@/components/Acon';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useNavigate } from 'react-router-dom';
+import { runInAction } from 'mobx';
 
 const ComponentTemplatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -132,7 +133,9 @@ const ComponentTemplatePage: React.FC = () => {
       local.loading = true;
       const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
       if (result.code === 0) {
-        local.list = result.data.items
+        runInAction(() => {
+          local.list = result.data.items
+        })
       } else {
         message.warn(result.message)
       }

@@ -5,6 +5,7 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
+import store from '@/store'
 
 const Wrap = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         <NatureSortable
           items={self.children}
           direction='horizontal'
-          disabled={mode === 'preview'}
+          disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
           droppableId={self._id}
           sort={self.swap}
           wrap={Row}

@@ -6,6 +6,7 @@ import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import { FullWidth } from '@/components/style'
+import store from '@/store'
 
 const MenuItem = styled.div`
   color: #333;
@@ -37,7 +38,7 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
         <NatureSortable
           items={self.children}
           direction='vertical'
-          disabled={mode === 'preview'}
+          disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
           droppableId={self._id}
           sort={self.swap}
           renderItem={({ item, dnd }) => (

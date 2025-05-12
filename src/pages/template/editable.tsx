@@ -105,12 +105,18 @@ const ComponentTemplatePage = (props: any) => {
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
-                <Select disabled={local.locked_template_id !== ''} value={local.locked_template_id || local.edit_template_id} style={{ width: 200 }} onChange={v => {
-                  local.setEditTemplateID(v)
-                  refresh()
-                }}>
-                  {local.templates.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
-                </Select>
+                <Select
+                  disabled={local.locked_template_id !== ''}
+                  options={store.project.list.map(p => ({
+                    label: <span>{p.title}</span>,
+                    title: p.title,
+                    options: local.templates.filter(t => t.project_id === p._id).map(t => ({ label: t.title, value: t._id }))
+                  }))}
+                  value={local.locked_template_id || local.edit_template_id} style={{ width: 200 }}
+                  onChange={v => {
+                    local.setEditTemplateID(v)
+                    refresh()
+                  }} />
               </Space>
               <Divider type="vertical" />
               <Space>

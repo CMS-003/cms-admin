@@ -61,8 +61,11 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             items={source[self.widget.field] || []}
             direction='vertical'
             droppableId={self._id}
-            sort={() => {
-
+            sort={(srcIndex, dstIndex) => {
+              const items = source[self.widget.field] || [];
+              const [item] = items.splice(srcIndex, 1);
+              items.splice(dstIndex, 0, item);
+              setDataField(self.widget, items);
             }}
             style={{ overflow: 'initial' }}
             renderItem={({ item, dnd: dnd2, index }) => (
@@ -70,8 +73,17 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 key={index}
                 ref={dnd2?.ref}
                 {...dnd2?.props}
-                style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, ...dnd2?.style }}
+                style={{
+                  padding: 4,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  paddingLeft: 15,
+                  gap: 2,
+                  ...dnd2?.style,
+                  backgroundColor: dnd2?.isDragging ? 'lightblue' : '',
+                }}
               >
+                <Acon icon="drag" />
                 {self.children.map(child => (
                   <Component
                     key={child._id}
@@ -111,7 +123,6 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             direction='vertical'
             disabled={mode === 'preview'}
             droppableId={self._id}
-
             style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
             sort={self.swap}
             renderItem={({ item, dnd }) => (
@@ -119,28 +130,8 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 self={item}
                 mode={mode}
                 dnd={dnd}
-                source={{}}
-                setDataField={(widget: IWidget, value: any) => {
-                  switch (widget.type) {
-                    case 'boolean':
-                      value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-                      break;
-                    case 'number':
-                      value = parseFloat(value) || 0
-                      break;
-                    case 'json':
-                      try {
-                        value = JSON.parse(value);
-                      } catch (e) {
-                        return;
-                      }
-                      break;
-                    default: break;
-                  }
-                  runInAction(() => {
-                    // item[widget.field] = value
-                  })
-                }}
+                source={local.source}
+                setDataField={local.setTempDataField}
                 {...props}
               />
             )}

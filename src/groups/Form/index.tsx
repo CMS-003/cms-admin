@@ -14,6 +14,7 @@ import { pick, set, isEqual, isEmpty } from 'lodash';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
+import store from '@/store'
 
 export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
@@ -185,7 +186,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           <NatureSortable
             items={self.children}
             direction='vertical'
-            disabled={mode === 'preview'}
+            disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
             droppableId={self._id}
             sort={self.swap}
             renderItem={({ item, dnd }) => (

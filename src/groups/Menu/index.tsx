@@ -3,6 +3,7 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
+import store from '@/store';
 
 export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
@@ -20,7 +21,7 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
       <NatureSortable
         items={self.children}
         direction='vertical'
-        disabled={mode === 'preview'}
+        disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         droppableId={self._id}
         sort={self.swap}
         renderItem={({ item, dnd }) => (

@@ -97,7 +97,7 @@ export default function NatureSortable({
           }}>
             {items.map((item, index) => (
               <Observer key={item._id || index}>{() => (
-                <Draggable draggableId={item._id || index.toString()} index={index} isDragDisabled={disabled || (item._id && store.component.can_drag_id !== item._id)}>
+                <Draggable draggableId={item._id || index.toString()} index={index} isDragDisabled={disabled}>
                   {(provided, snapshot) => renderItem({
                     item,
                     index,

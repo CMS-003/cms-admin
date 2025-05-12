@@ -7,6 +7,7 @@ import { json } from '@codemirror/lang-json';
 import { debounce } from 'lodash'
 import store from '@/store'
 import { IEditorField } from '@/types'
+import { runInAction } from 'mobx';
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -60,12 +61,14 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
     jsonMap: {},
   }))
   useEffect(() => {
-    fields.forEach(item => {
-      if (item.type === 'json') {
-        local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
-      } else {
-        local.jsonMap[item.field] = data[item.field];
-      }
+    runInAction(() => {
+      fields.forEach(item => {
+        if (item.type === 'json') {
+          local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
+        } else {
+          local.jsonMap[item.field] = data[item.field];
+        }
+      })
     })
     return () => {
       local.jsonMap = {}
@@ -104,7 +107,9 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
           case 'Select':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Select key={item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
-                data[item.field] = value
+                runInAction(()=>{
+                  data[item.field] = value
+                })                
               }}>
                 {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}
                 {/* {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))} */}

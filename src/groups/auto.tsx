@@ -108,7 +108,8 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
           {...(props)}
         >
           <Handler className='handler' onMouseEnter={() => {
-            store.component.setCanDragId(self._id)
+            if (mode === 'preview') return;
+            store.component.setCanDragId(self.parent_id)
           }}>
             <Style.IconSVG src={icon_drag} />
           </Handler>
@@ -429,7 +430,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                   key={local.template.children.length}
                   items={(local.template as ITemplate).children}
                   direction='vertical'
-                  disabled={mode === 'preview'}
+                  disabled={mode === 'preview' || store.component.can_drag_id !== ''}
                   wrap={TemplateBox}
                   droppableId={local.template._id}
                   sort={() => { }}

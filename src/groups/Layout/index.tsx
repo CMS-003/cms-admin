@@ -5,6 +5,7 @@ import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
+import store from '@/store'
 
 export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -26,7 +27,7 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       <NatureSortable
         droppableId={self._id}
         direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
-        disabled={mode === 'preview'}
+        disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         style={{
           flex: 1,
           flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',

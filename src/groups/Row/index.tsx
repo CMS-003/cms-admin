@@ -4,6 +4,7 @@ import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
+import store from '@/store'
 
 
 export default function CRow({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
@@ -21,7 +22,7 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
       <NatureSortable
         items={self.children}
         direction='horizontal'
-        disabled={mode === 'preview'}
+        disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         droppableId={self._id}
         style={{ flex: 1 }}
         wrap={Row}
