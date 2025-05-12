@@ -9,8 +9,10 @@ import { cloneDeep } from 'lodash'
 import store from '@/store';
 import Acon from '@/components/Acon';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { useNavigate } from 'react-router-dom';
 
 const ComponentTemplatePage: React.FC = () => {
+  const navigate = useNavigate();
   const local = useLocalObservable<{ loading: boolean, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
     loading: false,
     showEditPage: false,
@@ -201,6 +203,9 @@ const ComponentTemplatePage: React.FC = () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
+            <Acon icon='FileSearchOutlined' onClick={() => {
+              navigate(`/manager/template/editable?id=${record._id}`)
+            }} />
             <Popconfirm title='是否确认删除' okText='是' cancelText='否' onConfirm={async () => {
               local.loading = true;
               await apis.delTemplate(record._id);

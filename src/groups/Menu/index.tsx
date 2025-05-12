@@ -12,7 +12,7 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
+        flexDirection: 'row',
         ...dnd?.style
       }}
     >

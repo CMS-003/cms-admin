@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, forwardRef } from 'react';
+import { Fragment, useCallback, } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin, message } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
@@ -10,15 +10,17 @@ import { Wrap, Card } from './style';
 import AutoPage from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
+import { useSetTitleContext } from '@/groups/context';
 
-const ComponentTemplatePage = () => {
-  const ref = useRef(null)
+const ComponentTemplatePage = (props: any) => {
+  const setTitle = useSetTitleContext()
   const local = useLocalObservable<{
     mode: string,
     loading: boolean,
     fetching: boolean,
     temp: IComponent | null,
     edit_template_id: string,
+    locked_template_id: string,
     templates: ITemplate[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
@@ -32,6 +34,7 @@ const ComponentTemplatePage = () => {
     templates: [],
     temp: null,
     selectedProjectId: '',
+    locked_template_id: new URLSearchParams(props.path.split('?')[1] || '').get('id') || '',
     edit_template_id: '',
     types: [],
     setLoading(is: boolean) {
@@ -51,10 +54,15 @@ const ComponentTemplatePage = () => {
       if (result.code === 0) {
         local.setTemplates(result.data.items);
         store.component.setEditComponentId('')
-        if (local.templates.length) {
-          if (!local.edit_template_id) {
-            local.setEditTemplateID(local.templates[0]._id)
-          }
+        if (local.locked_template_id) {
+          local.templates.forEach(t => {
+            if (t._id === local.locked_template_id) {
+              setTitle(props.path, '可视化 ' + t.title)
+              local.setEditTemplateID(t._id)
+            }
+          })
+        } else if (!local.edit_template_id) {
+          local.setEditTemplateID(local.templates[0]._id)
         }
       }
     } catch (e) {
@@ -97,7 +105,7 @@ const ComponentTemplatePage = () => {
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
-                <Select value={local.edit_template_id} style={{ width: 200 }} onChange={v => {
+                <Select disabled={local.locked_template_id !== ''} value={local.locked_template_id || local.edit_template_id} style={{ width: 200 }} onChange={v => {
                   local.setEditTemplateID(v)
                   refresh()
                 }}>

@@ -5,6 +5,7 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
+import { FullWidth } from '@/components/style'
 
 const MenuItem = styled.div`
   color: #333;
@@ -28,22 +29,26 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
     >
       {children}
       <div style={{ flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column' }}>
-        <MenuItem className={mode}><Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}</MenuItem>
-          <NatureSortable
-            items={self.children}
-            direction='vertical'
-            disabled={mode === 'preview'}
-            droppableId={self._id}
-            sort={self.swap}
-            renderItem={({ item, dnd }) => (
-              <Component
-                self={item}
-                mode={mode}
-                dnd={dnd}
-                {...props}
-              />
-            )}
-          />
+        <MenuItem className={mode}>
+          <FullWidth>
+            <Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}
+          </FullWidth>
+        </MenuItem>
+        <NatureSortable
+          items={self.children}
+          direction='vertical'
+          disabled={mode === 'preview'}
+          droppableId={self._id}
+          sort={self.swap}
+          renderItem={({ item, dnd }) => (
+            <Component
+              self={item}
+              mode={mode}
+              dnd={dnd}
+              {...props}
+            />
+          )}
+        />
       </div>
     </ComponentWrap>
   )}</Observer>
