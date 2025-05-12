@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
@@ -14,6 +14,8 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
     }
+  })
+  useEffect(() => {
     if (mode !== 'edit') {
       const blocksFromHTML = convertFromHTML(source[self.widget.field]);
       const contentState = ContentState.createFromBlockArray(
@@ -22,7 +24,7 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
       );
       setEditorState(EditorState.createWithContent(contentState))
     }
-  })
+  }, [source, self.widget.field])
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}

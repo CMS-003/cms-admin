@@ -1,9 +1,8 @@
 import { Acon } from '@/components'
-import { FullWidth, FullWidthFix } from '@/components/style'
+import { FullWidth, } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Fragment } from 'react'
 import { ComponentWrap } from '../style';
 
 export default function CTagList({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
@@ -45,7 +44,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
           <Input value={local.tempTag} onChange={e => {
             local.setValue('tempTag', e.target.value)
           }} addonAfter={(
-            <Fragment>
+            <FullWidth>
               <Acon icon='check' onClick={() => {
                 if (local.tempTag && !source[field].includes(local.tempTag)) {
                   setDataField(self.widget, [...source[field], local.tempTag])
@@ -54,7 +53,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
                 local.setValue('addVisible', false)
               }} />
               <Acon icon='close' style={{ marginLeft: 10 }} onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
-            </Fragment>
+            </FullWidth>
           )} />
         ) : <span style={{ border: '1px dotted #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
           <Acon icon='add' onClick={() => local.setValue('addVisible', true)} />
