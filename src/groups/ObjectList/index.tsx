@@ -69,52 +69,67 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             }}
             style={{ overflow: 'initial' }}
             renderItem={({ item, dnd: dnd2, index }) => (
-              <div
-                key={index}
+              <div key={index}
                 ref={dnd2?.ref}
                 {...dnd2?.props}
                 style={{
-                  padding: 4,
                   display: 'flex',
-                  flexDirection: 'column',
-                  paddingLeft: 15,
-                  gap: 2,
+                  flexDirection: 'row',
+                  position: 'relative',
+                  flex: 1,
                   ...dnd2?.style,
                   backgroundColor: dnd2?.isDragging ? 'lightblue' : '',
-                }}
-              >
-                <Acon icon="drag" />
-                {self.children.map(child => (
-                  <Component
-                    key={child._id}
-                    self={child}
-                    mode={mode}
-                    source={item}
-                    initField={false}
-                    setDataField={(widget: IWidget, value: any) => {
-                      switch (widget.type) {
-                        case 'boolean':
-                          value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
-                          break;
-                        case 'number':
-                          value = parseFloat(value) || 0
-                          break;
-                        case 'json':
-                          try {
-                            value = JSON.parse(value);
-                          } catch (e) {
-                            return;
-                          }
-                          break;
-                        default: break;
-                      }
-                      runInAction(() => {
-                        item[widget.field] = value
-                      })
-                    }}
-                    {...props}
-                  />
-                ))}
+                }}>
+                <span
+                  style={{
+                    display: 'flex',
+                    flex: 'none',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Acon icon="drag" />
+                </span>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  flex: 1,
+                  padding: 4,
+                  paddingLeft: 15,
+                  gap: 2,
+                }}>
+                  {self.children.map(child => (
+                    <Component
+                      key={child._id}
+                      self={child}
+                      mode={mode}
+                      source={item}
+                      initField={false}
+                      setDataField={(widget: IWidget, value: any) => {
+                        switch (widget.type) {
+                          case 'boolean':
+                            value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
+                            break;
+                          case 'number':
+                            value = parseFloat(value) || 0
+                            break;
+                          case 'json':
+                            try {
+                              value = JSON.parse(value);
+                            } catch (e) {
+                              return;
+                            }
+                            break;
+                          default: break;
+                        }
+                        runInAction(() => {
+                          item[widget.field] = value
+                        })
+                      }}
+                      {...props}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           />

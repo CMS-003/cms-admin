@@ -6,7 +6,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { Fragment } from 'react'
 import { ComponentWrap } from '../style';
 
-export default function CTags({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTagList({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     addVisible: false,
     tempTag: '',
@@ -26,7 +26,7 @@ export default function CTags({ self, mode, source = {}, setDataField, drag, dnd
       ref={dnd?.ref}
       {...dnd?.props}
       style={{
-        flexDirection: 'column',
+        flexDirection: 'row',
         ...dnd?.style,
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
