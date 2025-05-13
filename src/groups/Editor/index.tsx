@@ -17,7 +17,7 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
   })
   useEffect(() => {
     if (mode !== 'edit') {
-      const blocksFromHTML = convertFromHTML(source[self.widget.field]);
+      const blocksFromHTML = convertFromHTML(source[self.widget.field] || '');
       const contentState = ContentState.createFromBlockArray(
         blocksFromHTML.contentBlocks,
         blocksFromHTML.entityMap
