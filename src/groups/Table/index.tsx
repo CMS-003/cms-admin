@@ -177,7 +177,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                     setDataField={(widget: IWidget, value: any) => {
                       switch (widget.type) {
                         case 'boolean':
-                          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
+                          value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
                           break;
                         case 'number':
                           value = parseFloat(value) || 0

@@ -26,7 +26,7 @@ const app = IApp.create({
   isDebug: false,
   lastVisitedAt: 0,
   imageLines: [''],
-  baseURL: process.env.NODE_ENV === 'development' ? '' : "/gw/manager",
+  baseURL: window.location.origin + (process.env.NODE_ENV === 'development' ? '' : "/gw/manager"),
   project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态

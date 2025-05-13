@@ -1,9 +1,11 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Switch } from 'antd'
-import { runInAction, toJS } from 'mobx';
+import { runInAction } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
+import CONST from '@/constant';
+import apis from '@/api';
 
 export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -44,6 +46,17 @@ export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd
         {/* @ts-ignore */}
         <Switch checkedChildren={local.TRUE} unCheckedChildren={local.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(!self.widget.query ? source[self.widget.field] : query[self.widget.field])} onChange={checked => {
           setDataField(self.widget, checked)
+          if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
+            apis.fetch(self.widget.method, self.getApi(source._id), { [self.widget.field]: checked })
+              .then(resp => {
+                if (resp.code !== 0) {
+                  setDataField(self.widget, !checked)
+                }
+              })
+              .catch(e => {
+                setDataField(self.widget, !checked)
+              });
+          }
         }} />
       </div>
     </ComponentWrap>

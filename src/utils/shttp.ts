@@ -61,6 +61,12 @@ export interface BaseResultsWrapper<T> {
 //核心处理代码 将返回一个promise 调用then将可获取响应的业务数据
 const requestHandler = <T>(method: 'get' | 'post' | 'put' | 'delete' | 'patch', url: string, params: object = {}, config: AxiosRequestConfig = {}) => {
   let response: Promise<BaseResponse>;
+  const u = new URL(store.app.baseURL);
+  if (url.startsWith('/gw')) {
+    url = u.origin + url;
+  } else {
+    url = store.app.baseURL + url
+  }
   switch (method) {
     case 'get':
       response = instance.get(url, { params, ...config, headers: {} });
@@ -145,8 +151,15 @@ class Request<T> {
   }
 
   async then(cb?: (param: Promise<T>) => void) {
+    const u = new URL(store.app.baseURL);
+    let url = this.url;
+    if (url.startsWith('/gw')) {
+      url = u.origin + url;
+    } else {
+      url = store.app.baseURL + url
+    }
     const option: AxiosRequestConfig = {
-      url: this.url,
+      url,
       method: this.method,
     }
     if (this.data) {

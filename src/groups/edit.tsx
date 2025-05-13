@@ -270,7 +270,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   }
                   {
                     data.widget.action === CONST.ACTION_TYPE.MODAL && <Input addonBefore='模板id' value={data.widget.method} onChange={e => {
-                      data.setAttr('method', e.target.value);
+                      data.setWidget('method', e.target.value);
                     }} />
                   }
                   {
