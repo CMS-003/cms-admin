@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate } from "react-router-dom";
-import {ISchema } from '@/types/table';
+import { ISchema } from '@/types/table';
 import { TableCard, TableTitle, SubTitle } from './style'
 import apis from '@/api';
 import Acon from '@/components/Acon';
@@ -9,7 +9,7 @@ import { AlignAside } from '@/components/style';
 import { useEffectOnce, useWindowSize } from 'react-use';
 import { Affix, Form, Input, message, Modal, Switch } from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
-import { toJS } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { json } from '@codemirror/lang-json';
 import { chunk } from 'lodash'
 
@@ -26,6 +26,7 @@ export default function Page() {
     showCreate: boolean;
     tables: ISchema[];
     setData: Function;
+    setSchemaData: Function;
   } = useLocalObservable(() => ({
     cells: 1,
     tables: [],
@@ -35,16 +36,19 @@ export default function Page() {
     temp: '',
     setData: (key: 'tables', data: any) => {
       local[key] = data;
+    },
+    setSchemaData(key: string, data: any) {
+      local.schema[key] = data;
     }
   }));
   const refresh = useCallback(async () => {
     const resp = await apis.getSchemaAll();
     if (resp.code === 0) {
-      local.tables = resp.data.items;
+      local.setData('tables', resp.data.items)
     }
   }, []);
   useEffect(() => {
-    local.cells = width < 200 ? 1 : Math.floor(width / 200);
+    local.setData('cells', width < 200 ? 1 : Math.floor(width / 200))
   }, [width]);
   useEffectOnce(() => {
     refresh();
@@ -64,19 +68,21 @@ export default function Page() {
     ))}
     <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
       <Acon icon='PlusCircleOutlined' size={30} color='#0896db' onClick={() => {
-        local.schema = {
-          table: '',
-          name: '',
-          title: '',
-          db: '',
-          status: 0,
-          schema: {
-            type: 'Object',
-            properties: {}
-          }
-        };
-        local.temp = JSON.stringify(local.schema.schema, null, 2);
-        local.showCreate = true;
+        runInAction(() => {
+          local.schema = {
+            table: '',
+            name: '',
+            title: '',
+            db: '',
+            status: 0,
+            schema: {
+              type: 'Object',
+              properties: {}
+            }
+          };
+          local.temp = JSON.stringify(local.schema.schema, null, 2);
+          local.showCreate = true;
+        })
       }} />
     </Affix>
     <Modal
@@ -87,7 +93,7 @@ export default function Page() {
       okText='保存'
       cancelText='取消'
       onCancel={() => {
-        local.showCreate = false;
+        local.setData('showCreate', false);
       }}
       onOk={async () => {
         if (!local.schema.name) {
@@ -95,18 +101,18 @@ export default function Page() {
         }
         try {
           const json = JSON.parse(local.temp);
-          local.schema.schema = json;
+          local.setSchemaData('schema', json);
         } catch (e) {
           message.error('schema json错误');
           return;
         }
         try {
-          local.loading = true;
+          local.setData('loading', true);
           const { name, ...data } = toJS(local.schema);
           const resp = await apis.createSchema(name, data);
           if (resp.code === 0) {
             refresh();
-            local.showCreate = false;
+            local.setData('showCreate', false);
           } else {
             message.error(resp.message);
           }
@@ -114,35 +120,36 @@ export default function Page() {
           message.error('创建失败')
         } finally {
           local.loading = false;
+          local.setData('loading', false);
         }
       }}
     >
       <Form>
         <Form.Item label='schema名' labelCol={lb} required wrapperCol={rb}>
           <Input type='text' id='schema_name' placeholder='表名' onChange={(e) => {
-            local.schema.name = e.target.value;
+            local.setSchemaData('name', e.target.value)
           }
           } />
         </Form.Item>
         <Form.Item label='schema标题' labelCol={lb} wrapperCol={rb}>
           <Input type='text' id='schema_title' placeholder='表标题' onChange={(e) => {
-            local.schema.title = e.target.value;
+            local.setSchemaData('title', e.target.value)
           }
           } />
         </Form.Item>
         <Form.Item label='表名' labelCol={lb} required wrapperCol={rb}>
           <Input type='text' id='schema_table' placeholder='表名' onChange={(e) => {
-            local.schema.table = e.target.value;
+            local.setSchemaData('table', e.target.value)
           }} />
         </Form.Item>
         <Form.Item label='数据库' labelCol={lb} required wrapperCol={rb}>
           <Input type='text' id='schema_db' placeholder='数据库' onChange={(e) => {
-            local.schema.db = e.target.value;
+            local.setSchemaData('db', e.target.value)
           }} />
         </Form.Item>
         <Form.Item label='状态' labelCol={lb} wrapperCol={rb}>
           <Switch id='schema_status' checked={local.schema.status} onChange={() => {
-            local.schema.status = local.schema.status ? 0 : 1;
+            local.setSchemaData('status', local.schema.status ? 0 : 1)
           }} />
         </Form.Item>
         <Form.Item label='schema' labelCol={lb} wrapperCol={rb}>

@@ -177,20 +177,13 @@ const TabPanes: FC = () => {
     const delIndex = local.panels.findIndex(
       (item: IPanel) => item.path === targetTag
     )
-    local.remPanel(delIndex)
     // 删除当前tab，地址往前推
     const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || { path: process.env.PUBLIC_URL + '/dashboard' }
-    local.saveTags(local.panels)
-    // 如果当前tab关闭后，上一个tab无权限，就一起关掉
-    // if (!isAuthorized(tabKey) && nextPath !== '/') {
-    //   remove(tabKey)
-    //   navigate(store.page.openedTags[delIndex - 2])
-    // } else {
-    //   navigate(nextPath)
-    // }
     if (targetTag === store.router.currentPath) {
       navigate(nextPath.path)
     }
+    local.remPanel(delIndex)
+    local.saveTags(local.panels)
   }
 
   // 刷新当前 tab
