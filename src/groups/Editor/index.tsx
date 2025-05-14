@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
-import { Editor, EditorState, ContentState, convertFromHTML } from 'draft-js';
+import { Editor, EditorState, ContentState, convertFromHTML, } from 'draft-js';
+import { stateToHTML } from 'draft-js-export-html';
 import 'draft-js/dist/Draft.css';
 import { ComponentWrap } from '../style';
 
@@ -10,6 +11,7 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
   const [editorState, setEditorState] = React.useState(
     () => EditorState.createEmpty(),
   );
+  const editorRef = useRef(null);
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
@@ -38,10 +40,28 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
       }}
     >
       {children}
-      {source[self.widget.field] && <Editor editorState={editorState} onChange={(v: any) => {
-        setEditorState(v)
-        // setDataField(self.widget, value)
-      }} />}
+      <div
+        style={{
+          minHeight: 120,
+          border: '1px solid #dedede',
+          cursor: 'text',
+          flex: 1,
+          borderRadius: 3,
+          backgroundColor: 'white'
+        }}
+        onClick={() => {
+          if (editorRef.current) {
+            // @ts-ignore
+            editorRef.current.focus();
+          }
+        }}
+      >
+        <Editor ref={editorRef} editorState={editorState} onChange={(v) => {
+          setEditorState(v)
+          setDataField(self.widget, stateToHTML(v.getCurrentContent()))
+        }} />
+      </div>
+
     </ComponentWrap>
   )}</Observer>
 }

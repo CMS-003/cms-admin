@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "codemirror": "^5.62.3",
     "draft-js": "0.11.7",
+    "draft-js-export-html": "1.4.1",
     "event-emitter": "^0.3.5",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.21",

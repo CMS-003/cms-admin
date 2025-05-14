@@ -37,16 +37,16 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
     >
       {children}
       <FullHeight style={{ flex: 1 }}>
+        <Input style={{ marginBottom: 5 }} value={local.url} onChange={e => {
+          local.url = e.currentTarget.value;
+        }} onBlur={e => {
+          setDataField(self.widget, e.currentTarget.value)
+        }} />
         <Upload>
           <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
             <Button icon={<UploadOutlined />}></Button>
           </Preview>
         </Upload>
-        <Input style={{ marginTop: 5 }} value={local.url} onChange={e => {
-          local.url = e.currentTarget.value;
-        }} onBlur={e => {
-          setDataField(self.widget, e.currentTarget.value)
-        }} />
       </FullHeight>
     </ComponentWrap>
   )}</Observer>

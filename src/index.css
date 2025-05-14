@@ -107,9 +107,6 @@ code {
 }
 
 .DraftEditor-root {
-  background-color: #ffffff;
-  border-radius: 5px;
   padding: 5px;
   overflow-x: auto;
-  flex: 1;
 }
