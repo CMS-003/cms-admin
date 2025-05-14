@@ -5,7 +5,8 @@ import NatureSortable from '@/components/NatureSortable'
 import { Component } from '../auto'
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Acon } from '@/components'
+import { Acon, SortList, Style } from '@/components'
+import icon_drag from '@/asserts/images/drag.svg'
 import { Space, message } from 'antd'
 import { ComponentWrap } from '../style';
 import apis from '@/api';
@@ -57,45 +58,34 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
       {children}
       <FullHeight style={{ flex: 1 }}>
         {mode === 'preview'
-          ? <NatureSortable
-            items={source[self.widget.field] || []}
-            direction='vertical'
-            droppableId={self._id}
-            sort={(srcIndex, dstIndex) => {
+          ? <SortList
+            sort={(srcIndex: number, dstIndex: number) => {
               const items = source[self.widget.field] || [];
               const [item] = items.splice(srcIndex, 1);
               items.splice(dstIndex, 0, item);
               setDataField(self.widget, items);
             }}
-            style={{ overflow: 'initial' }}
-            renderItem={({ item, dnd: dnd2, index }) => (
-              <div key={index}
-                ref={dnd2?.ref}
-                {...dnd2?.props}
+            droppableId={self._id}
+            items={source[self.widget.field] || []}
+            itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
+            mode='edit'
+            direction='vertical'
+            renderItem={({ item, handler }: { item: any, handler: any }) => (
+              <div key={item._id}
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
                   position: 'relative',
+                  alignItems: 'center',
                   flex: 1,
-                  ...dnd2?.style,
-                  backgroundColor: dnd2?.isDragging ? 'lightblue' : '',
                 }}>
-                <span
-                  style={{
-                    display: 'flex',
-                    flex: 'none',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Acon icon="drag" />
+                <span {...handler}>
+                  <Style.IconSVG src={icon_drag} />
                 </span>
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
                   flex: 1,
-                  padding: 4,
-                  paddingLeft: 15,
                   gap: 2,
                 }}>
                   {self.children.map(child => (
@@ -153,7 +143,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
           />
         }
         {local.showAdd && (
-          <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, border: '1px dashed #ccc' }}>
+          <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 2, border: '1px dashed #ccc' }}>
             {
               self.children.map(child => (
                 <Component
@@ -170,7 +160,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             }
           </div>
         )}
-        <Center style={{ margin: 4, padding: 10, borderRadius: 5, backgroundColor: 'lightblue' }}>
+        <Center style={{ padding: 10, borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
           {local.showAdd
             ? <Space>
               <Acon icon="close" onClick={() => {

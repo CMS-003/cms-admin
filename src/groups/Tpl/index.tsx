@@ -40,7 +40,7 @@ hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 });
 hbs.registerHelper('formatDate', function (o, format) {
   if (typeof o === 'string') {
-    return moment(o).format(format);
+    return moment(o).utcOffset(8).format(format);
   }
   return o;
 });

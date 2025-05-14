@@ -1,5 +1,5 @@
 import { Fragment, useCallback, } from 'react';
-import { Button, Space, Select, Image, Divider, Switch, Spin, message } from 'antd';
+import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, ITemplate } from '@/types'
 import apis from '@/api'
@@ -11,6 +11,58 @@ import AutoPage from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
 import { useSetTitleContext } from '@/groups/context';
+import { groupBy, isEmpty } from 'lodash';
+
+type TreeNode = {
+  value: string;
+  title: string;
+  selectable?: boolean;
+  children: TreeNode[];
+}
+
+function getTree(templates: ITemplate[]) {
+  const types = [
+    { type: 'Dynamic', title: '动态页' },
+    { type: 'page', title: '列表页' },
+    { type: 'form', title: '表单页' },
+  ]
+  const tree: TreeNode[] = [];
+  const appTree: TreeNode = {
+    value: 'app',
+    title: '应用',
+    selectable: false,
+    children: []
+  }
+  templates.forEach(t => {
+    if (t.type === 'app') {
+      appTree.children.push({ title: t.title, value: t._id, children: [] });
+    }
+  });
+  tree.push(appTree);
+  store.project.list.forEach(p => {
+    const o = groupBy(templates.filter(t => t.project_id === p._id && t.type !== 'app'), 'type')
+    const typeTree: TreeNode = {
+      value: p._id,
+      title: p.title + ' ' + p.name,
+      selectable: false,
+      children: []
+    }
+    if (!isEmpty(o)) {
+      types.forEach(tt => {
+        if (o[tt.type]) {
+          typeTree.children.push({
+            value: `${p._id}|${tt.type}`,
+            title: tt.title,
+            selectable: false,
+            children: o[tt.type].map(t => ({ value: t._id, title: t.title, children: [] })),
+          });
+        }
+      });
+      tree.push(typeTree);
+    }
+  })
+  return tree;
+}
 
 const ComponentTemplatePage = (props: any) => {
   const setTitle = useSetTitleContext()
@@ -22,16 +74,19 @@ const ComponentTemplatePage = (props: any) => {
     edit_template_id: string,
     locked_template_id: string,
     templates: ITemplate[],
+    tree: TreeNode[],
     types: { name: string, value: string }[],
     selectedProjectId: string,
     setLoading: Function,
     setEditTemplateID: Function,
     setTemplates: Function;
+    setTree: Function;
   }>(() => ({
     mode: 'edit',
     loading: true,
     fetching: false,
     templates: [],
+    tree: [],
     temp: null,
     selectedProjectId: '',
     locked_template_id: new URLSearchParams(props.path.split('?')[1] || '').get('id') || '',
@@ -45,6 +100,9 @@ const ComponentTemplatePage = (props: any) => {
     },
     setTemplates(templates: ITemplate[]) {
       this.templates = templates
+    },
+    setTree(tree: TreeNode[]) {
+      this.tree = tree;
     }
   }))
   const refresh = useCallback(async () => {
@@ -54,6 +112,7 @@ const ComponentTemplatePage = (props: any) => {
       if (result.code === 0) {
         local.setTemplates(result.data.items);
         store.component.setEditComponentId('')
+        local.setTree(getTree(local.templates))
         if (local.locked_template_id) {
           local.templates.forEach(t => {
             if (t._id === local.locked_template_id) {
@@ -105,7 +164,7 @@ const ComponentTemplatePage = (props: any) => {
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
-                <Select
+                {/* <Select
                   disabled={local.locked_template_id !== ''}
                   options={store.project.list.map(p => ({
                     label: <span>{p.title}</span>,
@@ -116,7 +175,18 @@ const ComponentTemplatePage = (props: any) => {
                   onChange={v => {
                     local.setEditTemplateID(v)
                     refresh()
-                  }} />
+                  }} /> */}
+                <TreeSelect
+                  disabled={local.locked_template_id !== ''}
+                  treeData={local.tree}
+                  value={local.locked_template_id || local.edit_template_id}
+                  style={{ width: 300 }}
+                  onChange={v => {
+                    local.setEditTemplateID(v)
+                    refresh()
+                  }}
+                  treeDefaultExpandAll
+                />
               </Space>
               <Divider type="vertical" />
               <Space>

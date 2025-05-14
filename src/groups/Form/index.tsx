@@ -1,20 +1,36 @@
-import { AlignAround, Center, FullHeight, FullHeightAuto, FullWidthAuto } from '@/components/style'
+import { Center, FullHeightAuto, FullWidthAuto } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button, message, Space } from 'antd'
 import { Component } from '../auto'
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import apis from '@/api'
 import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
 import events from '@/utils/event';
-import { pick, set, isEqual, isEmpty } from 'lodash';
+import { pick, set, isEqual, isEmpty, omit } from 'lodash';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import store from '@/store'
+
+function getFields(widget: IWidget) {
+  const picks: string[] = [], omits: string[] = [];
+  widget.refer.map(kv => {
+    if (typeof kv.value === 'string') {
+      const flag = kv.value.startsWith('-')
+      const field = kv.value.replace(/^-/, '')
+      if (flag) {
+        omits.push(field)
+      } else {
+        picks.push(field);
+      }
+    }
+  });
+  return { picks, omits }
+}
 
 export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
@@ -76,7 +92,14 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         const keys2 = Object.keys(local.source);
         const s = new Set([...keys1, ...keys2]);
         const result: { [key: string]: any } = {};
+        const { picks, omits } = getFields(self.widget);
         s.forEach(key => {
+          if (picks.length && !picks.includes(key)) {
+            return;
+          }
+          if (omits.length && omits.includes(key)) {
+            return;
+          }
           const equal = isEqual((local.$origin as any)[key], (local.source as any)[key]);
           if (!equal) {
             result[key] = local.source[key]
@@ -113,9 +136,11 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
   const updateInfo = useCallback(async (close = false) => {
     try {
       local.setLoading(true)
+      const { omits, picks } = getFields(self.widget);
       const data = toJS(local.source) as IResource;
+      const changes = omits.length ? omit(data, omits) : (picks.length ? pick(data, picks) : data);
       const url = self.getApi(page.query.id as string, local.query)
-      const result = await (page.query.id ? apis.fetch<IResource>('put', url, data) : apis.fetch<IResource>('post', url, data));
+      const result = await (page.query.id ? apis.fetch<IResource>('put', url, changes) : apis.fetch<IResource>('post', url, changes));
       if (result.code === 0) {
         runInAction(() => {
           if (result.data) {

@@ -20,6 +20,7 @@ export default function CHidden({ self, mode, source = {}, drag, dnd, setDataFie
       style={{
         ...dnd?.style,
         flex: self.style.flex,
+        display: mode === 'preview' ? 'none' : 'block',
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >

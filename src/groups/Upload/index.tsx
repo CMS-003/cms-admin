@@ -1,9 +1,10 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { UploadOutlined } from '@ant-design/icons'
-import { Button, Upload } from 'antd'
-import { Observer } from 'mobx-react'
+import { Button, Input, Upload } from 'antd'
+import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import { ComponentWrap } from '../style';
+import { FullHeight } from '@/components/style'
 
 const Preview = styled.div`
   display: flex;
@@ -18,7 +19,10 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CUpload({ self, mode, drag, dnd, source = {}, children }: IAuto & IBaseComponent) {
+export default function CUpload({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+  const local = useLocalObservable(() => ({
+    url: source[self.widget.field] || ''
+  }))
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
@@ -32,11 +36,18 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, children }
       }}
     >
       {children}
-      <Upload>
-        <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
-          <Button icon={<UploadOutlined />}></Button>
-        </Preview>
-      </Upload>
+      <FullHeight style={{ flex: 1 }}>
+        <Upload>
+          <Preview style={{ backgroundImage: source[self.widget.field] ? `url(${source[self.widget.field]})` : '' }}>
+            <Button icon={<UploadOutlined />}></Button>
+          </Preview>
+        </Upload>
+        <Input style={{ marginTop: 5 }} value={local.url} onChange={e => {
+          local.url = e.currentTarget.value;
+        }} onBlur={e => {
+          setDataField(self.widget, e.currentTarget.value)
+        }} />
+      </FullHeight>
     </ComponentWrap>
   )}</Observer>
 }

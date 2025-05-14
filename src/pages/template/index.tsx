@@ -72,9 +72,8 @@ const ComponentTemplatePage: React.FC = () => {
       autoFocus: false,
       value: [
         { name: '应用', value: 'app' },
-        { name: '后台页面', value: 'page' },
-        { name: '后台表单', value: 'form' },
-        { name: '对话框', value: 'modal' },
+        { name: '列表页', value: 'page' },
+        { name: '表单页', value: 'form' },
         { name: '前端动态页', value: 'Dynamic' },
         { name: '前端视频页', value: 'Video' },
         { name: '前端文章页', value: 'Article' },
