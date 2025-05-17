@@ -39,7 +39,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
           }}>{tag}</Tag>
         ))}
       </FullWidth>
-      <div style={{ display: 'flex', alignItems: 'center', width: 150, height: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', height: '32px' }}>
         {local.addVisible ? (
           <Input value={local.tempTag} onChange={e => {
             local.setValue('tempTag', e.target.value)

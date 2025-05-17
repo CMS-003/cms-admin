@@ -66,14 +66,17 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
         }
       },
       onMouseEnter() {
+        if (mode === 'preview') return;
         store.component.setHoverComponentId(self._id)
       },
       onMouseOver() {
+        if (mode === 'preview') return;
         if (!store.component.hover_component_id) {
           store.component.setHoverComponentId(self._id)
         }
       },
       onMouseLeave() {
+        if (mode === 'preview') return;
         store.component.setHoverComponentId('')
       },
       onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
