@@ -58,7 +58,14 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
       >
         <Editor ref={editorRef} editorState={editorState} onChange={(v) => {
           setEditorState(v)
-          setDataField(self.widget, stateToHTML(v.getCurrentContent()))
+          setDataField(self.widget, stateToHTML(v.getCurrentContent(), {
+            blockRenderers: {
+              unstyled: (block) => {
+                const text = block.getText();
+                return text === '' ? '' : `<p>${text}</p>`;
+              },
+            },
+          }))
         }} />
       </div>
 

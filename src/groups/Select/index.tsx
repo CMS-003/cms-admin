@@ -40,7 +40,7 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
                 try {
                   const result = await apis.fetch(self.widget.method, self.getApi(data._id), { [self.widget.field]: v })
                   if (result.code === 0) {
-
+                    message.info('修改成功', 1)
                   } else {
                     setDataField(self.widget, old)
                     message.warn(result.message);

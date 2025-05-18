@@ -114,3 +114,12 @@
 - react.StrictMode 重复渲染。只在开发中出现
 - 开发时保存文件会触发useEffect和useEffectOnce,造成标签页重复
 - getSnapshot的参数是model创建的，useLocalObservable转object用到的是toJS
+- ✅ 创建视频: 对象列表 url getApi
+- ✅ 修改：修改完验证完整性
+- ✅ 上传/下载接口
+- ✅ input 处理编辑对象
+- ✅ 隐藏input类型
+- ✅ muid：md5.hash(`${origin}-${id}`
+- ✅ 上传组件添加输入框修改
+- ✅ 富文本编辑器
+- 数据 status应该放到Record表，Resource表需要另外的语义： 是否连载更新 updating /是否删除 deletedAt

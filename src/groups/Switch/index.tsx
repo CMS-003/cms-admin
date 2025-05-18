@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Switch } from 'antd'
+import { Switch, message } from 'antd'
 import { runInAction } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
@@ -51,10 +51,15 @@ export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd
               .then(resp => {
                 if (resp.code !== 0) {
                   setDataField(self.widget, !checked)
+                  message.error('修改失败', 1)
+                } else {
+                  message.info('修改成功', 1)
                 }
+
               })
               .catch(e => {
                 setDataField(self.widget, !checked)
+                message.error('请求出错', 1)
               });
           }
         }} />
