@@ -93,11 +93,6 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
             </Fragment>))}
           </ScrollWrap>
         </Content>
-        {local.show && <ResourceModal onClose={() => {
-          local.close()
-        }} onAdd={(d: IResource) => {
-          self.addResource(pick(d, ['_id', 'title', 'cover']))
-        }} />}
         {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
           local.open()
         }}>

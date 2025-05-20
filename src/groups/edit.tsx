@@ -3,7 +3,7 @@ import { makeAutoObservable, toJS } from "mobx"
 import { Fragment } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { cloneDeep } from 'lodash'
+import { cloneDeep, pick } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
 import { IComponent, IResource, } from '@/types'
 import styled from 'styled-components';
@@ -13,6 +13,7 @@ import {
 import CONST from "@/constant";
 import QueryModal from "./queriesModal";
 import { FullWidth } from "@/components/style";
+import ResourceModal from "@/components/ResourceModal";
 const { AlignAround, AlignAside } = Style;
 
 const ScrollWrap = styled.div`
@@ -35,8 +36,12 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
       local.q = q;
     },
     showQueryModal: false,
+    showResourceModal: false,
     setShowQueryModal(show: boolean) {
       local.showQueryModal = show;
+    },
+    setResourceModal(show: boolean) {
+      local.showResourceModal = show;
     }
   }))
   return (
@@ -209,9 +214,6 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '数据', key: 'data', children: (
               <ScrollWrap>
                 <EditItem>
-
-                </EditItem>
-                <EditItem>
                   条件 <Acon icon='PlusCircleOutlined' onClick={() => {
                     local.setShowQueryModal(true)
                   }} />
@@ -223,12 +225,13 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       </Space>
                     } />
                   ))}
-                  <QueryModal
+                  {local.showQueryModal && <QueryModal
                     show={local.showQueryModal}
                     queries={data.queries}
                     setQueries={(queries: string[]) => data.setAttr('queries', queries)}
                     q={local.q}
-                    close={() => local.setShowQueryModal(false)} />
+                    close={() => local.setShowQueryModal(false)}
+                  />}
                 </EditItem>
                 <EditItem>
                   静态数据
@@ -247,13 +250,26 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
                         <Input
                           value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' title={resource._id} onClick={() => { }} /></CopyToClipboard>}
+                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' onClick={() => { }} /></CopyToClipboard>}
                           addonAfter={<Acon icon='CloseOutlined' onClick={() => { data?.remResource(resource._id) }}
                           />} />
                       </div>
                     </Fragment>}
                   />
-                  <Button icon={<Acon icon="add" />}>添加资源</Button>
+                  {local.showResourceModal && <ResourceModal
+                    show={local.showResourceModal}
+                    onAdd={(d: IResource) => {
+                      data.addResource(pick(d, ['_id', 'title', 'cover']))
+                    }}
+                    onClose={() => {
+                      local.setResourceModal(false)
+                    }}
+                  />}
+                  <AlignAround style={{ marginTop: 10 }}>
+                    <Button icon={<Acon icon="add" />} onClick={() => {
+                      local.setResourceModal(true)
+                    }}>添加资源</Button>
+                  </AlignAround>
                 </EditItem>
               </ScrollWrap>
             )
