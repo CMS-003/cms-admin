@@ -42,7 +42,9 @@ import {
   ApiOutlined,
   RadarChartOutlined,
   FieldTimeOutlined,
-  MessageOutlined,
+  StarOutlined,
+  StarFilled,
+  MailOutlined,
 } from '@ant-design/icons'
 import React from 'react';
 import styled from 'styled-components'
@@ -72,8 +74,6 @@ const icons = {
   search: SearchOutlined,
   BarsOutlined,
   bars: BarsOutlined,
-  MessageOutlined,
-  messages: MessageOutlined,
   LeftOutlined,
   left: LeftOutlined,
   RightOutlined,
@@ -119,12 +119,17 @@ const icons = {
   Api: ApiOutlined,
   spider: RadarChartOutlined,
   FieldTimeOutlined,
+  unstar: StarOutlined,
+  stared: StarFilled,
+  history: FieldTimeOutlined,
+  notify: MailOutlined,
 }
 const Wrap = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  white-space: nowrap;
   &:hover { 
     opacity: 0.7;
     color: var(--ant-primary-color-hover);
@@ -146,7 +151,7 @@ export default function Acon(prop: {
   const Image: any = icons[prop.icon]
   if (Image && !prop.hidden) {
     return <Wrap style={{ ...prop.style, color: prop.color, fontSize: prop.size }} onClick={prop.onClick} {...props}>
-      {prop.title}<Image style={{ transform: `rotate(${prop.rotate || 0})` }} />
+      <Image style={{ transform: `rotate(${prop.rotate || 0})` }} /> {prop.title}
     </Wrap>
   }
   return null;

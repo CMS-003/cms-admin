@@ -66,7 +66,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
             message.success('复制成功', 1)
           }}
         >
-          <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} />
+          <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} />
         </CopyToClipboard>
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.FETCH}>
@@ -74,25 +74,25 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           ? <Popconfirm title='确认是否删除' okText='是' cancelText='否' onConfirm={async () => {
             await request()
           }}>
-            <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} />
+            <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} />
           </Popconfirm>
-          : <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
+          : <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
             await request()
           }} />}
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.OPEN_URL}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
           const url = hbs.compile(self.url)(source)
           window.open(url)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
           navigate(`${self.url}?id=${source._id}`)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.MODAL}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} onClick={async () => {
+        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
           local.setValue('id', source._id)
           local.setValue('template_id', self.widget.method)
         }} />
@@ -101,11 +101,11 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
         <Popover trigger='click' content={<div>
           <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} />
         </div>}>
-          <Acon icon={self.icon || 'FileSearchOutlined' as any} style={self.style} />
+          <Acon icon={self.icon || 'FileSearchOutlined' as any} title={self.title} style={self.style} />
         </Popover>
       </VisualBox>
       <VisualBox visible={self.widget.action === ''}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} />
+        <Acon icon={self.icon || 'PlusOutlined' as any} title={self.title} style={self.style} />
       </VisualBox>
       {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', ''); }} />}
     </ComponentWrap>

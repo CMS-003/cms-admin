@@ -32,6 +32,7 @@ import Tpl from './Tpl'
 import CodeEditor from './CodeEditor'
 import Editor from './Editor'
 import Hidden from './Hidden'
+import HotArea from './HotArea'
 
 /**
  * 组件与属性 attr
@@ -107,6 +108,7 @@ const components = {
   Switch,
   Editor,
   Hidden,
+  HotArea,
 }
 
 export default components;
