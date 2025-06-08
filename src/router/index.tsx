@@ -17,7 +17,7 @@ import HomePage from '@/pages/dashboard'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
-import OAuthFailPage from '@/pages/oauthResult/fail';
+import OAuthFailPage from '@/pages/oauthResult/failure';
 import { TitleContext } from '@/groups/context';
 
 // path=pathname+search=xxxkey=fullpath

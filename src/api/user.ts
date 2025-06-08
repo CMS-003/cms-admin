@@ -3,26 +3,26 @@ import { IVerification } from "../types";
 
 const user = {
   SignIn: async (data: { type: string, account: string, value: string }) => {
-    const result: any = await shttp.post("/api/v1/oauth/sign-in", data)
+    const result: any = await shttp.post("/gw/user/oauth/sign-in", data)
     return result;
   },
   SignOut: async (data: any) => {
-    const result = await shttp.post('/api/v1/users/sign-out', data);
+    const result = await shttp.post('/gw/user/oauth/sign-out', data);
     return result;
   },
   refresh: async (data: { refresh_token: string }) => {
-    const result = await shttp.post<{ refresh_token: string, access_token: string, type: string }>('/api/v1/users/refresh', data);
+    const result = await shttp.post<{ refresh_token: string, access_token: string, type: string }>('/gw/user/refresh', data);
     return result;
   },
   getProfile: async <T>() => {
-    return await shttp.get<T>('/api/v1/users/profile').then()
+    return await shttp.get<T>('/gw/user/profile').then()
   },
   getApps: async <T>() => {
     const result = await shttp.get<T>('/api/v1/user/apps')
     return result
   },
-  sendCode: async <T>(data: { type: string, account: string }) => {
-    const result = await shttp.post<T>('/api/v1/oauth/code', data);
+  sendCode: async <T>(data: { method: number, type: string, account: string }) => {
+    const result = await shttp.post<T>('/gw/user/send-code', data);
     return result
   },
   getCodes: async (query: { page: number, method: string, type: string }) => {
@@ -30,7 +30,7 @@ const user = {
     return result
   },
   bind: async <T>(data: { bind_token: string, type: string, account: string, value: string }) => {
-    const result = await shttp.post<T>('/api/v1/oauth/bind?bind_token=' + data.bind_token, data).then();
+    const result = await shttp.post<T>('/gw/user/bind?bind_token=' + data.bind_token, data).then();
     return result
   }
 }

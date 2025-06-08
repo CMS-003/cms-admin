@@ -19,7 +19,7 @@ export default function BindPage() {
     area_code: '',
     phone: '',
     phone_code: '',
-    type: 'account',
+    type: 'name',
     email_count: 0,
     phone_count: 0,
     timer: null as any,
@@ -28,7 +28,7 @@ export default function BindPage() {
     if (local.email_count > 0 || local.phone_count > 0) {
       return;
     }
-    const resp = await apis.sendCode({ type: local.type, account: local.type === 'email' ? local.email : local.area_code + local.phone });
+    const resp = await apis.sendCode({ method: local.type === 'email' ? 1 : 2, type: 'bind', account: local.type === 'email' ? local.email : local.area_code + local.phone });
     if (resp.code === 0) {
       message.success('验证码已发送');
       local.email_count = 60;
@@ -58,6 +58,7 @@ export default function BindPage() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', minWidth: '80%', maxWidth: 800, height: 500, transform: 'translate(0,-100px)' }}>
         <Avatar src={logo} size={80} />
         <Tabs centered defaultActiveKey={local.type} onChange={type => {
+          console.log(type)
           local.type = type;
         }} >
           <Tabs.TabPane tab="账号密码" key="account">

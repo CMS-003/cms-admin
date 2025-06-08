@@ -8,7 +8,7 @@ import apis from './api';
 import SignInPage from './pages/signin'
 import BindPage from './pages/oauthResult/bind'
 import SuccessPage from './pages/oauthResult/success'
-import FailPage from './pages/oauthResult/fail'
+import FailPage from './pages/oauthResult/failure'
 import store from './store'
 import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
@@ -32,16 +32,13 @@ function App() {
   const init = useCallback(async () => {
     local.setError(false)
     local.setBooting(true)
+    await store.getBoot();
     const result = await apis.getProfile<IUser>();
     if (result.code !== 0) {
-      if (location.pathname !== '/manager/sign-in') {
-        navigate('/manager/sign-in')
-      }
       return;
     } else {
       store.user.setInfo(result.data.item)
     }
-    await store.getBoot();
   }, [])
   useEffect(() => {
     (async () => {
@@ -62,7 +59,7 @@ function App() {
         if (!local.booted) {
           await init();
           local.booted = true
-          if (!store.user.isLogin()) {
+          if (!store.user.isLogin() && !['/manager/oauth/bind', '/manager/oauth/success', '/manager/oauth/failure'].includes(location.pathname)) {
             navigate('/manager/sign-in')
           } else if (location.pathname === '/' || location.pathname === '/manager/') {
             navigate('/manager/dashboard')
@@ -100,7 +97,7 @@ function App() {
           <Route path={"/manager/sign-in"} element={<SignInPage />} />
           <Route path={"/manager/oauth/bind"} element={<BindPage />} />
           <Route path={"/manager/oauth/success"} element={<SuccessPage />} />
-          <Route path={"/manager/oauth/fail"} element={<FailPage />} />
+          <Route path={"/manager/oauth/failure"} element={<FailPage />} />
           <Route path="/manager/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
         </Routes>}
       </div>
