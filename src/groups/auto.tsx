@@ -337,7 +337,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     local.setEditComponent(null)
     try {
       const resp = await apis.getTemplateComponents(template_id)
-      const { children, ...template } = resp.data as ITemplate;
+      const { children, ...template } = resp.data;
       const components = children.map(child => ComponentItem.create(child))
       local.template = { ...template, children: components }
       setTitle(path, local.template.title);

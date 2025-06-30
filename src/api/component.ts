@@ -8,26 +8,26 @@ const apis = {
     for (let key in query) {
       qs.push(`${key}=${query[key]}`)
     }
-    const result: any = await shttp.get('/api/v1/components?' + qs.join('&'));
+    const result: any = await shttp.get('/gw/api/v1/components?' + qs.join('&'));
     return result
   },
   createComponent: async ({ body }: { body: IComponent }) => {
-    const result: any = await shttp.post('/api/v1/components', body);
+    const result: any = await shttp.post('/gw/api/v1/components', body);
     return result
   },
   updateComponent: async ({ body }: { body: IComponent }) => {
-    const result: any = await shttp.put(`/api/v1/components/${body._id}`, body)
+    const result: any = await shttp.put(`/gw/api/v1/components/${body._id}`, body)
     return result
   },
   destroyComponent: async ({ params }: { params: any }) => {
-    const result: any = await shttp.delete(`/api/v1/components/${params._id}`)
+    const result: any = await shttp.delete(`/gw/api/v1/components/${params._id}`)
     return result
   },
   batchUpdateComponent: async ({ body }: { body: any }) => {
-    return await shttp.post(`/api/v1/components/batch`, body)
+    return await shttp.post(`/gw/api/v1/components/batch`, body)
   },
   batchDestroyComponent: async (query: any) => {
-    return await shttp.delete(`/api/v1/components/batch?${QueryString.stringify(query)}`)
+    return await shttp.delete(`/gw/api/v1/components/batch?${QueryString.stringify(query)}`)
   }
 }
 

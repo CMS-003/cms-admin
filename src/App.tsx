@@ -33,7 +33,7 @@ function App() {
     local.setError(false)
     local.setBooting(true)
     await store.getBoot();
-    const result = await apis.getProfile<IUser>();
+    const result = await apis.getProfile();
     if (result.code !== 0) {
       return;
     } else {

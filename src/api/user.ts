@@ -1,5 +1,5 @@
-import shttp from "../utils/shttp";
-import { IVerification } from "../types";
+import shttp, { BaseResultWrapper } from "../utils/shttp";
+import { IUser, IVerification } from "../types";
 
 const user = {
   SignIn: async (data: { type: string, account: string, value: string }) => {
@@ -15,10 +15,10 @@ const user = {
     return result;
   },
   getProfile: async <T>() => {
-    return await shttp.get<T>('/gw/user/profile').then()
+    return await shttp.get<BaseResultWrapper<IUser>>('/gw/user/profile')
   },
   getApps: async <T>() => {
-    const result = await shttp.get<T>('/api/v1/user/apps')
+    const result = await shttp.get<T>('/gw/api/v1/user/apps')
     return result
   },
   sendCode: async <T>(data: { method: number, type: string, account: string }) => {
@@ -26,7 +26,7 @@ const user = {
     return result
   },
   getCodes: async (query: { page: number, method: string, type: string }) => {
-    const result = await shttp.get<IVerification>(`/api/v1/logs/codes`).query(query);
+    const result = await shttp.get<IVerification>(`/gw/api/v1/logs/codes`).query(query);
     return result
   },
   bind: async <T>(data: { bind_token: string, type: string, account: string, value: string }) => {

@@ -152,7 +152,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 style={{ position: 'relative' }}
                 listType="picture-card"
                 className="avatar-uploader"
-                action={store.app.baseURL + "/api/v1/upload/image"}
+                action={store.app.baseURL + "/gw/api/v1/upload/image"}
                 showUploadList={false}
                 headers={{ Authorization: 'Bearer ' + store.user.getAccessToken() }}
                 name="image"

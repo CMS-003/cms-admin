@@ -8,7 +8,7 @@ export type IResource = {
 
 const Resource = {
   getResources: async ({ search, page }: { search?: string, page?: number }) => {
-    const result = await shttp.get<IResource>(`/api/v1/public/manager/resources?search=${search}&page=${page}`);
+    const result = await shttp.get<IResource>(`/gw/api/v1/public/manager/resources?search=${search}&page=${page}`);
     return result
   },
 }

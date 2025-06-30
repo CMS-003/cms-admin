@@ -51,7 +51,7 @@ export default function Page({ }) {
           <Switch checked={sns.status === 1} onChange={checked => {
             if (checked) {
               const access_token = store.user.getAccessToken()
-              window.open(`/api/v1/oauth/sns/${sns.sns_type}/?authorization=${encodeURIComponent(access_token)}`)
+              window.open(`/gw/api/v1/oauth/sns/${sns.sns_type}/?authorization=${encodeURIComponent(access_token)}`)
             } else {
               apis.destroySNS({ body: sns }).then(resp => {
                 sns.status = sns.status === 1 ? 0 : 1;

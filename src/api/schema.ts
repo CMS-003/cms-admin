@@ -4,23 +4,23 @@ import qs from 'qs'
 
 const apis = {
   getSchemaAll: async () => {
-    const result = await shttp.get<ISchema>(`/api/v1/schemas`)
+    const result = await shttp.get<ISchema>(`/gw/api/v1/schemas`)
     return result
   },
   getSchemaInfo: async (name: string) => {
-    const result = await shttp.get<IJsonSchema>(`/api/v1/schemas/${name}`);
+    const result = await shttp.get<IJsonSchema>(`/gw/api/v1/schemas/${name}`);
     return result;
   },
   createSchema: async (name: string, data: any) => {
-    const result = await shttp.post(`/api/v1/schemas/${name}`, data);
+    const result = await shttp.post(`/gw/api/v1/schemas/${name}`, data);
     return result;
   },
   updateSchema: async (name: string, data: any) => {
-    const result = await shttp.put(`/api/v1/schemas/${name}`, data);
+    const result = await shttp.put(`/gw/api/v1/schemas/${name}`, data);
     return result;
   },
   getSchemaFields: async (name: string) => {
-    const result = await shttp.get<{ field: string, type: string }[]>(`/api/v1/schemas/${name}/fields`);
+    const result = await shttp.get<{ field: string, type: string }[]>(`/gw/api/v1/schemas/${name}/fields`);
     return result;
   },
   fetch: async<T>(method: string, url: string, data?: any) => {

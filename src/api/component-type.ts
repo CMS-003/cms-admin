@@ -1,9 +1,9 @@
-import shttp from "../utils/shttp";
+import shttp, { BaseResultsWrapper } from "../utils/shttp";
 import { IComponentType } from '../types'
 
 const apis = {
   getComponentTypes: async () => {
-    const result = await shttp.get<IComponentType>(`/api/v1/component-types`)
+    const result: BaseResultsWrapper<IComponentType> = await shttp.get<IComponentType>(`/gw/api/v1/component-types`)
     const containers: IComponentType[] = [];
     const components: IComponentType[] = [];
     const widgets: IComponentType[] = [];
@@ -20,15 +20,15 @@ const apis = {
     return result
   },
   addComponentTypes: async ({ body }: { body: IComponentType }) => {
-    const result: any = await shttp.post(`/api/v1/component-types`, body)
+    const result: any = await shttp.post(`/gw/api/v1/component-types`, body)
     return result
   },
   updateComponentTypes: async ({ body }: { body: IComponentType }) => {
-    const result: any = await shttp.put(`/api/v1/component-types/${body._id}`, body)
+    const result: any = await shttp.put(`/gw/api/v1/component-types/${body._id}`, body)
     return result
   },
   destroyComponentTypes: async ({ params }: { params: any }) => {
-    const result: any = await shttp.delete(`/api/v1/component-types/${params._id}`)
+    const result: any = await shttp.delete(`/gw/api/v1/component-types/${params._id}`)
     return result
   },
 }

@@ -1,4 +1,4 @@
-import shttp, { BaseResultWrapper } from "../utils/shttp";
+import shttp, { BaseResultWrapper, BaseWrapper } from "../utils/shttp";
 import user from './user'
 import config from './config'
 import component from './component'
@@ -21,13 +21,13 @@ function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) 
   }
 }
 const apis = {
-  getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10): Promise<BaseResultWrapper<ITemplate & { children: IComponent[] }>> => {
-    const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/api/v1/templates/${template_id}/components?page=${page}&size=${size}`);
+  getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10): Promise<BaseWrapper<ITemplate & { children: IComponent[] }>> => {
+    const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/gw/api/v1/templates/${template_id}/components?page=${page}&size=${size}`);
     return new Promise((resolve, reject) => {
       import('../store').then(store => {
         if (store.default.component.types.length) {
           const map = keyBy(store.default.component.types, 'type')
-          results.data.children.forEach(child => fillAccepts(child, map))
+          results.data.children.forEach((child: any) => fillAccepts(child, map))
         }
         resolve(results)
       }).catch(e => {
@@ -48,7 +48,7 @@ const apis = {
     }
   },
   getLogs: async (query: object) => {
-    return await shttp.get<ILog>(`/api/v1/logs/system?${qs.stringify(query)}`)
+    return await shttp.get<ILog>(`/gw/api/v1/logs/system?${qs.stringify(query)}`)
   },
   ...config,
   ...component,
