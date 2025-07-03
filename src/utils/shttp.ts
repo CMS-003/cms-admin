@@ -142,7 +142,7 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
   }
 
   fetch() {
-    const u = new URL(store.app.baseURL);
+    const u = new URL(window.location.href);
     let url = this.url;
     if (url.startsWith('/gw')) {
       url = u.origin + url;
