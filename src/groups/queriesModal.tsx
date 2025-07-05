@@ -35,7 +35,7 @@ export default function QueryModal({ show, q = '', queries, setQueries, close }:
   const getData = useCallback(async () => {
     try {
       local.setLoading(true)
-      const resp = await apis.getDataList('/api/gatling/4CiPccfDG', { page: local.page, q: local.q })
+      const resp = await apis.getDataList('/gw/api/gatling/4CiPccfDG', { page: local.page, q: local.q })
       if (resp.code === 0) {
         runInAction(() => {
           local.list = (resp.data.items as Query[]) || [];
