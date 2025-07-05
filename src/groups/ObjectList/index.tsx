@@ -10,6 +10,20 @@ import icon_drag from '@/asserts/images/drag.svg'
 import { Space, message } from 'antd'
 import { ComponentWrap } from '../style';
 import apis from '@/api';
+import styled from 'styled-components';
+
+const ObjectItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  align-items: center;
+  flex: 1;
+  padding: 2px;
+  border: 1px dashed #00000036;
+  &:hover {
+    background-color: lightblue;
+  }
+`
 
 export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
@@ -71,14 +85,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             mode='edit'
             direction='vertical'
             renderItem={({ item, handler }: { item: any, handler: any }) => (
-              <div key={item._id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  position: 'relative',
-                  alignItems: 'center',
-                  flex: 1,
-                }}>
+              <ObjectItem key={item._id}>
                 <span {...handler}>
                   <Style.IconSVG src={icon_drag} />
                 </span>
@@ -120,7 +127,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                     />
                   ))}
                 </div>
-              </div>
+              </ObjectItem>
             )}
           />
           : <NatureSortable
@@ -160,14 +167,14 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             }
           </div>
         )}
-        <Center style={{ padding: 10, borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
+        <Center style={{ borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
           {local.showAdd
             ? <Space>
-              <Acon icon="close" onClick={() => {
+              <Acon icon="close" style={{ padding: '10px 15px' }} onClick={() => {
                 local.setAdd(false)
                 local.set({})
               }} />
-              <Acon icon="check" onClick={async () => {
+              <Acon icon="check" style={{ padding: '10px 15px' }} onClick={async () => {
                 const videos = (toJS(source[self.widget.field]))
                 const video = toJS(local.source)
                 const url = self.getApi(source._id)
@@ -187,7 +194,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 }
               }} />
             </Space>
-            : <Acon icon="PlusOutlined" onClick={() => {
+            : <Acon icon="PlusOutlined" style={{ padding: '10px 15px' }} onClick={() => {
               local.setAdd(true)
             }} />
           }

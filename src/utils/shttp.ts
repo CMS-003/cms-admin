@@ -210,7 +210,7 @@ const shttp = {
   },
   patch<T>(url: string, params?: object) {
     // @ts-ignore
-    return new Request<T>('post', url).send(params)
+    return new Request<T>('patch', url).send(params)
   },
 };
 
