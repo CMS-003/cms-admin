@@ -147,10 +147,10 @@ const ComponentTemplatePage = (props: any) => {
               key={item._id}
               title={item.title}
               onDragStartCapture={() => {
-                store.component.setDragType(item.name);
+                store.component.setDragType(item.name, item.level);
               }}
               onDragEndCapture={() => {
-                store.component.setDragType('')
+                store.component.setDragType('', 0)
               }}>
               <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
               />

@@ -14,7 +14,7 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
         {...drag.events}
         ref={dnd?.ref}
         {...dnd?.props}
-        style={{ height: '100%', ...dnd?.style }}
+        style={{ height: '100%', width: '100%', ...dnd?.style }}
       >
         {children}
         <FullHeight style={{ flex: 1 }}>

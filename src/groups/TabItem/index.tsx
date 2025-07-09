@@ -7,6 +7,7 @@ import { ComponentWrap } from '../style';
 
 export const TabItemWrap = styled.div`
   height: 100%;
+  width: 100%;
   &.delete {
     background-color: #333;
   }
@@ -21,36 +22,16 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
-  const local = useLocalObservable(() => ({
-    isDragOver: false,
-    onDrop: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      local.isDragOver = false;
-      if (store.component.canDrop(store.component.dragingType, self.type)) {
-        self.appendChild(store.component.dragingType)
-      }
-    },
-    onDragLeave: () => {
-      local.isDragOver = false;
-    },
-    onDragOver: (e: any) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!local.isDragOver) {
-        local.isDragOver = true;
-      }
-    }
-  }))
+export default function TabItem({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap
         className={mode + drag.className}
-        onDragOver={local.onDragOver}
-        onDragLeave={local.onDragLeave}
-        onDrop={local.onDrop}>
-        {/* {children} */}
+        {...drag.events}
+        ref={dnd?.ref}
+        {...dnd?.props}
+        style={{ minHeight: '100%' }}
+      >
         <TabItemWrap>
           {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props} />)}
         </TabItemWrap>

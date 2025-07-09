@@ -274,6 +274,7 @@ const ComponentTypeItem = types.model({
   name: types.string,
   title: types.string,
   status: types.optional(types.number, 0),
+  level: types.optional(types.number, 1),
   cover: types.optional(types.string, ''),
   group: types.optional(types.string, ''),
   accepts: types.array(types.string),
@@ -285,6 +286,7 @@ const component = types.model({
   editing_component_id: types.optional(types.string, ''),
   hover_component_id: types.optional(types.string, ''),
   dragingType: types.optional(types.string, ''),
+  dragingLevel: types.optional(types.number, 1),
   dragingWidgetType: types.optional(types.string, ''),
   can_drag_id: types.optional(types.string, ''),
   isDragging: types.optional(types.boolean, false),
@@ -304,7 +306,7 @@ const component = types.model({
     if (!com) {
       return false;
     }
-    const result = com.accepts.includes(from) || com.accepts.includes('all');
+    const result = com.accepts.includes(from) || (self.dragingLevel === 1 && com.accepts.includes('all'));
     return result;
   },
   setEditComponentId(id: string) {
@@ -313,8 +315,9 @@ const component = types.model({
   setHoverComponentId(id: string) {
     self.hover_component_id = id
   },
-  setDragType(type: string) {
+  setDragType(type: string, level: number) {
     self.dragingType = type;
+    self.dragingLevel = level;
   },
   setDragWidgetType(type: string) {
     self.dragingWidgetType = type;

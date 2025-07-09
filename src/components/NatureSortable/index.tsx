@@ -91,8 +91,10 @@ export default function NatureSortable({
             display: 'flex',
             flexDirection: direction === 'horizontal' ? 'row' : 'column',
             flexWrap: 'nowrap',
-            // overflow: 'auto',
-            flex: 1,
+            flexGrow: 0,
+            flexShrink: 0,
+            flexBasis: '100%',
+            overflow: 'hidden',
             ...style,
           }}>
             {items.map((item, index) => (
