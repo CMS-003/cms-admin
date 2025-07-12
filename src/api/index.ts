@@ -4,6 +4,7 @@ import config from './config'
 import component from './component'
 import project from './project'
 import sns from './sns'
+import file from './file'
 import template from './template'
 import resource from './resource'
 import componentType from './component-type'
@@ -58,6 +59,7 @@ const apis = {
   ...user,
   ...resource,
   ...sns,
+  ...file,
   ...schema,
 }
 

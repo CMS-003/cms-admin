@@ -64,6 +64,7 @@ function getPanelByPath(path: string, title?: string): IPanel {
 }
 
 const LoadableConfigPage = lazy(() => import('@/pages/config'))
+const LoadableFilePage = lazy(() => import('@/pages/file'))
 const LoadableProjectPage = lazy(() => import('@/pages/project'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
 const LoadableEditable = lazy(() => import('@/pages/template/editable'))
@@ -81,6 +82,7 @@ const templateArr: IPage[] = [
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
   { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
+  { title: '文件管理', Content: (props: any) => <LoadableFilePage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/file' },
   { title: '所有表', Content: (props: any) => <LoadableSchemasPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/all' },
   { title: '表定义', Content: (props: any) => <LoadableSchemaInfolPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/info' },
   { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
