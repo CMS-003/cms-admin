@@ -78,7 +78,7 @@ const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
 const LoadableSchemasPage = lazy(() => import('@/pages/schema'))
 const LoadableSchemaInfolPage = lazy(() => import('@/pages/schema/detail'))
 const templateArr: IPage[] = [
-  { title: '首页', Content: HomePage, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
+  { title: '首页', Content: (props: any) => <LoadableDynamicPage {...props} id="dashboard" />, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
   { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },

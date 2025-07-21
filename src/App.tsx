@@ -14,6 +14,7 @@ import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
 import { ws } from '@/utils/ws'
 import events from './utils/event';
+import 'react-resizable/css/styles.css';
 
 function App() {
   const location = useLocation()

@@ -33,6 +33,9 @@ import CodeEditor from './CodeEditor'
 import Editor from './Editor'
 import Hidden from './Hidden'
 import HotArea from './HotArea'
+import GridLayout from './GridLayout'
+import GridCell from './GridCell'
+import Chart from './Chart'
 
 /**
  * 组件与属性 attr
@@ -109,6 +112,9 @@ const components = {
   Editor,
   Hidden,
   HotArea,
+  GridLayout,
+  GridCell,
+  Chart,
 }
 
 export default components;
