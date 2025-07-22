@@ -63,13 +63,14 @@ export type IComponent = {
   children: IComponent[];
   data?: IResource[];
   $new?: boolean;
-  $origin?: object;
+  $origin?: any;
   $selected?: boolean;
   diff: Function;
   setAttr: Function;
   setWidget: Function;
   changeWidgetType: Function;
   setAttrs: Function;
+  resetOrigin: Function;
   updateStyle: Function;
   appendChild: Function;
   removeChild: Function;

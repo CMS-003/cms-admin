@@ -1,4 +1,4 @@
-import { types, IMSTArray, getSnapshot, IAnyModelType } from 'mobx-state-tree'
+import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot } from 'mobx-state-tree'
 import { IComponent, IComponentType, IResource } from '@/types'
 import { isEqual, omit, cloneDeep } from 'lodash'
 import { v4 } from 'uuid'
@@ -175,6 +175,9 @@ export const ComponentItem = types.model('Component', {
       attr[key] = value
     }
     self.attrs = attr;
+  },
+  resetOrigin(diff: object) {
+    self.$origin = diff
   },
   updateStyle(s: { [key: string]: number | string }) {
     self.style = s;

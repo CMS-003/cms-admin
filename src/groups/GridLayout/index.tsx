@@ -71,6 +71,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
   const sync = useCallback(function (layouts: any) {
     const diffs = self.children.map((c, i) => {
       const d = _.cloneDeep(c.toJSON())
+      const o = c.$origin;
       if (d._id === layouts[i].i) {
         d.attrs.x = layouts[i].x;
         d.attrs.y = layouts[i].y;
@@ -80,9 +81,16 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
           c.setAttr('attrs', d.attrs)
         }
       }
+      if (_.isEqual(d.attrs, o.attrs)) {
+        return null
+      } else {
+        c.resetOrigin(d)
+      }
       return d;
-    });
-    mode === 'preview' && apis.batchUpdateComponent({ body: diffs });
+    }).filter(v => v !== null);
+    if (mode === 'preview' && !_.isEmpty(diffs)) {
+      apis.batchUpdateComponent({ body: diffs });
+    }
   }, [])
   useEffect(() => {
     local.setValue('layouts', generateLayout())
