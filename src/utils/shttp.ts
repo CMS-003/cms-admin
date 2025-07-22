@@ -10,7 +10,7 @@ let requestQueue: any = [];
 const instance = axios.create({
   baseURL: store.app.baseURL,
   withCredentials: false,
-  timeout: 2000,
+  timeout: 10000,
 });
 
 //统一请求拦截 可配置自定义headers 例如 language、token等
