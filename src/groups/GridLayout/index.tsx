@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Component } from '../auto'
 import { Observer, useLocalObservable } from 'mobx-react';
@@ -12,6 +12,37 @@ const Responsive = WidthProvider(RGL)
 const Cell = styled.div`
   background-color: #d9d9d9c7;
 `
+const LineV = styled.div`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #ccc;
+  z-index: -1;
+`
+const LineH = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ccc;
+  z-index: -1;
+`
+const GridLines = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
+  const { cols = 12, rows = 8 } = props as any;
+  return (
+    <div ref={ref} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+      {/* 垂直线 */}
+      {Array.from({ length: cols + 1 }).map((_, i) => (
+        <LineV key={`v-${i}`} style={{ left: (100 * i / cols).toFixed(2) + '%', marginLeft: i === cols ? -1 : 0 }} />
+      ))}
+      {/* 水平线 */}
+      {Array.from({ length: rows + 1 }).map((_, i) => (
+        <LineH key={`h-${i}`} style={{ top: (100 * i / rows).toFixed(2) + '%', marginTop: i === rows ? -1 : 0 }} />
+      ))}
+    </div>
+  );
+})
 
 export default function GridLayout({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -22,6 +53,10 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
       local[k] = v;
     }
   }))
+  const rows = 8;
+  const cols = 12;
+  const gridRef = useRef<HTMLDivElement | null>(null)
+  const [rowHeight, setRowHeight] = useState(30)
   const generateLayout = useCallback(function () {
     return _.map(self.children, function (item, i) {
       return {
@@ -53,6 +88,18 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
     local.setValue('layouts', generateLayout())
     local.setValue('loading', false)
   })
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (gridRef.current) {
+        setRowHeight((gridRef.current.offsetHeight - ((rows - 1) * 10)) / rows)
+      }
+    });
+    gridRef.current && observer.observe(gridRef.current);
+    // 清理逻辑
+    return () => {
+      observer.disconnect();
+    };
+  }, [gridRef.current])
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
@@ -63,11 +110,12 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
         style={{ height: '100%', width: '100%', ...dnd?.style }}
       >
         {children}
+        <GridLines ref={gridRef} />
         <Responsive
           autoSize={true}
-          style={{ width: '100%', height: '100%' }}
-          cols={12}
-          rowHeight={100}
+          style={{ width: '100%', height: '100%', zIndex: 1 }}
+          cols={cols}
+          rowHeight={rowHeight}
           // 自由放置
           compactType={null}
           layout={local.layouts}
@@ -79,7 +127,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
           preventCollision={true}
           // 限制在边界内
           isBounded={true}
-          containerPadding={[10, 10]}
+          containerPadding={[0, 0]}
           onDragStop={sync}
           onResizeStop={sync}
         // onLayoutChange={layouts => {
