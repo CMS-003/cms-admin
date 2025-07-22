@@ -189,21 +189,21 @@ const TabPanes: FC = () => {
   }
 
   // 刷新当前 tab
-  const refreshTab = (): void => {
+  const refreshTab = (refreshPath: string): void => {
     local.isReload = true
     setTimeout(() => {
       local.isReload = false
     }, 1000)
 
-    local.setReloadPath(fullPath)
+    local.setReloadPath(refreshPath)
     setTimeout(() => {
       local.setReloadPath('')
     }, 500)
   }
 
   // 关闭其他或关闭所有
-  const removeAll = async (isCloseAll?: boolean) => {
-    const remain_panels = isCloseAll ? [] : local.panels.filter(pane => pane.path === local.operateKey)
+  const removeAll = async (currenPath: string, isCloseAll?: boolean) => {
+    const remain_panels = isCloseAll ? [] : local.panels.filter(pane => pane.path === currenPath)
     local.setPanel(remain_panels)
   }
 
@@ -294,13 +294,13 @@ const TabPanes: FC = () => {
                   onClick={e => {
                     // e.domEvent.stopPropagation()
                     if (e.key === 'refresh') {
-                      refreshTab()
+                      refreshTab(local.operateKey)
                     } else if (e.key === 'close') {
-                      remove(store.router.currentPath)
+                      remove(local.operateKey)
                     } else if (e.key === 'closeOther') {
-                      removeAll(false)
+                      removeAll(local.operateKey, false)
                     } else if (e.key === 'closeAll') {
-                      removeAll(true)
+                      removeAll(local.operateKey, true)
                     }
                   }}
                 />
@@ -330,6 +330,7 @@ const TabPanes: FC = () => {
         size="small"
         items={local.panels.map((Panel, i) => ({
           key: Panel.path,
+          closable: !Panel.path.startsWith('/manager/dashboard'),
           label: Panel.title,
           children: local.reloadPath !== Panel.path ? (
             <div key={Panel.path} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>

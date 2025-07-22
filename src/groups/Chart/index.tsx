@@ -12,7 +12,7 @@ export default function Chart({ self, mode, source = {}, drag, dnd, setDataField
   useEffect(() => {
     if (divRef.current && !inited) {
       setInited(true)
-      const myChart = echarts.init(divRef.current);
+      const myChart = echarts.init(divRef.current, self.attrs.theme, { renderer: self.attrs.renderer || 'canvas' });
       instanceRef.current = myChart;
       // 绘制图表
       myChart.setOption(self.attrs.option || { title: { text: '无' } });

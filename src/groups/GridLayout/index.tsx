@@ -17,7 +17,7 @@ const LineV = styled.div`
   top: 0;
   bottom: 0;
   width: 1px;
-  background: #ccc;
+  background: #cccd;
   z-index: -1;
 `
 const LineH = styled.div`
@@ -25,7 +25,7 @@ const LineH = styled.div`
   left: 0;
   right: 0;
   height: 1px;
-  background: #ccc;
+  background: #cccd;
   z-index: -1;
 `
 const GridLines = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
@@ -91,7 +91,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (gridRef.current) {
-        setRowHeight((gridRef.current.offsetHeight - ((rows - 1) * 10)) / rows)
+        setRowHeight((gridRef.current.offsetHeight - ((rows) * 10)) / rows)
       }
     });
     gridRef.current && observer.observe(gridRef.current);
@@ -127,7 +127,8 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
           preventCollision={true}
           // 限制在边界内
           isBounded={true}
-          containerPadding={[0, 0]}
+          containerPadding={[5, 5]}
+          margin={[10, 10]}
           onDragStop={sync}
           onResizeStop={sync}
         // onLayoutChange={layouts => {
