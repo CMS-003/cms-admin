@@ -1,4 +1,5 @@
 import {
+  DashboardOutlined,
   HomeOutlined,
   DeleteOutlined,
   FormOutlined,
@@ -52,6 +53,7 @@ import caption from '@/asserts/images/caption.svg'
 import { IconSVG } from '../style';
 
 const icons = {
+  dashboard: DashboardOutlined,
   home: HomeOutlined,
   HomeOutlined,
   DeleteOutlined,
@@ -144,6 +146,7 @@ export default function Acon(prop: {
   title?: string,
   hidden?: boolean,
   style?: React.CSSProperties,
+  className?: string,
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void,
   [key: string]: any;
 }) {

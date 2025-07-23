@@ -14,6 +14,8 @@ import CONST from "@/constant";
 import QueryModal from "./queriesModal";
 import { FullWidth } from "@/components/style";
 import ResourceModal from "@/components/ResourceModal";
+import JSON5 from 'json5';
+
 const { AlignAround, AlignAside } = Style;
 
 const ScrollWrap = styled.div`
@@ -115,7 +117,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   属性
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(data.attrs, null, 2)} onBlur={e => {
                     try {
-                      const attrs = JSON.parse(e.target.value)
+                      const attrs = JSON5.parse(e.target.value)
                       data?.setAttr('attrs', attrs);
                     } catch (e) {
 
@@ -353,7 +355,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   样式
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(data.style, null, 2)} onBlur={e => {
                     try {
-                      const style = JSON.parse(e.target.value)
+                      const style = JSON5.parse(e.target.value)
                       data?.updateStyle(style);
                     } catch (e) {
 

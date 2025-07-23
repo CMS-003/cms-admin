@@ -18,7 +18,7 @@ import NatureSortable from '@/components/NatureSortable'
 import BaseComponent from './index';
 import GroupMenu from './contextmenu'
 import Edit from './edit'
-import { getDiff, findNode, collectIds } from './utils'
+import { getDiff, findNode, collectIds, getWidgetValue } from './utils'
 import {
   TemplateBox,
   Handler,
@@ -34,6 +34,7 @@ import {
 import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
+import _ from 'lodash';
 
 export function Component({ self, children, mode, dnd, query, source, setDataField, page, parent, ...props }: IAuto) {
   // 拖拽事件
@@ -306,22 +307,9 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       if (!widget.field) {
         return;
       }
-      switch (widget.type) {
-        case 'boolean':
-          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-          break;
-        case 'number':
-          value = parseFloat(value) || 0
-          break;
-        case 'json':
-          // template type 为 form 才有
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            return;
-          }
-          break;
-        default: break;
+      value = getWidgetValue(widget, value);
+      if (_.isNil(value)) {
+        return;
       }
       if (widget.query) {
         page.setQuery(widget.field, value)

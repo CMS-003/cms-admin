@@ -15,6 +15,8 @@ import { ComponentWrap } from '../style';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import { AlignAside } from '@/components/style'
 import { VisualBox } from '@/components'
+import { getWidgetValue } from '../utils'
+import _ from 'lodash'
 
 export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -143,21 +145,12 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                     mode={mode}
                     source={d}
                     setDataField={(widget: IWidget, value: any) => {
-                      switch (widget.type) {
-                        case 'boolean':
-                          value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-                          break;
-                        case 'number':
-                          value = parseFloat(value) || 0
-                          break;
-                        case 'json':
-                          try {
-                            value = JSON.parse(value);
-                          } catch (e) {
-                            return;
-                          }
-                          break;
-                        default: break;
+                      if (!widget.field) {
+                        return;
+                      }
+                      value = getWidgetValue(widget, value);
+                      if (_.isNil(value)) {
+                        return;
                       }
                       runInAction(() => {
                         d[widget.field] = value
@@ -175,21 +168,12 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                     mode={mode}
                     source={d}
                     setDataField={(widget: IWidget, value: any) => {
-                      switch (widget.type) {
-                        case 'boolean':
-                          value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
-                          break;
-                        case 'number':
-                          value = parseFloat(value) || 0
-                          break;
-                        case 'json':
-                          try {
-                            value = JSON.parse(value);
-                          } catch (e) {
-                            return;
-                          }
-                          break;
-                        default: break;
+                      if (!widget.field) {
+                        return;
+                      }
+                      value = getWidgetValue(widget, value);
+                      if (_.isNil(value)) {
+                        return;
                       }
                       runInAction(() => {
                         d[widget.field] = value

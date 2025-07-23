@@ -55,6 +55,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
   }))
   const rows = 8;
   const cols = 12;
+  const gap = self.attrs.gap || 10;
   const gridRef = useRef<HTMLDivElement | null>(null)
   const [rowHeight, setRowHeight] = useState(30)
   const generateLayout = useCallback(function () {
@@ -99,7 +100,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
   useEffect(() => {
     const observer = new ResizeObserver(() => {
       if (gridRef.current) {
-        setRowHeight((gridRef.current.offsetHeight - ((rows) * 10)) / rows)
+        setRowHeight((gridRef.current.offsetHeight - ((rows) * gap)) / rows)
       }
     });
     gridRef.current && observer.observe(gridRef.current);
@@ -123,6 +124,8 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
           autoSize={true}
           style={{ width: '100%', height: '100%', zIndex: 1 }}
           cols={cols}
+          // 指定可以拖动的选择器
+          draggableHandle=".drag"
           rowHeight={rowHeight}
           // 自由放置
           compactType={null}
@@ -135,8 +138,8 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
           preventCollision={true}
           // 限制在边界内
           isBounded={true}
-          containerPadding={[5, 5]}
-          margin={[10, 10]}
+          containerPadding={[gap / 2, gap / 2]}
+          margin={[gap, gap]}
           onDragStop={sync}
           onResizeStop={sync}
         // onLayoutChange={layouts => {

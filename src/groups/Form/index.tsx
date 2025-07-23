@@ -15,6 +15,8 @@ import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import store from '@/store'
+import { getWidgetValue } from '../utils'
+import _ from 'lodash'
 
 function getFields(widget: IWidget) {
   const picks: string[] = [], omits: string[] = [];
@@ -65,21 +67,9 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         if (!widget.field) {
           return;
         }
-        switch (widget.type) {
-          case 'boolean':
-            value = [1, '1', 'true', 'TRUE'].includes(value) ? true : false;
-            break;
-          case 'number':
-            value = parseFloat(value) || 0
-            break;
-          case 'json':
-            try {
-              value = JSON.parse(value);
-            } catch (e) {
-              return;
-            }
-            break;
-          default: break;
+        value = getWidgetValue(widget, value);
+        if (_.isNil(value)) {
+          return;
         }
         if (widget.query) {
           local.query[widget.field] = value;

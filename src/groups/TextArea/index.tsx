@@ -3,6 +3,7 @@ import { Observer } from 'mobx-react'
 import { Input } from 'antd'
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
+import JSON5 from 'json5';
 
 export default function CTextArea({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -23,7 +24,7 @@ export default function CTextArea({ self, mode, drag, dnd, source, setDataField,
       }}
     >
       {children}
-      <Input.TextArea rows={4} value={self.widget.type === 'json' ? JSON.stringify(source[self.widget.field], null, 2) : source[self.widget.field]}
+      <Input.TextArea rows={4} value={self.widget.type === 'json' ? JSON5.stringify(source[self.widget.field], null, 2) : source[self.widget.field]}
         onChange={(e => {
           setDataField(self.widget, e.target.value)
         })}

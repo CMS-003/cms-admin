@@ -12,6 +12,8 @@ import { ComponentWrap } from '../style';
 import apis from '@/api';
 import styled from 'styled-components';
 import CONST from '@/constant';
+import { getWidgetValue } from '../utils';
+import _ from 'lodash';
 
 const ObjectItem = styled.div`
   display: flex;
@@ -37,21 +39,12 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
     showAdd: false,
     source: {},
     setTempDataField(widget: IWidget, value: any) {
-      switch (widget.type) {
-        case 'boolean':
-          value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
-          break;
-        case 'number':
-          value = parseFloat(value) || 0
-          break;
-        case 'json':
-          try {
-            value = JSON.parse(value);
-          } catch (e) {
-            return;
-          }
-          break;
-        default: break;
+      if (!widget.field) {
+        return;
+      }
+      value = getWidgetValue(widget, value);
+      if (_.isNil(value)) {
+        return;
       }
       local.source[widget.field] = value;
     },
@@ -104,21 +97,12 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                       source={item}
                       initField={false}
                       setDataField={(widget: IWidget, value: any) => {
-                        switch (widget.type) {
-                          case 'boolean':
-                            value = [1, '1', 'true', 'TRUE', true].includes(value) ? true : false;
-                            break;
-                          case 'number':
-                            value = parseFloat(value) || 0
-                            break;
-                          case 'json':
-                            try {
-                              value = JSON.parse(value);
-                            } catch (e) {
-                              return;
-                            }
-                            break;
-                          default: break;
+                        if (!widget.field) {
+                          return;
+                        }
+                        value = getWidgetValue(widget, value);
+                        if (_.isNil(value)) {
+                          return;
                         }
                         runInAction(() => {
                           item[widget.field] = value
@@ -176,7 +160,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 local.set({})
               }} />
               <Acon icon="check" style={{ padding: '10px 15px' }} onClick={async () => {
-                const videos = (toJS(source[self.widget.field]))
+                const videos = (toJS(source[self.widget.field])) || []
                 const video = toJS(local.source)
                 if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
                   const url = self.getApi(source._id)
