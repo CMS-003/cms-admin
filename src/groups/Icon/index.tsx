@@ -14,6 +14,7 @@ import { ComponentWrap } from '../style';
 import { useCallback } from 'react';
 import store from '@/store';
 import hbs from 'handlebars'
+import _ from 'lodash';
 
 export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
         return;
       }
       // pick/omit keys
-      const result = await apis.fetch(self.widget.method, self.getApi(source._id), source)
+      const result = await apis.fetch(self.widget.method, self.getApi(source._id), _.isEmpty(self.widget.refer) ? source : _.pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
       } else {
