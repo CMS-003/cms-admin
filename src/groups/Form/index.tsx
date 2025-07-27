@@ -137,6 +137,8 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
             local.$origin = result.data as any;
             local.setSource(result.data)
             page.setQuery('id', result.data._id)
+          } else {
+            local.$origin = local.source;
           }
         })
         if (result.data) {

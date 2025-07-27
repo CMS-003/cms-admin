@@ -11,19 +11,41 @@ module.exports = {
     // addWebpackPlugin(new analyzer()),
   ),
   devServer: overrideDevServer(config => {
+    config.client = config.client || {};
+    config.client.webSocketURL = {
+      pathname: "/dev-ws"
+    };
     config.proxy = {
-      '/api/': {
-        target: 'http://localhost:3333',
+      '/ws': {
+        target: 'ws://192.168.0.124',
+        ws: true,
         changeOrigin: true,
-        // pathRewrite: { '^/api': '/' }
       },
+      '/gw': {
+        target: 'http://192.168.0.124',
+        changeOrigin: true,
+      },
+      // '/gw/manager': {
+      //   target: 'http://192.168.0.124',
+      //   changeOrigin: true,
+      // },
+      // '/gw/user': {
+      //   target: 'http://127.0.0.1:8092',
+      //   changeOrigin: true,
+      //   pathRewrite: { '^/gw/user': '/' }
+      // },
       '/manager/upload/': {
-        target: 'http://localhost:3333',
+        target: 'http://192.168.0.124:3333',
         changeOrigin: true,
         pathRewrite: { '^/manager': '/' }
       },
       '/manager/images/': {
-        target: 'http://localhost:3333',
+        target: 'http://192.168.0.124:3333',
+        changeOrigin: true,
+        pathRewrite: { '^/manager': '/' }
+      },
+      '/images/': {
+        target: 'http://192.168.0.124:3333',
         changeOrigin: true,
         pathRewrite: { '^/manager': '/' }
       },
