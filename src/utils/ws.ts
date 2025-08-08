@@ -3,6 +3,7 @@ import { notification, Modal } from 'antd'
 import events from './event'
 
 export const ws = io(window.location.origin, {
+  path: '/ws',
   transports: ['websocket'],
   reconnectionAttempts: 3
 });
