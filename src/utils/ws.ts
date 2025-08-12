@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import { notification, Modal } from 'antd'
 import events from './event'
 
-export const ws = io(window.location.origin, {
+export const ws = io(window.location.origin + '/ws', {
   path: '/ws',
   transports: ['websocket'],
   reconnectionAttempts: 3
