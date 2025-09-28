@@ -60,6 +60,9 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           local.$origin = args[0];
         } else {
           let v = args[1];
+          if (args[2] === true) {
+            local.$origin = _.assign(_.cloneDeep(local.$origin), { [args[0]]: args[1] });
+          }
           set(local.source, args[0], v)
         }
       },
@@ -165,7 +168,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     if (self.name === 'resource_detail') {
       const resource_id = data.resource_id;
       if (data.resource_type === 'resource' && resource_id === local.source._id) {
-        local.setSource('status', data.status)
+        local.setSource('status', data.status, true)
       } else if (data.resource_type === 'chapter') {
         local.setSubStatus('chapters', resource_id, data.status)
       } else if (data.resource_type === 'video') {

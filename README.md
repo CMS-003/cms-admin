@@ -122,4 +122,5 @@
 - ✅ muid：md5.hash(`${origin}-${id}`
 - ✅ 上传组件添加输入框修改
 - ✅ 富文本编辑器
+- ✅ ws消息修改资源状态自动更新到$origin
 - 数据 status应该放到Record表，Resource表需要另外的语义： 是否连载更新 updating /是否删除 deletedAt

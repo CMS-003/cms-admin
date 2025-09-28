@@ -42,10 +42,15 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
       }
     },
     changeResource(data: any) {
-      if (data.resource_type === 'resource') {
+      if (data.resource_type === 'resource' || data.resource_type === 'task') {
         local.resources.forEach(resource => {
           if (resource._id === data.resource_id) {
-            resource.status = data.status;
+            if (!_.isNil(data.status)) {
+              resource.status = data.status;
+            }
+            if (!_.isNil(data.transcode)) {
+              resource.transcode = data.transcode;
+            }
           }
         })
       }
