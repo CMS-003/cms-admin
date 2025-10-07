@@ -26,6 +26,7 @@ const app = IApp.create({
   isDebug: false,
   lastVisitedAt: 0,
   imageLines: [''],
+  videoLines: [''],
   baseURL: "",
   project_id: storage.getKey('project_id') || '',
 });

@@ -7,10 +7,14 @@ const app = types.model('app', {
   isDebug: types.boolean,
   baseURL: types.string,
   imageLines: types.array(types.string),
+  videoLines: types.array(types.string),
   project_id: types.optional(types.string, ''),
 }).views(self => ({
   get imageLine() {
     return self.imageLines[0]
+  },
+  get videoLine() {
+    return self.videoLines[0]
   }
 })).actions(self => ({
   setIsSignIn(bool: boolean) {

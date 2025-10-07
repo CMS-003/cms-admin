@@ -299,20 +299,18 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       <Select.Option value='video'>视频</Select.Option>
                     </Select>
                   }
-                  {data.widget.action === CONST.ACTION_TYPE.FETCH && <Input addonBefore={data.widget.action === CONST.ACTION_TYPE.FETCH
-                    ? <Select value={data.widget.method} onChange={v => {
-                      data.setWidget('method', v);
-                    }}>
-                      <Select.Option value="AUTO">AUTO</Select.Option>
-                      <Select.Option value="GET">GET</Select.Option>
-                      <Select.Option value="PUT">PUT</Select.Option>
-                      <Select.Option value="POST">POST</Select.Option>
-                      <Select.Option value="DELETE">DELETE</Select.Option>
-                      <Select.Option value="PATCH">PATCH</Select.Option>
-                    </Select>
-                    : '接口'}
+                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Input addonBefore={<Select value={data.widget.method} onChange={v => {
+                    data.setWidget('method', v);
+                  }}>
+                    <Select.Option value="AUTO">AUTO</Select.Option>
+                    <Select.Option value="GET">GET</Select.Option>
+                    <Select.Option value="PUT">PUT</Select.Option>
+                    <Select.Option value="POST">POST</Select.Option>
+                    <Select.Option value="DELETE">DELETE</Select.Option>
+                    <Select.Option value="PATCH">PATCH</Select.Option>
+                  </Select>}
                     value={data.url}
-                    readOnly={data.widget.action !== CONST.ACTION_TYPE.FETCH}
+                    readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action)}
                     onChange={e => {
                       data.setAttr('url', e.target.value);
                     }} />}
@@ -332,6 +330,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
                         <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
+                        <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
                       </Select>
                     </span>
                   </span>

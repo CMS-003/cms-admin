@@ -3,7 +3,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message, Popconfirm, Popover } from 'antd'
+import { message, Popconfirm, Popover, Upload, Button } from 'antd'
 import { usePageContext } from '../context'
 import events from '@/utils/event';
 import { pick } from 'lodash';
@@ -11,14 +11,30 @@ import CONST from '@/constant'
 import apis from '@/api';
 import ModalPage from '../modal';
 import { ComponentWrap } from '../style';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import store from '@/store';
 import hbs from 'handlebars'
 import _ from 'lodash';
+import type { RcFile } from 'antd/es/upload';
+import styled from 'styled-components'
+import { UploadOutlined } from '@ant-design/icons'
+
+const Preview = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-color: lightsteelblue;
+`
 
 export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
   const page = usePageContext();
+  const [preview, setPreview] = useState('')
+  const [loading, setLoading] = useState(false)
   const local = useLocalObservable(() => ({
     template_id: '',
     id: '',
@@ -82,6 +98,43 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
             await request()
           }} />}
       </VisualBox>
+      <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.UPLOAD}>
+        <Upload
+          showUploadList={false}
+          name={self.name || 'file'}
+          action={self.url}
+          method={self.widget.method as 'post' | 'put'}
+          multiple={false}
+          disabled={loading || self.widget.action !== CONST.ACTION_TYPE.FETCH}
+          onChange={async (info) => {
+            if (!source[self.widget.field]) {
+              return;
+            }
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+              setPreview(reader.result as string)
+            });
+            // @ts-ignore
+            reader.readAsDataURL(info.file);
+            try {
+              const data = new FormData();
+              data.append(self.name || 'file', info.file as RcFile)
+              data.append('filepath', source[self.widget.field])
+              apis.fetch(self.widget.method, self.url, data);
+            } catch (e) {
+              message.error('上传失败')
+            }
+          }}
+          beforeUpload={() => {
+            // 上传前限制判断,返回false需自己处理上传
+            return false
+          }}
+        >
+          <Preview style={{ backgroundImage: `url(${preview})` }}>
+            <Button icon={<UploadOutlined />}></Button>
+          </Preview>
+        </Upload>
+      </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.OPEN_URL}>
         <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
           const url = hbs.compile(self.url)(source)
@@ -99,9 +152,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           local.setValue('template_id', self.widget.method)
         }} />
       </VisualBox>
-      <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.PREVIEW && self.widget.method === 'image'}>
+      <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.PREVIEW}>
         <Popover trigger='click' content={<div>
-          <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} />
+          {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video src={store.app.videoLine + source[self.widget.field]} />}
         </div>}>
           <Acon icon={self.icon || 'FileSearchOutlined' as any} title={self.title} style={self.style} />
         </Popover>

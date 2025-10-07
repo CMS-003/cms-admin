@@ -10,6 +10,7 @@ const CONST = {
     'OPEN_URL': 'OPEN_URL',
     'GOTO_PAGE': 'GOTO_PAGE',
     'PREVIEW': 'PREVIEW',
+    'UPLOAD': 'UPLOAD',
   }
 };
 
