@@ -154,7 +154,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.PREVIEW}>
         <Popover trigger='click' content={<div>
-          {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video src={store.app.videoLine + source[self.widget.field]} />}
+          {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video controls src={store.app.videoLine + source[self.widget.field]} style={{ height: 100 }} />}
         </div>}>
           <Acon icon={self.icon || 'FileSearchOutlined' as any} title={self.title} style={self.style} />
         </Popover>
