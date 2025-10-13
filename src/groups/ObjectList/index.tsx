@@ -61,7 +61,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
       {...drag.events}
       ref={dnd?.ref}
       {...dnd?.props}
-      style={{ height: '100%', justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
+      style={{ justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>
