@@ -49,9 +49,16 @@ export function getWidgetValue(widget: IWidget, value: any) {
     case 'number':
       value = parseFloat(value) || 0
       break;
+    case 'array':
+      try {
+        value = typeof value === 'string' ? JSON.parse(value) : value;
+      } catch (e) {
+        return;
+      }
+      break;
     case 'json':
       try {
-        value = JSON.parse(value);
+        value = typeof value === 'string' ? JSON.parse(value) : value;
       } catch (e) {
         return;
       }

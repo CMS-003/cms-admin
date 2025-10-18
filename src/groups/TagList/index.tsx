@@ -4,6 +4,8 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
+import { useEffectOnce } from 'react-use'
+import _ from 'lodash'
 
 export default function CTagList({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -17,6 +19,11 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
       }
     }
   }))
+  useEffectOnce(() => {
+    if (_.isNil(source[self.widget.field])) {
+      setDataField(self.widget, self.widget.value)
+    }
+  })
   const field = self.widget.field;
   return <Observer>{() => (
     <ComponentWrap
@@ -48,7 +55,8 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
               <FullWidth>
                 <Acon icon='check' onClick={() => {
                   if (local.tempTag && !source[field].includes(local.tempTag)) {
-                    setDataField(self.widget, [...source[field], local.tempTag])
+                    const tags = [...source[field], local.tempTag]
+                    setDataField(self.widget, tags)
                   }
                   local.setValue('tempTag', '')
                   local.setValue('addVisible', false)
