@@ -73,6 +73,7 @@ export type IComponent = {
   resetOrigin: Function;
   updateStyle: Function;
   appendChild: Function;
+  appendChildData: Function;
   removeChild: Function;
   addResource: Function;
   remResource: Function;

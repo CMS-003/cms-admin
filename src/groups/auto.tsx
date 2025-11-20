@@ -5,7 +5,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { message, } from 'antd'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
-import { omit } from 'lodash'
+import { isArray, omit } from 'lodash'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
@@ -194,6 +194,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     setEditComponent: Function;
     setEditPanelKey: Function;
     setDataField: (widget: IWidget, value: any) => void;
+    findNodeById: (id: string) => IComponent | null;
   }>(() => ({
     editComponent: null,
     editPanelKey: 'base',
@@ -273,23 +274,54 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         }
       }
     },
-    copyComponent: (id: string) => {
-      let com: IComponent | null | undefined = null;
-      if (local.template && local.template.children) {
-        com = local.template.children.find(v => v._id === id);
+    findNodeById: (id: string) => {
+      const stack: IComponent[] = [];
+      let found: IComponent | null = null;
+      stack.push(...(local.template?.children || []))
+      while (stack.length) {
+        const n = stack.shift();
+        if (n && n._id === id) {
+          found = n;
+          break;
+        }
+        stack.push(...(n?.children || []))
       }
-      if (com) {
-        console.log(com)
-      } else {
-        message.info('只能复制一级tree组件')
+      return found;
+    },
+    copyComponent: (id: string) => {
+      const found = local.findNodeById(id);
+      if (found) {
+        const data = found.toJSON(true)
+        navigator.clipboard.writeText(JSON.stringify(data))
+          .then(() => {
+            console.log('文本已复制到剪贴板:');
+            // 可以在这里添加复制成功的提示
+          })
+          .catch(err => {
+            console.error('复制失败:', err);
+          });
       }
     },
-    pasteComponent: (text: string) => {
+    pasteComponent: (text: string, cid?: string) => {
       try {
         const data = JSON.parse(text);
-        data.template_id = local.template?._id || '';
-        const dealed_component = editCopyID(data, null);
-        local.template?.children.push(ComponentItem.create(dealed_component));
+        const arr = isArray(data) ? data : [data]
+        if (!cid) {
+          if (local.template) {
+            local.template.children.push(
+              ...(arr.map(v => {
+                v.template_id = local.template?._id || '';
+                return ComponentItem.create(editCopyID(v, null))
+              }))
+            );
+          }
+        } else {
+          const parentNode = local.findNodeById(cid);
+          parentNode && arr.forEach(v => {
+            v.template_id = (parentNode as IComponent).template_id || '';
+            (parentNode as IComponent)?.appendChildData(ComponentItem.create(editCopyID(v, parentNode)))
+          })
+        }
       } catch (e) {
         console.log(e, text)
       }
@@ -375,8 +407,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   const onCopyComponent = useCallback(async (id: string) => {
     local.copyComponent(id);
   }, []);
-  const onPasteComponent = useCallback(async (text: string) => {
-    local.pasteComponent(text)
+  const onPasteComponent = useCallback(async (text: string, id?: string) => {
+    local.pasteComponent(text, id)
   }, []);
   useEffect(() => {
     local.setEditComponent(null)
@@ -398,7 +430,17 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   })
   return <PageContext.Provider value={page}>
     <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-      <GroupMenu setEditComponent={local.setEditComponent} />
+      <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string) => {
+        navigator.clipboard.readText()
+          .then((text) => {
+            console.log('已读取剪贴板:');
+            onPasteComponent(text, id)
+            // 可以在这里添加复制成功的提示
+          })
+          .catch(err => {
+            console.error('读取失败:', err);
+          });
+      }} />
       <div style={{ display: 'flex', width: '100%', padding: 5, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 5px' : '' }}>
         <div className='hidden-scrollbar' style={{
           height: '100%',

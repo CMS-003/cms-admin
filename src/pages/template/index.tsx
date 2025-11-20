@@ -14,10 +14,11 @@ import { runInAction } from 'mobx';
 
 const ComponentTemplatePage: React.FC = () => {
   const navigate = useNavigate();
-  const local = useLocalObservable<{ loading: boolean, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ loading: boolean, page: number, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
     loading: false,
     showEditPage: false,
     list: [],
+    page: 1,
     temp: null,
     selectedProjectId: store.app.project_id === 'manager' ? '' : store.app.project_id,
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
@@ -130,7 +131,7 @@ const ComponentTemplatePage: React.FC = () => {
   const refresh = useCallback(async () => {
     try {
       local.loading = true;
-      const result = await apis.getTemplates({ query: { project_id: local.selectedProjectId } })
+      const result = await apis.getTemplates({ query: { page: local.page, project_id: local.selectedProjectId } })
       if (result.code === 0) {
         runInAction(() => {
           local.list = result.data.items
@@ -181,9 +182,13 @@ const ComponentTemplatePage: React.FC = () => {
       <Table
         sticky={true}
         tableLayout='auto'
-        pagination={false}
+        pagination={{ current: local.page, pageSize: 20, position: ['bottomRight'] }}
         rowKey="_id"
         dataSource={local.list}
+        onChange={(pagination) => {
+          local.page = pagination.current || 1;
+          refresh()
+        }}
       >
         <Table.Column title="" width={50} dataIndex="_id" render={(_id: string) => {
           return <CopyToClipboard

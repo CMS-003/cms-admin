@@ -103,9 +103,12 @@ export const ComponentItem = types.model('Component', {
   queries: types.optional(types.array(types.string), []),
   children: types.array(types.late((): IAnyModelType => ComponentItem))
 }).views(self => ({
-  toJSON() {
-    const data = getSnapshot(self);
-    return omit(data, ['data', 'children', '$origin', '$selected', '$new'])
+  toJSON(all = false) {
+    const data = cloneDeep(getSnapshot(self));
+    if (all) {
+      data.children = self.children.map(child => child.toJSON(all))
+    }
+    return omit(data, all ? ['data', '$origin', '$selected', '$new'] : ['data', 'children', '$origin', '$selected', '$new'])
   },
   diff() {
     if (!deepEqual(self.$origin, this.toJSON())) {
@@ -212,6 +215,9 @@ export const ComponentItem = types.model('Component', {
       children: [],
     }))
     return self.children[self.children.length - 1];
+  },
+  appendChildData(child: IComponent) {
+    self.children.push(child)
   },
   removeChild(_id: string) {
     const i = self.children.findIndex(c => c._id === _id);

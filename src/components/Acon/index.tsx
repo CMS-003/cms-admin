@@ -50,6 +50,9 @@ import {
 import React from 'react';
 import styled from 'styled-components'
 import caption from '@/asserts/images/caption.svg'
+import CopyOne from '@/asserts/images/copy-one.svg'
+import CopyAll from '@/asserts/images/copy-all.svg'
+import PasteAll from '@/asserts/images/paste-all.svg'
 import { IconSVG } from '../style';
 
 const icons = {
@@ -116,6 +119,9 @@ const icons = {
   Album: FileImageOutlined,
   Text: FontSizeOutlined,
   Caption: () => <IconSVG src={caption} />,
+  CopyOne: () => <IconSVG src={CopyOne} />,
+  CopyAll: () => <IconSVG src={CopyAll} />,
+  PasteAll: () => <IconSVG src={PasteAll} />,
   LinkOutlined,
   ApiOutlined,
   Api: ApiOutlined,

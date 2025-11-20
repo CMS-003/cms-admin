@@ -35,7 +35,7 @@ export default function CText({ self, mode, source = {}, setDataField, drag, dnd
       }}
     >
       {children}
-      <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.title)}</Text>
+      <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.widget.value)}</Text>
     </ComponentWrap>
   )}</Observer>
 }

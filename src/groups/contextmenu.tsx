@@ -4,11 +4,17 @@ import { IComponent, } from '@/types'
 import events from '@/utils/event';
 
 // 编辑中组件的右键菜单
-const ContextMenu = observer(({ setEditComponent }: { setEditComponent: Function }) => (
+const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent }: { setEditComponent: Function, copyComponent: Function, pasteComponent: Function }) => (
   <Menu id='group_menu'>
     <ContextMenuItem onClick={async (e: any) => {
       setEditComponent(e.props, 'base');
     }}>编辑</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
+      copyComponent(e.props._id)
+    }}>复制</ContextMenuItem>
+    <ContextMenuItem onClick={async (e: any) => {
+      pasteComponent(e.props._id)
+    }}>粘贴</ContextMenuItem>
     <ContextMenuItem onClick={async (e: any) => {
       setEditComponent(e.props, 'widget');
     }}>控件</ContextMenuItem>
