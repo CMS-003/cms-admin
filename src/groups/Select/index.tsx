@@ -5,6 +5,7 @@ import CONST from '@/constant';
 import apis from '@/api';
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
+import store from '@/store';
 
 export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
   const data = !self.widget.query ? source : query;
@@ -32,8 +33,8 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
           {self.title && <span className="ant-input-group-addon">{self.title}</span>}
           <Select
             value={data[self.widget.field]}
-            disabled={mode === 'edit'}
             onChange={async (v) => {
+              if (mode === 'edit') return;
               const old = data[self.widget.value as string]
               setDataField(self.widget, v)
               if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
@@ -52,7 +53,7 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
               }
             }}
           >
-            {self.widget.refer.map((t, i) => (
+            {[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])].map((t: any, i: number) => (
               <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
             ))}
           </Select>

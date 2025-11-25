@@ -28,6 +28,7 @@ export type IWidget = {
   // 仅用于查询
   query: boolean;
   type: 'boolean' | 'number' | 'string' | 'json' | 'array';
+  source: string;
   refer: {
     label: string;
     value: string | number | boolean;

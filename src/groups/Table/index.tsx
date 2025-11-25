@@ -134,10 +134,9 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           width: child.style.width || '',
           align: child.attrs.align || 'left',
           dataIndex: self.widget.field,
-          render: (t: string, d: any) => (
+          render: (t: any, d: any) => (
             mode === 'edit' ?
               <NatureSortable
-                key={t}
                 items={child.children}
                 direction='horizontal'
                 disabled={false}
@@ -165,7 +164,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                   />
                 )}
               />
-              : (<Fragment key={t}>
+              : (<Fragment>
                 {child.children.map((item, k) => (
                   <Component
                     key={k}

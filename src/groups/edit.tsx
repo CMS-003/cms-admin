@@ -15,6 +15,7 @@ import QueryModal from "./queriesModal";
 import { FullWidth } from "@/components/style";
 import ResourceModal from "@/components/ResourceModal";
 import JSON5 from 'json5';
+import store from "@/store";
 
 const { AlignAround, AlignAside } = Style;
 
@@ -164,6 +165,9 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       </span>
                     </span>
                   </Space>
+                  <Input addonBefore="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
+                    data.setWidget('source', e.target.value);
+                  }} />
                   默认值
                   <Input.TextArea value={data.widget.value.toString()} onChange={e => {
                     data.setWidget('value', e.target.value);
@@ -177,16 +181,18 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     direction={'vertical'}
                     listStyle={{}}
                     itemStyle={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}
-                    items={data.widget.refer}
-                    renderItem={({ item, index, handler }: { item: { label: string, value: number | string }, index: number, handler: any }) => (
+                    items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))]}
+                    renderItem={({ item, index, handler }: { item: { label: string, value: number | string, disabled?: boolean }, index: number, handler: any }) => (
                       <Input
                         key={index}
+                        readOnly
+                        disabled={item.disabled ? true : false}
                         addonBefore={<FullWidth>
                           <Acon icon='DragOutlined' style={{ marginRight: 5 }}  {...handler} />
                           {item.label}
                         </FullWidth>}
                         value={item.value}
-                        addonAfter={<Acon icon='close' onClick={() => { data.remRefer(index); }} />}
+                        addonAfter={!item.disabled && <Acon icon='close' onClick={() => { data.remRefer(index); }} />}
                       />
                     )}
                   />

@@ -46,6 +46,7 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
             setDataField({
               field: 'page',
               type: 'number',
+              source: '',
               value: 1,
               query: true,
               action: '',

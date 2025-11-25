@@ -43,6 +43,7 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
           setDataField({
             field: 'page',
             type: 'number',
+            source: '',
             value: 1,
             query: true,
             action: '',

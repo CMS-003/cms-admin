@@ -4,6 +4,7 @@ import IMenu from './menu'
 import IRouter from './router'
 import IComponent from './component'
 import IProject from './project'
+import IGlobal from './global'
 import constant from '../constant'
 import storage from '../utils/storage'
 
@@ -54,13 +55,99 @@ async function getBoot() {
       reject(e)
     })
   })
-
 }
+const global = IGlobal.create({
+  config: {
+    RESOURCE: {
+      STATUS: [
+        { label: '已废弃', value: 0 },
+        { label: '已创建', value: 1 },
+        { label: '下载中', value: 2 },
+        { label: '已失败', value: 3 },
+        { label: '已成功', value: 4 },
+      ],
+      TYPE: [
+        { label: '文章', value: 1 },
+        { label: '视频', value: 2 },
+        { label: '图片', value: 3 },
+        { label: '漫画', value: 4 },
+        { label: '电影', value: 5 },
+        { label: '小说', value: 6 },
+        { label: '音乐', value: 7 },
+        { label: '私人', value: 8 },
+        { label: '动画', value: 9 },
+        { label: '画册', value: 10 },
+        { label: '帖子', value: 11 },
+        { label: '短视频', value: 12 },
+        { label: '用户', value: 13 },
+        { label: '文件', value: 14 },
+      ]
+    },
+    TASK: {
+      STATUS: [
+        { label: '已废弃', value: 0 },
+        { label: '已创建', value: 1 },
+        { label: '下载中', value: 2 },
+        { label: '已失败', value: 3 },
+        { label: '已成功', value: 4 },
+        { label: '已完成', value: 5 },
+      ],
+      TRANSCODE: [
+        { label: '无需转码', value: 0 },
+        { label: '待转码', value: 1 },
+        { label: '转码中', value: 2 },
+        { label: '已失败', value: 3 },
+        { label: '已成功', value: 4 },
+      ]
+    },
+    API_STATUS: [
+      { label: '已废弃', value: 0 },
+      { label: '开发中', value: 1 },
+      { label: '运行中', value: 2 },
+    ],
+    SPIDER_STATUS: [
+      { label: '已废弃', value: 0 },
+      { label: '开发中', value: 1 },
+      { label: '测试中', value: 2 },
+      { label: '运行中', value: 3 },
+    ],
+    USER_STATUS: [
+      { label: '注销', value: 0 },
+      { label: '正常', value: 1 },
+    ],
+    QUERY_STATUS: [
+      { label: '已废弃', value: 0 },
+      { label: '开发中', value: 1 },
+      { label: '运行中', value: 2 },
+    ],
+    QUERY: {
+      STATUS: [
+        { label: '已废弃', value: 0 },
+        { label: '开发中', value: 1 },
+        { label: '运行中', value: 2 },
+      ],
+      TYPE: [
+        { label: '查询', value: 'where' },
+        { label: '排序', value: 'sort' },
+        { label: '数量', value: 'limit' },
+        { label: '聚合', value: 'aggregate' },
+      ]
+    },
+    SCHEDULE_STATUS: [
+      { label: '已废弃', value: 0 },
+      { label: '开发中', value: 1 },
+      { label: '自动', value: 2 },
+      { label: '手动', value: 3 },
+    ],
+  }
+});
+
 const store = {
   app,
   user,
   menu,
   router,
+  global,
   component,
   project,
   getBoot,
