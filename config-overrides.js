@@ -45,7 +45,7 @@ module.exports = {
         pathRewrite: { '^/manager': '/' }
       },
       '/images/': {
-        target: 'http://192.168.0.124:3333',
+        target: 'http://192.168.0.124',
         changeOrigin: true,
         pathRewrite: { '^/manager': '/' }
       },
