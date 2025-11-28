@@ -107,9 +107,9 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
           case 'Select':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Select key={item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
-                runInAction(()=>{
+                runInAction(() => {
                   data[item.field] = value
-                })                
+                })
               }}>
                 {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}
                 {/* {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))} */}
@@ -149,7 +149,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
           case 'Image':
             return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Upload
-                style={{ position: 'relative' }}
+                style={{ position: 'relative', overflow: 'hidden' }}
                 listType="picture-card"
                 className="avatar-uploader"
                 action={store.app.baseURL + "/gw/api/v1/upload/image"}
@@ -171,7 +171,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }}>
                 <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : store.app.imageLine + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                  <Acon icon='UploadOutlined' style={{}} /> 上传
+                  <Acon icon='upload' style={{}} /> 上传
                 </Button>
               </Upload>
             </Form.Item>

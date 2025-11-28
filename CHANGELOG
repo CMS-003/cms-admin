@@ -21,3 +21,12 @@
 - 列表模板push路由
 - 路由key支持query参数
 - widget添加模式:preview,modify
+
+# 2025-11-28 13:28:45
+- icon 改用 lucide
+- antd 升级到 6.0
+  - Button的type没有 ghost
+  - Dropdown overlay 改变
+  - notification 的 message 改为 title
+  - message 的 warn 改为 warning
+  - input 的 addon 废弃

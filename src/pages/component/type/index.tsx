@@ -101,7 +101,7 @@ const ComponentTypePage: React.FC = () => {
   const addComponentType = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateComponentTypes(params) : await apis.addComponentTypes(params)
     if (result.code === 0) {
-      notification.info({ message: params.body._id ? '修改成功' : '添加成功', placement: 'top' })
+      notification.info({ title: params.body._id ? '修改成功' : '添加成功', placement: 'top' })
       await refresh()
     }
   }, [refresh])
@@ -136,12 +136,12 @@ const ComponentTypePage: React.FC = () => {
         <Table.Column title="accepts" dataIndex="accepts" render={(types) => types.join(',')} />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <Acon icon='FormOutlined' onClick={
+            <Acon icon='square-pen' onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Acon icon='DeleteOutlined' onClick={async () => {
+            <Acon icon='circle-x' onClick={async () => {
               await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()
             }} />

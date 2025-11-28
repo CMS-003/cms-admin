@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IAuto, IBaseComponent } from '@/types/component';
-import Acon, { Icon } from '@/components/Acon'
+import Acon from '@/components/Acon'
 import { Component } from '../auto'
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
@@ -69,7 +69,7 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
                     props: child
                   });
                 }}>
-                {child.icon ? <Acon icon={child.icon as Icon} /> : null}
+                {child.icon ? <Acon icon={child.icon} /> : null}
                 {child.title}
               </TabItemWrap>,
               key: child._id,

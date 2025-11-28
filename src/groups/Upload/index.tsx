@@ -1,5 +1,4 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { UploadOutlined } from '@ant-design/icons'
 import { Button, Input, Upload, message } from 'antd'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
@@ -10,6 +9,7 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
+import { DynamicIcon } from 'lucide-react/dynamic'
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -79,7 +79,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
           }}
-          addonAfter={focused ? <Acon icon="check" onClick={() => {
+          addonAfter={focused ? <Acon icon="circle-check" onClick={() => {
             setFocused(false)
           }} /> : null} />
         <Upload
@@ -114,7 +114,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
           }}
         >
           <Preview style={{ backgroundImage: preview || url ? `url(${preview || url})` : '' }}>
-            <Button icon={<UploadOutlined />}></Button>
+            <Button icon={<DynamicIcon name="upload" />}></Button>
           </Preview>
         </Upload>
       </FullHeight>

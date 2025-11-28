@@ -42,7 +42,7 @@ export default function EditPage({ isAdd, visible, fetch, fields, data, close, .
             })
             await fetch({ body: data })
           } catch (e: any) {
-            notification.error({ message: e.message })
+            notification.error({ title: e.message })
           } finally {
             local.fetching = false
             close();

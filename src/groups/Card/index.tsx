@@ -96,7 +96,7 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
         {mode === 'edit' && <Center style={{ marginTop: 5 }} onClick={() => {
           local.open()
         }}>
-          <Acon icon='PlusOutlined' title='添加资源' />
+          <Acon icon='circle-plus' title='添加资源' />
         </Center>}
       </FullHeight>
     </ComponentWrap>

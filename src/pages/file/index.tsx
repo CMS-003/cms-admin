@@ -1,10 +1,9 @@
 import React, { useEffect, useCallback, Fragment, useRef } from 'react';
 import { Observer, useLocalStore } from 'mobx-react-lite'
-import { Table, Popconfirm, notification, Button, Divider, Input, Upload, message, Checkbox, Select, Tooltip, } from 'antd';
-import { DeleteOutlined, WarningOutlined, ArrowLeftOutlined, ScanOutlined, UploadOutlined, CheckOutlined, ExclamationCircleOutlined, FormOutlined, LoadingOutlined, CloseCircleOutlined, HomeOutlined, SwitcherOutlined } from '@ant-design/icons'
+import { Table, Popconfirm, notification, Button, Divider, Input, Upload, message, Checkbox, Select, Tooltip, Space, } from 'antd';
 import apis from '@/api'
 import store from '@/store'
-import { FullHeight, FullHeightFix, FullHeightAuto, Right, padding, FullWidth, FullWidthAuto, FullWidthFix } from '@/components/style'
+import { FullHeight, FullHeightFix, FullHeightAuto, Right, padding, FullWidth, FullWidthAuto, FullWidthFix, AlignAround } from '@/components/style'
 import { Acon, VisualBox } from '@/components'
 import Modal from 'antd/lib/modal/Modal';
 import { Link } from 'react-router-dom';
@@ -15,6 +14,7 @@ import events from '@/utils/event';
 import styled from 'styled-components'
 
 export const HoverTitle = styled.div`
+  display: flex;
   & > span {
     visibility: hidden;
   }
@@ -125,7 +125,7 @@ export default function TaskList() {
             placeholder='搜索'
             style={{ width: 250 }}
             enterButton
-            suffix={<Acon icon="close" onClick={() => {
+            suffix={<Acon icon="x" onClick={() => {
               local.q = '';
               // TODO:
             }} />}
@@ -154,7 +154,7 @@ export default function TaskList() {
               }
             }}
             beforeUpload={() => false}>
-            <Button icon={<UploadOutlined />}>上传</Button>
+            <Button icon={<Acon icon="upload" />}>上传</Button>
           </Upload>
           <Divider type="vertical" />
           <Button disabled={local.chosen_files.length === 0} loading={local.isExcuting} onClick={() => {
@@ -200,12 +200,12 @@ export default function TaskList() {
                 nameRef.current.state.value = ''
                 local.showModal = false
                 search(local.dirpath)
-                notification.success({ message: '创建成功' });
+                notification.success({ title: '创建成功' });
               } else {
-                notification.error({ message: '创建失败' });
+                notification.error({ title: '创建失败' });
               }
             } catch (e) {
-              notification.error({ message: '请求失败' });
+              notification.error({ title: '请求失败' });
             } finally {
               local.isLoading = false
             }
@@ -226,14 +226,14 @@ export default function TaskList() {
         open={local.show_cmd}
         style={{ height: 'auto', padding: 10 }}
         footer={<div style={{ textAlign: 'right' }}>
-          <Button type="ghost" onClick={() => { local.show_cmd = false }}>取消</Button>
+          <Button type="default" onClick={() => { local.show_cmd = false }}>取消</Button>
           <Button type="primary" disabled={local.isExcuting} onClick={async () => {
             local.template_data.filename = local.template_data.filename.trim()
             if (!local.template_data.id || !local.template_data.filename) {
-              return notification.warn({ message: '缺少必要参数' })
+              return notification.warning({ title: '缺少必要参数' })
             }
             if (local.template_data.limit !== 0 && local.chosen_files.length !== local.template_data.limit) {
-              return notification.warn({ message: '文件个数不符合要求' })
+              return notification.warning({ title: '文件个数不符合要求' })
             }
             local.isExcuting = true;
             try {
@@ -302,21 +302,22 @@ export default function TaskList() {
                 }} />
               }} />
               <Column title={
-                <span>
-                  <HomeOutlined onClick={() => jump(0)} />&nbsp;/&nbsp;
+                <FullWidth>
+                  <Acon icon="house" onClick={() => jump(0)} />
+                  <Space style={{ margin: '0 5px' }}>/</Space>
                   {
                     local.dirpath
                       .split('/')
                       .filter(n => !!n)
-                      .map((name, i) => <span key={i} style={i !== local.dirLevel ? { cursor: 'pointer' } : {}} onClick={() => {
-                        if (i !== local.dirLevel)
-                          jump(i + 1)
-                      }}>
-                        {name}
+                      .map((name, i) => <Space key={i} >
+                        <span style={i !== local.dirLevel ? { cursor: 'pointer' } : {}} onClick={() => {
+                          if (i !== local.dirLevel)
+                            jump(i + 1)
+                        }}>{name}</span>
                         <span style={{ margin: 3 }}>/</span>
-                      </span>)
+                      </Space>)
                   }
-                </span>
+                </FullWidth>
               } dataIndex="name" key="name" render={(text, record: any) => {
                 return <Observer>{() => {
                   if (record.dir) {
@@ -336,8 +337,8 @@ export default function TaskList() {
                       defaultValue={text}
                       disabled={record.isLoading}
                       autoFocus
-                      addonAfter={record.isLoading ? <LoadingOutlined /> : <div>
-                        <CheckOutlined onClick={async (e) => {
+                      addonAfter={record.isLoading ? <Acon icon="loader" /> : <div>
+                        <Acon icon="circle-check" onClick={async (e) => {
                           // @ts-ignore
                           const o = e.currentTarget.parentNode.parentNode.previousSibling
                           record.isLoading = true
@@ -352,56 +353,56 @@ export default function TaskList() {
                             record.isLoading = false
                           }
                         }} />
-                        <Divider type="vertical" />
-                        <CloseCircleOutlined onClick={() => record.editing = false} />
+                        <Divider orientation="horizontal" />
+                        <Acon icon="circle-x" onClick={() => record.editing = false} />
                       </div>} />
                   } else {
-                    return <HoverTitle>{text} <FormOutlined onClick={() => record.editing = true} /></HoverTitle>
+                    return <HoverTitle>{text} <Acon icon='square-pen' onClick={() => record.editing = true} /></HoverTitle>
                   }
                 }}</Observer>
               }} />
               <Column title="操作" dataIndex={"name"} width={200} key="action" align="center" render={(text, record: any) => {
                 const filepath = store.app.baseURL + '/v1/public/share-file' + local.dirpath + record.name
-                return <Fragment>
+                return <AlignAround>
                   <VisualBox visible={record.dir === true}>
-                    <Popconfirm title={`确定删除 ${record.name} 所有子文件?`} okText="确定" cancelText="取消" icon={<WarningOutlined />} onConfirm={() => {
+                    <Popconfirm title={`确定删除 ${record.name} 所有子文件?`} okText="确定" cancelText="取消" icon={<Acon icon="triangle-alert" />} onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name, isDir: '1' }).then(() => search(local.dirpath))
                     }}>
-                      <DeleteOutlined />
+                      <Acon icon="x" />
                     </Popconfirm>
                   </VisualBox>
                   <VisualBox visible={record.dir === false}>
                     <CopyToClipboard text={window.location.origin + local.dirpath + record.name}>
-                      <SwitcherOutlined />
+                      <Acon icon="copy-minus" />
                     </CopyToClipboard>
                     <Divider type='vertical' />
                     <Popconfirm icon={null} title={'fuck qrcode'} okText='打开' cancelText='取消' onConfirm={() => {
                       window.open(filepath, '_blank');
                     }}>
-                      <ScanOutlined />
+                      <Acon icon="scan-line" />
                     </Popconfirm>
                     {/* <Divider type="vertical" />
                                 <DownloadOutlined title={filepath} onClick={() => {
                                     
                                 }} /> */}
                     <Divider type="vertical" />
-                    <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<WarningOutlined />} onConfirm={() => {
+                    <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<Acon icon="triangle-alert" />} onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name }).then(() => search(local.dirpath))
                     }}>
-                      <DeleteOutlined />
+                      <Acon icon="x" />
                     </Popconfirm>
-                    <Divider type="vertical" />
-                    <ExclamationCircleOutlined onClick={() => {
+                    <Divider orientation="vertical" />
+                    <Acon icon="circle-alert" onClick={() => {
                       local.stream_path = local.dirpath + record.name;
                       getFileInfo();
                     }} />
                   </VisualBox>
-                </Fragment>
+                </AlignAround>
               }} />
             </Table>
           </FullWidthAuto>
           {local.stream_path && <FullWidthFix style={{ position: 'relative', display: 'flex', width: 270, boxSizing: 'border-box', paddingLeft: 30, flexDirection: 'column', height: '100%' }}>
-            <DeleteOutlined onClick={() => { local.streams = []; local.stream_path = ''; local.loading_stream = false; }} style={{ position: 'absolute', top: 0, right: 20 }} color='red' />
+            <Acon icon='x' onClick={() => { local.streams = []; local.stream_path = ''; local.loading_stream = false; }} style={{ position: 'absolute', top: 0, right: 20 }} color='red' />
             {local.streams.map((stream: {
               coded_height: string;
               duration: string;
@@ -426,12 +427,12 @@ export default function TaskList() {
                   Main：用于标准画质视频流，支持更高的压缩率和较好的兼容性，常用于电视和流媒体。<br />
                   High：提供更高压缩率和质量，通常用于高分辨率视频文件，如蓝光光盘。<br />
                   High10、High422、High444：分别支持 10-bit 色深、4:2:2 色度采样和 4:4:4 色度采样，适合专业视频编辑和存储高质量视频。
-                </Fragment>}><ExclamationCircleOutlined /></Tooltip></div>}
+                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
                 {stream.level && <div>编码复杂度: {stream.level} <Tooltip title={<Fragment>
                   1 到 3.1：适合低分辨率、低帧率的视频流，比如移动设备或网络低码率视频。<br />
                   4.0 到 4.2：用于高清 1080p 视频。<br />
                   5.0 及以上：适合 4K 视频等高分辨率内容。
-                </Fragment>}><ExclamationCircleOutlined /></Tooltip></div>}
+                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
                 {stream.display_aspect_ratio && <div>显示比例: {stream.display_aspect_ratio}</div>}
                 {stream.width && <div>宽度: {stream.width}</div>}
                 {stream.height && <div>高度: {stream.height}</div>}
@@ -449,7 +450,7 @@ export default function TaskList() {
                   mono：表示单声道音频，仅包含一个声道。<br />
                   5.1：表示环绕声布局，包含六个声道（左前、右前、中间、低音、左后、右后）。<br />
                   7.1：表示更复杂的环绕声布局，包含八个声道。
-                </Fragment>}><ExclamationCircleOutlined /></Tooltip></div>}
+                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
               </div>)}
           </FullWidthFix>}
         </FullWidth>

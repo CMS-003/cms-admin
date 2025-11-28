@@ -1,5 +1,5 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
-import { makeAutoObservable, toJS } from "mobx"
+import { toJS } from "mobx"
 import { Fragment } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -55,7 +55,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
           <CopyToClipboard text={JSON.stringify(toJS(data))} onCopy={() => { message.success('复制成功') }}>
             <Acon icon="copy" />
           </CopyToClipboard>
-          <Acon icon='CloseOutlined' onClick={() => {
+          <Acon icon='circle-x' onClick={() => {
             setData(null, '')
           }} />
         </Space>
@@ -71,46 +71,46 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '基础', key: 'base', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="标题" defaultValue={data.title} onChange={e => {
+                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} defaultValue={data.title} onChange={e => {
                     if (data) {
                       data.setAttr('title', e.target.value);
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="描述" value={data.desc} />
+                  <Input prefix={<span>描述<Divider orientation="vertical" /></span>} value={data.desc} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="项目id" value={data.project_id} onChange={e => {
+                  <Input prefix={<span>项目id<Divider orientation="vertical" /></span>} value={data.project_id} onChange={e => {
                     if (data) {
                       data.setAttr('project_id', e.target.value)
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="上级id" value={data.parent_id} onChange={e => {
+                  <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={data.parent_id} onChange={e => {
                     if (data) {
                       data.setAttr('parent_id', e.target.value)
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="_id" readOnly value={data._id} />
+                  <Input prefix={<span>_id<Divider orientation="vertical" /></span>} readOnly value={data._id} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="状态" type="number" value={data.status} onChange={e => {
+                  <Input prefix={<span>状态<Divider orientation="vertical" /></span>} type="number" value={data.status} onChange={e => {
                     if (data) {
                       data.setAttr('status', parseInt(e.target.value));
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="name" value={data.name} onChange={e => {
+                  <Input prefix={<span>name<Divider orientation="vertical" /></span>} value={data.name} onChange={e => {
                     data.setAttr('name', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="图标" value={data.icon} onChange={e => {
+                  <Input prefix={<span>图标<Divider orientation="vertical" /></span>} value={data.icon} onChange={e => {
                     data.setAttr('icon', e.target.value);
                   }} />
                 </EditItem>
@@ -134,6 +134,14 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '控件', key: 'widget', children: (
               <ScrollWrap>
                 <EditItem>
+                  <Space.Compact >
+                    <Space.Addon>仅查询</Space.Addon>
+                    <Space.Addon style={{ padding: '4px 5px' }}>
+                      <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
+                        data.setWidget('query', checked)
+                      }} />
+                    </Space.Addon>
+                  </Space.Compact>
                   <Space direction='vertical'>
                     <span className="ant-input-group-wrapper">
                       <span className="ant-input-wrapper ant-input-group">
@@ -188,11 +196,11 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         readOnly
                         disabled={item.disabled ? true : false}
                         addonBefore={<FullWidth>
-                          <Acon icon='DragOutlined' style={{ marginRight: 5 }}  {...handler} />
+                          <Acon icon='move' style={{ marginRight: 5 }}  {...handler} />
                           {item.label}
                         </FullWidth>}
                         value={item.value}
-                        addonAfter={!item.disabled && <Acon icon='close' onClick={() => { data.remRefer(index); }} />}
+                        addonAfter={!item.disabled && <Acon icon='x' onClick={() => { data.remRefer(index); }} />}
                       />
                     )}
                   />
@@ -212,7 +220,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           }
                         }} />
                       </Fragment>
-                      : <Acon icon='add' onClick={() => local.setVisible(true)} />}
+                      : <Acon icon='plus' onClick={() => local.setVisible(true)} />}
                   </AlignAround>
                 </EditItem>
               </ScrollWrap>
@@ -222,14 +230,13 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '数据', key: 'data', children: (
               <ScrollWrap>
                 <EditItem>
-                  条件 <Acon icon='PlusCircleOutlined' onClick={() => {
+                  条件 <Acon icon='circle-plus' onClick={() => {
                     local.setShowQueryModal(true)
                   }} />
                   {data.queries.map(id => (
                     <Input key={id} readOnly value={id} addonAfter={
                       <Space>
-                        <Acon icon="SafetyOutlined" />
-                        <Acon icon="delete" />
+                        <Acon icon="x" />
                       </Space>
                     } />
                   ))}
@@ -255,11 +262,11 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     direction={'vertical'}
                     renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
                       <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
+                        <Acon icon='move' {...handler2} style={{ marginRight: 5 }} />
                         <Input
                           value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' onClick={() => { }} /></CopyToClipboard>}
-                          addonAfter={<Acon icon='CloseOutlined' onClick={() => { data?.remResource(resource._id) }}
+                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='copy' onClick={() => { }} /></CopyToClipboard>}
+                          addonAfter={<Acon icon='circle-x' onClick={() => { data?.remResource(resource._id) }}
                           />} />
                       </div>
                     </Fragment>}
@@ -274,7 +281,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     }}
                   />}
                   <AlignAround style={{ marginTop: 10 }}>
-                    <Button icon={<Acon icon="add" />} onClick={() => {
+                    <Button icon={<Acon icon="plus" />} onClick={() => {
                       local.setResourceModal(true)
                     }}>添加资源</Button>
                   </AlignAround>

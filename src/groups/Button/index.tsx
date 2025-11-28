@@ -38,7 +38,7 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
       }}
     >
       {children}
-      <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon as any} /> : null} onClick={() => {
+      <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon} /> : null} onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.SEARCH) {
           setDataField({
             field: 'page',

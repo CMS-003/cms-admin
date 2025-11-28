@@ -58,7 +58,7 @@ export default function Page() {
       <AlignAside style={{ justifyContent: 'flex-start' }} key={i}>
         {tables.map(table => (
           <TableCard key={table.name}>
-            <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
+            <TableTitle>{table.name}<Acon icon='settings' onClick={() => {
               navigate(process.env.PUBLIC_URL + `/schema/info?name=${table.name}`);
             }} /></TableTitle>
             <span>{table.title}</span>
@@ -67,7 +67,7 @@ export default function Page() {
       </AlignAside>
     ))}
     <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
-      <Acon icon='PlusCircleOutlined' size={30} color='#0896db' onClick={() => {
+      <Acon icon='circle-plus' size={30} color='#0896db' onClick={() => {
         runInAction(() => {
           local.schema = {
             table: '',

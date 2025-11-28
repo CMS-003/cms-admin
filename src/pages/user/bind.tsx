@@ -13,7 +13,6 @@ import Icon_sns_apple from '@/asserts/images/sns-apple.svg'
 import Icon_sns_wechat from '@/asserts/images/sns-wechat.svg'
 import Icon_sns_weibo from '@/asserts/images/sns-weibo.svg'
 import { Switch } from 'antd';
-import { Link } from 'react-router-dom';
 
 const ICON = styled.img`
   height: 32px;

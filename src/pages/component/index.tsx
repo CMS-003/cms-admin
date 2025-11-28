@@ -4,11 +4,11 @@ import React, { Fragment, useCallback, useRef, useState } from 'react';
 import EditPage from '@/components/Editor'
 import { IComponent, IEditorComponent } from '../../types'
 import apis from '@/api'
-import { AlignAside } from '@/components/style'
+import { AlignAside, FullWidth } from '@/components/style'
 import { useEffectOnce } from 'react-use';
 import { cloneDeep } from 'lodash'
 import store from '@/store';
-import Acon, { Icon } from '@/components/Acon';
+import Acon from '@/components/Acon';
 
 type SelectItem = {
   name: string;
@@ -165,7 +165,7 @@ const ComponentPage: React.FC = () => {
   const addComponent = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateComponent(params) : await apis.createComponent(params)
     if (result.code === 0) {
-      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
+      notification.info({ title: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])
@@ -205,7 +205,7 @@ const ComponentPage: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'], total: local.total, pageSize: 20 }} sticky={true} rowKey="_id" dataSource={local.list}>
           <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-            <span><Acon icon={record.icon as Icon} />{title}</span>
+            <FullWidth><Acon icon={record.icon} />{title}</FullWidth>
           )} />
           <Table.Column title="组件类型" dataIndex="name" />
           <Table.Column title="分类类型" dataIndex="type" />
@@ -223,10 +223,10 @@ const ComponentPage: React.FC = () => {
           </span >)} />
           <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
             <Space size="middle">
-              <Acon icon='FormOutlined' onClick={() => {
+              <Acon icon='square-pen' onClick={() => {
                 local.openEditor(cloneDeep(record))
               }} />
-              <Acon icon='DeleteOutlined' onClick={async () => {
+              <Acon icon='circle-x' onClick={async () => {
                 await apis.destroyComponent({ params: { _id: record._id } })
                 await refresh()
               }} />

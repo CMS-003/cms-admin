@@ -95,7 +95,7 @@ const ConfigPage: React.FC = () => {
   const editConfig = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateConfig(params) : await apis.createConfig(params)
     if (result.code === 0) {
-      notification.info({ message: params.body._id ? '修改成功' : '添加成功' })
+      notification.info({ title: params.body._id ? '修改成功' : '添加成功' })
       await refresh()
     }
   }, [])
@@ -138,10 +138,10 @@ const ConfigPage: React.FC = () => {
         <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="操作" key="id" render={(_, record: IConfig) => (
           <Space size="middle">
-            <Acon icon='FormOutlined' onClick={() => {
+            <Acon icon='square-pen' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <Acon icon='DeleteOutlined' onClick={async () => {
+            <Acon icon='circle-x' onClick={async () => {
               await apis.deleteConfig({ body: record })
               await refresh()
             }} />

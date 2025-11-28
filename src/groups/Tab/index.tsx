@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IAuto, IBaseComponent } from '@/types/component';
-import Acon, { Icon } from '@/components/Acon'
+import Acon from '@/components/Acon'
 import { Component } from '../auto'
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
@@ -50,7 +50,7 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
         <TabWrap>
           <Tabs
             activeKey={self.attrs.selected_id}
-            tabBarExtraContent={{ right: <Acon icon={(self.icon as Icon) || 'BarsOutlined'} /> }}
+            tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'menu'} /> }}
             onChange={activeKey => {
               self.setAttrs('selected_id', activeKey)
             }}

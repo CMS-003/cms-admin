@@ -1,5 +1,4 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import styled from 'styled-components'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'

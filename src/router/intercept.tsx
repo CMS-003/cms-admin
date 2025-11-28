@@ -1,10 +1,6 @@
 import { useCallback, useEffect } from "react";
-// import { addOpenedMenu, setOpenKey, setSelectKey, setCurrentPath } from "@/store/menu/action";
-import { useDidRecover } from "react-router-cache-route"
 import Error from "../pages/error";
 import { Spin } from "antd";
-import store from "../store";
-import { useNavigate, useLocation } from "react-router-dom";
 import { IMenuItem } from "../types";
 
 
@@ -37,8 +33,6 @@ function Intercept({ menuList, components: Components, title, path: pagePath, pa
   }, [scrollPage])
 
   useEffect(init, [init])
-
-  useDidRecover(init, [init])
 
   const hasPath = !menuList.find(
     (m) => (m['parent_path'] || "") + m['path'] === pagePath

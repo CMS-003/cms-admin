@@ -1,7 +1,6 @@
 import { Layout, Dropdown, Menu, Popover, Button } from 'antd';
 import React, { useCallback, useState } from 'react';
 import logo from '@/asserts/images/logo.svg';
-import { Avatar } from 'antd';
 import MenuComponent from './menu'
 import Router from '../router'
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -45,24 +44,25 @@ const CLayout: React.FC<{ data: any, flag: number }> = (props: { data: any, flag
         setCollapsed(value)
       }}>
         <div style={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: 'center' }}>
-          <Dropdown overlay={<Menu
-            style={{}}
-            onClick={e => {
-              const id = e.key;
-              const project = store.project.list.find(it => it._id === id);
-              if (project) {
-                store.app.setProjectId(e.key);
-                setProjectTitle(project.title);
-                window.location.reload();
+          <Dropdown
+            menu={{
+              items: store.project.list.map(project => ({
+                label: project.title,
+                key: project._id,
+                style: { backgroundColor: project._id === store.app.project_id ? '#aaa' : '' },
+                icon: project.cover ? <img src={project.cover} alt="" style={{ width: 24, height: 24 }} /> : null
+              })),
+              onClick: (e) => {
+                const id = e.key;
+                const project = store.project.list.find(it => it._id === id);
+                if (project) {
+                  store.app.setProjectId(e.key);
+                  setProjectTitle(project.title);
+                  window.location.reload();
+                }
               }
             }}
-            items={store.project.list.map(project => ({
-              label: project.title,
-              key: project._id,
-              style: { backgroundColor: project._id === store.app.project_id ? '#aaa' : '' },
-              icon: project.cover ? <img src={project.cover} alt="" style={{ width: 24, height: 24 }} /> : null
-            }))}
-          />}>
+          >
             <div style={{ flexDirection: collapsed ? 'column' : 'row', color: 'white', display: 'flex', alignItems: 'center' }}>
               <img src={logo} alt="logo" style={{ width: 40, height: 40 }} />{project_title}
             </div>
@@ -78,7 +78,7 @@ const CLayout: React.FC<{ data: any, flag: number }> = (props: { data: any, flag
           <Link to={'/manager/user/bind'}>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
               <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Acon icon='UserOutlined' />
+                <Acon icon='user' />
               </div>
               <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.nickname}</span>
             </div>

@@ -52,7 +52,7 @@ export default function Page() {
       <AlignAround style={{ height: 50, flex: 'none' }}>
         <Space>
           {local.name}
-          <CopyToClipboard text={JSON.stringify(local.schema, null, 2)}><Acon icon='CopyOutlined' title={'复制'} onClick={() => { message.success('已复制') }} /></CopyToClipboard>
+          <CopyToClipboard text={JSON.stringify(local.schema, null, 2)}><Acon icon='copy' title={'复制'} onClick={() => { message.success('已复制') }} /></CopyToClipboard>
         </Space>
       </AlignAround>
       <JsonSchemaEditor

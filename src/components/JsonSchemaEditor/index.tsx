@@ -83,7 +83,7 @@ function Item({
     <FullHeight style={{}}>
       <FullWidth style={{ padding: '3px 0' }}>
         {(data.type === 'Object' || data.type === 'Array') && <Acon
-          icon='CaretRightOutlined'
+          icon='chevron-right'
           color='#8f8f8f'
           rotate={local.showSub ? '90deg' : '0deg'}
           style={{ marginLeft: -15, transform: 'translate(-10px, 0)' }}
@@ -93,7 +93,7 @@ function Item({
         />}
         <VisualBox visible={!isRoot}>
           <Handler {...handler} >
-            <Acon icon='DragOutlined' />
+            <Acon icon='move' />
           </Handler>
         </VisualBox>
         <Input className='border-radius-5'
@@ -131,21 +131,21 @@ function Item({
             <Select.Option value="Buffer">二进制</Select.Option>
             <Select.Option value="Decimal128">高精度</Select.Option>
           </Select>
-          <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} addonAfter={<Acon icon='FormOutlined' />} onBlur={value => {
+          <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} addonAfter={<Acon icon='square-pen' />} onBlur={value => {
             data.comment = value.target.value;
             onChange && onChange();
           }} />
           <Space style={{ width: 100, paddingLeft: 15 }}>
-            <Acon icon='SettingOutlined' color='#37b332' />
+            <Acon icon='settings' color='#37b332' />
             <VisualBox visible={!(local.is_disabled || isRoot)}>
-              <Acon icon='PlusOutlined' color='#c80000' rotate='45deg' onClick={() => {
+              <Acon icon='circle-plus' color='#c80000' rotate='45deg' onClick={() => {
                 if (parent) {
                   delete parent.properties[field];
                 }
               }} />
             </VisualBox>
             <VisualBox visible={['Object', 'Array'].includes(data.type)}>
-              <Acon icon='PlusOutlined' color='#36b3f9' onClick={() => {
+              <Acon icon='circle-plus' color='#36b3f9' onClick={() => {
                 if (data.type === 'Object') {
                   if (!data.properties) data.properties = {};
                   const new_field = `field_${local.array.length}`;
