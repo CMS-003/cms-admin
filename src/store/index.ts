@@ -115,11 +115,6 @@ const global = IGlobal.create({
       { label: '注销', value: 0 },
       { label: '正常', value: 1 },
     ],
-    QUERY_STATUS: [
-      { label: '已废弃', value: 0 },
-      { label: '开发中', value: 1 },
-      { label: '运行中', value: 2 },
-    ],
     QUERY: {
       STATUS: [
         { label: '已废弃', value: 0 },
@@ -139,6 +134,44 @@ const global = IGlobal.create({
       { label: '自动', value: 2 },
       { label: '手动', value: 3 },
     ],
+    COUNTRY: [
+      {
+        "value": "CN",
+        "label": "中国"
+      },
+      {
+        "value": "JP",
+        "label": "日本"
+      },
+      {
+        "value": "HK",
+        "label": "香港"
+      },
+      {
+        "value": "TW",
+        "label": "台湾"
+      },
+      {
+        "value": "US",
+        "label": "美国"
+      },
+      {
+        "value": "GB",
+        "label": "英国"
+      },
+      {
+        "value": "FR",
+        "label": "法国"
+      },
+      {
+        "value": "TH",
+        "label": "泰国"
+      },
+      {
+        "value": "IN",
+        "label": "印度"
+      },
+    ]
   }
 });
 
