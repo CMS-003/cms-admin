@@ -14,6 +14,7 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
       {...dnd?.props}
       style={{
         flexDirection: 'row',
+        height: '100%',
         ...dnd?.style
       }}
     >
@@ -24,6 +25,7 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         droppableId={self._id}
         sort={self.swap}
+        style={{ height: '100%', overflow: 'auto' }}
         renderItem={({ item, dnd }) => (
           <Component
             self={item}

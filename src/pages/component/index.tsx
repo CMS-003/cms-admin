@@ -16,10 +16,11 @@ type SelectItem = {
 }
 
 const ComponentPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string, total: number }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, page: number, openEditor: Function, list: IComponent[], types: SelectItem[], projects: SelectItem[], selectedProjectId: string, total: number }>(() => ({
     showEditPage: false,
     list: [],
     total: 0,
+    page: 1,
     temp: null,
     types: store.component.types.map(it => ({ name: it.title, value: it.name })),
     projects: store.project.list.map(it => ({ name: it.title, value: it._id })),
@@ -32,7 +33,7 @@ const ComponentPage: React.FC = () => {
 
   const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
-    const result = await apis.getComponents({ query: { project_id: local.selectedProjectId } })
+    const result = await apis.getComponents({ query: { project_id: local.selectedProjectId, page: local.page } })
     if (result.code === 0) {
       local.list = result.data.items
       local.total = result.data.total
@@ -181,7 +182,6 @@ const ComponentPage: React.FC = () => {
             local.selectedProjectId = v;
             refresh()
           }}>
-            <Select.Option value="">全部</Select.Option>
             {local.projects.map(it => <Select.Option key={it.value} value={it.value}>{it.name}</Select.Option>)}
           </Select>
           <Input ref={ref => searchInput.current = ref} />
@@ -203,7 +203,17 @@ const ComponentPage: React.FC = () => {
         fetch={addComponent}
       />
       <div style={{ flex: 1, overflow: 'auto' }}>
-        <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'], total: local.total, pageSize: 20 }} sticky={true} rowKey="_id" dataSource={local.list}>
+        <Table
+          style={{ height: '100%' }}
+          pagination={{ placement:['bottomEnd'], total: local.total, pageSize: 20, current: local.page }}
+          sticky={true}
+          rowKey="_id"
+          dataSource={local.list}
+          onChange={e => {
+            local.page = e.current || 1;
+            refresh()
+          }}
+        >
           <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
             <FullWidth><Acon icon={record.icon} />{title}</FullWidth>
           )} />

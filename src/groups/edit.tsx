@@ -1,7 +1,7 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
 import { toJS } from "mobx"
 import { Fragment } from 'react';
-import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch } from 'antd'
+import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch, Flex } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { cloneDeep, pick } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
@@ -134,46 +134,17 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '控件', key: 'widget', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Space.Compact >
-                    <Space.Addon>仅查询</Space.Addon>
-                    <Space.Addon style={{ padding: '4px 5px' }}>
+                  <Space.Compact style={{ width: '100%', }}>
+                    <Space.Addon style={{ padding: '6px 8px' }}>仅查询</Space.Addon>
+                    <Space.Addon style={{ flex: 1 }}>
                       <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
                         data.setWidget('query', checked)
                       }} />
                     </Space.Addon>
                   </Space.Compact>
-                  <Space direction='vertical'>
-                    <span className="ant-input-group-wrapper">
-                      <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">仅供查询</span>
-                        <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', borderLeft: '1px solid #d9d9d9' }}>
-                          <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
-                            data.setWidget('query', checked)
-                          }} />
-                        </div>
-                      </span>
-                    </span>
-                    <Input addonBefore="参数字段" value={data.widget.field} onChange={e => {
-                      data.setWidget('field', e.target.value);
-                    }} />
-                    <span className="ant-input-group-wrapper">
-                      <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">参数类型</span>
-                        <Select style={{ width: '100%' }} value={data.widget.type} onChange={v => {
-                          if (data) {
-                            data.changeWidgetType(v);
-                          }
-                        }}>
-                          <Select.Option value="string">文本</Select.Option>
-                          <Select.Option value="number">数字</Select.Option>
-                          <Select.Option value="boolean">布尔</Select.Option>
-                          <Select.Option value="json">对象</Select.Option>
-                          <Select.Option value="array">数组</Select.Option>
-                        </Select>
-                      </span>
-                    </span>
-                  </Space>
-                  <Input addonBefore="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
+                </EditItem>
+                <EditItem>
+                  <Input prefix="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
                     data.setWidget('source', e.target.value);
                   }} />
                   默认值
@@ -191,24 +162,28 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     itemStyle={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}
                     items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))]}
                     renderItem={({ item, index, handler }: { item: { label: string, value: number | string, disabled?: boolean }, index: number, handler: any }) => (
-                      <Input
-                        key={index}
-                        readOnly
-                        disabled={item.disabled ? true : false}
-                        addonBefore={<FullWidth>
-                          <Acon icon='move' style={{ marginRight: 5 }}  {...handler} />
-                          {item.label}
-                        </FullWidth>}
-                        value={item.value}
-                        addonAfter={!item.disabled && <Acon icon='x' onClick={() => { data.remRefer(index); }} />}
-                      />
+                      <Space.Compact key={index}>
+                        <Space.Addon>
+                          <FullWidth>
+                            <Acon icon='move' style={{ marginRight: 5 }}  {...handler} />
+                            {item.label}
+                          </FullWidth>
+                        </Space.Addon>
+                        <Input
+                          readOnly
+                          disabled={item.disabled ? true : false}
+                          value={item.value}
+                        />
+                        {!item.disabled && <Space.Addon><Acon icon='x' onClick={() => { data.remRefer(index); }} /></Space.Addon>}
+                      </Space.Compact>
                     )}
                   />
                   <AlignAround>
                     {local.addWidgetReferVisible
                       ? <Fragment>
-                        <Input addonBefore='名称' />
-                        <Input addonBefore='值' />
+                        <Input prefix='名称' />
+                        <Divider orientation="vertical" />
+                        <Input prefix='值' />
                         <Acon icon='check' onClick={e => {
                           const op = e.currentTarget.parentElement;
                           if (op && data) {
@@ -234,7 +209,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     local.setShowQueryModal(true)
                   }} />
                   {data.queries.map(id => (
-                    <Input key={id} readOnly value={id} addonAfter={
+                    <Input key={id} readOnly value={id} suffix={
                       <Space>
                         <Acon icon="x" />
                       </Space>
@@ -265,8 +240,8 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Acon icon='move' {...handler2} style={{ marginRight: 5 }} />
                         <Input
                           value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='copy' onClick={() => { }} /></CopyToClipboard>}
-                          addonAfter={<Acon icon='circle-x' onClick={() => { data?.remResource(resource._id) }}
+                          prefix={<CopyToClipboard text={resource._id as string}><Acon icon='copy' onClick={() => { }} /></CopyToClipboard>}
+                          suffix={<Acon icon='circle-x' onClick={() => { data?.remResource(resource._id) }}
                           />} />
                       </div>
                     </Fragment>}
@@ -295,12 +270,12 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                 <EditItem>
                   {
                     (data.widget.action === CONST.ACTION_TYPE.GOTO_PAGE || data.widget.action === CONST.ACTION_TYPE.OPEN_URL)
-                    && <Input addonBefore="跳转url" value={data.url} onChange={e => {
+                    && <Input prefix="跳转url" value={data.url} onChange={e => {
                       data.setAttr('url', e.target.value);
                     }} />
                   }
                   {
-                    data.widget.action === CONST.ACTION_TYPE.MODAL && <Input addonBefore='模板id' value={data.widget.method} onChange={e => {
+                    data.widget.action === CONST.ACTION_TYPE.MODAL && <Input prefix='模板id' value={data.widget.method} onChange={e => {
                       data.setWidget('method', e.target.value);
                     }} />
                   }
@@ -312,7 +287,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       <Select.Option value='video'>视频</Select.Option>
                     </Select>
                   }
-                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Input addonBefore={<Select value={data.widget.method} onChange={v => {
+                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Input prefix={<Select value={data.widget.method} onChange={v => {
                     data.setWidget('method', v);
                   }}>
                     <Select.Option value="AUTO">AUTO</Select.Option>
@@ -355,7 +330,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '布局', key: 'layout', children: (
               <ScrollWrap>
                 <EditItem>
-                  布局方向<Divider type='vertical' />
+                  布局方向<Divider orientation='vertical' />
                   <Radio.Group value={data.attrs.layout} options={[
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },

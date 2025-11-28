@@ -1,6 +1,6 @@
 import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Input } from 'antd'
+import { Input, Space } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { usePageContext } from '../context';
 import { ComponentWrap } from '../style';
@@ -29,7 +29,7 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
     >
       {children}
       <Input
-        addonBefore={self.title || null}
+        prefix={self.title && <Space.Addon>{self.title}</Space.Addon>}
         value={source[self.widget.field]}
         style={self.style}
         onChange={e => {

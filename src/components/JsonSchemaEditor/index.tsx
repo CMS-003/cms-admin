@@ -131,10 +131,10 @@ function Item({
             <Select.Option value="Buffer">二进制</Select.Option>
             <Select.Option value="Decimal128">高精度</Select.Option>
           </Select>
-          <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} addonAfter={<Acon icon='square-pen' />} onBlur={value => {
+          <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} onBlur={value => {
             data.comment = value.target.value;
             onChange && onChange();
-          }} />
+          }} suffix={<Acon icon='square-pen' />} />
           <Space style={{ width: 100, paddingLeft: 15 }}>
             <Acon icon='settings' color='#37b332' />
             <VisualBox visible={!(local.is_disabled || isRoot)}>

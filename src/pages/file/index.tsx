@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback, Fragment, useRef } from 'react';
-import { Observer, useLocalStore } from 'mobx-react-lite'
+import { useCallback, Fragment, useRef } from 'react';
+import { Observer, useLocalObservable } from 'mobx-react-lite'
 import { Table, Popconfirm, notification, Button, Divider, Input, Upload, message, Checkbox, Select, Tooltip, Space, } from 'antd';
 import apis from '@/api'
 import store from '@/store'
@@ -12,6 +12,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useEffectOnce } from 'react-use';
 import events from '@/utils/event';
 import styled from 'styled-components'
+import { runInAction } from 'mobx';
 
 export const HoverTitle = styled.div`
   display: flex;
@@ -25,8 +26,8 @@ export const HoverTitle = styled.div`
 const { getFiles, createFile, destroyFile, renameFile } = apis
 const { Column } = Table;
 
-export default function TaskList() {
-  const local = useLocalStore(() => ({
+export default function FileList() {
+  const local = useLocalObservable(() => ({
     isLoading: false,
     showModal: false,
     dirpath: '/download/',
@@ -62,16 +63,22 @@ export default function TaskList() {
   const outputRef = useRef(null)
   const searchRef = useRef(null)
   const search = useCallback((dir: string) => {
-    local.isLoading = true
-    local.chosen_files = [];
+    runInAction(() => {
+      local.isLoading = true
+      local.chosen_files = [];
+    })
     getFiles({ param: dir }).then(res => {
-      local.dirpath = dir;
-      local.isLoading = false
-      local.files = res.data.sort((a: any, b: any) => {
-        return b.dir ? 1 : -1
-      });
-    }).catch(() => {
-      local.isLoading = false
+      runInAction(() => {
+        local.dirpath = dir;
+        local.isLoading = false
+        local.files = res.data.sort((a: any, b: any) => {
+          return b.dir ? 1 : -1
+        });
+      })
+    }).finally(() => {
+      runInAction(() => {
+        local.isLoading = false
+      })
     })
   }, [])
   const filter_by_q = useCallback((str: string) => {
@@ -130,7 +137,7 @@ export default function TaskList() {
               // TODO:
             }} />}
             onSearch={filter_by_q} />
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Upload
             showUploadList={false}
             name="file"
@@ -156,12 +163,12 @@ export default function TaskList() {
             beforeUpload={() => false}>
             <Button icon={<Acon icon="upload" />}>上传</Button>
           </Upload>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Button disabled={local.chosen_files.length === 0} loading={local.isExcuting} onClick={() => {
             local.template_data.filename = '';
             local.show_cmd = true;
           }}>执行命令</Button>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Button onClick={() => {
             local.showModal = true
             setTimeout(() => {
@@ -169,7 +176,7 @@ export default function TaskList() {
               nameRef.current && nameRef.current.input.focus()
             }, 300)
           }}>创建</Button>
-          <Divider type="vertical" />
+          <Divider orientation="vertical" />
           <Button disabled={local.isLoading} onClick={() => search(local.dirpath)}>刷新</Button>
         </Right>
       </FullHeightFix>
@@ -214,7 +221,7 @@ export default function TaskList() {
           }
         }}
       >
-        <Input addonBefore={<Select value={local.createType === 'file' ? 0 : 1} onChange={v => {
+        <Input prefix={<Select value={local.createType === 'file' ? 0 : 1} onChange={v => {
           local.createType = v === 1 ? 'dir' : 'file';
         }}>
           <Select.Option value={0}>文件</Select.Option>
@@ -257,7 +264,7 @@ export default function TaskList() {
         closable={false}
       >
         <Input
-          addonBefore={<Select
+          prefix={<Select
             style={{ width: 150 }}
             value={local.template_data.id}
             disabled={local.isExcuting}
@@ -337,7 +344,7 @@ export default function TaskList() {
                       defaultValue={text}
                       disabled={record.isLoading}
                       autoFocus
-                      addonAfter={record.isLoading ? <Acon icon="loader" /> : <div>
+                      suffix={record.isLoading ? <Acon icon="loader" /> : <div>
                         <Acon icon="circle-check" onClick={async (e) => {
                           // @ts-ignore
                           const o = e.currentTarget.parentNode.parentNode.previousSibling
@@ -364,28 +371,34 @@ export default function TaskList() {
               <Column title="操作" dataIndex={"name"} width={200} key="action" align="center" render={(text, record: any) => {
                 const filepath = store.app.baseURL + '/v1/public/share-file' + local.dirpath + record.name
                 return <AlignAround>
-                  <VisualBox visible={record.dir === true}>
-                    <Popconfirm title={`确定删除 ${record.name} 所有子文件?`} okText="确定" cancelText="取消" icon={<Acon icon="triangle-alert" />} onConfirm={() => {
+                  <Popconfirm
+                    title={`确定删除所有子文件?`}
+                    okText="确定"
+                    cancelText="取消"
+                    icon={<Acon icon="triangle-alert" />}
+                    getPopupContainer={(triggerNode) =>
+                      triggerNode.parentElement || document.body
+                    }
+                    onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name, isDir: '1' }).then(() => search(local.dirpath))
                     }}>
-                      <Acon icon="x" />
-                    </Popconfirm>
-                  </VisualBox>
+                    <Acon icon="x" />
+                  </Popconfirm>
                   <VisualBox visible={record.dir === false}>
                     <CopyToClipboard text={window.location.origin + local.dirpath + record.name}>
                       <Acon icon="copy-minus" />
                     </CopyToClipboard>
-                    <Divider type='vertical' />
+                    <Divider orientation='vertical' />
                     <Popconfirm icon={null} title={'fuck qrcode'} okText='打开' cancelText='取消' onConfirm={() => {
                       window.open(filepath, '_blank');
                     }}>
                       <Acon icon="scan-line" />
                     </Popconfirm>
-                    {/* <Divider type="vertical" />
+                    {/* <Divider orientation="vertical" />
                                 <DownloadOutlined title={filepath} onClick={() => {
                                     
                                 }} /> */}
-                    <Divider type="vertical" />
+                    <Divider orientation="vertical" />
                     <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<Acon icon="triangle-alert" />} onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name }).then(() => search(local.dirpath))
                     }}>

@@ -51,7 +51,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
           {local.addVisible ? (
             <Input value={local.tempTag} onChange={e => {
               local.setValue('tempTag', e.target.value)
-            }} addonAfter={(
+            }} suffix={(
               <FullWidth>
                 <Acon icon='circle-check' onClick={() => {
                   if (local.tempTag && !source[field].includes(local.tempTag)) {

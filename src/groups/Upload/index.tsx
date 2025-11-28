@@ -79,7 +79,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
           }}
-          addonAfter={focused ? <Acon icon="circle-check" onClick={() => {
+          suffix={focused ? <Acon icon="circle-check" onClick={() => {
             setFocused(false)
           }} /> : null} />
         <Upload

@@ -248,7 +248,7 @@ const TabPanes: FC = () => {
         className="tag-page"
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
-        destroyInactiveTabPane={false}
+        destroyOnHidden={false}
         onChange={(path: string): void => {
           store.router.setCurrentPath(path)
         }}

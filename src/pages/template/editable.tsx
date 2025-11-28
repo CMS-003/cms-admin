@@ -181,22 +181,22 @@ const ComponentTemplatePage = (props: any) => {
                   treeData={local.tree}
                   value={local.locked_template_id || local.edit_template_id}
                   style={{ width: 300 }}
-                  onChange={v => {
+                  onChange={(v: string) => {
                     local.setEditTemplateID(v)
                     refresh()
                   }}
                   treeDefaultExpandAll
                 />
               </Space>
-              <Divider type="vertical" />
+              <Divider orientation="vertical" />
               <Space>
                 < Button type="primary" onClick={e => {
                   refresh()
                 }}>刷新</Button>
               </Space>
-              <Divider type="vertical" />
+              <Divider orientation="vertical" />
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}
-              <Divider type="vertical" />
+              <Divider orientation="vertical" />
               < Button type="primary" onClick={async (e) => {
                 try {
                   // 请求剪贴板读取权限
