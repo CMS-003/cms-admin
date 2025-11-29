@@ -161,7 +161,7 @@ export default function FileList() {
               }
             }}
             beforeUpload={() => false}>
-            <Button icon={<Acon icon="upload" />}>上传</Button>
+            <Button icon={<Acon icon="Upload" />}>上传</Button>
           </Upload>
           <Divider orientation="vertical" />
           <Button disabled={local.chosen_files.length === 0} loading={local.isExcuting} onClick={() => {
@@ -293,7 +293,7 @@ export default function FileList() {
       <FullHeightAuto>
         <FullWidth style={{ alignItems: 'flex-start' }}>
           <FullWidthAuto style={{ overflowX: 'auto' }}>
-            <Table dataSource={local.q ? local.searched_files : local.files} rowKey="name" scroll={{ y: 'calc(100vh - 180px)' }} pagination={false} loading={local.isLoading}>
+            <Table dataSource={local.q ? local.searched_files : local.files} rowKey="name" scroll={{ y: 'calc(100vh - 190px)' }} pagination={false} loading={local.isLoading}>
               <Column key="name" dataIndex={"name"} width={35} render={(text, record: any) => {
                 return record.dir ? null : <Checkbox onChange={(e) => {
                   const filepath = local.dirpath + text;
@@ -385,6 +385,7 @@ export default function FileList() {
                     <Acon icon="X" />
                   </Popconfirm>
                   <VisualBox visible={record.dir === false}>
+                    <Divider orientation='vertical' />
                     <CopyToClipboard text={window.location.origin + local.dirpath + record.name}>
                       <Acon icon="CopyMinus" />
                     </CopyToClipboard>
@@ -393,16 +394,6 @@ export default function FileList() {
                       window.open(filepath, '_blank');
                     }}>
                       <Acon icon="ScanLine" />
-                    </Popconfirm>
-                    {/* <Divider orientation="vertical" />
-                                <DownloadOutlined title={filepath} onClick={() => {
-                                    
-                                }} /> */}
-                    <Divider orientation="vertical" />
-                    <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<Acon icon="TriangleAlert" />} onConfirm={() => {
-                      destroyFile({ param: local.dirpath + record.name }).then(() => search(local.dirpath))
-                    }}>
-                      <Acon icon="X" />
                     </Popconfirm>
                     <Divider orientation="vertical" />
                     <Acon icon="CircleAlert" onClick={() => {

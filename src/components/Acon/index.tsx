@@ -1,4 +1,3 @@
-import { DynamicIcon } from 'lucide-react/dynamic';
 import {
   Upload,
   Copy,
@@ -31,6 +30,7 @@ import {
   LucideProps,
   ChartLine,
   FolderCog,
+  ScanLine,
   CalendarSync,
   Book,
   SquareLibrary,
@@ -55,6 +55,7 @@ import {
   Edit,
   View,
   Eye,
+  House,
 } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -77,6 +78,8 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   Copy,
   X,
   User,
+  House,
+  ScanLine,
   Loader,
   Plus,
   Edit,

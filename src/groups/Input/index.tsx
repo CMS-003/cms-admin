@@ -28,34 +28,37 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
       }}
     >
       {children}
-      <Input
-        prefix={self.title && <Space.Addon>{self.title}</Space.Addon>}
-        value={source[self.widget.field]}
-        style={self.style}
-        onChange={e => {
-          setDataField(self.widget, e.target.value);
-        }}
-        onCompositionStart={() => {
-          local.setComposition(true)
-        }}
-        onCompositionEnd={() => {
-          local.setComposition(false)
-        }}
-        onKeyDown={e => {
-          if (e.key === 'Enter' && !local.composing && self.widget.action === CONST.ACTION_TYPE.SEARCH) {
-            setDataField({
-              field: 'page',
-              type: 'number',
-              source: '',
-              value: 1,
-              query: true,
-              action: '',
-              method: '',
-              refer: []
-            }, 1)
-            events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
-          }
-        }} />
+      <Space.Compact block>
+        {self.title ? <Space.Addon style={{ flexShrink: 0 }}>{self.title}</Space.Addon> : null}
+        <Input
+          value={source[self.widget.field]}
+          style={self.style}
+          onChange={e => {
+            setDataField(self.widget, e.target.value);
+          }}
+          onCompositionStart={() => {
+            local.setComposition(true)
+          }}
+          onCompositionEnd={() => {
+            local.setComposition(false)
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !local.composing && self.widget.action === CONST.ACTION_TYPE.SEARCH) {
+              setDataField({
+                field: 'page',
+                type: 'number',
+                source: '',
+                value: 1,
+                query: true,
+                action: '',
+                method: '',
+                refer: []
+              }, 1)
+              events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
+            }
+          }} />
+      </Space.Compact>
+
     </ComponentWrap>
   )}</Observer>
 }

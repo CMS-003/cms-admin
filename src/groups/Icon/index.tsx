@@ -105,7 +105,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           action={self.url}
           method={self.widget.method as 'post' | 'put'}
           multiple={false}
-          disabled={loading || self.widget.action !== CONST.ACTION_TYPE.FETCH}
+          disabled={loading || self.widget.action !== CONST.ACTION_TYPE.UPLOAD}
           onChange={async (info) => {
             if (!source[self.widget.field]) {
               return;

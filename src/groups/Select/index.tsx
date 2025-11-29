@@ -29,7 +29,7 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
     >
       {children}
       <Space.Compact>
-        {self.title && <Space.Addon>{self.title}</Space.Addon>}
+        {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
         <Select
           value={data[self.widget.field]}
           onChange={async (v) => {
