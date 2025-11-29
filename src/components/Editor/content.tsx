@@ -171,7 +171,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }}>
                 <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : store.app.imageLine + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                  <Acon icon='upload' style={{}} /> 上传
+                  <Acon icon='Upload' style={{}} /> 上传
                 </Button>
               </Upload>
             </Form.Item>

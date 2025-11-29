@@ -75,7 +75,7 @@ export default function ResourceModal({ show, onAdd, onClose }: { show: boolean,
               <Table loading={local.fetch} pagination={false} style={{ tableLayout: 'fixed' }} rowKey="_id" dataSource={local.resources}>
                 <Table.Column title="名称" dataIndex="title" render={(title, record: IResource) => <Fragment>{record.cover ? <Image src={"http://192.168.0.124:8097" + record.cover} /> : null} {title}</Fragment>} />
                 <Table.Column title="操作" key="_id" render={(_, record: IResource) => (
-                  <Acon icon='circle-plus' onClick={() => {
+                  <Acon icon='CirclePlus' onClick={() => {
                     onAdd({ _id: record._id, title: record.title, cover: record.poster || record.thumbnail })
                   }} />
                 )} />

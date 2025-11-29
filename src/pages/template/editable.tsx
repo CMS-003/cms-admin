@@ -221,7 +221,7 @@ const ComponentTemplatePage = (props: any) => {
           </FullHeightFix>
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'hidden' }}>
             {local.loading
-              ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='loader' />} tip="加载中..." />
+              ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='Loader' />}>加载中...</Spin>
               : <AutoPage template_id={local.edit_template_id} mode={local.mode} path="" close={() => { }} />
             }
           </FullWidthAuto>

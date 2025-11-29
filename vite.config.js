@@ -54,17 +54,15 @@ export default defineConfig({
       '/manager/images/': {
         target: 'http://192.168.0.124:3333',
         changeOrigin: true,
-        pathRewrite: { '^/manager': '/' }
       },
       '/images/': {
         target: 'http://192.168.0.124',
         changeOrigin: true,
-        pathRewrite: { '^/manager': '/' }
       },
     },
   },
   build: {
     outDir: 'build', // 保持与 CRA 相同的输出目录
-    sourcemap: true,
+    sourcemap: false,
   },
 })

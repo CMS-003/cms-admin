@@ -78,7 +78,7 @@ const CLayout: React.FC<{ data: any, flag: number }> = (props: { data: any, flag
           <Link to={'/manager/user/bind'}>
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 10, alignItems: 'center' }}>
               <div style={{ width: 40, height: 40, borderRadius: 40, backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Acon icon='user' />
+                <Acon icon='User' />
               </div>
               <span style={{ marginTop: 5, color: 'wheat' }}>{store.user.info?.nickname}</span>
             </div>

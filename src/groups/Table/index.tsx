@@ -12,9 +12,8 @@ import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 import { ComponentWrap } from '../style';
-import { DynamicIcon } from 'lucide-react/dynamic'
 import { AlignAside } from '@/components/style'
-import { VisualBox } from '@/components'
+import { Acon, VisualBox } from '@/components'
 import { getWidgetValue } from '../utils'
 import _ from 'lodash'
 
@@ -113,14 +112,14 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           title: <Observer>{() => (<div key={i}>
             <VisualBox visible={mode === 'edit'}>
               <AlignAside>
-                <DynamicIcon name="move-left" onClick={() => {
+                <Acon icon="MoveLeft" onClick={() => {
                   if (i !== 0) {
                     runInAction(() => {
                       self.swap(i, i - 1)
                     })
                   }
                 }} />
-                <DynamicIcon name="move-right" onClick={() => {
+                <Acon icon="MoveRight" onClick={() => {
                   if (i !== self.children.length - 1) {
                     runInAction(() => {
                       self.swap(i, i + 1)

@@ -233,10 +233,10 @@ const ComponentPage: React.FC = () => {
           </span >)} />
           <Table.Column title="操作" key="id" render={(_, record: IComponent) => (
             <Space size="middle">
-              <Acon icon='square-pen' onClick={() => {
+              <Acon icon='Edit' onClick={() => {
                 local.openEditor(cloneDeep(record))
               }} />
-              <Acon icon='circle-x' onClick={async () => {
+              <Acon icon='CircleX' onClick={async () => {
                 await apis.destroyComponent({ params: { _id: record._id } })
                 await refresh()
               }} />

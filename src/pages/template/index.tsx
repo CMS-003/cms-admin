@@ -196,7 +196,7 @@ const ComponentTemplatePage: React.FC = () => {
             onCopy={() => {
               message.success('已复制', 1)
             }}>
-            <Acon icon='copy' />
+            <Acon icon='Copy' />
           </CopyToClipboard>
         }} />
         <Table.Column title="名称" dataIndex="title" />
@@ -205,12 +205,12 @@ const ComponentTemplatePage: React.FC = () => {
         <Table.Column title="类型" dataIndex="type" />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <Acon icon="square-pen" onClick={
+            <Acon icon="Edit" onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Acon icon='file-search' onClick={() => {
+            <Acon icon='FileSearch' onClick={() => {
               navigate(`/manager/template/editable?id=${record._id}`)
             }} />
             <Popconfirm title='是否确认删除' okText='是' cancelText='否' onConfirm={async () => {
@@ -218,7 +218,7 @@ const ComponentTemplatePage: React.FC = () => {
               await apis.delTemplate(record._id);
               refresh()
             }}>
-              <Acon icon="circle-x" />
+              <Acon icon="CircleX" />
             </Popconfirm>
 
           </Space>

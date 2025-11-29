@@ -83,7 +83,7 @@ function Item({
     <FullHeight style={{}}>
       <FullWidth style={{ padding: '3px 0' }}>
         {(data.type === 'Object' || data.type === 'Array') && <Acon
-          icon='chevron-right'
+          icon='ChevronRight'
           color='#8f8f8f'
           rotate={local.showSub ? '90deg' : '0deg'}
           style={{ marginLeft: -15, transform: 'translate(-10px, 0)' }}
@@ -93,7 +93,7 @@ function Item({
         />}
         <VisualBox visible={!isRoot}>
           <Handler {...handler} >
-            <Acon icon='move' />
+            <Acon icon='Move' />
           </Handler>
         </VisualBox>
         <Input className='border-radius-5'
@@ -134,18 +134,18 @@ function Item({
           <Input className='border-radius-5' placeholder='备注' defaultValue={data.comment} onBlur={value => {
             data.comment = value.target.value;
             onChange && onChange();
-          }} suffix={<Acon icon='square-pen' />} />
+          }} suffix={<Acon icon='Edit' />} />
           <Space style={{ width: 100, paddingLeft: 15 }}>
-            <Acon icon='settings' color='#37b332' />
+            <Acon icon='Settings' color='#37b332' />
             <VisualBox visible={!(local.is_disabled || isRoot)}>
-              <Acon icon='circle-plus' color='#c80000' rotate='45deg' onClick={() => {
+              <Acon icon='CirclePlus' color='#c80000' rotate='45deg' onClick={() => {
                 if (parent) {
                   delete parent.properties[field];
                 }
               }} />
             </VisualBox>
             <VisualBox visible={['Object', 'Array'].includes(data.type)}>
-              <Acon icon='circle-plus' color='#36b3f9' onClick={() => {
+              <Acon icon='CirclePlus' color='#36b3f9' onClick={() => {
                 if (data.type === 'Object') {
                   if (!data.properties) data.properties = {};
                   const new_field = `field_${local.array.length}`;

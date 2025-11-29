@@ -155,11 +155,11 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
         <Center style={{ borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
           {local.showAdd
             ? <Space>
-              <Acon icon="circle-x" style={{ padding: '10px 15px' }} onClick={() => {
+              <Acon icon="CircleX" style={{ padding: '10px 15px' }} onClick={() => {
                 local.setAdd(false)
                 local.set({})
               }} />
-              <Acon icon="circle-check" style={{ padding: '10px 15px' }} onClick={async () => {
+              <Acon icon="CircleCheck" style={{ padding: '10px 15px' }} onClick={async () => {
                 const videos = (toJS(source[self.widget.field])) || []
                 const video = toJS(local.source)
                 if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
@@ -186,7 +186,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                 }
               }} />
             </Space>
-            : <Acon icon="circle-plus" style={{ padding: '10px 15px' }} onClick={() => {
+            : <Acon icon="CirclePlus" style={{ padding: '10px 15px' }} onClick={() => {
               local.setAdd(true)
             }} />
           }

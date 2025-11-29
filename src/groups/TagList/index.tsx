@@ -53,7 +53,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
               local.setValue('tempTag', e.target.value)
             }} suffix={(
               <FullWidth>
-                <Acon icon='circle-check' onClick={() => {
+                <Acon icon='CircleCheck' onClick={() => {
                   if (local.tempTag && !source[field].includes(local.tempTag)) {
                     const tags = [...source[field], local.tempTag]
                     setDataField(self.widget, tags)
@@ -61,11 +61,11 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
                   local.setValue('tempTag', '')
                   local.setValue('addVisible', false)
                 }} />
-                <Acon icon='circle-x' style={{ marginLeft: 10 }} onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
+                <Acon icon='CircleX' style={{ marginLeft: 10 }} onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
               </FullWidth>
             )} />
           ) : <span style={{ border: '1px dotted #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
-            <Acon icon='circle-plus' onClick={() => local.setValue('addVisible', true)} />
+            <Acon icon='Plus' onClick={() => local.setValue('addVisible', true)} />
           </span>}
         </div>
       </FullHeight>

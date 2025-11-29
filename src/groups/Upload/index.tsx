@@ -9,7 +9,6 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
-import { DynamicIcon } from 'lucide-react/dynamic'
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -79,7 +78,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
           }}
-          suffix={focused ? <Acon icon="circle-check" onClick={() => {
+          suffix={focused ? <Acon icon="CircleCheck" onClick={() => {
             setFocused(false)
           }} /> : null} />
         <Upload
@@ -114,7 +113,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
           }}
         >
           <Preview style={{ backgroundImage: preview || url ? `url(${preview || url})` : '' }}>
-            <Button icon={<DynamicIcon name="upload" />}></Button>
+            <Acon icon="Upload" />
           </Preview>
         </Upload>
       </FullHeight>

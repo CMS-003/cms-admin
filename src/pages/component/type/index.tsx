@@ -139,12 +139,12 @@ const ComponentTypePage: React.FC = () => {
         <Table.Column title="accepts" dataIndex="accepts" render={(types) => types.join(',')} />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <Acon icon='square-pen' onClick={
+            <Acon icon='Edit' onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Acon icon='circle-x' onClick={async () => {
+            <Acon icon='CircleX' onClick={async () => {
               await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()
             }} />

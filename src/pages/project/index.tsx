@@ -111,10 +111,10 @@ const ProjectPage: React.FC = () => {
         <Table.Column title="标识" dataIndex="name" />
         <Table.Column title="操作" key="_id" render={(_, record: IProject) => (
           <Space size="middle">
-            <Acon icon='square-pen' onClick={() => {
+            <Acon icon='Edit' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <Acon icon='circle-x' onClick={async () => {
+            <Acon icon='CircleX' onClick={async () => {
               await apis.destroyProject({ body: { _id: record._id } })
               await refresh()
             }} />

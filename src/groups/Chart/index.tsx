@@ -60,7 +60,7 @@ export default function Chart({ self, mode, source = {}, drag, dnd, setDataField
       {children}
       <div style={{ height: '100%', width: '100%' }} ref={divRef}></div>
       <Style.IconSVG src={icon_drag} className='drag' style={{ position: 'absolute', left: 5, top: 5, cursor: 'pointer', userSelect: 'none' }} />
-      {self.attrs.refresh && <Acon icon="refresh-cw" style={{ position: 'absolute', right: 10, top: 10, padding: 5 }} color='#666' onClick={e => {
+      {self.attrs.refresh && <Acon icon="RefreshCw" style={{ position: 'absolute', right: 10, top: 10, padding: 5 }} color='#666' onClick={e => {
         refresh()
       }} />}
     </ComponentWrap>

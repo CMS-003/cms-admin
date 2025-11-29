@@ -51,14 +51,9 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
     <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: 50 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性({data.type})</span>
-        <Space>
-          <CopyToClipboard text={JSON.stringify(toJS(data))} onCopy={() => { message.success('复制成功') }}>
-            <Acon icon="copy" />
-          </CopyToClipboard>
-          <Acon icon='circle-x' onClick={() => {
-            setData(null, '')
-          }} />
-        </Space>
+        <Acon icon='CircleX' onClick={() => {
+          setData(null, '')
+        }} />
       </AlignAside>
       <Tabs
         style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
@@ -165,7 +160,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       <Space.Compact key={index}>
                         <Space.Addon>
                           <FullWidth>
-                            <Acon icon='move' style={{ marginRight: 5 }}  {...handler} />
+                            <Acon icon='Move' style={{ marginRight: 5 }}  {...handler} />
                             {item.label}
                           </FullWidth>
                         </Space.Addon>
@@ -174,7 +169,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           disabled={item.disabled ? true : false}
                           value={item.value}
                         />
-                        {!item.disabled && <Space.Addon><Acon icon='x' onClick={() => { data.remRefer(index); }} /></Space.Addon>}
+                        {!item.disabled && <Space.Addon><Acon icon='X' onClick={() => { data.remRefer(index); }} /></Space.Addon>}
                       </Space.Compact>
                     )}
                   />
@@ -184,7 +179,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                         <Input prefix='名称' />
                         <Divider orientation="vertical" />
                         <Input prefix='值' />
-                        <Acon icon='check' onClick={e => {
+                        <Acon icon='Check' onClick={e => {
                           const op = e.currentTarget.parentElement;
                           if (op && data) {
                             const oinputs = op.getElementsByTagName('input');
@@ -195,7 +190,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           }
                         }} />
                       </Fragment>
-                      : <Acon icon='plus' onClick={() => local.setVisible(true)} />}
+                      : <Acon icon='Plus' onClick={() => local.setVisible(true)} />}
                   </AlignAround>
                 </EditItem>
               </ScrollWrap>
@@ -205,15 +200,18 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '数据', key: 'data', children: (
               <ScrollWrap>
                 <EditItem>
-                  条件 <Acon icon='circle-plus' onClick={() => {
-                    local.setShowQueryModal(true)
-                  }} />
+                  <Space.Compact block style={{ alignItems: 'center' }}>
+                    <div>条件</div>
+                    <Divider orientation="vertical" />
+                    <Acon icon='CirclePlus' onClick={() => {
+                      local.setShowQueryModal(true)
+                    }} />
+                  </Space.Compact>
+
                   {data.queries.map(id => (
-                    <Input key={id} readOnly value={id} suffix={
-                      <Space>
-                        <Acon icon="x" />
-                      </Space>
-                    } />
+                    <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
+                      data.setAttr('queries', data.queries.filter(q => q !== id));
+                    }} />} />
                   ))}
                   {local.showQueryModal && <QueryModal
                     show={local.showQueryModal}
@@ -237,11 +235,11 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     direction={'vertical'}
                     renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
                       <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='move' {...handler2} style={{ marginRight: 5 }} />
+                        <Acon icon='Move' {...handler2} style={{ marginRight: 5 }} />
                         <Input
                           value={resource.title}
-                          prefix={<CopyToClipboard text={resource._id as string}><Acon icon='copy' onClick={() => { }} /></CopyToClipboard>}
-                          suffix={<Acon icon='circle-x' onClick={() => { data?.remResource(resource._id) }}
+                          prefix={<CopyToClipboard text={resource._id as string}><Acon icon='Copy' onClick={() => { }} /></CopyToClipboard>}
+                          suffix={<Acon icon='CircleX' onClick={() => { data?.remResource(resource._id) }}
                           />} />
                       </div>
                     </Fragment>}
@@ -256,7 +254,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     }}
                   />}
                   <AlignAround style={{ marginTop: 10 }}>
-                    <Button icon={<Acon icon="plus" />} onClick={() => {
+                    <Button icon={<Acon icon="Plus" />} onClick={() => {
                       local.setResourceModal(true)
                     }}>添加资源</Button>
                   </AlignAround>

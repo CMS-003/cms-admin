@@ -132,7 +132,7 @@ export default function FileList() {
             placeholder='搜索'
             style={{ width: 250 }}
             enterButton
-            suffix={<Acon icon="x" onClick={() => {
+            suffix={<Acon icon="X" onClick={() => {
               local.q = '';
               // TODO:
             }} />}
@@ -310,7 +310,7 @@ export default function FileList() {
               }} />
               <Column title={
                 <FullWidth>
-                  <Acon icon="house" onClick={() => jump(0)} />
+                  <Acon icon="House" onClick={() => jump(0)} />
                   <Space style={{ margin: '0 5px' }}>/</Space>
                   {
                     local.dirpath
@@ -344,8 +344,8 @@ export default function FileList() {
                       defaultValue={text}
                       disabled={record.isLoading}
                       autoFocus
-                      suffix={record.isLoading ? <Acon icon="loader" /> : <div>
-                        <Acon icon="circle-check" onClick={async (e) => {
+                      suffix={record.isLoading ? <Acon icon="Loader" /> : <div>
+                        <Acon icon="CircleCheck" onClick={async (e) => {
                           // @ts-ignore
                           const o = e.currentTarget.parentNode.parentNode.previousSibling
                           record.isLoading = true
@@ -361,10 +361,10 @@ export default function FileList() {
                           }
                         }} />
                         <Divider orientation="horizontal" />
-                        <Acon icon="circle-x" onClick={() => record.editing = false} />
+                        <Acon icon="CircleX" onClick={() => record.editing = false} />
                       </div>} />
                   } else {
-                    return <HoverTitle>{text} <Acon icon='square-pen' onClick={() => record.editing = true} /></HoverTitle>
+                    return <HoverTitle>{text} <Acon icon='Edit' onClick={() => record.editing = true} /></HoverTitle>
                   }
                 }}</Observer>
               }} />
@@ -375,37 +375,37 @@ export default function FileList() {
                     title={`确定删除所有子文件?`}
                     okText="确定"
                     cancelText="取消"
-                    icon={<Acon icon="triangle-alert" />}
+                    icon={<Acon icon="TriangleAlert" />}
                     getPopupContainer={(triggerNode) =>
                       triggerNode.parentElement || document.body
                     }
                     onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name, isDir: '1' }).then(() => search(local.dirpath))
                     }}>
-                    <Acon icon="x" />
+                    <Acon icon="X" />
                   </Popconfirm>
                   <VisualBox visible={record.dir === false}>
                     <CopyToClipboard text={window.location.origin + local.dirpath + record.name}>
-                      <Acon icon="copy-minus" />
+                      <Acon icon="CopyMinus" />
                     </CopyToClipboard>
                     <Divider orientation='vertical' />
                     <Popconfirm icon={null} title={'fuck qrcode'} okText='打开' cancelText='取消' onConfirm={() => {
                       window.open(filepath, '_blank');
                     }}>
-                      <Acon icon="scan-line" />
+                      <Acon icon="ScanLine" />
                     </Popconfirm>
                     {/* <Divider orientation="vertical" />
                                 <DownloadOutlined title={filepath} onClick={() => {
                                     
                                 }} /> */}
                     <Divider orientation="vertical" />
-                    <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<Acon icon="triangle-alert" />} onConfirm={() => {
+                    <Popconfirm title="确定?" okText="确定" cancelText="取消" icon={<Acon icon="TriangleAlert" />} onConfirm={() => {
                       destroyFile({ param: local.dirpath + record.name }).then(() => search(local.dirpath))
                     }}>
-                      <Acon icon="x" />
+                      <Acon icon="X" />
                     </Popconfirm>
                     <Divider orientation="vertical" />
-                    <Acon icon="circle-alert" onClick={() => {
+                    <Acon icon="CircleAlert" onClick={() => {
                       local.stream_path = local.dirpath + record.name;
                       getFileInfo();
                     }} />
@@ -415,7 +415,7 @@ export default function FileList() {
             </Table>
           </FullWidthAuto>
           {local.stream_path && <FullWidthFix style={{ position: 'relative', display: 'flex', width: 270, boxSizing: 'border-box', paddingLeft: 30, flexDirection: 'column', height: '100%' }}>
-            <Acon icon='x' onClick={() => { local.streams = []; local.stream_path = ''; local.loading_stream = false; }} style={{ position: 'absolute', top: 0, right: 20 }} color='red' />
+            <Acon icon='X' onClick={() => { local.streams = []; local.stream_path = ''; local.loading_stream = false; }} style={{ position: 'absolute', top: 0, right: 20 }} color='red' />
             {local.streams.map((stream: {
               coded_height: string;
               duration: string;
@@ -440,12 +440,12 @@ export default function FileList() {
                   Main：用于标准画质视频流，支持更高的压缩率和较好的兼容性，常用于电视和流媒体。<br />
                   High：提供更高压缩率和质量，通常用于高分辨率视频文件，如蓝光光盘。<br />
                   High10、High422、High444：分别支持 10-bit 色深、4:2:2 色度采样和 4:4:4 色度采样，适合专业视频编辑和存储高质量视频。
-                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
+                </Fragment>}><Acon icon="CircleAlert" /></Tooltip></div>}
                 {stream.level && <div>编码复杂度: {stream.level} <Tooltip title={<Fragment>
                   1 到 3.1：适合低分辨率、低帧率的视频流，比如移动设备或网络低码率视频。<br />
                   4.0 到 4.2：用于高清 1080p 视频。<br />
                   5.0 及以上：适合 4K 视频等高分辨率内容。
-                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
+                </Fragment>}><Acon icon="CircleAlert" /></Tooltip></div>}
                 {stream.display_aspect_ratio && <div>显示比例: {stream.display_aspect_ratio}</div>}
                 {stream.width && <div>宽度: {stream.width}</div>}
                 {stream.height && <div>高度: {stream.height}</div>}
@@ -463,7 +463,7 @@ export default function FileList() {
                   mono：表示单声道音频，仅包含一个声道。<br />
                   5.1：表示环绕声布局，包含六个声道（左前、右前、中间、低音、左后、右后）。<br />
                   7.1：表示更复杂的环绕声布局，包含八个声道。
-                </Fragment>}><Acon icon="circle-alert" /></Tooltip></div>}
+                </Fragment>}><Acon icon="CircleAlert" /></Tooltip></div>}
               </div>)}
           </FullWidthFix>}
         </FullWidth>

@@ -138,10 +138,10 @@ const ConfigPage: React.FC = () => {
         <Table.Column title="配置名称" dataIndex="title" />
         <Table.Column title="操作" key="id" render={(_, record: IConfig) => (
           <Space size="middle">
-            <Acon icon='square-pen' onClick={() => {
+            <Acon icon='Edit' onClick={() => {
               local.openEditor(cloneDeep(record))
             }} />
-            <Acon icon='circle-x' onClick={async () => {
+            <Acon icon='CircleX' onClick={async () => {
               await apis.deleteConfig({ body: record })
               await refresh()
             }} />
