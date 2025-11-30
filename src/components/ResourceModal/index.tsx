@@ -37,7 +37,7 @@ export default function ResourceModal({ show, onAdd, onClose }: { show: boolean,
       <Fragment>
         <Modal
           open={show}
-          destroyOnClose={true}
+          destroyOnHidden={true}
           closable={false}
           footer={(
             <Space style={{ width: '100%', justifyContent: 'right', paddingTop: 10 }}>

@@ -55,14 +55,12 @@ export default function QueryModal({ show, q = '', queries, setQueries, close }:
     <Modal
       title={'query列表'}
       open={show}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onCancel={() => {
         close()
       }}
-      bodyStyle={{
-        padding: 10
-      }}
-
+      style={{ transform: 'translateY(-90px)' }}
+      styles={{ body: { padding: 10, } }}
       footer={null}
     >
       <Space style={{ marginBottom: 8 }}>

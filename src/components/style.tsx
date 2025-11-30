@@ -14,7 +14,15 @@ export const CenterXY = styled.div`
 export const Center = styled.div`
   text-align: center;
 `
-
+export const AlignLeft = styled.div`
+  display: flex;
+  justify-content: space-between;
+`
+export const AlignRight = styled.div`
+  display: flex;
+  justify-content: end;
+  align-items: center;
+`
 export const AlignAside = styled.div`
   display: flex;
   justify-content: space-between;

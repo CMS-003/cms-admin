@@ -285,41 +285,44 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       <Select.Option value='video'>视频</Select.Option>
                     </Select>
                   }
-                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Input prefix={<Select value={data.widget.method} onChange={v => {
-                    data.setWidget('method', v);
-                  }}>
-                    <Select.Option value="AUTO">AUTO</Select.Option>
-                    <Select.Option value="GET">GET</Select.Option>
-                    <Select.Option value="PUT">PUT</Select.Option>
-                    <Select.Option value="POST">POST</Select.Option>
-                    <Select.Option value="DELETE">DELETE</Select.Option>
-                    <Select.Option value="PATCH">PATCH</Select.Option>
-                  </Select>}
-                    value={data.url}
-                    readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action)}
-                    onChange={e => {
-                      data.setAttr('url', e.target.value);
-                    }} />}
+                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Space.Compact block>
+                    <Select value={data.widget.method} onChange={v => {
+                      data.setWidget('method', v);
+                    }}>
+                      <Select.Option value="AUTO">AUTO</Select.Option>
+                      <Select.Option value="GET">GET</Select.Option>
+                      <Select.Option value="PUT">PUT</Select.Option>
+                      <Select.Option value="POST">POST</Select.Option>
+                      <Select.Option value="DELETE">DELETE</Select.Option>
+                      <Select.Option value="PATCH">PATCH</Select.Option>
+                    </Select>
+                    <Input
+                      value={data.url}
+                      readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action)}
+                      onChange={e => {
+                        data.setAttr('url', e.target.value);
+                      }} />
+                  </Space.Compact>}
                 </EditItem>
                 <EditItem>
-                  <span className="ant-input-group-wrapper">
-                    <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">事件类型</span>
-                      <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
-                        data.setWidget('action', v);
-                      }} >
-                        <Select.Option value="">无</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
-                      </Select>
-                    </span>
-                  </span>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>
+                      事件类型
+                    </Space.Addon>
+                    <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
+                      data.setWidget('action', v);
+                    }} >
+                      <Select.Option value="">无</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
+                    </Select>
+                  </Space.Compact>
                 </EditItem>
               </ScrollWrap>
             )

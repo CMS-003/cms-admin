@@ -3,7 +3,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message, Popconfirm, Popover, Upload, Button } from 'antd'
+import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
 import { usePageContext } from '../context'
 import events from '@/utils/event';
 import { pick } from 'lodash';
@@ -54,7 +54,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       const result = await apis.fetch(self.widget.method, self.getApi(source._id), _.isEmpty(self.widget.refer) ? source : _.pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
-        message.info('请求成功')
+        notification.info({ title: '请求成功', placement: 'topRight' })
       } else {
         message.warning(result.message);
       }

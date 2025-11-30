@@ -59,18 +59,6 @@ import {
 } from 'lucide-react';
 import styled from 'styled-components';
 
-const Wrap = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  white-space: nowrap;
-  &:hover { 
-    opacity: 0.7;
-    color: var(--ant-primary-color-hover);
-  }
-`;
-
 const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> } = {
   Upload,
   Download,
@@ -129,6 +117,18 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   Eye,
 }
 
+const Wrap = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  white-space: nowrap;
+  &:hover { 
+    opacity: 0.7;
+    color: var(--ant-primary-color-hover);
+  }
+`;
+
 export default function Acon(prop: {
   icon: any,
   size?: number,
@@ -144,7 +144,7 @@ export default function Acon(prop: {
   const { icon, size, color, rotate, title, hidden, style, ...props } = prop;
   const Icon = Map[icon] || CircleQuestionMark;
   if (!prop.hidden) {
-    return <Wrap style={{ ...prop.style, color: prop.color, }} onClick={prop.onClick} {...props}>
+    return <Wrap style={{ ...prop.style, color: prop.color, }} {...props}>
       <Icon name={icon} style={{ transform: `rotate(${prop.rotate || 0})` }} size={prop.size || 18} /> {prop.title}
     </Wrap>
   }

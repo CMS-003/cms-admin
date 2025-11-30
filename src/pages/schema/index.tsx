@@ -87,7 +87,7 @@ export default function Page() {
     </Affix>
     <Modal
       title='新建表'
-      destroyOnClose
+      destroyOnHidden
       open={local.showCreate}
       confirmLoading={local.loading}
       okText='保存'
