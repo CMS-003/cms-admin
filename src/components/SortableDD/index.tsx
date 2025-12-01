@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   DndContext,
-  Modifier,
   closestCenter,
 } from '@dnd-kit/core';
 import {
@@ -18,6 +17,7 @@ interface SortableItemProps {
   id: string;
   item: any;
   handle: boolean,
+  disabled: boolean,
   renderItem: Function;
   style?: React.CSSProperties | undefined;
 }
@@ -40,7 +40,7 @@ function SortableItem(props: SortableItemProps) {
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transformWithoutScale),
     transition,
-    userSelect: 'none',
+    display: 'flex',
     zIndex: isDragging ? 9 : 1,
   };
   const handler = ({ ...attributes, ...listeners, })
@@ -48,9 +48,9 @@ function SortableItem(props: SortableItemProps) {
     <div
       ref={setNodeRef}
       style={{ ...props.style, ...style }}
-      {...(props.handle || props.item.disabled ? {} : handler)}
+      {...(props.handle || props.item.disabled || props.disabled ? {} : handler)}
     >
-      {props.renderItem(props.item, props.handle && !props.item.disabled ? handler : {})}
+      {props.renderItem(props.item, props.handle && !props.item.disabled && !props.disabled ? handler : {})}
     </div>
   );
 }
@@ -61,8 +61,6 @@ export function SortDD({
   mode,
   handle = false,
   renderItem,
-  listStyle = {},
-  itemStyle,
 }:
   {
     direction: 'x' | 'y',
@@ -72,8 +70,6 @@ export function SortDD({
     mode: 'edit' | 'preview',
     onDragEnd?: Function,
     renderItem: Function,
-    listStyle?: any;
-    itemStyle?: any;
     children?: Element;
   }) {
   const renderItems = useMemo(() => {
@@ -81,18 +77,21 @@ export function SortDD({
       return <SortableItem
         key={item.id}
         id={item.id}
-        style={itemStyle}
+        style={item.data.style}
         item={item}
         handle={handle}
+        disabled={mode === 'preview'}
         renderItem={renderItem}
-      >
-      </SortableItem>
+      />
     })
   }, [items])
   return (
     <DndContext
       collisionDetection={closestCenter}
       modifiers={[direction === 'y' ? restrictToVerticalAxis : restrictToHorizontalAxis]}
+      onDragStart={e => {
+        mode === 'preview' && e.activatorEvent.stopPropagation()
+      }}
       onDragEnd={(event: any) => {
         const { active, over } = event;
         if (active.id !== over.id) {
@@ -106,15 +105,7 @@ export function SortDD({
         items={items}
         strategy={direction === 'y' ? verticalListSortingStrategy : horizontalListSortingStrategy}
       >
-        <div style={{
-          display: 'flex',
-          height: '100%',
-          width: '100%',
-          flex: listStyle.flex !== undefined ? listStyle.flex : 'auto',
-          flexDirection: direction === 'y' ? 'column' : 'row',
-        }}>
-          {renderItems}
-        </div>
+        {renderItems}
       </SortableContext>
     </DndContext>
   );

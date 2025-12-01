@@ -80,8 +80,8 @@ export type IComponent = {
   remResource: Function;
   getApi: (id: string, query?: { [key: string]: any }) => string;
   swap: (srcIndex: number, dstIndex: number) => void;
-  swapResource: Function;
-  swapRefer: Function;
+  swapResource: (srcIndex: number, dstIndex: number) => void;
+  swapRefer: (srcIndex: number, dstIndex: number) => void;
   toJSON: Function;
   pushRefer: Function;
   remRefer: Function;

@@ -442,7 +442,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
             console.error('读取失败:', err);
           });
       }} />
-      <div style={{ display: 'flex', width: '100%', padding: 5, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 5px' : '' }}>
+      <div style={{ display: 'flex', width: '100%', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 5px' : '' }}>
         <div className='hidden-scrollbar' style={{
           height: '100%',
           minWidth: 400,
@@ -458,10 +458,10 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 onDragLeave={local.onDragLeave}
                 onDrop={local.onDrop}
                 className={`${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-                style={{ ...toJS(local.template?.style) }}
+                style={{ flexDirection: 'column', ...toJS(local.template?.style) }}
               >
                 <SortDD
-                  mode='edit'
+                  mode={mode as 'edit' | 'preview'}
                   direction='y'
                   items={local.template.children.map(child => ({ id: child._id, data: child }))}
                   sort={(oldIndex, newIndex) => {

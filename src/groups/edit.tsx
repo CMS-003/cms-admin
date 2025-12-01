@@ -173,7 +173,6 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
                       return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
                     })}
-                    listStyle={{}}
                     renderItem={(item: any, handler: any) => {
                       return <Space.Compact style={{ marginBottom: 5 }}>
                         <Space.Addon style={{ flexShrink: 0 }}>

@@ -86,8 +86,8 @@ const ProjectPage: React.FC = () => {
     refresh()
   })
   return (
-    <Observer>{() => (<div style={{ padding: '0 10px' }}>
-      <AlignAside style={{ margin: '10px 0' }}>
+    <Observer>{() => (<div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}>
+      <AlignAside style={{ padding: 10 }}>
         <Space>
           <Button type="primary" onClick={e => {
             refresh()
@@ -106,7 +106,7 @@ const ProjectPage: React.FC = () => {
         fields={fields}
         fetch={editProject}
       />
-      <Table style={{ height: '100%' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
+      <Table style={{ flex: 1, overflow: 'auto' }} pagination={{ position: ['bottomRight'] }} rowKey="_id" dataSource={local.list}>
         <Table.Column title="项目名称" dataIndex="title" render={(title, record: IProject) => <Fragment>{record.cover ? <Image src={record.cover} style={{ width: 40 }} /> : null} {title}</Fragment>} />
         <Table.Column title="标识" dataIndex="name" />
         <Table.Column title="操作" key="_id" render={(_, record: IProject) => (

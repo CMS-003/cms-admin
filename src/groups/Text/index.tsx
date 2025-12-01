@@ -13,7 +13,6 @@ const Text = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 32px;
-  white-space: nowrap;
 `
 
 export default function CText({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {

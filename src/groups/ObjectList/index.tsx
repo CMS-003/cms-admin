@@ -79,7 +79,6 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               })
             }}
             items={(source[self.widget.field] || []).map((v: any) => ({ id: v._id, data: v }))}
-            itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
             renderItem={(item: any, handler: any) => (
               <ObjectItem>
                 <span {...handler}>
@@ -121,7 +120,6 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             mode='edit'
             direction='y'
             sort={self.swap}
-            itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
             items={self.children.map(child => ({ id: child._id, data: child }))}
             renderItem={(item: any) => (
               <Component
