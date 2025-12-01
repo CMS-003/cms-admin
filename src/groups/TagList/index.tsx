@@ -1,7 +1,8 @@
+import { Fragment } from 'react'
 import { Acon } from '@/components'
 import { FullHeight, FullWidth, } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Input, Tag } from 'antd'
+import { Input, Space, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
@@ -41,7 +42,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
       <FullHeight>
         <FullWidth style={{ flexWrap: 'wrap' }}>
           {((source[field] || []) as string[]).map((tag, i) => (
-            <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
+            <Tag style={{ margin: '6px 5px 6px 0' }} variant='outlined' key={tag} closable onClose={() => {
               const rest = source[field].filter((v: string) => v !== tag)
               setDataField(self.widget, rest)
             }}>{tag}</Tag>
@@ -49,23 +50,21 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
         </FullWidth>
         <div style={{ display: 'flex', alignItems: 'center', height: '32px' }}>
           {local.addVisible ? (
-            <Input value={local.tempTag} onChange={e => {
+            <Input value={local.tempTag} style={{ minWidth: 100 }} onChange={e => {
               local.setValue('tempTag', e.target.value)
-            }} addonAfter={(
-              <FullWidth>
-                <Acon icon='check' onClick={() => {
-                  if (local.tempTag && !source[field].includes(local.tempTag)) {
-                    const tags = [...source[field], local.tempTag]
-                    setDataField(self.widget, tags)
-                  }
-                  local.setValue('tempTag', '')
-                  local.setValue('addVisible', false)
-                }} />
-                <Acon icon='close' style={{ marginLeft: 10 }} onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
-              </FullWidth>
-            )} />
+            }} suffix={<Fragment>
+              <Acon icon='CircleCheck' onClick={() => {
+                if (local.tempTag && !source[field].includes(local.tempTag)) {
+                  const tags = [...source[field], local.tempTag]
+                  setDataField(self.widget, tags)
+                }
+                local.setValue('tempTag', '')
+                local.setValue('addVisible', false)
+              }} />
+              <Acon icon='CircleX' onClick={() => { local.setValue('tempTag', ''); local.setValue('addVisible', false) }} />
+            </Fragment>} />
           ) : <span style={{ border: '1px dotted #8b8a8a', borderRadius: 4, lineHeight: 1, padding: '3px 5px' }}>
-            <Acon icon='add' onClick={() => local.setValue('addVisible', true)} />
+            <Acon icon='Plus' onClick={() => local.setValue('addVisible', true)} />
           </span>}
         </div>
       </FullHeight>

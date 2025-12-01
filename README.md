@@ -57,7 +57,7 @@
   - ✅ 布局: layout/style
 - 重写Table
 - ✅ 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
-- 多可视化编辑页
+- ✅ 多可视化编辑页
 
 ## 代码库学习
 
@@ -66,7 +66,7 @@
 - echarts
 - ✅ axios
 - ❌ react-router-cache-route(没必要用route实现标签页)
-- http-proxy-middleware
+- ❌ http-proxy-middleware(开发server有proxy)
 - ✅ 列表编辑中列widget支持添加子组件(主要是按钮)
 - ✅ JsonSchema编辑自定义组件
 
@@ -107,13 +107,13 @@
 
 ## 问题与方案
 
-- 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`
+- ✅ 引入antd的css报错: `Failed to parse source map: 'webpack://antd/./components/config-provider/style/index.less' URL is not supported`
   - `import 'antd/dist/antd.min.css`
-- react-router-dom@v6: BrowserRouter放最顶级,使用useNavigate跳转才有响应
-- alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired
-- react.StrictMode 重复渲染。只在开发中出现
-- 开发时保存文件会触发useEffect和useEffectOnce,造成标签页重复
-- getSnapshot的参数是model创建的，useLocalObservable转object用到的是toJS
+- ✅ react-router-dom@v6: BrowserRouter放最顶级,使用useNavigate跳转才有响应
+- ✅ alias: 怎么没有ts版本的?官方就是不支持要搞个react-rewired
+- ✅ react.StrictMode 重复渲染。只在开发中出现
+- ✅ 开发时保存文件会触发useEffect和useEffectOnce,造成标签页重复
+- ✅ getSnapshot的参数是model创建的，useLocalObservable转object用到的是toJS
 - ✅ 创建视频: 对象列表 url getApi
 - ✅ 修改：修改完验证完整性
 - ✅ 上传/下载接口
@@ -131,3 +131,6 @@
 - ✅ 打开链接新标签页
 - ✅ 复制粘贴功能
 - ✅ 回车搜索
+- ✅ tag背景
+- 修改Popconfirm问题(Acon需要包裹span)
+- rbd改用dnd-kit

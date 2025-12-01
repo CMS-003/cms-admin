@@ -176,7 +176,7 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
           resolve(body as (BaseResultWrapper<T> & BaseResultsWrapper<T>));
         }
       }).catch(error => {
-        message.warn(`网络错误：${error.message}`);
+        message.warning(`网络错误：${error.message}`);
         resolve({ code: -1, message: error.message });
       })
     });

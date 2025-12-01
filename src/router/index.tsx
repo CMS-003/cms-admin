@@ -10,7 +10,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 
 import { Observer, useLocalObservable } from 'mobx-react'
-import { ISimpleType, IMSTArray } from 'mobx-state-tree'
 import store from '@/store'
 
 import HomePage from '@/pages/dashboard'
@@ -249,7 +248,7 @@ const TabPanes: FC = () => {
         className="tag-page"
         tabBarStyle={{ marginBottom: 0 }}
         hideAdd
-        destroyInactiveTabPane={false}
+        destroyOnHidden={false}
         onChange={(path: string): void => {
           store.router.setCurrentPath(path)
         }}
@@ -263,48 +262,46 @@ const TabPanes: FC = () => {
         renderTabBar={(props, DefaultTabBar) => (
           <DefaultTabBar {...props} >
             {node => (<Dropdown
-              overlay={(
-                <Menu
-                  items={[
-                    {
-                      key: 'refresh',
-                      // icon: <Acon icon="ReloadOutlined" />,
-                      label: '刷新',
-                      disabled: false,
-                    },
-                    {
-                      key: 'close',
-                      // icon: <Acon icon="CloseOutlined" />,
-                      label: '关闭',
-                      disabled: node.key === '/manager/dashboard',
-                    },
-                    {
-                      key: 'closeOther',
-                      // icon: <Acon icon="CloseOutlined" />,
-                      label: '关闭其他',
-                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
-                    },
-                    {
-                      key: 'closeAll',
-                      // icon: <Acon icon="CloseOutlined" />,
-                      label: '关闭所有',
-                      disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
-                    },
-                  ]}
-                  onClick={e => {
-                    // e.domEvent.stopPropagation()
-                    if (e.key === 'refresh') {
-                      refreshTab(local.operateKey)
-                    } else if (e.key === 'close') {
-                      remove(local.operateKey)
-                    } else if (e.key === 'closeOther') {
-                      removeAll(local.operateKey, false)
-                    } else if (e.key === 'closeAll') {
-                      removeAll(local.operateKey, true)
-                    }
-                  }}
-                />
-              )}
+              menu={{
+                items: [
+                  {
+                    key: 'refresh',
+                    // icon: <Acon icon="ReloadOutlined" />,
+                    label: '刷新',
+                    disabled: false,
+                  },
+                  {
+                    key: 'close',
+                    // icon: <Acon icon="CloseOutlined" />,
+                    label: '关闭',
+                    disabled: node.key === '/manager/dashboard',
+                  },
+                  {
+                    key: 'closeOther',
+                    // icon: <Acon icon="CloseOutlined" />,
+                    label: '关闭其他',
+                    disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
+                  },
+                  {
+                    key: 'closeAll',
+                    // icon: <Acon icon="CloseOutlined" />,
+                    label: '关闭所有',
+                    disabled: local.panels.length === 1 && store.router.currentPath.startsWith('/manager/dashboard'),
+                  },
+                ],
+                onClick: (e) => {
+                  // e.domEvent.stopPropagation()
+                  if (e.key === 'refresh') {
+                    refreshTab(local.operateKey)
+                  } else if (e.key === 'close') {
+                    remove(local.operateKey)
+                  } else if (e.key === 'closeOther') {
+                    removeAll(local.operateKey, false)
+                  } else if (e.key === 'closeAll') {
+                    removeAll(local.operateKey, true)
+                  }
+                },
+              }}
               placement="bottomLeft"
               trigger={['contextMenu']}
             >
@@ -347,7 +344,7 @@ const TabPanes: FC = () => {
             </div>
           ) : (
             <CenterXY key={Panel.path}>
-              <Alert message="刷新中..." type="info" />
+              <Alert title="刷新中..." type="info" />
             </CenterXY>
           )
         }))}

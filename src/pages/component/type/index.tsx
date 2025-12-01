@@ -12,10 +12,11 @@ import { IComponentType } from '@/types/component.js';
 import Acon from '@/components/Acon';
 
 const ComponentTypePage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
+  const local = useLocalObservable<{ page: number, showEditPage: boolean, temp: IComponent | null, openEditor: Function, list: IComponentType[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,
+    page: 1,
     openEditor(data: IComponent) {
       local.showEditPage = true
       local.temp = data
@@ -101,7 +102,7 @@ const ComponentTypePage: React.FC = () => {
   const addComponentType = useCallback(async (params: { body: any }) => {
     const result = params.body._id ? await apis.updateComponentTypes(params) : await apis.addComponentTypes(params)
     if (result.code === 0) {
-      notification.info({ message: params.body._id ? '修改成功' : '添加成功', placement: 'top' })
+      notification.info({ title: params.body._id ? '修改成功' : '添加成功', placement: 'top' })
       await refresh()
     }
   }, [refresh])
@@ -126,7 +127,9 @@ const ComponentTypePage: React.FC = () => {
     />
     {/* { pageSize: 999, position: ['bottomRight'] } */}
     <div style={{ flex: 1, overflowY: 'auto' }}>
-      <Table pagination={false} rowKey="_id" dataSource={local.list} sticky={true} style={{ overflow: 'auto' }}>
+      <Table pagination={{ current: local.page, }} rowKey="_id" dataSource={local.list} sticky={true} style={{ overflow: 'auto' }} onChange={(e) => {
+        local.page = e.current || 0
+      }}>
         <Table.Column title="序号" dataIndex="order" width={60} />
         <Table.Column title="名称" dataIndex="title" render={(title, record: IComponent) => (
           <span><Image style={{ width: 24, height: 24, margin: '0 5px' }} src={store.app.imageLine + (record.cover ? record.cover : '/images/nocover.jpg')} />{title}</span>
@@ -136,12 +139,12 @@ const ComponentTypePage: React.FC = () => {
         <Table.Column title="accepts" dataIndex="accepts" render={(types) => types.join(',')} />
         <Table.Column title="操作" key="_id" render={(_, record: IComponent) => (
           <Space size="middle" >
-            <Acon icon='FormOutlined' onClick={
+            <Acon icon='Edit' onClick={
               () => {
                 local.openEditor(cloneDeep(record))
               }
             } />
-            <Acon icon='DeleteOutlined' onClick={async () => {
+            <Acon icon='CircleX' onClick={async () => {
               await apis.destroyComponentTypes({ params: { _id: record._id } })
               await refresh()
             }} />

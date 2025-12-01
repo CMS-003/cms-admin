@@ -1,7 +1,7 @@
 import { Observer, observer, useLocalObservable } from "mobx-react"
-import { makeAutoObservable, toJS } from "mobx"
+import { toJS } from "mobx"
 import { Fragment } from 'react';
-import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch } from 'antd'
+import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch, Flex } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { cloneDeep, pick } from 'lodash'
 import { Acon, SortList, Style } from '@/components/index';
@@ -51,14 +51,9 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
     <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: 50 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
         <span>属性({data.type})</span>
-        <Space>
-          <CopyToClipboard text={JSON.stringify(toJS(data))} onCopy={() => { message.success('复制成功') }}>
-            <Acon icon="copy" />
-          </CopyToClipboard>
-          <Acon icon='CloseOutlined' onClick={() => {
-            setData(null, '')
-          }} />
-        </Space>
+        <Acon icon='CircleX' onClick={() => {
+          setData(null, '')
+        }} />
       </AlignAside>
       <Tabs
         style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
@@ -71,46 +66,46 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '基础', key: 'base', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input addonBefore="标题" defaultValue={data.title} onChange={e => {
+                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} defaultValue={data.title} onChange={e => {
                     if (data) {
                       data.setAttr('title', e.target.value);
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="描述" value={data.desc} />
+                  <Input prefix={<span>描述<Divider orientation="vertical" /></span>} value={data.desc} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="项目id" value={data.project_id} onChange={e => {
+                  <Input prefix={<span>项目id<Divider orientation="vertical" /></span>} value={data.project_id} onChange={e => {
                     if (data) {
                       data.setAttr('project_id', e.target.value)
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="上级id" value={data.parent_id} onChange={e => {
+                  <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={data.parent_id} onChange={e => {
                     if (data) {
                       data.setAttr('parent_id', e.target.value)
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="_id" readOnly value={data._id} />
+                  <Input prefix={<span>_id<Divider orientation="vertical" /></span>} readOnly value={data._id} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="状态" type="number" value={data.status} onChange={e => {
+                  <Input prefix={<span>状态<Divider orientation="vertical" /></span>} type="number" value={data.status} onChange={e => {
                     if (data) {
                       data.setAttr('status', parseInt(e.target.value));
                     }
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="name" value={data.name} onChange={e => {
+                  <Input prefix={<span>name<Divider orientation="vertical" /></span>} value={data.name} onChange={e => {
                     data.setAttr('name', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input addonBefore="图标" value={data.icon} onChange={e => {
+                  <Input prefix={<span>图标<Divider orientation="vertical" /></span>} value={data.icon} onChange={e => {
                     data.setAttr('icon', e.target.value);
                   }} />
                 </EditItem>
@@ -134,38 +129,17 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '控件', key: 'widget', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Space direction='vertical'>
-                    <span className="ant-input-group-wrapper">
-                      <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">仅供查询</span>
-                        <div className="ant-input-group-addon" style={{ width: '100%', padding: '2px 5px', borderLeft: '1px solid #d9d9d9' }}>
-                          <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
-                            data.setWidget('query', checked)
-                          }} />
-                        </div>
-                      </span>
-                    </span>
-                    <Input addonBefore="参数字段" value={data.widget.field} onChange={e => {
-                      data.setWidget('field', e.target.value);
-                    }} />
-                    <span className="ant-input-group-wrapper">
-                      <span className="ant-input-wrapper ant-input-group">
-                        <span className="ant-input-group-addon">参数类型</span>
-                        <Select style={{ width: '100%' }} value={data.widget.type} onChange={v => {
-                          if (data) {
-                            data.changeWidgetType(v);
-                          }
-                        }}>
-                          <Select.Option value="string">文本</Select.Option>
-                          <Select.Option value="number">数字</Select.Option>
-                          <Select.Option value="boolean">布尔</Select.Option>
-                          <Select.Option value="json">对象</Select.Option>
-                          <Select.Option value="array">数组</Select.Option>
-                        </Select>
-                      </span>
-                    </span>
-                  </Space>
-                  <Input addonBefore="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
+                  <Space.Compact style={{ width: '100%', }}>
+                    <Space.Addon style={{ padding: '6px 8px' }}>仅查询</Space.Addon>
+                    <Space.Addon style={{ flex: 1 }}>
+                      <Switch checkedChildren='是' unCheckedChildren='否' checked={data.widget.query} onChange={checked => {
+                        data.setWidget('query', checked)
+                      }} />
+                    </Space.Addon>
+                  </Space.Compact>
+                </EditItem>
+                <EditItem>
+                  <Input prefix="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
                     data.setWidget('source', e.target.value);
                   }} />
                   默认值
@@ -183,25 +157,29 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     itemStyle={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}
                     items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))]}
                     renderItem={({ item, index, handler }: { item: { label: string, value: number | string, disabled?: boolean }, index: number, handler: any }) => (
-                      <Input
-                        key={index}
-                        readOnly
-                        disabled={item.disabled ? true : false}
-                        addonBefore={<FullWidth>
-                          <Acon icon='DragOutlined' style={{ marginRight: 5 }}  {...handler} />
-                          {item.label}
-                        </FullWidth>}
-                        value={item.value}
-                        addonAfter={!item.disabled && <Acon icon='close' onClick={() => { data.remRefer(index); }} />}
-                      />
+                      <Space.Compact key={index}>
+                        <Space.Addon>
+                          <FullWidth>
+                            <Acon icon='Move' style={{ marginRight: 5 }}  {...handler} />
+                            {item.label}
+                          </FullWidth>
+                        </Space.Addon>
+                        <Input
+                          readOnly
+                          disabled={item.disabled ? true : false}
+                          value={item.value}
+                        />
+                        {!item.disabled && <Space.Addon><Acon icon='X' onClick={() => { data.remRefer(index); }} /></Space.Addon>}
+                      </Space.Compact>
                     )}
                   />
                   <AlignAround>
                     {local.addWidgetReferVisible
                       ? <Fragment>
-                        <Input addonBefore='名称' />
-                        <Input addonBefore='值' />
-                        <Acon icon='check' onClick={e => {
+                        <Input prefix='名称' />
+                        <Divider orientation="vertical" />
+                        <Input prefix='值' />
+                        <Acon icon='Check' onClick={e => {
                           const op = e.currentTarget.parentElement;
                           if (op && data) {
                             const oinputs = op.getElementsByTagName('input');
@@ -212,7 +190,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           }
                         }} />
                       </Fragment>
-                      : <Acon icon='add' onClick={() => local.setVisible(true)} />}
+                      : <Acon icon='Plus' onClick={() => local.setVisible(true)} />}
                   </AlignAround>
                 </EditItem>
               </ScrollWrap>
@@ -222,16 +200,18 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '数据', key: 'data', children: (
               <ScrollWrap>
                 <EditItem>
-                  条件 <Acon icon='PlusCircleOutlined' onClick={() => {
-                    local.setShowQueryModal(true)
-                  }} />
+                  <Space.Compact block style={{ alignItems: 'center' }}>
+                    <div>条件</div>
+                    <Divider orientation="vertical" />
+                    <Acon icon='CirclePlus' onClick={() => {
+                      local.setShowQueryModal(true)
+                    }} />
+                  </Space.Compact>
+
                   {data.queries.map(id => (
-                    <Input key={id} readOnly value={id} addonAfter={
-                      <Space>
-                        <Acon icon="SafetyOutlined" />
-                        <Acon icon="delete" />
-                      </Space>
-                    } />
+                    <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
+                      data.setAttr('queries', data.queries.filter(q => q !== id));
+                    }} />} />
                   ))}
                   {local.showQueryModal && <QueryModal
                     show={local.showQueryModal}
@@ -255,11 +235,11 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     direction={'vertical'}
                     renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
                       <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='DragOutlined' {...handler2} style={{ marginRight: 5 }} />
+                        <Acon icon='Move' {...handler2} style={{ marginRight: 5 }} />
                         <Input
                           value={resource.title}
-                          addonBefore={<CopyToClipboard text={resource._id as string}><Acon icon='CopyOutlined' onClick={() => { }} /></CopyToClipboard>}
-                          addonAfter={<Acon icon='CloseOutlined' onClick={() => { data?.remResource(resource._id) }}
+                          prefix={<CopyToClipboard text={resource._id as string}><Acon icon='Copy' onClick={() => { }} /></CopyToClipboard>}
+                          suffix={<Acon icon='CircleX' onClick={() => { data?.remResource(resource._id) }}
                           />} />
                       </div>
                     </Fragment>}
@@ -274,7 +254,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     }}
                   />}
                   <AlignAround style={{ marginTop: 10 }}>
-                    <Button icon={<Acon icon="add" />} onClick={() => {
+                    <Button icon={<Acon icon="Plus" />} onClick={() => {
                       local.setResourceModal(true)
                     }}>添加资源</Button>
                   </AlignAround>
@@ -288,12 +268,12 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                 <EditItem>
                   {
                     (data.widget.action === CONST.ACTION_TYPE.GOTO_PAGE || data.widget.action === CONST.ACTION_TYPE.OPEN_URL)
-                    && <Input addonBefore="跳转url" value={data.url} onChange={e => {
+                    && <Input prefix="跳转url" value={data.url} onChange={e => {
                       data.setAttr('url', e.target.value);
                     }} />
                   }
                   {
-                    data.widget.action === CONST.ACTION_TYPE.MODAL && <Input addonBefore='模板id' value={data.widget.method} onChange={e => {
+                    data.widget.action === CONST.ACTION_TYPE.MODAL && <Input prefix='模板id' value={data.widget.method} onChange={e => {
                       data.setWidget('method', e.target.value);
                     }} />
                   }
@@ -305,41 +285,44 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                       <Select.Option value='video'>视频</Select.Option>
                     </Select>
                   }
-                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Input addonBefore={<Select value={data.widget.method} onChange={v => {
-                    data.setWidget('method', v);
-                  }}>
-                    <Select.Option value="AUTO">AUTO</Select.Option>
-                    <Select.Option value="GET">GET</Select.Option>
-                    <Select.Option value="PUT">PUT</Select.Option>
-                    <Select.Option value="POST">POST</Select.Option>
-                    <Select.Option value="DELETE">DELETE</Select.Option>
-                    <Select.Option value="PATCH">PATCH</Select.Option>
-                  </Select>}
-                    value={data.url}
-                    readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action)}
-                    onChange={e => {
-                      data.setAttr('url', e.target.value);
-                    }} />}
+                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action) && <Space.Compact block>
+                    <Select value={data.widget.method} onChange={v => {
+                      data.setWidget('method', v);
+                    }}>
+                      <Select.Option value="AUTO">AUTO</Select.Option>
+                      <Select.Option value="GET">GET</Select.Option>
+                      <Select.Option value="PUT">PUT</Select.Option>
+                      <Select.Option value="POST">POST</Select.Option>
+                      <Select.Option value="DELETE">DELETE</Select.Option>
+                      <Select.Option value="PATCH">PATCH</Select.Option>
+                    </Select>
+                    <Input
+                      value={data.url}
+                      readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(data.widget.action)}
+                      onChange={e => {
+                        data.setAttr('url', e.target.value);
+                      }} />
+                  </Space.Compact>}
                 </EditItem>
                 <EditItem>
-                  <span className="ant-input-group-wrapper">
-                    <span className="ant-input-wrapper ant-input-group">
-                      <span className="ant-input-group-addon">事件类型</span>
-                      <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
-                        data.setWidget('action', v);
-                      }} >
-                        <Select.Option value="">无</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
-                        <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
-                      </Select>
-                    </span>
-                  </span>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>
+                      事件类型
+                    </Space.Addon>
+                    <Select style={{ width: '100%' }} value={data.widget.action} onChange={v => {
+                      data.setWidget('action', v);
+                    }} >
+                      <Select.Option value="">无</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
+                    </Select>
+                  </Space.Compact>
                 </EditItem>
               </ScrollWrap>
             )
@@ -348,7 +331,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
             label: '布局', key: 'layout', children: (
               <ScrollWrap>
                 <EditItem>
-                  布局方向<Divider type='vertical' />
+                  布局方向<Divider orientation='vertical' />
                   <Radio.Group value={data.attrs.layout} options={[
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },

@@ -2,7 +2,6 @@ import { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useEffectOnce } from 'react-use';
 import { toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
-import { message, } from 'antd'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
 import { isArray, omit } from 'lodash'

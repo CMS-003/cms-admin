@@ -3,7 +3,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message, Popconfirm, Popover, Upload, Button } from 'antd'
+import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
 import { usePageContext } from '../context'
 import events from '@/utils/event';
 import { pick } from 'lodash';
@@ -17,7 +17,6 @@ import hbs from 'handlebars'
 import _ from 'lodash';
 import type { RcFile } from 'antd/es/upload';
 import styled from 'styled-components'
-import { UploadOutlined } from '@ant-design/icons'
 
 const Preview = styled.div`
   display: flex;
@@ -55,9 +54,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
       const result = await apis.fetch(self.widget.method, self.getApi(source._id), _.isEmpty(self.widget.refer) ? source : _.pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
-        message.info('请求成功')
+        notification.info({ title: '请求成功', placement: 'topRight' })
       } else {
-        message.warn(result.message);
+        message.warning(result.message);
       }
     } catch (e) {
       console.log(e)
@@ -85,7 +84,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
             message.success('复制成功', 1)
           }}
         >
-          <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} />
+          <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} />
         </CopyToClipboard>
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.FETCH}>
@@ -93,9 +92,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           ? <Popconfirm title='确认是否删除' okText='是' cancelText='否' onConfirm={async () => {
             await request()
           }}>
-            <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} />
+            <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} />
           </Popconfirm>
-          : <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
+          : <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} onClick={async () => {
             await request()
           }} />}
       </VisualBox>
@@ -106,7 +105,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           action={self.url}
           method={self.widget.method as 'post' | 'put'}
           multiple={false}
-          disabled={loading || self.widget.action !== CONST.ACTION_TYPE.FETCH}
+          disabled={loading || self.widget.action !== CONST.ACTION_TYPE.UPLOAD}
           onChange={async (info) => {
             if (!source[self.widget.field]) {
               return;
@@ -132,23 +131,23 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           }}
         >
           <Preview style={{ backgroundImage: `url(${preview})` }}>
-            <Button icon={<UploadOutlined />}></Button>
+            <Acon icon="Upload" style={self.style} />
           </Preview>
         </Upload>
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.OPEN_URL}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
+        <Acon icon={self.icon} style={self.style} title={self.title} onClick={async () => {
           const url = hbs.compile(self.url)(source)
           window.open(url)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
+        <Acon icon={self.icon} style={self.style} title={self.title} onClick={async () => {
           navigate(`${self.url}?id=${source._id}`)
         }} />
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.MODAL}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} style={self.style} title={self.title} onClick={async () => {
+        <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} onClick={async () => {
           local.setValue('id', source._id)
           local.setValue('template_id', self.widget.method)
         }} />
@@ -157,13 +156,14 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
         <Popover trigger='click' content={<div>
           {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video controls src={store.app.videoLine + source[self.widget.field]} style={{ height: 300 }} />}
         </div>}>
-          <Acon icon={self.icon || 'FileSearchOutlined' as any} title={self.title} style={self.style} />
+          <Acon icon={self.icon || 'FileSearch' as any} title={self.title} style={self.style} />
         </Popover>
       </VisualBox>
       <VisualBox visible={self.widget.action === ''}>
-        <Acon icon={self.icon || 'PlusOutlined' as any} title={self.title} style={self.style} />
+        <Acon icon={self.icon || 'CirclePlus' as any} title={self.title} style={self.style} />
       </VisualBox>
       {local.template_id && <ModalPage parent={page} template_id={local.template_id} path={`?id=${local.id}`} close={() => { local.setValue('template_id', ''); }} />}
     </ComponentWrap>
-  )}</Observer>
+  )
+  }</Observer >
 }

@@ -76,47 +76,47 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
   })
   return <Observer>{() => (<Fragment>
     <Form style={{ padding: 20, height: '100%', overflow: 'auto' }}>
-      {fields.map(item => {
+      {fields.map((item, i) => {
         switch (item.component) {
           case 'Input':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input defaultValue={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
                 data[item.field] = e.target.value
               }} />
             </Form.Item>;
           case 'Number':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input type="number" value={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
                 data[item.field] = e.target.value
               }} />
             </Form.Item>;
           case 'Hidden':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input type="hidden" value={data[item.field]} autoFocus={item.autoFocus || false} />
             </Form.Item>;
           case 'Read':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input readOnly disabled value={data[item.field]} autoFocus={item.autoFocus || false} />
             </Form.Item>;
           case 'Area':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input.TextArea value={data[item.field]} onChange={e => {
                 data[item.field] = e.target.value
               }} />
             </Form.Item>;
           case 'Select':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-              <Select key={item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
-                runInAction(()=>{
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+              <Select key={i + item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
+                runInAction(() => {
                   data[item.field] = value
-                })                
+                })
               }}>
                 {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}
                 {/* {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))} */}
               </Select>
             </Form.Item>;
           case 'RemoteSelect':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <DebounceSelect
                 // mode="multiple"
                 showSearch
@@ -141,15 +141,15 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
               />
             </Form.Item>;
           case 'Switch':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Switch checked={data[item.field] === item.value[0].value} onClick={e => {
                 data[item.field] = data[item.field] === item.value[0].value ? item.value[1].value : item.value[0].value
               }} /> {data[item.field] === item.value[0].value ? item.value[0].name : item.value[1].name}
             </Form.Item>
           case 'Image':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Upload
-                style={{ position: 'relative' }}
+                style={{ position: 'relative', overflow: 'hidden' }}
                 listType="picture-card"
                 className="avatar-uploader"
                 action={store.app.baseURL + "/gw/api/v1/upload/image"}
@@ -171,12 +171,12 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 }}>
                 <img width="100%" src={((data[item.field] || '').startsWith('data') ? data[item.field] : store.app.imageLine + (data[item.field] || '/images/poster/nocover.jpg'))} alt="" />
                 <Button style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)' }}>
-                  <Acon icon='UploadOutlined' style={{}} /> 上传
+                  <Acon icon='Upload' style={{}} /> 上传
                 </Button>
               </Upload>
             </Form.Item>
           case 'Editor':
-            return <Form.Item key={item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
+            return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Select defaultValue={item.type} onChange={type => {
                 item.type = type;
               }}>
@@ -184,7 +184,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 <Select.Option value="json">json</Select.Option>
               </Select>
               <CodeMirror
-                key={item.field}
+                key={i + item.field}
                 autoFocus
                 value={local.jsonMap[item.field]}
                 className="code-mirror"

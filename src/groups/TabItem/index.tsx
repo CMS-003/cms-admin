@@ -1,7 +1,6 @@
 import { IAuto, IBaseComponent } from "@/types"
 import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
-import store from '@/store'
 import { Component } from "../auto"
 import { ComponentWrap } from '../style';
 

@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
 import store from '@/store'
 import { ComponentWrap } from '../style';
-import styled from 'styled-components'
 
 // @ts-ignore
 hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {

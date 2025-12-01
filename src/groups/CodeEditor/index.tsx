@@ -1,5 +1,4 @@
 import CodeMirror from '@uiw/react-codemirror';
-import { json } from '@codemirror/lang-json';
 import { javascript } from '@codemirror/lang-javascript';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { IAuto, IBaseComponent } from '@/types/component'

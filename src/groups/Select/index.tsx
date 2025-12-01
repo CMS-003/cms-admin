@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Select, message } from 'antd'
+import { Select, Space, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import CONST from '@/constant';
 import apis from '@/api';
@@ -28,37 +28,35 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
       }}
     >
       {children}
-      <span className="ant-input-group-wrapper" style={self.style}>
-        <span className="ant-input-wrapper ant-input-group" style={{ width: 'auto' }}>
-          {self.title && <span className="ant-input-group-addon">{self.title}</span>}
-          <Select
-            value={data[self.widget.field]}
-            onChange={async (v) => {
-              if (mode === 'edit') return;
-              const old = data[self.widget.value as string]
-              setDataField(self.widget, v)
-              if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
-                try {
-                  const result = await apis.fetch(self.widget.method, self.getApi(data._id), { [self.widget.field]: v })
-                  if (result.code === 0) {
-                    message.info('修改成功', 1)
-                  } else {
-                    setDataField(self.widget, old)
-                    message.warn(result.message);
-                  }
-                } catch (e) {
+      <Space.Compact>
+        {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
+        <Select
+          value={data[self.widget.field]}
+          onChange={async (v) => {
+            if (mode === 'edit') return;
+            const old = data[self.widget.value as string]
+            setDataField(self.widget, v)
+            if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
+              try {
+                const result = await apis.fetch(self.widget.method, self.getApi(data._id), { [self.widget.field]: v })
+                if (result.code === 0) {
+                  message.info('修改成功', 1)
+                } else {
                   setDataField(self.widget, old)
-                  message.warn('修改失败')
+                  message.warning(result.message);
                 }
+              } catch (e) {
+                setDataField(self.widget, old)
+                message.warning('修改失败')
               }
-            }}
-          >
-            {[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])].map((t: any, i: number) => (
-              <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
-            ))}
-          </Select>
-        </span>
-      </span>
+            }
+          }}
+        >
+          {[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])].map((t: any, i: number) => (
+            <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
+          ))}
+        </Select>
+      </Space.Compact>
     </ComponentWrap>
   )}</Observer>
 }

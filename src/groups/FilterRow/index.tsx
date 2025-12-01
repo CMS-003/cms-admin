@@ -45,6 +45,7 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
       >
         {children}
         <NatureSortable
+          style={{ alignItems: 'center' }}
           items={self.children}
           direction='horizontal'
           disabled={mode === 'preview' || store.component.can_drag_id !== self._id}

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react-lite'
-import { Button, Input, Avatar, message, Tabs, Select, Space } from 'antd'
+import { Button, Input, Avatar, message, Tabs, Select, Space, Divider } from 'antd'
 import { useNavigate } from "react-router-dom";
 import logo from '@/asserts/images/logo.svg'
 import apis from '../../api'
@@ -62,9 +62,9 @@ export default function BindPage() {
           local.type = type;
         }} >
           <Tabs.TabPane tab="账号密码" key="account">
-            <Space direction='vertical'>
-              <Input name="username" type={'text'} onChange={e => local.username = e.target.value} placeholder="用户名" addonBefore="用户名" />
-              <Input name="password" type="password" onChange={e => local.password = e.target.value} addonBefore="密码" placeholder="密码" onKeyDown={e => {
+            <Space orientation='vertical'>
+              <Input prefix={<span>用户名<Divider orientation='vertical' /></span>} name="username" type={'text'} onChange={e => local.username = e.target.value} placeholder="用户名" />
+              <Input prefix={<span>密码<Divider orientation='vertical' /></span>} name="password" type="password" onChange={e => local.password = e.target.value} placeholder="密码" onKeyDown={e => {
                 if (e.keyCode === 13) {
                   const btn = document.getElementById('bind')
                   if (btn) {
@@ -75,22 +75,22 @@ export default function BindPage() {
             </Space>
           </Tabs.TabPane>
           <Tabs.TabPane tab="邮箱" key="email">
-            <Space direction='vertical'>
-              <Input name="email" addonBefore="邮箱" onChange={e => local.email = e.target.value} placeholder="邮箱" type={'email'} />
-              <Input name="验证码" type={'text'} addonAfter={<span onClick={sendCode}>{local.email_count > 0 ? local.email_count + 's后重试' : '获取验证码'}</span>} />
+            <Space orientation='vertical'>
+              <Input prefix={<span>邮箱<Divider orientation='vertical' /></span>} name="email" onChange={e => local.email = e.target.value} placeholder="邮箱" type={'email'} />
+              <Input name="验证码" type={'text'} suffix={<span onClick={sendCode}>{local.email_count > 0 ? local.email_count + 's后重试' : '获取验证码'}</span>} />
             </Space>
           </Tabs.TabPane>
           <Tabs.TabPane tab="手机号" key="phone">
-            <Space direction='vertical'>
+            <Space orientation='vertical'>
               <Input
+                prefix={<Select defaultValue={'+86'}>
+                  <Select.Option value="+86">中国</Select.Option>
+                </Select>}
                 name="手机号"
                 type={'text'}
                 onChange={e => local.phone = e.target.value}
-                addonBefore={<Select defaultValue={'+86'}>
-                  <Select.Option value="+86">中国</Select.Option>
-                </Select>}
               />
-              <Input name="验证码" type={'text'} addonAfter={<span onClick={sendCode}>{local.phone_count > 0 ? local.phone_count + 's后重试' : '获取验证码'}</span>} />
+              <Input name="验证码" type={'text'} suffix={<span onClick={sendCode}>{local.phone_count > 0 ? local.phone_count + 's后重试' : '获取验证码'}</span>} />
             </Space>
           </Tabs.TabPane>
         </Tabs>

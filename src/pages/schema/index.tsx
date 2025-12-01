@@ -58,7 +58,7 @@ export default function Page() {
       <AlignAside style={{ justifyContent: 'flex-start' }} key={i}>
         {tables.map(table => (
           <TableCard key={table.name}>
-            <TableTitle>{table.name}<Acon icon='SettingOutlined' onClick={() => {
+            <TableTitle>{table.name}<Acon icon='Settings' onClick={() => {
               navigate(process.env.PUBLIC_URL + `/schema/info?name=${table.name}`);
             }} /></TableTitle>
             <span>{table.title}</span>
@@ -67,7 +67,7 @@ export default function Page() {
       </AlignAside>
     ))}
     <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
-      <Acon icon='PlusCircleOutlined' size={30} color='#0896db' onClick={() => {
+      <Acon icon='CirclePlus' size={30} color='#0896db' onClick={() => {
         runInAction(() => {
           local.schema = {
             table: '',
@@ -87,7 +87,7 @@ export default function Page() {
     </Affix>
     <Modal
       title='新建表'
-      destroyOnClose
+      destroyOnHidden
       open={local.showCreate}
       confirmLoading={local.loading}
       okText='保存'

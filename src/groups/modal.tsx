@@ -8,7 +8,7 @@ export default function ModalPage({ template_id, parent, path, close }: { templa
     <Modal
       title={path ? '修改' : '创建'}
       open={true}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onCancel={() => {
         close()
       }}

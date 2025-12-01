@@ -156,7 +156,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           }
         }
       } else {
-        message.warn('请求失败', 1)
+        message.warning('请求失败', 1)
       }
     } catch (e) {
 

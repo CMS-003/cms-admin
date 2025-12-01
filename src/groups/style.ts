@@ -42,7 +42,7 @@ export const ComponentWrap = styled.div`
   /* 边线 */
   &.edit > .line {
     position: absolute;
-    z-index: 4;
+    z-index: 22;
     visibility: hidden;
     border: 0 dashed transparent;
   }
@@ -53,12 +53,12 @@ export const ComponentWrap = styled.div`
   &.edit.hover > .line {
     border-color: #df3540;
     visibility: visible;
-    z-index: 5;
+    z-index: 22;
   }
   /* 边角 */
   &.edit > .coner {
     position: absolute;
-    z-index: 2;
+    z-index: 22;
     width: 2px;
     height: 2px;
     border-style: solid;
@@ -96,7 +96,7 @@ export const ComponentWrap = styled.div`
 
 export const Handler = styled.div`
   position: absolute;
-  z-index: 9;
+  z-index: 22;
   left: 0px;
   bottom: 0px;
   top: 0px;
@@ -117,7 +117,7 @@ export const Handler = styled.div`
     content: '';
     margin-right: -1px;
     border-right: 1px dashed transparent;
-    z-index: 4;
+    z-index: 22;
   }
 
   /* 进入编辑: 变蓝 */
@@ -143,6 +143,7 @@ export const LineL = styled.span`
   height: 100%;
   width: 0;
   border-left-width: 1px !important;
+  z-index: 22;
 `;
 export const LineT = styled.span`
   left: 0;
@@ -150,6 +151,7 @@ export const LineT = styled.span`
   width: 100%;
   height: 0;
   border-top-width: 1px !important;
+  z-index: 22;
 `;
 export const LineR = styled.span`
   right: 0;
@@ -157,6 +159,7 @@ export const LineR = styled.span`
   height: 100%;
   width: 0;
   border-right-width: 1px !important;
+  z-index: 22;
 `;
 export const LineB = styled.span`
   left: 0;
@@ -164,6 +167,7 @@ export const LineB = styled.span`
   width: 100%;
   height: 0;
   border-bottom-width: 1px !important;
+  z-index: 22;
 `;
 export const ConerLT = styled.span`
   left: 1px;

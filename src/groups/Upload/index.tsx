@@ -1,5 +1,4 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { UploadOutlined } from '@ant-design/icons'
 import { Button, Input, Upload, message } from 'antd'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
@@ -79,7 +78,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
           }}
-          addonAfter={focused ? <Acon icon="check" onClick={() => {
+          suffix={focused ? <Acon icon="CircleCheck" onClick={() => {
             setFocused(false)
           }} /> : null} />
         <Upload
@@ -114,7 +113,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
           }}
         >
           <Preview style={{ backgroundImage: preview || url ? `url(${preview || url})` : '' }}>
-            <Button icon={<UploadOutlined />}></Button>
+            <Acon icon="Upload" />
           </Preview>
         </Upload>
       </FullHeight>

@@ -1,6 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
-import Acon, { Icon } from '@/components/Acon'
+import Acon from '@/components/Acon'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import NatureSortable from '@/components/NatureSortable'
@@ -32,7 +32,7 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
       <div style={{ flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column' }}>
         <MenuItem className={mode}>
           <FullWidth>
-            <Acon icon={self.icon as Icon} style={{ marginRight: 5 }} />{self.title}
+            <Acon icon={self.icon} style={{ marginRight: 5 }} />{self.title}
           </FullWidth>
         </MenuItem>
         <NatureSortable

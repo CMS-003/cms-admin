@@ -12,9 +12,8 @@ import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 import { ComponentWrap } from '../style';
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons'
 import { AlignAside } from '@/components/style'
-import { VisualBox } from '@/components'
+import { Acon, VisualBox } from '@/components'
 import { getWidgetValue } from '../utils'
 import _ from 'lodash'
 
@@ -98,6 +97,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
       {children}
       <Table
         tableLayout='auto'
+        style={{ width: '100%' }}
         loading={local.loading}
         pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
@@ -112,14 +112,14 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           title: <Observer>{() => (<div key={i}>
             <VisualBox visible={mode === 'edit'}>
               <AlignAside>
-                <ArrowLeftOutlined onClick={() => {
+                <Acon icon="MoveLeft" onClick={() => {
                   if (i !== 0) {
                     runInAction(() => {
                       self.swap(i, i - 1)
                     })
                   }
                 }} />
-                <ArrowRightOutlined onClick={() => {
+                <Acon icon="MoveRight" onClick={() => {
                   if (i !== self.children.length - 1) {
                     runInAction(() => {
                       self.swap(i, i + 1)

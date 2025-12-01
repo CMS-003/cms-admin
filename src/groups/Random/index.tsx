@@ -37,7 +37,7 @@ export default function CRandom({ self, mode, drag, dnd, children }: IAuto & IBa
           <Content>
 
           </Content>
-          <div style={{ textAlign: 'center', padding: '5px 0' }}><Acon icon='SyncOutlined' /></div>
+          <div style={{ textAlign: 'center', padding: '5px 0' }}><Acon icon='RefreshCw' /></div>
         </Wrap>
       </FullHeight>
     </ComponentWrap>
