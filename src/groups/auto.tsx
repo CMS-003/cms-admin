@@ -442,7 +442,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
             console.error('读取失败:', err);
           });
       }} />
-      <div style={{ display: 'flex', width: '100%', overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 5px' : '' }}>
+      <div style={{ display: 'flex', width: '100%', height: 'calc(100% - 20px)', margin: 10, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', boxShadow: mode === 'edit' ? 'outset #1890ff 0 0 10px' : '' }}>
         <div className='hidden-scrollbar' style={{
           height: '100%',
           minWidth: 400,
