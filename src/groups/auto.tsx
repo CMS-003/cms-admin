@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useEffectOnce } from 'react-use';
-import { toJS } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
@@ -34,6 +34,8 @@ import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 import _ from 'lodash';
+import { SortDD } from '@/components/SortableDD';
+import { detach } from 'mobx-state-tree';
 
 export function Component({ self, children, mode, dnd, query, source, setDataField, page, parent, ...props }: IAuto) {
   // 拖拽事件
@@ -458,19 +460,24 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 className={`${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
                 style={{ ...toJS(local.template?.style) }}
               >
-                <NatureSortable
-                  key={local.template.children.length}
-                  items={(local.template as ITemplate).children}
-                  direction='vertical'
-                  disabled={mode === 'preview' || store.component.can_drag_id !== ''}
-                  wrap={TemplateBox}
-                  droppableId={local.template._id}
-                  sort={() => { }}
-                  renderItem={({ item, dnd }) => (
+                <SortDD
+                  mode='edit'
+                  direction='y'
+                  items={local.template.children.map(child => ({ id: child._id, data: child }))}
+                  sort={(oldIndex, newIndex) => {
+                    runInAction(() => {
+                      if (!local.template) return;
+                      const [old] = local.template.children.splice(oldIndex, 1)
+                      local.template.children.splice(newIndex, 0, old)
+                      local.template.children.forEach((child, i) => {
+                        child.setAttr('order', i)
+                      })
+                    })
+                  }}
+                  renderItem={(item: any) => (
                     <Component
-                      self={item}
+                      self={item.data}
                       mode={mode}
-                      dnd={dnd}
                       parent={parent}
                       source={local.source}
                       query={page.query}

@@ -132,5 +132,7 @@
 - ✅ 复制粘贴功能
 - ✅ 回车搜索
 - ✅ tag背景
-- 修改Popconfirm问题(Acon需要包裹span)
+- ✅ 修改Popconfirm问题(Acon需要包裹span)
 - rbd改用dnd-kit
+  - ✅ SortList
+  - NatureSortable

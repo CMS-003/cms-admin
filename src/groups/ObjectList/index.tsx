@@ -1,11 +1,10 @@
 
 import { Center, FullHeight } from '@/components/style'
-import { IAuto, IBaseComponent, IWidget } from '@/types/component'
-import NatureSortable from '@/components/NatureSortable'
+import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
 import { Component } from '../auto'
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Acon, SortList, Style } from '@/components'
+import { Acon, Style } from '@/components'
 import icon_drag from '@/asserts/images/drag.svg'
 import { Space, message } from 'antd'
 import { ComponentWrap } from '../style';
@@ -14,6 +13,7 @@ import styled from 'styled-components';
 import CONST from '@/constant';
 import { getWidgetValue } from '../utils';
 import _ from 'lodash';
+import { SortDD } from '@/components/SortableDD';
 
 const ObjectItem = styled.div`
   display: flex;
@@ -66,20 +66,22 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
       {children}
       <FullHeight style={{ flex: 1 }}>
         {mode === 'preview'
-          ? <SortList
+          ? <SortDD
+            mode='preview'
+            direction='y'
+            handle
             sort={(srcIndex: number, dstIndex: number) => {
-              const items = source[self.widget.field] || [];
-              const [item] = items.splice(srcIndex, 1);
-              items.splice(dstIndex, 0, item);
-              setDataField(self.widget, items);
+              runInAction(() => {
+                const items = source[self.widget.field] || [];
+                const [item] = items.splice(srcIndex, 1);
+                items.splice(dstIndex, 0, item);
+                setDataField(self.widget, items);
+              })
             }}
-            droppableId={self._id}
-            items={source[self.widget.field] || []}
+            items={(source[self.widget.field] || []).map((v: any) => ({ id: v._id, data: v }))}
             itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
-            mode='edit'
-            direction='vertical'
-            renderItem={({ item, handler }: { item: any, handler: any }) => (
-              <ObjectItem key={item._id}>
+            renderItem={(item: any, handler: any) => (
+              <ObjectItem>
                 <span {...handler}>
                   <Style.IconSVG src={icon_drag} />
                 </span>
@@ -94,7 +96,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                       key={child._id}
                       self={child}
                       mode={mode}
-                      source={item}
+                      source={item.data}
                       initField={false}
                       setDataField={(widget: IWidget, value: any) => {
                         if (!widget.field) {
@@ -105,7 +107,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                           return;
                         }
                         runInAction(() => {
-                          item[widget.field] = value
+                          item.data[widget.field] = value
                         })
                       }}
                       {...props}
@@ -115,18 +117,16 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               </ObjectItem>
             )}
           />
-          : <NatureSortable
-            items={self.children}
-            direction='vertical'
-            disabled={mode === 'preview'}
-            droppableId={self._id}
-            style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
+          : <SortDD
+            mode='edit'
+            direction='y'
             sort={self.swap}
-            renderItem={({ item, dnd }) => (
+            itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
+            items={self.children.map(child => ({ id: child._id, data: child }))}
+            renderItem={(item: any) => (
               <Component
-                self={item}
-                mode={mode}
-                dnd={dnd}
+                self={item.data as IComponent}
+                mode='edit'
                 source={local.source}
                 setDataField={local.setTempDataField}
                 {...props}

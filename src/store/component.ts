@@ -1,4 +1,4 @@
-import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot } from 'mobx-state-tree'
+import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot, detach } from 'mobx-state-tree'
 import { IComponent, IComponentType, IResource } from '@/types'
 import { isEqual, omit, cloneDeep } from 'lodash'
 import { v4 } from 'uuid'
@@ -59,6 +59,9 @@ export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any
 
 type ComponentItemKeys = 'title' | 'name' | 'project_id'
 
+// 使用 const 断言创建只读数组
+const FIELD_TYPE_VALUES = ['string', 'number', 'boolean', 'json', 'array'] as const;
+
 export const ComponentItem = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
@@ -84,7 +87,7 @@ export const ComponentItem = types.model('Component', {
   widget: types.model({
     field: types.optional(types.string, ''),
     value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen()), ''),
-    type: types.enumeration(['string', 'number', 'boolean', 'json', 'array']),
+    type: types.enumeration<typeof FIELD_TYPE_VALUES>(['string', 'number', 'boolean', 'json', 'array']),
     query: types.optional(types.boolean, false),
     source: types.optional(types.string, ''),
     refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
@@ -259,9 +262,8 @@ export const ComponentItem = types.model('Component', {
     if (oldIndex === newIndex) {
       return;
     }
-    const [removed] = self.children.splice(oldIndex, 1);
-    const old = getSnapshot(removed);
-    self.children.splice(newIndex, 0, ComponentItem.create(old as IComponent));
+    const removed = detach(self.children[oldIndex])
+    self.children.splice(newIndex, 0, ComponentItem.create(removed as IComponent));
     self.children.forEach((child, i) => {
       child.setAttr('order', i);
     })

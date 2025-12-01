@@ -1,10 +1,9 @@
-import { Observer, observer, useLocalObservable } from "mobx-react"
-import { toJS } from "mobx"
-import { Fragment } from 'react';
+import { observer, useLocalObservable } from "mobx-react"
+import { Fragment, useMemo } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch, Flex } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { cloneDeep, pick } from 'lodash'
-import { Acon, SortList, Style } from '@/components/index';
+import { isPlainObject, pick } from 'lodash'
+import { Acon, Style } from '@/components/index';
 import { IComponent, IResource, } from '@/types'
 import styled from 'styled-components';
 import {
@@ -16,6 +15,8 @@ import { FullWidth } from "@/components/style";
 import ResourceModal from "@/components/ResourceModal";
 import JSON5 from 'json5';
 import store from "@/store";
+import { SortDD } from "@/components/SortableDD";
+import { getSnapshot, types } from "mobx-state-tree";
 
 const { AlignAround, AlignAside } = Style;
 
@@ -27,7 +28,22 @@ const ScrollWrap = styled.div`
     display: none;
   }
 `
+const Temp = types.model({
+  list: types.array(types.model({ id: types.string, label: types.string, value: types.string }))
+}).actions(self => ({
+  sort(oldIndex: number, newIndex: number) {
 
+  }
+}));
+
+const temp = Temp.create({
+  list: [
+    { id: '-', label: '-', value: '', },
+    { id: '1', label: '1', value: '1', },
+    { id: '2', label: '2', value: '2', },
+    { id: '3', label: '3', value: '3', },
+  ]
+})
 const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent, setData: Function, tabkey: string, setTabkey: Function }) => {
   const local = useLocalObservable(() => ({
     addWidgetReferVisible: false,
@@ -47,6 +63,9 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
       local.showResourceModal = show;
     }
   }))
+  const items = useMemo(() => {
+    return [...data.widget.refer, ...(store.global.getValue(data.widget.source) || [])]
+  }, [data.widget.refer, data.widget.source, store.global])
   return (
     <div className='hidden-scroll' key={data._id} style={{ display: 'flex', flexDirection: 'column', width: 300, height: '100%', backgroundColor: 'wheat', marginLeft: 50 }}>
       <AlignAside style={{ color: '#5d564a', backgroundColor: '#bdbdbd', padding: '3px 5px' }}>
@@ -147,31 +166,30 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     data.setWidget('value', e.target.value);
                   }} />
                   参考值
-                  <SortList
-                    key={data.widget.refer.length}
-                    sort={data.swapRefer}
-                    droppableId={data._id + '2'}
-                    mode={'edit'}
-                    direction={'vertical'}
+                  <SortDD
+                    mode="edit"
+                    direction='y'
+                    handle={true}
+                    items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
+                      return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
+                    })}
                     listStyle={{}}
-                    itemStyle={{ display: 'flex', alignItems: 'center', marginBottom: 5 }}
-                    items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))]}
-                    renderItem={({ item, index, handler }: { item: { label: string, value: number | string, disabled?: boolean }, index: number, handler: any }) => (
-                      <Space.Compact key={index}>
-                        <Space.Addon>
+                    renderItem={(item: any, handler: any) => {
+                      return <Space.Compact style={{ marginBottom: 5 }}>
+                        <Space.Addon style={{ flexShrink: 0 }}>
                           <FullWidth>
                             <Acon icon='Move' style={{ marginRight: 5 }}  {...handler} />
-                            {item.label}
+                            {item.data.label}
                           </FullWidth>
                         </Space.Addon>
                         <Input
                           readOnly
-                          disabled={item.disabled ? true : false}
-                          value={item.value}
+                          value={item.data.value}
+                          disabled={item.disabled}
                         />
-                        {!item.disabled && <Space.Addon><Acon icon='X' onClick={() => { data.remRefer(index); }} /></Space.Addon>}
                       </Space.Compact>
-                    )}
+                    }}
+                    sort={data.swapRefer}
                   />
                   <AlignAround>
                     {local.addWidgetReferVisible
@@ -223,26 +241,21 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                 </EditItem>
                 <EditItem>
                   静态数据
-                  <SortList
-                    key={data.resources?.length}
-                    sort={(oldIndex: number, newIndex: number) => {
-                      data && data.swapResource(oldIndex, newIndex);
-                    }}
-                    droppableId={data._id}
-                    items={(data.resources as any)}
-                    itemStyle={{ display: 'flex', alignItems: 'center' }}
-                    mode={'edit'}
-                    direction={'vertical'}
-                    renderItem={({ item: resource, handler: handler2 }: { item: IResource, handler: any }) => <Fragment key={resource._id}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
-                        <Acon icon='Move' {...handler2} style={{ marginRight: 5 }} />
+                  <SortDD
+                    mode="edit"
+                    direction='y'
+                    items={((data.resources || []).map(v => ({ id: v._id, data: v })))}
+                    renderItem={(item: any, handler: any) => {
+                      return <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                        <Acon icon='Move' style={{ marginRight: 5 }} {...handler} />
                         <Input
-                          value={resource.title}
-                          prefix={<CopyToClipboard text={resource._id as string}><Acon icon='Copy' onClick={() => { }} /></CopyToClipboard>}
-                          suffix={<Acon icon='CircleX' onClick={() => { data?.remResource(resource._id) }}
+                          value={item.data.title}
+                          prefix={<CopyToClipboard text={item.data._id as string}><Acon icon='Copy' onClick={() => { }} /></CopyToClipboard>}
+                          suffix={<Acon icon='CircleX' onClick={() => { data.remResource(data._id) }}
                           />} />
                       </div>
-                    </Fragment>}
+                    }}
+                    sort={data.swapResource}
                   />
                   {local.showResourceModal && <ResourceModal
                     show={local.showResourceModal}
