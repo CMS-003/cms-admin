@@ -23,7 +23,7 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CUpload({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+export default function CUpload({ self, mode, drag, source = {}, setDataField, children }: IAuto & IBaseComponent) {
   const inputRef = useRef(null);
   const [url, setURL] = useState('')
   const [preview, setPreview] = useState('')
@@ -45,13 +45,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>

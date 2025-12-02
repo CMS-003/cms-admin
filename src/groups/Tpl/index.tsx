@@ -45,7 +45,7 @@ hbs.registerHelper('formatDate', function (o, format) {
 });
 
 
-export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTpl({ self, mode, source, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value as string, {})
   }))
@@ -59,12 +59,6 @@ export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto 
         }
       }}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
     >
       {children}
       <div style={{ lineHeight: '32px' }}>

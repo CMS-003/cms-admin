@@ -47,12 +47,6 @@ export type IAuto = {
   source: any;
   initField?: boolean;
   setDataField: (widget: IWidget, value: any) => void;
-  dnd?: {
-    isDragging: boolean;
-    ref: DraggableProvided['innerRef'];
-    props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
-    style: DraggableProvided['draggableProps']['style'];
-  };
   [key: string]: any;
 }
 export type IBaseComponent = {

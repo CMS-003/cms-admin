@@ -3,18 +3,14 @@ import { Tag } from 'antd'
 import { Observer } from 'mobx-react';
 import { ComponentWrap } from '../style';
 
-export default function ComponentFilterTag({ self, mode, children, drag, dnd, ...props }: IAuto & IBaseComponent) {
+export default function ComponentFilterTag({ self, mode, children, drag, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flex: 0,
         height: 24,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CRadio({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+export default function CRadio({ self, mode, drag, source = {}, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
@@ -16,11 +16,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style, ...dnd?.style
-      }}
+      style={self.style}
     >
       {children}
       <Radio.Group style={{

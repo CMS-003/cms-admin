@@ -7,7 +7,7 @@ import { ComponentWrap } from '../style';
 import CONST from '@/constant';
 import apis from '@/api';
 
-export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd, initField = true, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSwitch({ self, mode, query = {}, source = {}, drag, initField = true, setDataField, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     TRUE: '开启',
     FALSE: '关闭',
@@ -32,13 +32,7 @@ export default function CSwitch({ self, mode, query = {}, source = {}, drag, dnd
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <div style={{ lineHeight: '32px' }}>

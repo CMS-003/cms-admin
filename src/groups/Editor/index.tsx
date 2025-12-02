@@ -8,7 +8,7 @@ import 'draft-js/dist/Draft.css';
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CEditor({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
+export default function CEditor({ self, mode, drag, source, setDataField, children }: IAuto & IBaseComponent) {
   const [editorState, setEditorState] = React.useState(
     () => EditorState.createEmpty(),
   );
@@ -45,12 +45,8 @@ export default function CEditor({ self, mode, drag, dnd, source, setDataField, c
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

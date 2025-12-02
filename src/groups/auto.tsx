@@ -36,7 +36,7 @@ import _ from 'lodash';
 import { SortDD } from '@/components/SortableDD';
 import { detach } from 'mobx-state-tree';
 
-export function Component({ self, children, mode, dnd, query, source, setDataField, page, parent, ...props }: IAuto) {
+export function Component({ self, children, mode, query, source, setDataField, page, parent, ...props }: IAuto) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
@@ -107,7 +107,6 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
           query={query}
           source={source}
           setDataField={setDataField}
-          dnd={dnd}
           drag={mode === 'edit' ? dragStore : { isDragOver: false, className: ' component', events: {} }}
           {...(props)}
         >
@@ -131,7 +130,7 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
     </Observer >
   } else {
     return <div>
-      <Handler className='handler' style={dnd?.isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+      <Handler className='handler'>
         <Style.IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>

@@ -4,16 +4,12 @@ import { Observer } from 'mobx-react'
 import { Component } from '../auto'
 import { ComponentWrap } from '../style';
 
-export default function CField({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CField({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => <ComponentWrap
     className={'ant-row ' + mode + drag.className}
     {...drag.events}
-    ref={dnd?.ref}
-    {...dnd?.props}
     style={{
       paddingTop: 5, paddingBottom: 5,
-      ...dnd?.style,
-      backgroundColor: dnd?.isDragging ? 'lightblue' : '',
     }}
   >
     {children}

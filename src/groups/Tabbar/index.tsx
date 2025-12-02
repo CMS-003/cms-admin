@@ -34,20 +34,14 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTabbar({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CTabbar({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext();
   return <Observer>
     {() => (
       <ComponentWrap
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{
-          ...self.style,
-          ...dnd?.style,
-          backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-        }}>
+        style={self.style}>
         {children}
         <TabWrap>
           <Tabs

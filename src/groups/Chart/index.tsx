@@ -8,7 +8,7 @@ import { Acon } from '@/components';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
 
-export default function Chart({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function Chart({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [inited, setInited] = useState(false)
   const instanceRef = useRef<any>(null)
@@ -49,12 +49,8 @@ export default function Chart({ self, mode, source = {}, drag, dnd, setDataField
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

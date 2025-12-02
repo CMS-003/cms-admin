@@ -24,17 +24,13 @@ const Row = styled.div`
   justify-content: space-around;
 `
 
-export default function CHotArea({ self, mode, children, drag, dnd, ...props }: IAuto & IBaseComponent) {
+export default function CHotArea({ self, mode, children, drag, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flex: 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

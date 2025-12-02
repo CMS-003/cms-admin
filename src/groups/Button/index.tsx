@@ -10,7 +10,7 @@ import { Acon } from '@/components';
 import ModalPage from '../modal';
 import { ComponentWrap } from '../style';
 
-export default function CButton({ self, mode, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CButton({ self, mode, drag, setDataField, children }: IAuto & IBaseComponent) {
   const navigate = useNavigate()
   const page = usePageContext()
   const local = useLocalObservable(() => ({
@@ -28,13 +28,9 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flex: 0,
         ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

@@ -6,17 +6,12 @@ import store from '@/store'
 import { SortDD } from '@/components/SortableDD'
 
 
-export default function CRow({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CRow({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}>
+    >
       {children}
       <SortDD
         mode={mode as 'edit'}
@@ -28,7 +23,6 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
           <Component
             self={item.data}
             mode={mode}
-            dnd={dnd}
             {...props}
           />
         )}

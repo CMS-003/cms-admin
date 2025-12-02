@@ -44,7 +44,7 @@ const GridLines = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
   );
 })
 
-export default function GridLayout({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function GridLayout({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     loading: true,
     layouts: [],
@@ -114,9 +114,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
       <ComponentWrap key={self.children.length}
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{ height: '100%', width: '100%', ...dnd?.style }}
+        style={{ height: '100%', width: '100%',  }}
       >
         {children}
         <GridLines ref={gridRef} />
@@ -152,7 +150,6 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
                 key={child._id}
                 self={child}
                 mode={mode}
-                dnd={dnd}
                 {...props} />
             </Cell>
           ))}

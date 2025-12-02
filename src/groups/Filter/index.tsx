@@ -7,15 +7,13 @@ import store from '@/store';
 import { SortDD } from '@/components/SortableDD';
 import { Empty } from 'antd';
 
-export default function CFilter({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CFilter({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{ height: '100%', width: '100%', ...dnd?.style }}
+        style={{ height: '100%', width: '100%', }}
       >
         {children}
         <FullHeight style={{ flex: 1 }}>
@@ -30,7 +28,6 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
                 <Component
                   self={item.data}
                   mode={mode}
-                  dnd={dnd}
                   {...props}
                 />
               )}

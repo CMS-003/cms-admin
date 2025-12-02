@@ -17,7 +17,7 @@ import { getWidgetValue } from '../utils'
 import _ from 'lodash'
 import { SortDD } from '@/components/SortableDD'
 
-export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
+export default function CTable({ self, mode, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
   const local: {
     loading: boolean,
@@ -84,14 +84,10 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flex: 1,
         overflow: 'auto',
         ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

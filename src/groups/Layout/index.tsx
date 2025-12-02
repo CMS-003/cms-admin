@@ -6,20 +6,16 @@ import { ComponentWrap } from '../style';
 import store from '@/store'
 import { SortDD } from '@/components/SortableDD'
 
-export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function ComponentLayout({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext()
   return <Observer>{() => (
     <ComponentWrap
       id={self._id}
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         minHeight: self.children.length === 0 ? 32 : 'auto',
         flex: self.attrs.flex ? 1 : 0,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-        ...dnd?.style,
       }}
     >
       {children}

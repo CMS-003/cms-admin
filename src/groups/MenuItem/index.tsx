@@ -16,17 +16,11 @@ const MenuItem = styled.div`
     background-color: ${props => props.className === 'edit' ? 'transparent' : '#71ace3'};
   }
 `
-export default function CMenuItem({ self, mode, drag, dnd, children, props }: IAuto & IBaseComponent) {
+export default function CMenuItem({ self, mode, drag, children, props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
     >
       {children}
       <div style={{ flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column' }}>

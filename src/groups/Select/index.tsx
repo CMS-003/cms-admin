@@ -7,7 +7,7 @@ import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSelect({ self, mode, drag, source, query, setDataField, children }: IAuto & IBaseComponent) {
   const data = !self.widget.query ? source : query;
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
@@ -18,13 +18,9 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         whiteSpace: 'nowrap',
         flex: 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

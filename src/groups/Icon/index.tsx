@@ -29,7 +29,7 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
+export default function CIcon({ self, mode, drag, source, children, parent }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
   const page = usePageContext();
   const [preview, setPreview] = useState('')
@@ -67,13 +67,9 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
-        ...dnd?.style,
         flex: self.attrs.flex ? 1 : 0,
         display: 'flex',
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

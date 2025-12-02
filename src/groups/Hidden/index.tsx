@@ -5,7 +5,7 @@ import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use';
 
-export default function CHidden({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CHidden({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)
@@ -15,14 +15,10 @@ export default function CHidden({ self, mode, source = {}, drag, dnd, setDataFie
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
-        ...dnd?.style,
         flex: self.style.flex,
         display: mode === 'preview' ? 'none' : 'flex',
         alignItems: 'center',
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

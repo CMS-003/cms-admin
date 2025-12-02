@@ -22,7 +22,7 @@ const Row = styled.div`
   align-items: flex-start;
 `
 
-export default function CFilterRow({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CFilterRow({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.selected) {
@@ -35,13 +35,9 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
       <ComponentWrap key={self.children.length}
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
         style={{
           alignItems: 'center',
           justifyContent:'center',
-          ...dnd?.style,
-          backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
       >
         {children}

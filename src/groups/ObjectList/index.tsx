@@ -28,7 +28,7 @@ const ObjectItem = styled.div`
   }
 `
 
-export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
+export default function ObjectList({ self, mode, drag, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
     showAdd: boolean;
     source: any;
@@ -59,9 +59,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
     <ComponentWrap key={self.children.length}
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{ justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
+      style={{ justifyContent: 'center', alignItems: 'center', }}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>
@@ -140,7 +138,6 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                   key={child._id}
                   self={child}
                   mode={mode}
-                  dnd={dnd}
                   source={local.source}
                   setDataField={(widget: IWidget, value: any) => {
                     local.setTempDataField(widget, value)

@@ -7,7 +7,7 @@ import { ComponentWrap } from '../style';
 import events from '@/utils/event';
 import { pick } from 'lodash';
 
-export default function CInput({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CInput({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
   const page = usePageContext();
   const local = useLocalObservable(() => ({
     composing: false,
@@ -19,12 +19,8 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
-        ...dnd?.style,
         flex: self.style.flex,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

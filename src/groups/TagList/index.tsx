@@ -8,7 +8,7 @@ import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import _ from 'lodash'
 
-export default function CTagList({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTagList({ self, mode, source = {}, setDataField, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     addVisible: false,
     tempTag: '',
@@ -30,12 +30,8 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flexDirection: 'row',
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

@@ -34,7 +34,7 @@ function getFields(widget: IWidget) {
   return { picks, omits }
 }
 
-export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
+export default function CForm({ self, mode, drag, children, parent }: IAuto & IBaseComponent) {
   const page = usePageContext();
   const local: {
     source: { [key: string]: any };
@@ -191,13 +191,9 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         width: '100%',
         height: '100%',
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -215,7 +211,6 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
                 mode={mode}
                 source={local.source}
                 setDataField={local.setDataField}
-                dnd={dnd}
                 page={page}
               />
             )}

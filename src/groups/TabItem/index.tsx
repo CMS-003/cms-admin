@@ -21,14 +21,12 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function TabItem({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
         style={{ minHeight: '100%' }}
       >
         <TabItemWrap>

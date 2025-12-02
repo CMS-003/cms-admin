@@ -5,17 +5,14 @@ import { ComponentWrap } from '../style';
 import store from '@/store';
 import { SortDD } from '@/components/SortableDD';
 
-export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CMenu({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flexDirection: 'row',
         height: '100%',
-        ...dnd?.style
       }}
     >
       {children}
@@ -30,7 +27,6 @@ export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAu
             <Component
               self={item.data}
               mode={mode}
-              dnd={dnd}
               {...props}
             />
           )}

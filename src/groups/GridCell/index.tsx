@@ -3,16 +3,14 @@ import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 
-export default function GridCell({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function GridCell({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
 
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
         className={mode + drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{ height: '100%', ...dnd?.style }}
+        style={{ height: '100%', }}
       >
         {children}
         {self.children.map(child => (

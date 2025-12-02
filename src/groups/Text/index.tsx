@@ -15,7 +15,7 @@ const Text = styled.div`
   min-height: 32px;
 `
 
-export default function CText({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CText({ self, mode, source = {}, setDataField, drag, children }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)
@@ -25,12 +25,8 @@ export default function CText({ self, mode, source = {}, setDataField, drag, dnd
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flex: self.attrs.flex ? 1 : 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
