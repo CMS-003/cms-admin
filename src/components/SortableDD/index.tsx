@@ -12,6 +12,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import store from '@/store';
 
 interface SortableItemProps {
   id: string;
@@ -60,13 +61,15 @@ export function SortDD({
   sort,
   mode,
   handle = false,
+  disabled = false,
   renderItem,
 }:
   {
-    direction: 'x' | 'y',
+    direction: 'horizontal' | 'vertical',
     items: any[],
     sort?: (oldIndex: number, newIndex: number) => void,
     handle?: boolean,
+    disabled?: boolean,
     mode: 'edit' | 'preview',
     onDragEnd?: Function,
     renderItem: Function,
@@ -88,13 +91,14 @@ export function SortDD({
   return (
     <DndContext
       collisionDetection={closestCenter}
-      modifiers={[direction === 'y' ? restrictToVerticalAxis : restrictToHorizontalAxis]}
-      onDragStart={e => {
-        mode === 'preview' && e.activatorEvent.stopPropagation()
+      modifiers={[direction === 'vertical' ? restrictToVerticalAxis : restrictToHorizontalAxis]}
+      onDragStart={() => {
+        store.component.setIsDragging(true)
       }}
       onDragEnd={(event: any) => {
         const { active, over } = event;
-        if (active.id !== over.id) {
+        store.component.setIsDragging(false)
+        if (active && over && active.id !== over.id) {
           const oldIndex = items.findIndex(v => v.id === active.id)
           const newIndex = items.findIndex(v => v.id === over.id)
           sort && sort(oldIndex, newIndex)
@@ -103,7 +107,8 @@ export function SortDD({
     >
       <SortableContext
         items={items}
-        strategy={direction === 'y' ? verticalListSortingStrategy : horizontalListSortingStrategy}
+        disabled={disabled}
+        strategy={direction === 'vertical' ? verticalListSortingStrategy : horizontalListSortingStrategy}
       >
         {renderItems}
       </SortableContext>

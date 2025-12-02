@@ -68,7 +68,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
         {mode === 'preview'
           ? <SortDD
             mode='preview'
-            direction='y'
+            direction='vertical'
             handle
             sort={(srcIndex: number, dstIndex: number) => {
               runInAction(() => {
@@ -118,7 +118,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
           />
           : <SortDD
             mode='edit'
-            direction='y'
+            direction='vertical'
             sort={self.swap}
             items={self.children.map(child => ({ id: child._id, data: child }))}
             renderItem={(item: any) => (

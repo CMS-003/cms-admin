@@ -9,6 +9,7 @@ import { Fragment } from "react";
 import Auto from '../auto'
 import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
+import { cloneDeep } from "lodash";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -55,7 +56,9 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
             tabPlacement='bottom'
             centered={true}
             onChange={activeKey => {
-              self.setAttr('attrs.selected_id' as any, activeKey)
+              const attrs = cloneDeep(self.attrs);
+              attrs.selected_id = activeKey
+              self.setAttr('attrs', attrs)
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap

@@ -2,7 +2,7 @@ import { observer, useLocalObservable } from "mobx-react"
 import { Fragment, useMemo } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch, Flex } from 'antd'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { isPlainObject, pick } from 'lodash'
+import { cloneDeep, isPlainObject, pick } from 'lodash'
 import { Acon, Style } from '@/components/index';
 import { IComponent, IResource, } from '@/types'
 import styled from 'styled-components';
@@ -133,7 +133,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(data.attrs, null, 2)} onBlur={e => {
                     try {
                       const attrs = JSON5.parse(e.target.value)
-                      data?.setAttr('attrs', attrs);
+                      data.setAttr('attrs', attrs);
                     } catch (e) {
 
                     } finally {
@@ -168,7 +168,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   参考值
                   <SortDD
                     mode="edit"
-                    direction='y'
+                    direction='vertical'
                     handle={true}
                     items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
                       return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
@@ -242,7 +242,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   静态数据
                   <SortDD
                     mode="edit"
-                    direction='y'
+                    direction='vertical'
                     items={((data.resources || []).map(v => ({ id: v._id, data: v })))}
                     renderItem={(item: any, handler: any) => {
                       return <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
@@ -348,7 +348,9 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },
                   ]} onChange={e => {
-                    data.setAttr('attrs.layout' as any, e.target.value)
+                    const attrs = cloneDeep(data.attrs);
+                    attrs.layout = e.target.value
+                    data.setAttr('attrs', attrs)
                   }} />
                 </EditItem>
                 <EditItem>

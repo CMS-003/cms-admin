@@ -1,10 +1,10 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
-import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -23,22 +23,16 @@ export default function ComponentLayout({ self, mode, dnd, drag, children, ...pr
       }}
     >
       {children}
-      <NatureSortable
-        droppableId={self._id}
-        direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
+      <SortDD
+        mode={mode as 'edit' | 'preview'}
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-        style={{
-          flex: 1,
-          flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
-          ...self.style,
-        }}
-        items={self.children}
+        direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
+        items={self.children.map(child => ({ id: child._id, data: child }))}
         sort={self.swap}
-        renderItem={({ item, dnd }) => (
+        renderItem={(item: any) => (
           <Component
             mode={mode}
-            self={item}
-            dnd={dnd}
+            self={item.data}
             page={page}
             {...props}
           />

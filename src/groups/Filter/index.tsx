@@ -2,9 +2,10 @@ import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react';
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import store from '@/store';
+import { SortDD } from '@/components/SortableDD';
+import { Empty } from 'antd';
 
 export default function CFilter({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
   return <Observer>
@@ -18,16 +19,16 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
       >
         {children}
         <FullHeight style={{ flex: 1 }}>
-          <FullHeightFix style={{ flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
-            <NatureSortable
-              items={self.children}
+          <FullHeightFix style={{ flexDirection: 'column', width: '100%' }}>
+            <SortDD
+              mode={mode as 'edit' | 'preview'}
+              items={self.children.map(child => ({ id: child._id, data: child }))}
               direction='vertical'
               disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-              droppableId={self._id}
               sort={self.swap}
-              renderItem={({ item, dnd }) => (
+              renderItem={(item: any) => (
                 <Component
-                  self={item}
+                  self={item.data}
                   mode={mode}
                   dnd={dnd}
                   {...props}
@@ -36,7 +37,7 @@ export default function CFilter({ self, mode, drag, dnd, children, ...props }: I
             />
           </FullHeightFix>
           <FullHeightAuto>
-            resources
+            <Empty />
           </FullHeightAuto>
         </FullHeight>
       </ComponentWrap>

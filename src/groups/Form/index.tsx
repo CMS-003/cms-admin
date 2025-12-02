@@ -5,7 +5,6 @@ import { Button, message, Space } from 'antd'
 import { Component } from '../auto'
 import { useCallback, useEffect } from 'react'
 import apis from '@/api'
-import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
@@ -17,6 +16,7 @@ import { useEffectOnce } from 'react-use'
 import store from '@/store'
 import { getWidgetValue } from '../utils'
 import _ from 'lodash'
+import { SortDD } from '@/components/SortableDD'
 
 function getFields(widget: IWidget) {
   const picks: string[] = [], omits: string[] = [];
@@ -203,15 +203,15 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
         <FullHeightAuto>
-          <NatureSortable
-            items={self.children}
+          <SortDD
+            mode={mode as 'edit' | 'preview'}
+            items={self.children.map(child => ({ id: child._id, data: child }))}
             direction='vertical'
             disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-            droppableId={self._id}
             sort={self.swap}
-            renderItem={({ item, dnd }) => (
+            renderItem={(item: any) => (
               <Component
-                self={item}
+                self={item.data}
                 mode={mode}
                 source={local.source}
                 setDataField={local.setDataField}

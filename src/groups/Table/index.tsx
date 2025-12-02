@@ -7,7 +7,6 @@ import apis from '@/api'
 import { Fragment, useCallback, useEffect } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
-import NatureSortable from '@/components/NatureSortable'
 import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
@@ -16,6 +15,7 @@ import { AlignAside } from '@/components/style'
 import { Acon, VisualBox } from '@/components'
 import { getWidgetValue } from '../utils'
 import _ from 'lodash'
+import { SortDD } from '@/components/SortableDD'
 
 export default function CTable({ self, mode, dnd, drag, source, query, children }: IAuto & IBaseComponent) {
   const page = usePageContext()
@@ -136,16 +136,14 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
           dataIndex: self.widget.field,
           render: (t: any, d: any) => (
             mode === 'edit' ?
-              <NatureSortable
-                items={child.children}
-                direction='horizontal'
-                disabled={false}
-                droppableId={child._id}
-                sort={self.swap}
-                renderItem={({ item, dnd, index }) => (
+              <SortDD
+                mode='edit'
+                direction='vertical'
+                items={child.children.map((c: IComponent) => ({ id: c._id, data: c }))}
+                renderItem={(item: any) => (
                   <Component
-                    key={index}
-                    self={item}
+                    key={item.id}
+                    self={item.data}
                     mode={mode}
                     source={d}
                     setDataField={(widget: IWidget, value: any) => {
@@ -160,7 +158,6 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                         d[widget.field] = value
                       })
                     }}
-                    dnd={dnd}
                   />
                 )}
               />

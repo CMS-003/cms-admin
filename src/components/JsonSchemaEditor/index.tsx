@@ -169,7 +169,7 @@ function Item({
       {local.showSub && <Fragment>
         {data.type === 'Object' && <SortDD
           mode='edit'
-          direction='y'
+          direction='vertical'
           handle={true}
           items={local.array.map(v => ({ id: v[0], data: v }))}
           sort={local.sortKey}

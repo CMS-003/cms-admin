@@ -3,10 +3,10 @@ import styled from 'styled-components'
 import Acon from '@/components/Acon'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import { FullWidth } from '@/components/style'
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 const MenuItem = styled.div`
   color: #333;
@@ -35,17 +35,16 @@ export default function CMenuItem({ self, mode, drag, dnd, children, props }: IA
             <Acon icon={self.icon} style={{ marginRight: 5 }} />{self.title}
           </FullWidth>
         </MenuItem>
-        <NatureSortable
-          items={self.children}
+        <SortDD
+          mode={mode as 'edit' | 'preview'}
+          items={self.children.map(child => ({ id: child._id, data: child }))}
           direction='vertical'
           disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-          droppableId={self._id}
           sort={self.swap}
-          renderItem={({ item, dnd }) => (
+          renderItem={(item: any) => (
             <Component
-              self={item}
+              self={item.data}
               mode={mode}
-              dnd={dnd}
               {...props}
             />
           )}

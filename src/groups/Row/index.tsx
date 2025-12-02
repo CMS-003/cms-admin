@@ -1,10 +1,9 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { Component } from '../auto'
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 
 export default function CRow({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
@@ -19,17 +18,15 @@ export default function CRow({ self, mode, dnd, drag, children, ...props }: IAut
         backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}>
       {children}
-      <NatureSortable
-        items={self.children}
+      <SortDD
+        mode={mode as 'edit'}
+        items={self.children.map(child => ({ id: child._id, data: child }))}
         direction='horizontal'
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-        droppableId={self._id}
-        style={{ flex: 1 }}
-        wrap={Row}
         sort={self.swap}
-        renderItem={({ item, dnd }) => (
+        renderItem={(item: any) => (
           <Component
-            self={item}
+            self={item.data}
             mode={mode}
             dnd={dnd}
             {...props}

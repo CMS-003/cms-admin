@@ -19,7 +19,7 @@ const NoScrollbar = styled.div`
   }
 `
 
-export function transform(tree: any, collapsed = true) {
+function transform(tree: any, collapsed = true) {
   if (!tree) {
     return [];
   }

@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import { Component } from '../auto'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 const Wrap = styled.div`
   display: flex;
@@ -38,25 +38,23 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
         ref={dnd?.ref}
         {...dnd?.props}
         style={{
-          overflowX: 'auto',
+          alignItems: 'center',
+          justifyContent:'center',
           ...dnd?.style,
           backgroundColor: dnd?.isDragging ? 'lightblue' : '',
         }}
       >
         {children}
-        <NatureSortable
-          style={{ alignItems: 'center' }}
-          items={self.children}
+        <SortDD
+          mode={mode as 'edit' | 'preview'}
+          items={self.children.map(child => ({ id: child._id, data: child }))}
           direction='horizontal'
           disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-          droppableId={self._id}
           sort={self.swap}
-          wrap={Row}
-          renderItem={({ item, dnd }) => (
+          renderItem={(item: any) => (
             <Component
-              self={item}
+              self={item.data}
               mode={mode}
-              dnd={dnd}
               {...props}
             />
           )}

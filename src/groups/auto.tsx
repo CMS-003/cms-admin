@@ -41,7 +41,7 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
     get className() {
-      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id && !store.component.isDragging ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
+      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
     },
     events: {
       onDrop: (e: any) => {
@@ -67,17 +67,17 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
         }
       },
       onMouseEnter() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         store.component.setHoverComponentId(self._id)
       },
       onMouseOver() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         if (!store.component.hover_component_id) {
           store.component.setHoverComponentId(self._id)
         }
       },
       onMouseLeave() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         store.component.setHoverComponentId('')
       },
       onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -441,7 +441,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
             console.error('读取失败:', err);
           });
       }} />
-      <div style={{ display: 'flex', width: '100%', height: 'calc(100% - 20px)', margin: 10, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', boxShadow: mode === 'edit' ? 'outset #1890ff 0 0 10px' : '' }}>
+      <div style={{ display: 'flex', width: '100%', height: 'calc(100% - 20px)', margin: 10, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', boxShadow: mode === 'edit' ? '0 0 10px #1890ff' : '' }}>
         <div className='hidden-scrollbar' style={{
           height: '100%',
           minWidth: 400,
@@ -461,7 +461,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
               >
                 <SortDD
                   mode={mode as 'edit' | 'preview'}
-                  direction='y'
+                  direction='vertical'
+                  disabled={store.component.can_drag_id !== ''}
                   items={local.template.children.map(child => ({ id: child._id, data: child }))}
                   sort={(oldIndex, newIndex) => {
                     runInAction(() => {
