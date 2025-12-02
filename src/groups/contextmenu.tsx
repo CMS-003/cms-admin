@@ -60,12 +60,6 @@ const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent 
         events && events.emit('remove_component', e.props._id);
       }
     }}>删除</ContextMenuItem>
-    {/* <ContextMenuItem onClick={(e: any) => {
-      // ComponentItem.create({})
-      e.props.appendChild('type')
-      store.component.setEditComponentId(e.props._id);
-      local.editComponent = e.props
-    }}>添加子视图</ContextMenuItem> */}
   </Menu>
 ))
 

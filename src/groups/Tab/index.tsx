@@ -52,7 +52,7 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
             activeKey={self.attrs.selected_id}
             tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'menu'} /> }}
             onChange={activeKey => {
-              self.setAttrs('selected_id', activeKey)
+              self.setAttr('attrs.selected_id' as any, activeKey)
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap

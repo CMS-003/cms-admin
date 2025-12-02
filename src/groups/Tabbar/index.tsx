@@ -52,10 +52,10 @@ export default function CTabbar({ self, mode, drag, dnd, children, ...props }: I
           <Tabs
             activeKey={self.attrs.selected_id}
             tabBarStyle={{ width: '100%' }}
-            tabPosition='bottom'
+            tabPlacement='bottom'
             centered={true}
             onChange={activeKey => {
-              self.setAttrs('selected_id', activeKey)
+              self.setAttr('attrs.selected_id' as any, activeKey)
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap

@@ -10,11 +10,11 @@ import BindPage from './pages/oauthResult/bind'
 import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/failure'
 import store from './store'
-import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
 import { ws } from '@/utils/ws'
 import events from './utils/event';
 import 'react-resizable/css/styles.css';
+import { CenterXY } from './components/style';
 
 function App() {
   const location = useLocation()
@@ -90,7 +90,7 @@ function App() {
   return (
     <Observer>{() => (
       <div className="App">
-        {local.error ? <Button type="primary" onClick={init}>重试</Button> : local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {local.error ? <CenterXY><Button type="primary" onClick={init}>重试</Button></CenterXY> : local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Space>
             <Spin spinning />加载中...
           </Space>

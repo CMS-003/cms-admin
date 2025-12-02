@@ -5,12 +5,12 @@ export function getDiff(t: ITemplate | IComponent | null) {
   if (!t) {
     return [];
   }
-  const results: IComponent[] = [];
+  const results: any[] = [];
   if (t.children) {
-    t.children.forEach((child) => {
+    t.children.forEach((child: IComponent) => {
       const diff = child.diff()
       if (diff) {
-        results.push((child as IComponent).toJSON())
+        results.push(child.toJSON())
       }
       const subResults = getDiff(child);
       if (subResults.length) {

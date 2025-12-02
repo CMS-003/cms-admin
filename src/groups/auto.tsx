@@ -9,11 +9,10 @@ import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
 import styled from 'styled-components';
-import { ComponentItem } from '@/store/component';
+import { Component as ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
 import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget } from '@/types'
-import NatureSortable from '@/components/NatureSortable'
 import BaseComponent from './index';
 import GroupMenu from './contextmenu'
 import Edit from './edit'

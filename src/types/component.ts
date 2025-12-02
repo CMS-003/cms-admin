@@ -1,5 +1,6 @@
 import { DraggableProvided } from "react-beautiful-dnd";
-import { IResource } from "./resource";
+import { type IComponent } from "@/store/component";
+export { type IComponent };
 
 export type IPageInfo = {
   template_id: string;
@@ -35,56 +36,6 @@ export type IWidget = {
   }[];
   action: string;
   method: string;
-}
-
-export type IComponent = {
-  _id: string;
-  parent_id: string;
-  project_id: string;
-  tree_id: string;
-  template_id: string;
-  title: string;
-  name: string;
-  type: string;
-  cover: string;
-  icon: string;
-  desc: string;
-  order: number;
-  status: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  accepts: string[];
-  style: any;
-  attrs: any;
-  url: string;
-  resources?: IResource[];
-  queries: string[];
-  widget: IWidget;
-
-  children: IComponent[];
-  data?: IResource[];
-  $new?: boolean;
-  $origin?: any;
-  $selected?: boolean;
-  diff: Function;
-  setAttr: Function;
-  setWidget: Function;
-  changeWidgetType: Function;
-  setAttrs: Function;
-  resetOrigin: Function;
-  updateStyle: Function;
-  appendChild: Function;
-  appendChildData: Function;
-  removeChild: Function;
-  addResource: Function;
-  remResource: Function;
-  getApi: (id: string, query?: { [key: string]: any }) => string;
-  swap: (srcIndex: number, dstIndex: number) => void;
-  swapResource: (srcIndex: number, dstIndex: number) => void;
-  swapRefer: (srcIndex: number, dstIndex: number) => void;
-  toJSON: Function;
-  pushRefer: Function;
-  remRefer: Function;
 }
 
 export type IAuto = {

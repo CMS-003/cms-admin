@@ -1,4 +1,4 @@
-import { IAuto, IBaseComponent, IWidget } from '@/types/component'
+import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
 import { Table, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Component } from '../auto'
@@ -165,7 +165,7 @@ export default function CTable({ self, mode, dnd, drag, source, query, children 
                 )}
               />
               : (<Fragment>
-                {child.children.map((item, k) => (
+                {child.children.map((item: IComponent, k: number) => (
                   <Component
                     key={k}
                     self={item}

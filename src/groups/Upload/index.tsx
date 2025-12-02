@@ -10,14 +10,6 @@ import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
 
-const getBase64 = (file: RcFile): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-  });
-
 const Preview = styled.div`
   display: flex;
   flex-direction: column;

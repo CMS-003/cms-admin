@@ -8,19 +8,6 @@ import IGlobal from './global'
 import constant from '../constant'
 import storage from '../utils/storage'
 
-function getOpenedKeys(path: string): string[] {
-  const keys: string[] = [];
-  const arr = path.replace(/(^\/)|(\/$)/g, '').split('/')
-  while (arr.length > 1) {
-    const path = arr.shift()
-    if (path) {
-      const key = keys.join('/') + '/' + path
-      key && keys.push(key)
-    }
-  }
-  return keys;
-}
-
 // app状态
 const app = IApp.create({
   isSignIn: false,

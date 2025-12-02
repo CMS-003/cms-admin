@@ -227,13 +227,13 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
 
                   {data.queries.map(id => (
                     <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
-                      data.setAttr('queries', data.queries.filter(q => q !== id));
+                      data.queries.replace(data.queries.filter(q => q !== id))
                     }} />} />
                   ))}
                   {local.showQueryModal && <QueryModal
                     show={local.showQueryModal}
                     queries={data.queries}
-                    setQueries={(queries: string[]) => data.setAttr('queries', queries)}
+                    setQueries={(queries: string[]) => data.queries.replace(queries)}
                     q={local.q}
                     close={() => local.setShowQueryModal(false)}
                   />}
@@ -259,7 +259,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   {local.showResourceModal && <ResourceModal
                     show={local.showResourceModal}
                     onAdd={(d: IResource) => {
-                      data.addResource(pick(d, ['_id', 'title', 'cover']))
+                      data.addResource(pick(d, ['_id', 'title', 'cover', 'thumbnail', 'status']) as IResource)
                     }}
                     onClose={() => {
                       local.setResourceModal(false)
@@ -348,7 +348,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },
                   ]} onChange={e => {
-                    data?.setAttrs('layout', e.target.value)
+                    data.setAttr('attrs.layout' as any, e.target.value)
                   }} />
                 </EditItem>
                 <EditItem>
@@ -356,7 +356,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(data.style, null, 2)} onBlur={e => {
                     try {
                       const style = JSON5.parse(e.target.value)
-                      data?.updateStyle(style);
+                      data.setAttr('style', style);
                     } catch (e) {
 
                     } finally {

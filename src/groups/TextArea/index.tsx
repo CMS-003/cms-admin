@@ -24,8 +24,8 @@ export default function CTextArea({ self, mode, drag, dnd, source, setDataField,
       }}
     >
       {children}
-      <Input.TextArea rows={4} value={self.widget.type === 'json' ? JSON5.stringify(source[self.widget.field], null, 2) : source[self.widget.field]}
-        onChange={(e => {
+      <Input.TextArea rows={4} defaultValue={self.widget.type === 'json' ? JSON5.stringify(source[self.widget.field], null, 2) : source[self.widget.field]}
+        onBlur={(e => {
           setDataField(self.widget, e.target.value)
         })}
       />

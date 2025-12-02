@@ -85,7 +85,7 @@ export default function GridLayout({ self, mode, drag, dnd, children, ...props }
       if (c.$new !== true && _.isEqual(d.attrs, o.attrs)) {
         return null
       } else if (mode === 'preview') {
-        c.resetOrigin(d)
+        c.setAttr('$origin', d)
       }
       return d;
     }).filter(v => v !== null);

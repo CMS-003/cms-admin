@@ -1,6 +1,6 @@
-import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot, detach } from 'mobx-state-tree'
-import { IComponent, IComponentType, IResource } from '@/types'
-import { isEqual, omit, cloneDeep } from 'lodash'
+import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot, detach, Instance } from 'mobx-state-tree'
+import { IComponentType, IResource } from '@/types'
+import { isEqual, omit, cloneDeep, set } from 'lodash'
 import { v4 } from 'uuid'
 
 function validateDate(str: string) {
@@ -57,12 +57,10 @@ export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any
     : url.pathname + url.search;            // 相对路径：去掉 host，只保留路径和 query
 }
 
-type ComponentItemKeys = 'title' | 'name' | 'project_id'
-
 // 使用 const 断言创建只读数组
 const FIELD_TYPE_VALUES = ['string', 'number', 'boolean', 'json', 'array'] as const;
 
-export const ComponentItem = types.model('Component', {
+export const Component = types.model('Component', {
   // 编辑用属性
   $origin: types.frozen({}),
   $selected: types.optional(types.boolean, false),
@@ -94,7 +92,7 @@ export const ComponentItem = types.model('Component', {
     action: types.optional(types.string, ''),
     method: types.optional(types.string, ''),
   }),
-  accepts: types.optional(types.array(types.string), []),
+  accepts: types.array(types.string),
   url: types.optional(types.string, ''),
   resources: types.optional(types.array(types.model({
     _id: types.string,
@@ -105,7 +103,7 @@ export const ComponentItem = types.model('Component', {
     status: types.optional(types.number, 0),
   })), []),
   queries: types.optional(types.array(types.string), []),
-  children: types.array(types.late((): IAnyModelType => ComponentItem))
+  children: types.array(types.late((): IAnyModelType => Component))
 }).views(self => ({
   toJSON(all = false) {
     const data = cloneDeep(getSnapshot(self));
@@ -128,73 +126,28 @@ export const ComponentItem = types.model('Component', {
     return url;
   }
 })).actions(self => ({
-  setAttr(key: ComponentItemKeys, value: any) {
-    self[key] = value;
+  setAttr<K extends keyof typeof self>(key: K, value: typeof self[K]) {
+    set(self, key, value)
   },
-  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'query' | 'source', v: string | boolean) {
-    if (k === 'value') {
-      const str = v as string;
-      if (self.widget.type === 'boolean') {
-        self.widget.value = ['1', 'true', 'TRUE'].includes(str)
-      } else if (self.widget.type === 'number') {
-        self.widget.value = parseInt(str) || 0
-      } else {
-        self.widget.value = v;
+  afterCreate() {
+    if (self._id) {
+      self.$origin = self.$new ? {} : self.toJSON() as any;
+    } else {
+      self.$new = true;
+      self._id = v4();
+      if (!self.tree_id) {
+        self.tree_id = self._id;
       }
-    } else if (k === 'query') {
-      self.widget.query = v ? true : false;
-    } else if (['action', 'field', 'method', 'source'].includes(k)) {
-      self.widget[k] = v as string;
     }
-  },
-  changeWidgetType(type: 'string' | 'number' | 'boolean') {
-    if (type === self.widget.type) {
-      return;
-    } else if (type === 'number') {
-      self.widget.value = parseInt(self.widget.value as string) || '';
-      self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
-    } else if (type === 'boolean') {
-      self.widget.value = ['1', 'true', 'TRUE'].includes(self.widget.value as any) as boolean;
-    } else {
-      self.widget.value = self.widget.value.toString();
-      self.widget.refer.forEach(r => r.value = r.value.toString());
-    }
-    self.widget.type = type;
-  },
-  pushRefer(t: { label: string, value: string }) {
-    let v: any = t.value;
-    if (self.widget.type === 'boolean') {
-      v = ['1', 'true', 'TRUE'].includes(v)
-    } else if (self.widget.type === 'number') {
-      v = v === '' ? '' : parseInt(v) || 0
-    }
-    t.value = v;
-    self.widget.refer.push(t);
-  },
-  remRefer(n: number) {
-    self.widget.refer.splice(n, 1);
-  },
-  setAttrs(key: string, value: string | number | null) {
-    const attr = cloneDeep(self.attrs);
-    if (value === null) {
-      delete attr[key]
-    } else {
-      attr[key] = value
-    }
-    self.attrs = attr;
-  },
-  resetOrigin(diff: object) {
-    self.$origin = diff
-  },
-  updateStyle(s: { [key: string]: number | string }) {
-    self.style = s;
-  },
+  }
+})).actions(self => ({
+  // children
   appendChild(type: string) {
     let attrs: any = {};
     if (type === 'MenuItem') {
       attrs.path = '/dynamic'
     }
-    self.children.push(ComponentItem.create({
+    self.children.push(Component.create({
       $origin: {},
       _id: '',
       tree_id: self.tree_id,
@@ -226,6 +179,7 @@ export const ComponentItem = types.model('Component', {
   removeChild(_id: string) {
     const i = self.children.findIndex(c => c._id === _id);
     if (i !== -1) {
+      detach(self.children[i])
       self.children.splice(i, 1);
     } else {
       self.children.forEach(c => {
@@ -233,6 +187,41 @@ export const ComponentItem = types.model('Component', {
       })
     }
   },
+  swap(oldIndex: number, newIndex: number) {
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const removed = detach(self.children[oldIndex])
+    self.children.splice(newIndex, 0, Component.create(removed as IComponent));
+    self.children.forEach((child, i) => {
+      child.setAttr('order', i);
+    })
+  },
+})).actions(self => ({
+  // refer数组操作
+  pushRefer(t: { label: string, value: string }) {
+    let v: any = t.value;
+    if (self.widget.type === 'boolean') {
+      v = ['1', 'true', 'TRUE'].includes(v)
+    } else if (self.widget.type === 'number') {
+      v = v === '' ? '' : parseInt(v) || 0
+    }
+    t.value = v;
+    self.widget.refer.push(t);
+  },
+  remRefer(n: number) {
+    self.widget.refer.splice(n, 1);
+  },
+  swapRefer(oldIndex: number, newIndex: number) {
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const [removed] = self.widget.refer.splice(oldIndex, 1);
+    const old = getSnapshot(removed);
+    self.widget.refer.splice(newIndex, 0, old);
+  },
+})).actions(self => ({
+  // resources 数组操作
   addResource(data: IResource) {
     self.resources.push(data)
   },
@@ -250,38 +239,43 @@ export const ComponentItem = types.model('Component', {
     const old = getSnapshot(removed);
     self.resources.splice(newIndex, 0, old);
   },
-  swapRefer(oldIndex: number, newIndex: number) {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const [removed] = self.widget.refer.splice(oldIndex, 1);
-    const old = getSnapshot(removed);
-    self.widget.refer.splice(newIndex, 0, old);
-  },
-  swap(oldIndex: number, newIndex: number) {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const removed = detach(self.children[oldIndex])
-    self.children.splice(newIndex, 0, ComponentItem.create(removed as IComponent));
-    self.children.forEach((child, i) => {
-      child.setAttr('order', i);
-    })
-  },
-  afterCreate() {
-    if (self._id) {
-      self.$origin = self.$new ? {} : self.toJSON() as any;
-    } else {
-      self.$new = true;
-      self._id = v4();
-      if (!self.tree_id) {
-        self.tree_id = self._id;
+})).actions(self => ({
+  // widget 操作
+  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'query' | 'source', v: string | boolean) {
+    if (k === 'value') {
+      const str = v as string;
+      if (self.widget.type === 'boolean') {
+        self.widget.value = ['1', 'true', 'TRUE'].includes(str)
+      } else if (self.widget.type === 'number') {
+        self.widget.value = parseInt(str) || 0
+      } else {
+        self.widget.value = v;
       }
+    } else if (k === 'query') {
+      self.widget.query = v ? true : false;
+    } else if (['action', 'field', 'method', 'source'].includes(k)) {
+      self.widget[k] = v as string;
     }
-  }
+  },
+  changeWidgetType(type: 'string' | 'number' | 'boolean') {
+    if (type === self.widget.type) {
+      return;
+    } else if (type === 'number') {
+      self.widget.value = parseInt(self.widget.value as string) || '';
+      self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
+    } else if (type === 'boolean') {
+      self.widget.value = ['1', 'true', 'TRUE'].includes(self.widget.value as any) as boolean;
+    } else {
+      self.widget.value = self.widget.value.toString();
+      self.widget.refer.forEach(r => r.value = r.value.toString());
+    }
+    self.widget.type = type;
+  },
 }));
 
-const ComponentTypeItem = types.model({
+export interface IComponent extends Instance<typeof Component> { }
+
+const ComponentType = types.model({
   _id: types.string,
   name: types.string,
   title: types.string,
@@ -292,9 +286,9 @@ const ComponentTypeItem = types.model({
   accepts: types.array(types.string),
 })
 
-const component = types.model({
-  list: types.array(ComponentItem),
-  types: types.array(ComponentTypeItem),
+const componentManager = types.model({
+  list: types.array(Component),
+  types: types.array(ComponentType),
   editing_component_id: types.optional(types.string, ''),
   hover_component_id: types.optional(types.string, ''),
   dragingType: types.optional(types.string, ''),
@@ -308,10 +302,10 @@ const component = types.model({
   },
 })).actions((self) => ({
   setList(items: IComponent[]) {
-    self.list = items as IMSTArray<typeof ComponentItem>;
+    self.list = items as IMSTArray<typeof Component>;
   },
   setTypes(items: IComponentType[]) {
-    self.types = items as IMSTArray<typeof ComponentTypeItem>;
+    self.types = items as IMSTArray<typeof ComponentType>;
   },
   canDrop(from: string, to: string) {
     const com = self.types.find(it => it.name === to);
@@ -344,4 +338,4 @@ const component = types.model({
 
   },
 }))
-export default component;
+export default componentManager;
