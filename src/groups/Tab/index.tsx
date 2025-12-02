@@ -9,7 +9,7 @@ import { Fragment } from "react";
 import Auto from '../auto'
 import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 
 const TabWrap = styled.div`
   height: 100%;

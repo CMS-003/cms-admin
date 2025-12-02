@@ -1,6 +1,5 @@
 import shttp from "../utils/shttp";
 import { IComponent } from '../types'
-import QueryString from "qs";
 
 const apis = {
   getComponents: async ({ query }: { query?: { [key: string]: any } }) => {
@@ -27,7 +26,7 @@ const apis = {
     return await shttp.post(`/gw/api/v1/components/batch`, body)
   },
   batchDestroyComponent: async (query: any) => {
-    return await shttp.delete(`/gw/api/v1/components/batch?${QueryString.stringify(query)}`)
+    return await shttp.delete(`/gw/api/v1/components/batch?${new URLSearchParams(query).toString()}`)
   }
 }
 

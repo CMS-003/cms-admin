@@ -1,6 +1,24 @@
 import shttp from "../utils/shttp";
 import { ISchema, IJsonSchema, IResource } from '../types'
-import qs from 'qs'
+
+function parseSearchParams(searchString: string) {
+  const searchParams: any = new URLSearchParams(searchString);
+  const result: any = {};
+
+  for (const [key, value] of searchParams) {
+    if (result[key] !== undefined) {
+      if (Array.isArray(result[key])) {
+        result[key].push(value);
+      } else {
+        result[key] = [result[key], value];
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
 
 const apis = {
   getSchemaAll: async () => {
@@ -35,9 +53,9 @@ const apis = {
     if (url.includes('?')) {
       const [path, params] = url.split('?');
       url = path;
-      query = Object.assign({}, qs.parse(params), query);
+      query = Object.assign({}, parseSearchParams(params), query);
     }
-    const result = await shttp.get<T | IResource>(`${url}?${qs.stringify(query)}`)
+    const result = await shttp.get<T | IResource>(`${url}?${new URLSearchParams(query).toString()}`)
     return result
   },
   getDataInfo: async (url: string) => {

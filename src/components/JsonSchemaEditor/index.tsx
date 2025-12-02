@@ -4,7 +4,7 @@ import { Checkbox, Input, message, Select, Space } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
 import { IJsonSchema } from '@/types';
-import { entries, isUndefined, clone } from 'lodash';
+import { entries, isUndefined, clone } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
 import { CSSProperties, Fragment } from 'react';
 import './custom.css';

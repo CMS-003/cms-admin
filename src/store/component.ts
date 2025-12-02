@@ -1,6 +1,6 @@
 import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot, detach, Instance } from 'mobx-state-tree'
 import { IComponentType, IResource } from '@/types'
-import { isEqual, omit, cloneDeep, set } from 'lodash'
+import { isEqual, omit, cloneDeep, set } from 'lodash-es'
 import { v4 } from 'uuid'
 
 function validateDate(str: string) {

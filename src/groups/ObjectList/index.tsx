@@ -12,7 +12,7 @@ import apis from '@/api';
 import styled from 'styled-components';
 import CONST from '@/constant';
 import { getWidgetValue } from '../utils';
-import _ from 'lodash';
+import { isNil } from 'lodash-es';
 import { SortDD } from '@/components/SortableDD';
 
 const ObjectItem = styled.div`
@@ -43,7 +43,7 @@ export default function ObjectList({ self, mode, drag, source, children, setData
         return;
       }
       value = getWidgetValue(widget, value);
-      if (_.isNil(value)) {
+      if (isNil(value)) {
         return;
       }
       local.source[widget.field] = value;
@@ -100,7 +100,7 @@ export default function ObjectList({ self, mode, drag, source, children, setData
                           return;
                         }
                         value = getWidgetValue(widget, value);
-                        if (_.isNil(value)) {
+                        if (isNil(value)) {
                           return;
                         }
                         runInAction(() => {

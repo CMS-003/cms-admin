@@ -5,7 +5,7 @@ import Editor from '@/components/Editor'
 import { IComponent, IEditorComponent } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import store from '@/store';
 import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';

@@ -2,7 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
 
 const Text = styled.div`

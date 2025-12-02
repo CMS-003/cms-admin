@@ -3,9 +3,23 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import hbs from 'handlebars'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
-import moment from 'moment'
 import store from '@/store'
 import { ComponentWrap } from '../style';
+import dayjs from 'dayjs';
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
+
+// 初始化插件（只初始化一次）
+let initialized = false;
+
+function init() {
+  if (!initialized) {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    initialized = true;
+  }
+}
+init();
 
 // @ts-ignore
 hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
@@ -39,7 +53,7 @@ hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 });
 hbs.registerHelper('formatDate', function (o, format) {
   if (typeof o === 'string') {
-    return moment(o).utcOffset(8).format(format);
+    return dayjs(o).utcOffset(8).format(format);
   }
   return o;
 });

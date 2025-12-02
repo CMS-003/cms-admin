@@ -4,7 +4,7 @@ import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
 import Acon from '../Acon'
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 import store from '@/store'
 import { IEditorField } from '@/types'
 import { runInAction } from 'mobx';

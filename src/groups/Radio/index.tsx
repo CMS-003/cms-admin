@@ -2,7 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
-import _ from 'lodash'
+import { get } from 'lodash-es'
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
@@ -25,7 +25,7 @@ export default function CRadio({ self, mode, drag, source = {}, setDataField, ch
         minHeight: 35,
       }} options={[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])]} onChange={e => {
         setDataField(self.widget, e.target.value);
-      }} value={_.get(source, self.widget.field)} />
+      }} value={get(source, self.widget.field)} />
     </ComponentWrap>
   )
   }</Observer >

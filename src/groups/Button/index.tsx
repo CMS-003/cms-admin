@@ -3,7 +3,7 @@ import { Button } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { usePageContext } from '../context'
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import { useNavigate } from 'react-router-dom'
 import CONST from '@/constant';
 import { Acon } from '@/components';

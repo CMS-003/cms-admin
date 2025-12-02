@@ -1,18 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { createHtmlPlugin } from 'vite-plugin-html'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   base: "/manager/",
   plugins: [
     react(),
-    nodePolyfills({
-      globals: {
-        global: true,
-        process: true,
-      },
-    }),
     createHtmlPlugin({
       minify: true,
       inject: {
@@ -22,9 +16,16 @@ export default defineConfig({
         },
       },
     }),
+    visualizer({
+      open: true,
+      filename: 'dist/stats.html', // 分析报告文件
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
   define: {
     'process.env.PUBLIC_URL': JSON.stringify('/manager'),
+    'global': 'window',
   },
   resolve: {
     alias: {

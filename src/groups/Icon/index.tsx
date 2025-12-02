@@ -6,7 +6,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
 import { usePageContext } from '../context'
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick, isEmpty } from 'lodash-es';
 import CONST from '@/constant'
 import apis from '@/api';
 import ModalPage from '../modal';
@@ -14,7 +14,6 @@ import { ComponentWrap } from '../style';
 import { useCallback, useState } from 'react';
 import store from '@/store';
 import hbs from 'handlebars'
-import _ from 'lodash';
 import type { RcFile } from 'antd/es/upload';
 import styled from 'styled-components'
 
@@ -51,7 +50,7 @@ export default function CIcon({ self, mode, drag, source, children, parent }: IA
         return;
       }
       // pick/omit keys
-      const result = await apis.fetch(self.widget.method, self.getApi(source._id), _.isEmpty(self.widget.refer) ? source : _.pick(source, self.widget.refer.map(r => r.value as string)))
+      const result = await apis.fetch(self.widget.method, self.getApi(source._id), isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
         notification.info({ title: '请求成功', placement: 'topRight' })

@@ -1,10 +1,9 @@
 import shttp from "../utils/shttp";
 import { ITemplate } from '../types'
-import qs from 'qs'
 
 const apis = {
   getTemplates: async (prop: { query?: { [key: string]: any } }) => {
-    const result: any = await shttp.get('/gw/api/v1/templates?' + qs.stringify(prop.query));
+    const result: any = await shttp.get('/gw/api/v1/templates?' + new URLSearchParams(prop.query).toString());
     return result
   },
   addTemplate: async ({ body }: { body: ITemplate }) => {

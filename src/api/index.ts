@@ -10,8 +10,7 @@ import resource from './resource'
 import componentType from './component-type'
 import schema from './schema'
 import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
-import { keyBy } from 'lodash'
-import qs from 'qs'
+import { keyBy } from 'lodash-es'
 
 function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) {
   if (map[child.type]) {
@@ -48,8 +47,8 @@ const apis = {
       projects: projectsResult.data,
     }
   },
-  getLogs: async (query: object) => {
-    return await shttp.get<ILog>(`/gw/api/v1/logs/system?${qs.stringify(query)}`)
+  getLogs: async (query: any) => {
+    return await shttp.get<ILog>(`/gw/api/v1/logs/system?${new URLSearchParams(query).toString()}`)
   },
   ...config,
   ...component,

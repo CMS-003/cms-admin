@@ -11,7 +11,7 @@ import AutoPage from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
 import { useSetTitleContext } from '@/groups/context';
-import { groupBy, isEmpty } from 'lodash';
+import { groupBy, isEmpty } from 'lodash-es';
 
 type TreeNode = {
   value: string;

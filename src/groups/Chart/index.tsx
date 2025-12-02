@@ -2,11 +2,39 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
-import * as echarts from 'echarts';
 import apis from '@/api';
 import { Acon } from '@/components';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
+import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+} from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent
+} from 'echarts/components';
+
+// 注册必须的组件
+echarts.use([
+  CanvasRenderer,
+  LineChart,
+  BarChart,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent
+]);
 
 export default function Chart({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
   const divRef = useRef<HTMLDivElement | null>(null)

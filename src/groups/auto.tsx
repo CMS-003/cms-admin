@@ -4,7 +4,7 @@ import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
-import { isArray, omit } from 'lodash'
+import { isArray, omit, isNil } from 'lodash-es'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
@@ -32,7 +32,6 @@ import {
 import { PageContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
-import _ from 'lodash';
 import { SortDD } from '@/components/SortableDD';
 import { detach } from 'mobx-state-tree';
 
@@ -339,7 +338,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         return;
       }
       value = getWidgetValue(widget, value);
-      if (_.isNil(value)) {
+      if (isNil(value)) {
         return;
       }
       if (widget.query) {

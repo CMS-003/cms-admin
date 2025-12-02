@@ -2,7 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react';
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
-import { chunk } from 'lodash';
+import { chunk } from 'lodash-es';
 import { Component } from '../auto';
 
 const Area = styled.div`

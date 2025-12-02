@@ -6,7 +6,7 @@ import { Input, Space, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
-import _ from 'lodash'
+import { isNil } from 'lodash-es'
 
 export default function CTagList({ self, mode, source = {}, setDataField, drag, children }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -21,7 +21,7 @@ export default function CTagList({ self, mode, source = {}, setDataField, drag, 
     }
   }))
   useEffectOnce(() => {
-    if (_.isNil(source[self.widget.field])) {
+    if (isNil(source[self.widget.field])) {
       setDataField(self.widget, self.widget.value)
     }
   })

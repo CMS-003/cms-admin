@@ -1,10 +1,9 @@
 import shttp from "../utils/shttp";
 import { IConfig } from '../types'
-import qs from 'qs'
 
 const config = {
-  getConfig: async (params: object) => {
-    const result = await shttp.get<IConfig>('/gw/api/v1/configs?' + qs.stringify(params));
+  getConfig: async (params: any) => {
+    const result = await shttp.get<IConfig>('/gw/api/v1/configs?' + new URLSearchParams(params).toString());
     return result
   },
   createConfig: async ({ body }: { body: IConfig }) => {

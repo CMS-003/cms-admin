@@ -6,7 +6,7 @@ import { IComponent, IConfig, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import Acon from '@/components/Acon';
 
 const ConfigPage: React.FC = () => {

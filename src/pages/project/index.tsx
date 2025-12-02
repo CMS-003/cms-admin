@@ -7,7 +7,7 @@ import { IProject, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import store from '@/store';
 import Acon from '@/components/Acon';
 

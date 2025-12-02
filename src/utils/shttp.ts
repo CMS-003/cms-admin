@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { message } from 'antd'
 import store from '../store'
-import { set, isArray } from 'lodash';
+import { set, isArray } from 'lodash-es';
 
 let isRefreshing = false;
 let requestQueue: any = [];

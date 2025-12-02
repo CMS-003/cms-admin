@@ -5,7 +5,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { usePageContext } from '../context';
 import { ComponentWrap } from '../style';
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
 export default function CInput({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
   const page = usePageContext();

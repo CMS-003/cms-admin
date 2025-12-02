@@ -9,13 +9,12 @@ import { usePageContext } from '../context'
 import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
 import events from '@/utils/event';
-import { pick, set, isEqual, isEmpty, omit } from 'lodash';
+import { pick, set, isEqual, isEmpty, omit, cloneDeep, isNil, assign } from 'lodash-es';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import store from '@/store'
 import { getWidgetValue } from '../utils'
-import _ from 'lodash'
 import { SortDD } from '@/components/SortableDD'
 
 function getFields(widget: IWidget) {
@@ -61,7 +60,7 @@ export default function CForm({ self, mode, drag, children, parent }: IAuto & IB
         } else {
           let v = args[1];
           if (args[2] === true) {
-            local.$origin = _.assign(_.cloneDeep(local.$origin), { [args[0]]: args[1] });
+            local.$origin = assign(cloneDeep(local.$origin), { [args[0]]: args[1] });
           }
           set(local.source, args[0], v)
         }
@@ -71,7 +70,7 @@ export default function CForm({ self, mode, drag, children, parent }: IAuto & IB
           return;
         }
         value = getWidgetValue(widget, value);
-        if (_.isNil(value)) {
+        if (isNil(value)) {
           return;
         }
         if (widget.query) {
