@@ -202,7 +202,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
     >
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
-        <FullHeightAuto style={{ display: 'flex', flexDirection: 'column', ...self.style }}>
+        <FullHeightAuto style={{ display: 'flex', flexDirection: 'column', paddingTop: 8, gap: 8, ...self.style }}>
           {local.booting ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div> : <SortDD
             items={self.children.map(child => ({ id: child._id, data: child }))}
             direction='vertical'

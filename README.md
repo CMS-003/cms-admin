@@ -133,6 +133,7 @@
 - ✅ 回车搜索
 - ✅ tag背景
 - ✅ 修改Popconfirm问题(Acon需要包裹span)
-- rbd改用dnd-kit
+- ✅ rbd改用dnd-kit
   - ✅ SortList
-  - NatureSortable
+  - ✅ NatureSortable
+- 组件的样式和排序列表的样式 相互影响！

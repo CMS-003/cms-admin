@@ -17,7 +17,7 @@ export default function ComponentLayout({ self, drag, children, mode, page, ...p
       <SortDD
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
-        items={self.children.map(child => ({ id: child._id, data: child }))}
+        items={self.children.map(child => ({ id: child._id, data: child, style: { flex: child.attrs.flex || 0 } }))}
         sort={self.swap}
         renderItem={(item: any) => (
           <MemoComponent

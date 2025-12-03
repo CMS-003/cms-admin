@@ -11,10 +11,11 @@ export default function CRow({ self, drag, children, mode, page, ...props }: IAu
     <ComponentWrap
       className={drag.className}
       {...drag.events}
+      style={{ width: '100%', ...self.style }}
     >
       {children}
       <SortDD
-        items={self.children.map(child => ({ id: child._id, data: child }))}
+        items={self.children.map(child => ({ id: child._id, data: child, style: { flex: 1 } }))}
         direction='horizontal'
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
         sort={self.swap}
