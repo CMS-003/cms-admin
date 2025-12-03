@@ -3,8 +3,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
-import { useModeContext, usePageContext } from '../context'
+import { message, Popconfirm, Popover, Upload, notification } from 'antd'
 import events from '@/utils/event';
 import { pick, isEmpty } from 'lodash-es';
 import CONST from '@/constant'
@@ -63,11 +62,11 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
   }, [])
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
-        flex: self.attrs.flex ? 1 : 0,
         display: 'flex',
+        ...self.style,
       }}
     >
       {children}

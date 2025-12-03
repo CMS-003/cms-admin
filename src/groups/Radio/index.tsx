@@ -15,7 +15,7 @@ export default function CRadio({ self, drag, source = {}, setDataField, children
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={self.style}
     >

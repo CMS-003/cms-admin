@@ -36,7 +36,7 @@ const TabItemWrap = styled.div`
 export default function CTab({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
-      <ComponentWrap className={mode + drag.className} {...drag.events}>
+      <ComponentWrap className={drag.className} {...drag.events}>
         {children}
         <TabWrap>
           <Tabs
@@ -49,7 +49,6 @@ export default function CTab({ self, drag, children, mode, page, ...props }: IAu
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap
-                className={mode + drag.className}
                 onContextMenu={e => {
                   e.preventDefault();
                   e.stopPropagation();

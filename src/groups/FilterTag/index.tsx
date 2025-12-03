@@ -7,7 +7,7 @@ import { useModeContext } from '../context';
 export default function ComponentFilterTag({ self, children, drag, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         flex: 0,

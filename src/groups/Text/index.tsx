@@ -4,7 +4,6 @@ import { ComponentWrap } from '../style';
 import styled from 'styled-components';
 import { isNil } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
-import { useModeContext } from '../context';
 
 const Text = styled.div`
   line-height: 1.5;
@@ -24,11 +23,9 @@ export default function CText({ self, source = {}, setDataField, drag, children,
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        flex: self.attrs.flex ? 1 : 0,
-      }}
+      style={self.style}
     >
       {children}
       <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.widget.value)}</Text>

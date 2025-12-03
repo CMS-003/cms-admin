@@ -44,7 +44,18 @@ export function Component({
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
     get className() {
-      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
+      return [
+        'component',
+        mode,
+        // 删除样式
+        self.status === 0 ? ' delete' : '',
+        // 鼠标交互
+        mode === 'edit' && store.component.hover_component_id === self._id ? ' hover' : '',
+        // 选中样式
+        store.component.editing_component_id === self._id ? ' focus' : '',
+        // 拖放交互
+        store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : '',
+      ].filter(v => v !== '').join(' ')
     },
     events: {
       onDrop: (e: any) => {
@@ -110,7 +121,7 @@ export function Component({
           query={query}
           source={source}
           setDataField={setDataField}
-          drag={mode === 'edit' ? dragStore : { isDragOver: false, className: ' component', events: {} }}
+          drag={mode === 'edit' ? dragStore : { isDragOver: false, className: 'component preview', events: {} }}
           {...(props)}
         >
           <Handler className='handler' onMouseEnter={() => {

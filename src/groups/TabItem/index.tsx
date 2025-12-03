@@ -25,7 +25,7 @@ export default function TabItem({ self, drag, children, mode, page, ...props }: 
   return <Observer>
     {() => (
       <ComponentWrap
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
         style={{ minHeight: '100%' }}
       >

@@ -49,7 +49,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
   }
     = useLocalObservable(() => ({
       booting: true,
-      loading: true,
+      loading: false,
       source: {},
       query: {},
       $origin: {},
@@ -193,7 +193,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         width: '100%',
@@ -202,7 +202,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
     >
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
-        <FullHeightAuto>
+        <FullHeightAuto style={{ display: 'flex', flexDirection: 'column', ...self.style }}>
           {local.booting ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div> : <SortDD
             items={self.children.map(child => ({ id: child._id, data: child }))}
             direction='vertical'

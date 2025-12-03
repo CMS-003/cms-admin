@@ -67,7 +67,7 @@ export default function CTpl({ self, source, drag, children, mode, page }: IAuto
   const navigate = useNavigate();
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
           navigate(`${self.url}?id=${source._id}`)

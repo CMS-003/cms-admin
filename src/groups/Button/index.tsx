@@ -24,12 +24,9 @@ export default function CButton({ self, drag, setDataField, children, mode, page
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        flex: 0,
-        ...self.style,
-      }}
+      style={self.style}
     >
       {children}
       <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon} /> : null} onClick={() => {

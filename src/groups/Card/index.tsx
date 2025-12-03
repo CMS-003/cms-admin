@@ -65,11 +65,9 @@ export default function CCard({ self, drag, children, mode, page }: IAuto & IBas
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        flex: 0,
-      }}
+      style={self.style}
     >
       {children}
       <FullHeight>

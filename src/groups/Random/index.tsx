@@ -23,9 +23,9 @@ const Content = styled.div`
 export default function CRandom({ self, drag, children, mode, page }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{ flex: 0, }}
+      style={self.style}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>

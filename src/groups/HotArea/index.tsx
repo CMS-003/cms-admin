@@ -27,11 +27,9 @@ const Row = styled.div`
 export default function CHotArea({ self, children, drag, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        flex: 0,
-      }}
+      style={self.style}
     >
       {children}
       <Area>

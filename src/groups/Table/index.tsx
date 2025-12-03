@@ -82,7 +82,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         flex: 1,

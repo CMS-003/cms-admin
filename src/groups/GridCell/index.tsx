@@ -7,7 +7,7 @@ export default function GridCell({ self, drag, children, mode, page, ...props }:
   return <Observer>
     {() => (
       <ComponentWrap
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
         style={{ height: '100%', }}
       >

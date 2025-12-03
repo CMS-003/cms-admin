@@ -11,7 +11,7 @@ export default function CCol({ self, drag, children, mode, page, initField, ...p
     <Col
       offset={self.attrs.left || 0}
       span={self.attrs.right || 6}
-      className={mode + drag.className + ComponentWrap.styledComponentId}
+      className={drag.className + ComponentWrap.styledComponentId}
       {...drag.events}
       style={{ minWidth: 0, overflowX: 'auto', flexShrink: 1, ...self.style, }}
     >

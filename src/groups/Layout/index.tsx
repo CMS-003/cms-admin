@@ -9,12 +9,9 @@ export default function ComponentLayout({ self, drag, children, mode, page, ...p
   return <Observer>{() => (
     <ComponentWrap
       id={self._id}
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        minHeight: self.children.length === 0 ? 32 : 'auto',
-        ...self.style
-      }}
+      style={self.style}
     >
       {children}
       <SortDD

@@ -37,7 +37,7 @@ export default function CTabbar({ self, drag, children, mode, page, ...props }: 
   return <Observer>
     {() => (
       <ComponentWrap
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
         style={self.style}>
         {children}
@@ -54,7 +54,6 @@ export default function CTabbar({ self, drag, children, mode, page, ...props }: 
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap
-                className={mode + drag.className}
                 onContextMenu={e => {
                   e.preventDefault();
                   e.stopPropagation();

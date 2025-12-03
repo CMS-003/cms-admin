@@ -8,7 +8,7 @@ import { SortDD } from '@/components/SortableDD';
 export default function CMenu({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         flexDirection: 'row',

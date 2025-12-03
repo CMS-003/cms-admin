@@ -30,7 +30,7 @@ export default function CSwitch({ self, query = {}, source = {}, drag, initField
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={self.style}
     >

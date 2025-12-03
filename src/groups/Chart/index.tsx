@@ -76,11 +76,9 @@ export default function Chart({ self, source = {}, drag, setDataField, children,
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        ...self.style,
-      }}
+      style={self.style}
     >
       {children}
       <div style={{ height: '100%', width: '100%' }} ref={divRef}></div>

@@ -57,7 +57,7 @@ export default function ObjectList({ self, drag, source, children, setDataField,
   }));
   return <Observer>{() => (
     <ComponentWrap key={self.children.length}
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{ justifyContent: 'center', alignItems: 'center', }}
     >

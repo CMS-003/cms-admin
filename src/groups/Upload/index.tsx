@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Button, Input, Upload, message } from 'antd'
+import { Input, Upload, message } from 'antd'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
 import { ComponentWrap } from '../style';
@@ -9,7 +9,6 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
-import { useModeContext } from '../context';
 
 const Preview = styled.div`
   display: flex;
@@ -44,7 +43,7 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
   }, [focused])
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={self.style}
     >

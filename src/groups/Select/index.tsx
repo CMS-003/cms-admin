@@ -16,11 +16,12 @@ export default function CSelect({ self, drag, source, query, setDataField, child
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         whiteSpace: 'nowrap',
         flex: 0,
+        ...self.style,
       }}
     >
       {children}

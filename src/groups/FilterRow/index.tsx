@@ -33,7 +33,7 @@ export default function CFilterRow({ self, drag, children, mode, page, ...props 
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
         style={{
           alignItems: 'center',

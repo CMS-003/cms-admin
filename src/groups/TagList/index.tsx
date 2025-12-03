@@ -2,12 +2,11 @@ import { Fragment } from 'react'
 import { Acon } from '@/components'
 import { FullHeight, FullWidth, } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Input, Space, Tag } from 'antd'
+import { Input, Tag } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import { isNil } from 'lodash-es'
-import { useModeContext } from '../context'
 
 export default function CTagList({ self, source = {}, setDataField, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -29,7 +28,7 @@ export default function CTagList({ self, source = {}, setDataField, drag, childr
   const field = self.widget.field;
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         flexDirection: 'row',

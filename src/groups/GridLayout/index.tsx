@@ -112,7 +112,7 @@ export default function GridLayout({ self, drag, children, mode, page, ...props 
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
         style={{ height: '100%', width: '100%', }}
       >

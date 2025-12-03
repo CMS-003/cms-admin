@@ -44,11 +44,9 @@ export default function CEditor({ self, drag, source, setDataField, children, mo
   };
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        ...self.style,
-      }}
+      style={self.style}
     >
       {children}
       <div

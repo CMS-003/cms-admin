@@ -13,11 +13,9 @@ export default function CCheckbox({ self, source = {}, drag, setDataField, child
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{
-        ...self.style,
-      }}
+      style={self.style}
     >
       {children}
       <div>

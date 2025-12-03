@@ -6,11 +6,9 @@ import { ComponentWrap } from '../style';
 
 export default function CField({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => <ComponentWrap
-    className={'ant-row ' + mode + drag.className}
+    className={'ant-row ' + drag.className}
     {...drag.events}
-    style={{
-      paddingTop: 5, paddingBottom: 5, ...self.style
-    }}
+    style={self.style}
   >
     {children}
     <Col span={self.attrs.left || 6}>

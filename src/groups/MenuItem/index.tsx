@@ -19,7 +19,7 @@ const MenuItem = styled.div`
 export default function CMenuItem({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
     >
       {children}

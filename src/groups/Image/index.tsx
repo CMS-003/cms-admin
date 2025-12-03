@@ -8,7 +8,7 @@ import { useModeContext } from '../context';
 export default function CImage({ self, drag, source, children, mode, page }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
     >
       {children}

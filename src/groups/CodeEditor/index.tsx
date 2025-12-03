@@ -15,7 +15,7 @@ export default function Editor({ self, drag, source, setDataField, children, mod
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
         width: '100%',

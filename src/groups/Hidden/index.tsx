@@ -1,10 +1,8 @@
-import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input } from 'antd'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use';
-import { useModeContext } from '../context';
 
 export default function CHidden({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
@@ -14,12 +12,12 @@ export default function CHidden({ self, source = {}, drag, setDataField, childre
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
       style={{
-        flex: self.style.flex,
         display: mode === 'preview' ? 'none' : 'flex',
         alignItems: 'center',
+        ...self.style,
       }}
     >
       {children}

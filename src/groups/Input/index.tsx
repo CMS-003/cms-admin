@@ -16,9 +16,9 @@ export default function CInput({ self, source = {}, drag, setDataField, children
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={{ ...self.style }}
+      style={self.style}
     >
       {children}
       <Space.Compact block>
