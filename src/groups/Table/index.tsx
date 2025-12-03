@@ -4,7 +4,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { MemoComponent } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
-import { Fragment, useCallback } from 'react'
+import { createContext, Fragment, useCallback, useContext, useState } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 import CONST from '@/constant'
@@ -15,6 +15,74 @@ import { Acon, VisualBox } from '@/components'
 import { getWidgetValue } from '../utils'
 import { isNil } from 'lodash-es'
 import { SortDD } from '@/components/SortableDD'
+
+import type { DragEndEvent, DragOverEvent, UniqueIdentifier } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import {
+  arrayMove,
+  horizontalListSortingStrategy,
+  SortableContext,
+  useSortable,
+} from '@dnd-kit/sortable';
+import type { TableColumnsType } from 'antd';
+
+interface DataType {
+  key: string;
+  name: string;
+  gender: string;
+  age: number;
+  email: string;
+  address: string;
+}
+
+interface DragIndexState {
+  active: UniqueIdentifier;
+  over: UniqueIdentifier | undefined;
+  direction?: 'left' | 'right';
+}
+
+interface CellProps extends React.HTMLAttributes<HTMLTableCellElement> {
+  id: string;
+}
+
+const DragIndexContext = createContext<DragIndexState>({ active: -1, over: -1 });
+
+const dragActiveStyle = (dragState: DragIndexState, id: string) => {
+  const { active, over } = dragState;
+  // drag active style
+  let style: React.CSSProperties = {};
+  if (active && active === id) {
+    style = { backgroundColor: 'gray', opacity: 0.5 };
+  } else if (over && id === over && active !== over) {
+    style = { borderInlineStart: '1px dashed gray' };
+  }
+  return style;
+};
+
+const TableBodyCell: React.FC<React.HTMLAttributes<HTMLTableCellElement> & { _id: string; title: string; data: IResource }> = (props) => {
+  const dragState = useContext<DragIndexState>(DragIndexContext);
+  console.log(props, 'props')
+  return <td style={{ ...dragActiveStyle(dragState, props._id) }} >{props.data[props.title] || props.title}</td>;
+};
+
+const TableHeaderCell: React.FC<CellProps & { _id: string }> = (props) => {
+  const dragState = useContext(DragIndexContext);
+  const { attributes, listeners, setNodeRef, isDragging } = useSortable({ id: props._id });
+  const style: React.CSSProperties = {
+    cursor: 'move',
+    ...(isDragging ? { position: 'relative', zIndex: 9999, userSelect: 'none' } : {}),
+    ...dragActiveStyle(dragState, props._id),
+  };
+  return <th ref={setNodeRef} style={style} {...attributes} {...listeners} >{props.title}</th>;
+};
 
 export default function CTable({ self, drag, source, query, children, mode, page }: IAuto & IBaseComponent) {
   const local: {
@@ -71,6 +139,27 @@ export default function CTable({ self, drag, source, query, children, mode, page
       local.setValue('loading', false)
     }
   }, [self.widget.action])
+
+  const [dragIndex, setDragIndex] = useState<DragIndexState>({ active: -1, over: -1 });
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (active.id !== over?.id) {
+      const oldIndex = self.children.findIndex(c => c._id === active.id)
+      const newIndex = self.children.findIndex(c => c._id === over?.id)
+      self.swap(oldIndex, newIndex)
+    }
+    setDragIndex({ active: -1, over: -1 });
+  };
+
+  const onDragOver = ({ active, over }: DragOverEvent) => {
+    const activeIndex = self.children.findIndex(c => c._id === active.id)
+    const overIndex = self.children.findIndex(c => c._id === over?.id)
+    setDragIndex({
+      active: active.id,
+      over: over?.id,
+      direction: overIndex > activeIndex ? 'right' : 'left',
+    });
+  };
+
   useEffectOnce(() => {
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
@@ -91,7 +180,61 @@ export default function CTable({ self, drag, source, query, children, mode, page
       }}
     >
       {children}
-      <Table
+      <DndContext
+        modifiers={[restrictToHorizontalAxis]}
+        onDragEnd={onDragEnd}
+        onDragOver={onDragOver}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={self.children.map((i) => i._id)} strategy={horizontalListSortingStrategy}>
+          <DragIndexContext.Provider value={dragIndex}>
+            <Table<IResource>
+              tableLayout='auto'
+              style={{ width: '100%' }}
+              loading={local.loading}
+              pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
+              rowKey={'_id'}
+              sticky={true}
+              dataSource={mode === 'edit' ? [local.temp] : local.resources}
+              onChange={p => {
+                page.setQuery('page', p.current as number);
+                page.setQuery('page_size', p.pageSize as number);
+                init();
+              }}
+              columns={self.children.map((child: IComponent, i) => ({
+                title: child.title,
+                _id: child._id,
+                key: child._id,
+                width: child.style.width || '',
+                align: child.attrs.align || 'left',
+                dataIndex: self.widget.field,
+                onHeaderCell: () => { return { _id: child._id, title: child.title } },
+                onCell: (record, rowIndex) => {
+                  return { _id: record._id, title: child.widget.field, data: record }
+                },
+              }))}
+              components={{
+                header: { cell: TableHeaderCell },
+                body: {
+                  cell: (props: any) => {
+                    const dragState = useContext<DragIndexState>(DragIndexContext);
+                    console.log(props, 'props')
+                    return <td style={{ ...dragActiveStyle(dragState, props._id) }} >
+                      {props.data[props.title] || props.title}
+                    </td>;
+                  }
+                },
+              }}
+            />
+          </DragIndexContext.Provider>
+        </SortableContext>
+        <DragOverlay>
+          <th style={{ backgroundColor: 'gray', padding: 16 }}>
+            {self.children[self.children.findIndex((i) => i._id === dragIndex.active)]?.title as React.ReactNode}
+          </th>
+        </DragOverlay>
+      </DndContext>
+      {/* <Table
         tableLayout='auto'
         style={{ width: '100%' }}
         loading={local.loading}
@@ -177,7 +320,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
                 ))}
               </Fragment>)
           )
-        }))} />
+        }))} /> */}
     </ComponentWrap>
   )}</Observer>
 }
