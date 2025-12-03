@@ -1,17 +1,15 @@
-import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
-import { Table, message } from 'antd'
+import { IAuto, IBaseComponent, IComponent, IMode, IPageInfo, IWidget } from '@/types/component'
+import { Table } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { MemoComponent } from '../auto'
+import { Component, MemoComponent } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
-import { createContext, Fragment, useCallback, useContext, useState } from 'react'
+import { createContext, Fragment, useCallback, useContext, useMemo, useState } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 import { ComponentWrap } from '../style';
-import { AlignAside } from '@/components/style'
-import { Acon, VisualBox } from '@/components'
 import { getWidgetValue } from '../utils'
 import { isNil } from 'lodash-es'
 import { SortDD } from '@/components/SortableDD'
@@ -21,36 +19,19 @@ import {
   closestCenter,
   DndContext,
   DragOverlay,
-  PointerSensor,
-  useSensor,
-  useSensors,
 } from '@dnd-kit/core';
 import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
 import {
-  arrayMove,
   horizontalListSortingStrategy,
   SortableContext,
   useSortable,
 } from '@dnd-kit/sortable';
-import type { TableColumnsType } from 'antd';
-
-interface DataType {
-  key: string;
-  name: string;
-  gender: string;
-  age: number;
-  email: string;
-  address: string;
-}
+import React from 'react'
 
 interface DragIndexState {
   active: UniqueIdentifier;
   over: UniqueIdentifier | undefined;
   direction?: 'left' | 'right';
-}
-
-interface CellProps extends React.HTMLAttributes<HTMLTableCellElement> {
-  id: string;
 }
 
 const DragIndexContext = createContext<DragIndexState>({ active: -1, over: -1 });
@@ -60,29 +41,42 @@ const dragActiveStyle = (dragState: DragIndexState, id: string) => {
   // drag active style
   let style: React.CSSProperties = {};
   if (active && active === id) {
-    style = { backgroundColor: 'gray', opacity: 0.5 };
+    style = { backgroundColor: 'lightgrey', opacity: 0.5 };
   } else if (over && id === over && active !== over) {
-    style = { borderInlineStart: '1px dashed gray' };
+    style = { borderInlineStart: '1px dashed lightgrey' };
   }
   return style;
 };
 
-const TableBodyCell: React.FC<React.HTMLAttributes<HTMLTableCellElement> & { _id: string; title: string; data: IResource }> = (props) => {
-  const dragState = useContext<DragIndexState>(DragIndexContext);
-  console.log(props, 'props')
-  return <td style={{ ...dragActiveStyle(dragState, props._id) }} >{props.data[props.title] || props.title}</td>;
-};
-
-const TableHeaderCell: React.FC<CellProps & { _id: string }> = (props) => {
+const TableHeaderCell: React.FC<React.HTMLAttributes<HTMLTableCellElement> & { _id: string; mode: IMode, page: IPageInfo; self: IComponent }> = (props) => {
   const dragState = useContext(DragIndexContext);
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({ id: props._id });
   const style: React.CSSProperties = {
-    cursor: 'move',
     ...(isDragging ? { position: 'relative', zIndex: 9999, userSelect: 'none' } : {}),
     ...dragActiveStyle(dragState, props._id),
   };
-  return <th ref={setNodeRef} style={style} {...attributes} {...listeners} >{props.title}</th>;
+  return <th ref={setNodeRef} style={style} {...attributes} {...listeners} >
+    <Component
+      self={props.self}
+      mode={props.mode}
+      page={props.page}
+      source={{ _id: props._id, title: props.title }}
+      setDataField={() => { }} />
+  </th>;
 };
+
+function createHeaderComponent<P>(
+  Component: React.ComponentType<P>
+) {
+  return React.memo(function ModeAwareComponent(props: P & { _id: string; }) {
+    // 使用 useMemo 记忆化组件
+    return useMemo(() => {
+      return <Component {...props} />;
+    }, [props]); // 只有当 props 或 mode 变化时才重新渲染
+  });
+}
+
+const HeaderCell = createHeaderComponent(TableHeaderCell)
 
 export default function CTable({ self, drag, source, query, children, mode, page }: IAuto & IBaseComponent) {
   const local: {
@@ -186,7 +180,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
         onDragOver={onDragOver}
         collisionDetection={closestCenter}
       >
-        <SortableContext items={self.children.map((i) => i._id)} strategy={horizontalListSortingStrategy}>
+        <SortableContext disabled={mode === 'preview'} items={self.children.map((i) => i._id)} strategy={horizontalListSortingStrategy}>
           <DragIndexContext.Provider value={dragIndex}>
             <Table<IResource>
               tableLayout='auto'
@@ -208,20 +202,59 @@ export default function CTable({ self, drag, source, query, children, mode, page
                 width: child.style.width || '',
                 align: child.attrs.align || 'left',
                 dataIndex: self.widget.field,
-                onHeaderCell: () => { return { _id: child._id, title: child.title } },
-                onCell: (record, rowIndex) => {
-                  return { _id: record._id, title: child.widget.field, data: record }
-                },
+                onHeaderCell: () => { return { _id: child._id, title: child.title, self: child, mode: mode, page: page } },
+                render: (t: any, d: any) => (
+                  mode === 'edit' ?
+                    <SortDD
+                      direction='vertical'
+                      items={child.children.map((c: IComponent) => ({ id: c._id, data: c }))}
+                      renderItem={(item: any) => (
+                        <MemoComponent
+                          key={item.id}
+                          self={item.data}
+                          source={local.temp}
+                          setDataField={(widget: IWidget, value: any) => {
+                            if (!widget.field) {
+                              return;
+                            }
+                            value = getWidgetValue(widget, value);
+                            if (isNil(value)) {
+                              return;
+                            }
+                            runInAction(() => {
+                              local.temp[widget.field] = value
+                            })
+                          }}
+                        />
+                      )}
+                    />
+                    : (<Fragment>
+                      {child.children.map((item: IComponent, k: number) => (
+                        <MemoComponent
+                          key={k}
+                          self={item}
+                          source={d}
+                          setDataField={(widget: IWidget, value: any) => {
+                            if (!widget.field) {
+                              return;
+                            }
+                            value = getWidgetValue(widget, value);
+                            if (isNil(value)) {
+                              return;
+                            }
+                            runInAction(() => {
+                              d[widget.field] = value
+                            })
+                          }}
+                        />
+                      ))}
+                    </Fragment>)
+                )
               }))}
               components={{
-                header: { cell: TableHeaderCell },
-                body: {
+                header: {
                   cell: (props: any) => {
-                    const dragState = useContext<DragIndexState>(DragIndexContext);
-                    console.log(props, 'props')
-                    return <td style={{ ...dragActiveStyle(dragState, props._id) }} >
-                      {props.data[props.title] || props.title}
-                    </td>;
+                    return <HeaderCell {...props} />
                   }
                 },
               }}
@@ -229,98 +262,11 @@ export default function CTable({ self, drag, source, query, children, mode, page
           </DragIndexContext.Provider>
         </SortableContext>
         <DragOverlay>
-          <th style={{ backgroundColor: 'gray', padding: 16 }}>
+          <th style={{ backgroundColor: 'lightyellow', padding: 16, border: '1px solid #ccc' }}>
             {self.children[self.children.findIndex((i) => i._id === dragIndex.active)]?.title as React.ReactNode}
           </th>
         </DragOverlay>
       </DndContext>
-      {/* <Table
-        tableLayout='auto'
-        style={{ width: '100%' }}
-        loading={local.loading}
-        pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
-        rowKey={'_id'}
-        sticky={true}
-        dataSource={mode === 'edit' ? [local.temp] : local.resources}
-        onChange={p => {
-          page.setQuery('page', p.current as number);
-          page.setQuery('page_size', p.pageSize as number);
-          init();
-        }}
-        columns={self.children.map((child, i) => ({
-          title: <Observer>{() => (<div key={i}>
-            <VisualBox visible={mode === 'edit'}>
-              <AlignAside>
-                <Acon icon="MoveLeft" onClick={() => {
-                  if (i !== 0) {
-                    runInAction(() => {
-                      self.swap(i, i - 1)
-                    })
-                  }
-                }} />
-                <Acon icon="MoveRight" onClick={() => {
-                  if (i !== self.children.length - 1) {
-                    runInAction(() => {
-                      self.swap(i, i + 1)
-                    })
-                  }
-                }} />
-              </AlignAside>
-            </VisualBox>
-            <MemoComponent self={child} source={{}} setDataField={() => { }} key={child._id} />
-          </div>)}</Observer>,
-          key: child._id,
-          width: child.style.width || '',
-          align: child.attrs.align || 'left',
-          dataIndex: self.widget.field,
-          render: (t: any, d: any) => (
-            mode === 'edit' ?
-              <SortDD
-                direction='vertical'
-                items={child.children.map((c: IComponent) => ({ id: c._id, data: c }))}
-                renderItem={(item: any) => (
-                  <MemoComponent
-                    key={item.id}
-                    self={item.data}
-                    source={local.temp}
-                    setDataField={(widget: IWidget, value: any) => {
-                      if (!widget.field) {
-                        return;
-                      }
-                      value = getWidgetValue(widget, value);
-                      if (isNil(value)) {
-                        return;
-                      }
-                      runInAction(() => {
-                        local.temp[widget.field] = value
-                      })
-                    }}
-                  />
-                )}
-              />
-              : (<Fragment>
-                {child.children.map((item: IComponent, k: number) => (
-                  <MemoComponent
-                    key={k}
-                    self={item}
-                    source={d}
-                    setDataField={(widget: IWidget, value: any) => {
-                      if (!widget.field) {
-                        return;
-                      }
-                      value = getWidgetValue(widget, value);
-                      if (isNil(value)) {
-                        return;
-                      }
-                      runInAction(() => {
-                        d[widget.field] = value
-                      })
-                    }}
-                  />
-                ))}
-              </Fragment>)
-          )
-        }))} /> */}
     </ComponentWrap>
   )}</Observer>
 }
