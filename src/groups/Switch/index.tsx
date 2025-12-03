@@ -7,7 +7,7 @@ import { ComponentWrap } from '../style';
 import CONST from '@/constant';
 import apis from '@/api';
 
-export default function CSwitch({ self, mode, query = {}, source = {}, drag, initField = true, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSwitch({ self, query = {}, source = {}, drag, initField = true, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     TRUE: '开启',
     FALSE: '关闭',

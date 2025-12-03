@@ -1,13 +1,12 @@
 import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
 import { Table, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { useEffectOnce } from 'react-use'
 import apis from '@/api'
-import { Fragment, useCallback, useEffect } from 'react'
+import { Fragment, useCallback } from 'react'
 import { IResource } from '@/types'
 import events from '@/utils/event'
-import { usePageContext } from '../context'
 import CONST from '@/constant'
 import { runInAction } from 'mobx'
 import { ComponentWrap } from '../style';
@@ -17,8 +16,7 @@ import { getWidgetValue } from '../utils'
 import { isNil } from 'lodash-es'
 import { SortDD } from '@/components/SortableDD'
 
-export default function CTable({ self, mode, drag, source, query, children }: IAuto & IBaseComponent) {
-  const page = usePageContext()
+export default function CTable({ self, drag, source, query, children, mode, page }: IAuto & IBaseComponent) {
   const local: {
     loading: boolean,
     resources: IResource[],
@@ -26,10 +24,12 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
     setResources: (resource: IResource[]) => void;
     setValue: Function;
     changeResource: Function;
+    temp: any;
   } = useLocalObservable(() => ({
     resources: [],
     loading: false,
     total: 0,
+    temp: { _id: 'temp' },
     setResources(resources: IResource[]) {
       local.resources = resources;
     },
@@ -98,7 +98,7 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
         pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
         rowKey={'_id'}
         sticky={true}
-        dataSource={mode === 'edit' ? [source] : local.resources}
+        dataSource={mode === 'edit' ? [local.temp] : local.resources}
         onChange={p => {
           page.setQuery('page', p.current as number);
           page.setQuery('page_size', p.pageSize as number);
@@ -124,7 +124,7 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
                 }} />
               </AlignAside>
             </VisualBox>
-            <Component self={child} mode={mode} source={{}} setDataField={() => { }} key={child._id} />
+            <MemoComponent self={child} source={{}} setDataField={() => { }} key={child._id} />
           </div>)}</Observer>,
           key: child._id,
           width: child.style.width || '',
@@ -133,15 +133,13 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
           render: (t: any, d: any) => (
             mode === 'edit' ?
               <SortDD
-                mode='edit'
                 direction='vertical'
                 items={child.children.map((c: IComponent) => ({ id: c._id, data: c }))}
                 renderItem={(item: any) => (
-                  <Component
+                  <MemoComponent
                     key={item.id}
                     self={item.data}
-                    mode={mode}
-                    source={d}
+                    source={local.temp}
                     setDataField={(widget: IWidget, value: any) => {
                       if (!widget.field) {
                         return;
@@ -151,7 +149,7 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
                         return;
                       }
                       runInAction(() => {
-                        d[widget.field] = value
+                        local.temp[widget.field] = value
                       })
                     }}
                   />
@@ -159,10 +157,9 @@ export default function CTable({ self, mode, drag, source, query, children }: IA
               />
               : (<Fragment>
                 {child.children.map((item: IComponent, k: number) => (
-                  <Component
+                  <MemoComponent
                     key={k}
                     self={item}
-                    mode={mode}
                     source={d}
                     setDataField={(widget: IWidget, value: any) => {
                       if (!widget.field) {

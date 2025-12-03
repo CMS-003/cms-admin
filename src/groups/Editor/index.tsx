@@ -7,8 +7,9 @@ import { stateToHTML } from 'draft-js-export-html';
 import 'draft-js/dist/Draft.css';
 import { ComponentWrap } from '../style';
 import store from '@/store';
+import { useModeContext } from '../context';
 
-export default function CEditor({ self, mode, drag, source, setDataField, children }: IAuto & IBaseComponent) {
+export default function CEditor({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const [editorState, setEditorState] = React.useState(
     () => EditorState.createEmpty(),
   );

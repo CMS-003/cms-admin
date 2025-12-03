@@ -1,11 +1,12 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Col } from 'antd'
 import { Observer } from 'mobx-react'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { ComponentWrap } from '../style';
+import { useModeContext } from '../context';
 
 
-export default function CCol({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CCol({ self, drag, children, mode, page, initField, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <Col
       offset={self.attrs.left || 0}
@@ -16,8 +17,7 @@ export default function CCol({ self, mode, drag, children, ...props }: IAuto & I
     >
       {children}
       {self.children.map((child, index) => (
-        <Component
-          mode={mode}
+        <MemoComponent
           self={child}
           key={index}
           {...props}

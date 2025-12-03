@@ -1,7 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Button } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { usePageContext } from '../context'
 import events from '@/utils/event';
 import { pick } from 'lodash-es';
 import { useNavigate } from 'react-router-dom'
@@ -10,9 +9,8 @@ import { Acon } from '@/components';
 import ModalPage from '../modal';
 import { ComponentWrap } from '../style';
 
-export default function CButton({ self, mode, drag, setDataField, children }: IAuto & IBaseComponent) {
+export default function CButton({ self, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const navigate = useNavigate()
-  const page = usePageContext()
   const local = useLocalObservable(() => ({
     template_id: '',
     id: '',

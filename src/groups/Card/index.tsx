@@ -53,7 +53,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function CCard({ self, mode, drag, children }: IAuto & IBaseComponent) {
+export default function CCard({ self, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     show: false,
     close() {

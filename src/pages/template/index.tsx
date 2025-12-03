@@ -155,8 +155,8 @@ const ComponentTemplatePage: React.FC = () => {
   useEffectOnce(() => {
     refresh()
   })
-  return (<Observer>{() => <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0 10px', overflow: 'hidden' }}>
-    <Space style={{ padding: '8px 0' }}>
+  return (<Observer>{() => <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <Space style={{ margin: 10 }}>
       <Select defaultValue={local.selectedProjectId} onChange={v => {
         local.selectedProjectId = v;
         refresh()

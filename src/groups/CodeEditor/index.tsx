@@ -5,8 +5,9 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
+import { useModeContext } from '../context';
 
-export default function Editor({ self, mode, drag, source, setDataField, children }: IAuto & IBaseComponent) {
+export default function Editor({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)

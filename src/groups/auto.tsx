@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useRef, useMemo } from 'react';
 import { useEffectOnce } from 'react-use';
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import { Component as ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget } from '@/types'
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget, IMode } from '@/types'
 import BaseComponent from './index';
 import GroupMenu from './contextmenu'
 import Edit from './edit'
@@ -29,13 +29,17 @@ import {
   ConerLT,
   ConerRT,
 } from './style'
-import { PageContext, useSetTitleContext } from './context';
+import { ModeContext, PageContext, useModeContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 import { SortDD } from '@/components/SortableDD';
-import { detach } from 'mobx-state-tree';
+import React from 'react';
 
-export function Component({ self, children, mode, query, source, setDataField, page, parent, ...props }: IAuto) {
+export function Component({
+  self, children,
+  query, source, setDataField,
+  mode, page, parent,
+  ...props }: IAuto & { mode?: IMode; page?: IPageInfo }) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
@@ -100,8 +104,8 @@ export function Component({ self, children, mode, query, source, setDataField, p
       {() => (
         <Com
           self={self}
-          mode={mode}
-          page={page}
+          mode={mode as IMode}
+          page={page as IPageInfo}
           parent={parent}
           query={query}
           source={source}
@@ -137,14 +141,22 @@ export function Component({ self, children, mode, query, source, setDataField, p
   }
 }
 
-const ScrollWrap = styled.div`
-  flex: 1;
-  height: 100%;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`
+// 记忆化组件工厂
+function createMemoComponent<P>(
+  Component: React.ComponentType<P>
+) {
+  return React.memo(function ModeAwareComponent(props: P) {
+    const mode = useContext(ModeContext);
+    const page = useContext(PageContext)
+
+    // 使用 useMemo 记忆化组件
+    return useMemo(() => {
+      return <Component {...props} mode={mode} page={page} />;
+    }, [props, mode]); // 只有当 props 或 mode 变化时才重新渲染
+  });
+}
+
+export const MemoComponent = createMemoComponent(Component);
 
 function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
   const new_node: any = omit(node, ['$new', '$selected', 'children', '$origin', '_id']);
@@ -161,7 +173,7 @@ function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
   return new_node;
 }
 
-export default function AutoPage({ parent, template_id, mode, path, close }: { parent?: IPageInfo, template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
+export default function AutoPage({ parent, template_id, mode, path, close }: { parent?: IPageInfo, template_id: string, mode: IMode, path: string, close: Function, [key: string]: any }) {
   const page = useLocalObservable<IPageInfo>(() => ({
     template_id,
     path,
@@ -427,24 +439,24 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     }
   })
   return <PageContext.Provider value={page}>
-    <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-      <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string) => {
-        navigator.clipboard.readText()
-          .then((text) => {
-            console.log('已读取剪贴板:');
-            onPasteComponent(text, id)
-            // 可以在这里添加复制成功的提示
-          })
-          .catch(err => {
-            console.error('读取失败:', err);
-          });
-      }} />
-      <div style={{ display: 'flex', width: '100%', height: 'calc(100% - 20px)', margin: 10, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', boxShadow: mode === 'edit' ? '0 0 10px #1890ff' : '' }}>
-        <div className='hidden-scrollbar' style={{
-          height: '100%',
-          minWidth: 400,
+    <ModeContext.Provider value={mode}>
+      <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+        <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string) => {
+          navigator.clipboard.readText()
+            .then((text) => {
+              console.log('已读取剪贴板:');
+              onPasteComponent(text, id)
+              // 可以在这里添加复制成功的提示
+            })
+            .catch(err => {
+              console.error('读取失败:', err);
+            });
+        }} />
+        <div style={{
+          display: 'flex',
           width: '100%',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          ...(mode === 'edit' ? { boxShadow: '0 0 10px #1890ff', height: 'calc(100% - 20px)', margin: 10 } : { height: '100%' }),
         }}>
           <Observer>{() => {
             if (local.loading) {
@@ -455,12 +467,11 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 onDragLeave={local.onDragLeave}
                 onDrop={local.onDrop}
                 className={`${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-                style={{ flexDirection: 'column', ...toJS(local.template?.style) }}
+                style={{ flexDirection: 'column', width: '100%', ...toJS(local.template?.style) }}
               >
                 <SortDD
-                  mode={mode as 'edit' | 'preview'}
                   direction='vertical'
-                  disabled={store.component.can_drag_id !== ''}
+                  disabled={mode === 'preview' || store.component.can_drag_id !== ''}
                   items={local.template.children.map(child => ({ id: child._id, data: child }))}
                   sort={(oldIndex, newIndex) => {
                     runInAction(() => {
@@ -473,9 +484,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                     })
                   }}
                   renderItem={(item: any) => (
-                    <Component
+                    <MemoComponent
                       self={item.data}
-                      mode={mode}
                       parent={parent}
                       source={local.source}
                       query={page.query}
@@ -490,11 +500,11 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           }
           }</Observer >
         </div>
-      </div>
-      {local.editComponent && (
-        <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.setEditPanelKey(v) }} />
-      )}
-    </div>)
-    }</Observer >
+        {local.editComponent && (
+          <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.setEditPanelKey(v) }} />
+        )}
+      </div>)
+      }</Observer >
+    </ModeContext.Provider>
   </PageContext.Provider>
 }

@@ -2,10 +2,9 @@ import { Center, FullHeightAuto, FullWidthAuto } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button, message, Space } from 'antd'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { useCallback, useEffect } from 'react'
 import apis from '@/api'
-import { usePageContext } from '../context'
 import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
 import events from '@/utils/event';
@@ -33,22 +32,24 @@ function getFields(widget: IWidget) {
   return { picks, omits }
 }
 
-export default function CForm({ self, mode, drag, children, parent }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CForm({ self, drag, children, parent, mode, page }: IAuto & IBaseComponent) {
   const local: {
     source: { [key: string]: any };
     query: { [key: string]: any };
     $origin: { [key: string]: any };
+    booting: boolean;
     loading: boolean;
     setSource: Function;
     setDataField: (widget: IWidget, value: any) => void;
     getDiff: Function;
     isDiff: Function;
+    setBooting: Function;
     setLoading: Function;
     setSubStatus: Function;
   }
     = useLocalObservable(() => ({
-      loading: false,
+      booting: true,
+      loading: true,
       source: {},
       query: {},
       $origin: {},
@@ -102,6 +103,9 @@ export default function CForm({ self, mode, drag, children, parent }: IAuto & IB
       isDiff() {
         return !isEmpty(local.getDiff())
       },
+      setBooting(b: boolean) {
+        local.booting = b
+      },
       setLoading(b: boolean) {
         local.loading = b
       },
@@ -124,7 +128,8 @@ export default function CForm({ self, mode, drag, children, parent }: IAuto & IB
       }
       local.setLoading(false)
     }
-  }, [self.widget.action, page.query['id']])
+    local.setBooting(false)
+  }, [self.widget.action])
   const updateInfo = useCallback(async (close = false) => {
     try {
       local.setLoading(true)
@@ -198,28 +203,26 @@ export default function CForm({ self, mode, drag, children, parent }: IAuto & IB
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
         <FullHeightAuto>
-          <SortDD
-            mode={mode as 'edit' | 'preview'}
+          {local.booting ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div> : <SortDD
             items={self.children.map(child => ({ id: child._id, data: child }))}
             direction='vertical'
             disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
             sort={self.swap}
             renderItem={(item: any) => (
-              <Component
+              <MemoComponent
                 self={item.data}
-                mode={mode}
                 source={local.source}
                 setDataField={local.setDataField}
                 page={page}
               />
             )}
-          />
+          />}
         </FullHeightAuto>
         <Center>
-          <Space style={{ padding: 8 }}>
+          {!local.booting && <Space style={{ padding: 8 }}>
             <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
             <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
-          </Space>
+          </Space>}
         </Center>
       </FullWidthAuto>
     </ComponentWrap>

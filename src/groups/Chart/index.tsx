@@ -21,6 +21,7 @@ import {
   DatasetComponent,
   TransformComponent
 } from 'echarts/components';
+import { useModeContext } from '../context';
 
 // 注册必须的组件
 echarts.use([
@@ -36,7 +37,7 @@ echarts.use([
   TransformComponent
 ]);
 
-export default function Chart({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
+export default function Chart({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const divRef = useRef<HTMLDivElement | null>(null)
   const [inited, setInited] = useState(false)
   const instanceRef = useRef<any>(null)

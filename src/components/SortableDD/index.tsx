@@ -59,7 +59,6 @@ export function SortDD({
   direction,
   items,
   sort,
-  mode,
   handle = false,
   disabled = false,
   renderItem,
@@ -70,7 +69,6 @@ export function SortDD({
     sort?: (oldIndex: number, newIndex: number) => void,
     handle?: boolean,
     disabled?: boolean,
-    mode: 'edit' | 'preview',
     onDragEnd?: Function,
     renderItem: Function,
     children?: Element;
@@ -83,7 +81,7 @@ export function SortDD({
         style={item.data.style}
         item={item}
         handle={handle}
-        disabled={mode === 'preview'}
+        disabled={item.disabled}
         renderItem={renderItem}
       />
     })

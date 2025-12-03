@@ -4,8 +4,9 @@ import { Input } from 'antd'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use';
+import { useModeContext } from '../context';
 
-export default function CHidden({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
+export default function CHidden({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)

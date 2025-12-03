@@ -7,7 +7,7 @@ import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CSelect({ self, mode, drag, source, query, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSelect({ self, drag, source, query, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const data = !self.widget.query ? source : query;
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {

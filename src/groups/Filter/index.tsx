@@ -1,13 +1,13 @@
 import { FullHeight, FullHeightAuto, FullHeightFix } from '@/components/style'
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react';
 import { ComponentWrap } from '../style';
 import store from '@/store';
 import { SortDD } from '@/components/SortableDD';
 import { Empty } from 'antd';
 
-export default function CFilter({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CFilter({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
@@ -19,15 +19,13 @@ export default function CFilter({ self, mode, drag, children, ...props }: IAuto 
         <FullHeight style={{ flex: 1 }}>
           <FullHeightFix style={{ flexDirection: 'column', width: '100%' }}>
             <SortDD
-              mode={mode as 'edit' | 'preview'}
               items={self.children.map(child => ({ id: child._id, data: child }))}
               direction='vertical'
               disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
               sort={self.swap}
               renderItem={(item: any) => (
-                <Component
+                <MemoComponent
                   self={item.data}
-                  mode={mode}
                   {...props}
                 />
               )}

@@ -1,7 +1,7 @@
 
 import { Center, FullHeight } from '@/components/style'
 import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Acon, Style } from '@/components'
@@ -28,7 +28,7 @@ const ObjectItem = styled.div`
   }
 `
 
-export default function ObjectList({ self, mode, drag, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
+export default function ObjectList({ self, drag, source, children, setDataField, mode, page, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
     showAdd: boolean;
     source: any;
@@ -65,7 +65,6 @@ export default function ObjectList({ self, mode, drag, source, children, setData
       <FullHeight style={{ flex: 1 }}>
         {mode === 'preview'
           ? <SortDD
-            mode='preview'
             direction='vertical'
             handle
             sort={(srcIndex: number, dstIndex: number) => {
@@ -89,10 +88,9 @@ export default function ObjectList({ self, mode, drag, source, children, setData
                   gap: 2,
                 }}>
                   {self.children.map(child => (
-                    <Component
+                    <MemoComponent
                       key={child._id}
                       self={child}
-                      mode={mode}
                       source={item.data}
                       initField={false}
                       setDataField={(widget: IWidget, value: any) => {
@@ -115,14 +113,12 @@ export default function ObjectList({ self, mode, drag, source, children, setData
             )}
           />
           : <SortDD
-            mode='edit'
             direction='vertical'
             sort={self.swap}
             items={self.children.map(child => ({ id: child._id, data: child }))}
             renderItem={(item: any) => (
-              <Component
+              <MemoComponent
                 self={item.data as IComponent}
-                mode='edit'
                 source={local.source}
                 setDataField={local.setTempDataField}
                 {...props}
@@ -134,10 +130,9 @@ export default function ObjectList({ self, mode, drag, source, children, setData
           <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 2, border: '1px dashed #ccc' }}>
             {
               self.children.map(child => (
-                <Component
+                <MemoComponent
                   key={child._id}
                   self={child}
-                  mode={mode}
                   source={local.source}
                   setDataField={(widget: IWidget, value: any) => {
                     local.setTempDataField(widget, value)

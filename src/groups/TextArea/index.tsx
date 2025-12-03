@@ -4,8 +4,9 @@ import { Input } from 'antd'
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
 import JSON5 from 'json5';
+import { useModeContext } from '../context';
 
-export default function CTextArea({ self, mode, drag, source, setDataField, children }: IAuto & IBaseComponent) {
+export default function CTextArea({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)

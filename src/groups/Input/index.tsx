@@ -2,13 +2,12 @@ import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Space } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { usePageContext } from '../context';
+import { useModeContext, usePageContext } from '../context';
 import { ComponentWrap } from '../style';
 import events from '@/utils/event';
 import { pick } from 'lodash-es';
 
-export default function CInput({ self, mode, source = {}, drag, setDataField, children }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CInput({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     composing: false,
     setComposition(is: boolean) {
@@ -19,9 +18,7 @@ export default function CInput({ self, mode, source = {}, drag, setDataField, ch
     <ComponentWrap
       className={mode + drag.className}
       {...drag.events}
-      style={{
-        flex: self.style.flex,
-      }}
+      style={{ ...self.style }}
     >
       {children}
       <Space.Compact block>
@@ -54,7 +51,6 @@ export default function CInput({ self, mode, source = {}, drag, setDataField, ch
             }
           }} />
       </Space.Compact>
-
     </ComponentWrap>
   )}</Observer>
 }

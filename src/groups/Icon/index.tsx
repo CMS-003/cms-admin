@@ -4,7 +4,7 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
-import { usePageContext } from '../context'
+import { useModeContext, usePageContext } from '../context'
 import events from '@/utils/event';
 import { pick, isEmpty } from 'lodash-es';
 import CONST from '@/constant'
@@ -28,9 +28,8 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CIcon({ self, mode, drag, source, children, parent }: IAuto & IBaseComponent) {
+export default function CIcon({ self, drag, source, children, parent, mode, page }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
-  const page = usePageContext();
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
   const local = useLocalObservable(() => ({

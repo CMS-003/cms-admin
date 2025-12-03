@@ -1,6 +1,6 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
@@ -22,7 +22,7 @@ const Row = styled.div`
   align-items: flex-start;
 `
 
-export default function CFilterRow({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CFilterRow({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.selected) {
@@ -42,15 +42,13 @@ export default function CFilterRow({ self, mode, drag, children, ...props }: IAu
       >
         {children}
         <SortDD
-          mode={mode as 'edit' | 'preview'}
           items={self.children.map(child => ({ id: child._id, data: child }))}
           direction='horizontal'
           disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
           sort={self.swap}
           renderItem={(item: any) => (
-            <Component
+            <MemoComponent
               self={item.data}
-              mode={mode}
               {...props}
             />
           )}

@@ -1,7 +1,7 @@
 import { IAuto, IBaseComponent } from "@/types"
-import { Observer, useLocalObservable } from 'mobx-react'
+import { Observer } from 'mobx-react'
 import styled from 'styled-components'
-import { Component } from "../auto"
+import { MemoComponent } from "../auto"
 import { ComponentWrap } from '../style';
 
 export const TabItemWrap = styled.div`
@@ -21,7 +21,7 @@ export const TabItemWrap = styled.div`
     background-color: #df3540;
   }
 `
-export default function TabItem({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function TabItem({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap
@@ -30,7 +30,7 @@ export default function TabItem({ self, mode, drag, children, ...props }: IAuto 
         style={{ minHeight: '100%' }}
       >
         <TabItemWrap>
-          {self.children.map((child, index) => <Component mode={mode} self={child} key={index}{...props} />)}
+          {self.children.map((child, index) => <MemoComponent self={child} key={index}{...props} />)}
         </TabItemWrap>
       </ComponentWrap>
     )}

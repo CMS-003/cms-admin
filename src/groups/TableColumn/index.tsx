@@ -1,8 +1,9 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
+import { useModeContext } from '../context';
 
-export default function TableColumn({ self, mode, source, drag, isTitle = true, children }: IAuto & IBaseComponent & { isTitle?: boolean }) {
+export default function TableColumn({ self, source, drag, isTitle = true, children, mode, page }: IAuto & IBaseComponent & { isTitle?: boolean }) {
   return <Observer>{() => (
     <ComponentWrap
       key={self._id}

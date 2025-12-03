@@ -7,8 +7,9 @@ import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import { isNil } from 'lodash-es'
+import { useModeContext } from '../context'
 
-export default function CTagList({ self, mode, source = {}, setDataField, drag, children }: IAuto & IBaseComponent) {
+export default function CTagList({ self, source = {}, setDataField, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     addVisible: false,
     tempTag: '',

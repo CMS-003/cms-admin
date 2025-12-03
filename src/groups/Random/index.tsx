@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import Acon from '@/components/Acon'
 import { ComponentWrap } from '../style';
 import { FullHeight } from '@/components/style';
+import { useModeContext } from '../context';
 
 const Header = styled.div`
  font-weight: 600;
@@ -19,7 +20,7 @@ background-color: #fff;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CRandom({ self, mode, drag, children }: IAuto & IBaseComponent) {
+export default function CRandom({ self, drag, children, mode, page }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       className={mode + drag.className}

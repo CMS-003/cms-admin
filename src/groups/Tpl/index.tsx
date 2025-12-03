@@ -8,6 +8,7 @@ import { ComponentWrap } from '../style';
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import { useModeContext } from '../context'
 
 // 初始化插件（只初始化一次）
 let initialized = false;
@@ -59,7 +60,7 @@ hbs.registerHelper('formatDate', function (o, format) {
 });
 
 
-export default function CTpl({ self, mode, source, drag, children }: IAuto & IBaseComponent) {
+export default function CTpl({ self, source, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value as string, {})
   }))

@@ -9,6 +9,7 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
+import { useModeContext } from '../context';
 
 const Preview = styled.div`
   display: flex;
@@ -23,7 +24,7 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CUpload({ self, mode, drag, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+export default function CUpload({ self, drag, source = {}, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const inputRef = useRef(null);
   const [url, setURL] = useState('')
   const [preview, setPreview] = useState('')

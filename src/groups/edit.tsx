@@ -167,7 +167,6 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   }} />
                   参考值
                   <SortDD
-                    mode="edit"
                     direction='vertical'
                     handle={true}
                     items={[...data.widget.refer, ...(store.global.getValue(data.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
@@ -241,7 +240,6 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                 <EditItem>
                   静态数据
                   <SortDD
-                    mode="edit"
                     direction='vertical'
                     items={((data.resources || []).map(v => ({ id: v._id, data: v })))}
                     renderItem={(item: any, handler: any) => {

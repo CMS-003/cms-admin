@@ -2,6 +2,8 @@ import { DraggableProvided } from "react-beautiful-dnd";
 import { type IComponent } from "@/store/component";
 export { type IComponent };
 
+export type IMode = 'edit' | 'preview'
+
 export type IPageInfo = {
   template_id: string;
   path: string;
@@ -40,16 +42,16 @@ export type IWidget = {
 
 export type IAuto = {
   self: IComponent;
-  mode: string;
   parent?: IPageInfo;
   children?: any;
   query?: any;
   source: any;
   initField?: boolean;
   setDataField: (widget: IWidget, value: any) => void;
-  [key: string]: any;
 }
 export type IBaseComponent = {
+  mode:IMode;
+  page:IPageInfo;
   drag: {
     isDragOver: boolean;
     get className(): string;

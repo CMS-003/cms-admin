@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useRef, useState } from "react";
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer, useLocalObservable } from 'mobx-react';
 import { ComponentWrap } from '../style';
 import { get, map, isNil, isEmpty, isEqual, cloneDeep } from 'lodash-es'
@@ -44,7 +44,7 @@ const GridLines = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
   );
 })
 
-export default function GridLayout({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function GridLayout({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     loading: true,
     layouts: [],
@@ -146,10 +146,8 @@ export default function GridLayout({ self, mode, drag, children, ...props }: IAu
         >
           {self.children.map((child) => (
             <Cell key={child._id}>
-              <Component
-                key={child._id}
+              <MemoComponent
                 self={child}
-                mode={mode}
                 {...props} />
             </Cell>
           ))}

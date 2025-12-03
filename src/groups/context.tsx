@@ -1,4 +1,4 @@
-import { IPageInfo } from '@/types';
+import { IMode, IPageInfo } from '@/types';
 import { createContext, useContext } from 'react'
 
 export const PageContext = createContext<IPageInfo>({
@@ -20,4 +20,9 @@ export function usePageContext() {
 export const TitleContext = createContext<(path: string, title: string) => void>(() => { });
 export function useSetTitleContext() {
   return useContext(TitleContext);
+}
+
+export const ModeContext = createContext<IMode>('edit');
+export function useModeContext() {
+  return useContext(ModeContext);
 }

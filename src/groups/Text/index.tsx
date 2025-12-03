@@ -4,6 +4,7 @@ import { ComponentWrap } from '../style';
 import styled from 'styled-components';
 import { isNil } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
+import { useModeContext } from '../context';
 
 const Text = styled.div`
   line-height: 1.5;
@@ -15,7 +16,7 @@ const Text = styled.div`
   min-height: 32px;
 `
 
-export default function CText({ self, mode, source = {}, setDataField, drag, children }: IAuto & IBaseComponent) {
+export default function CText({ self, source = {}, setDataField, drag, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)

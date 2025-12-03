@@ -2,12 +2,11 @@ import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IAuto, IBaseComponent } from '@/types/component';
 import Acon from '@/components/Acon'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
 import { Fragment } from "react";
 import Auto from '../auto'
-import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
 import { cloneDeep } from "lodash-es";
 
@@ -34,8 +33,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, drag, children, ...props }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CTab({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
       <ComponentWrap className={mode + drag.className} {...drag.events}>
@@ -68,7 +66,7 @@ export default function CTab({ self, mode, drag, children, ...props }: IAuto & I
                 child.attrs.content_type === 'template' ? (<Fragment>
                   <Auto mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
                 </Fragment>) :
-                  <Component mode={mode} self={child} key={i} index={i} {...props} />
+                  <MemoComponent self={child} key={i} {...props} />
               )
             }))}
           >
