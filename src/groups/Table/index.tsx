@@ -203,7 +203,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
                 align: child.attrs.align || 'left',
                 dataIndex: self.widget.field,
                 onHeaderCell: () => { return { _id: child._id, title: child.title, self: child, mode: mode, page: page } },
-                render: (t: any, d: any) => (
+                render: (data: any) => (
                   mode === 'edit' ?
                     <SortDD
                       direction='vertical'
@@ -233,7 +233,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
                         <MemoComponent
                           key={k}
                           self={item}
-                          source={d}
+                          source={data}
                           setDataField={(widget: IWidget, value: any) => {
                             if (!widget.field) {
                               return;
@@ -243,7 +243,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
                               return;
                             }
                             runInAction(() => {
-                              d[widget.field] = value
+                              data[widget.field] = value
                             })
                           }}
                         />

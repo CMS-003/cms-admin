@@ -2,7 +2,6 @@ import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Space } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { useModeContext, usePageContext } from '../context';
 import { ComponentWrap } from '../style';
 import events from '@/utils/event';
 import { pick } from 'lodash-es';

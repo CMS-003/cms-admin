@@ -5,7 +5,6 @@ import { useEffectOnce } from 'react-use';
 import { get } from 'lodash-es'
 import { ComponentWrap } from '../style';
 import store from '@/store';
-import { useModeContext } from '../context';
 
 export default function CRadio({ self, drag, source = {}, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {

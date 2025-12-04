@@ -21,7 +21,6 @@ import {
   DatasetComponent,
   TransformComponent
 } from 'echarts/components';
-import { useModeContext } from '../context';
 
 // 注册必须的组件
 echarts.use([

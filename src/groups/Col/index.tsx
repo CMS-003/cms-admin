@@ -3,7 +3,6 @@ import { Col } from 'antd'
 import { Observer } from 'mobx-react'
 import { MemoComponent } from '../auto'
 import { ComponentWrap } from '../style';
-import { useModeContext } from '../context';
 
 
 export default function CCol({ self, drag, children, mode, page, initField, ...props }: IAuto & IBaseComponent) {

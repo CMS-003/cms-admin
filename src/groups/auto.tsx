@@ -495,7 +495,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 <SortDD
                   direction='vertical'
                   disabled={mode === 'preview' || store.component.can_drag_id !== ''}
-                  items={local.template.children.map(child => ({ id: child._id, data: child, style: child.type === 'Form' ? { height: '100%' } : (child.type === 'Table' || child.type === 'Menu' ? { flex: 1, overflow: 'auto' } : {}) }))}
+                  items={local.template.children.map(child => ({ id: child._id, data: child, style: child.type === 'Form' ? { height: '100%' } : (child.type === 'Table' || child.type === 'Menu' || child.type === 'GridLayout' ? { flex: 1, overflow: 'auto' } : {}) }))}
                   sort={(oldIndex, newIndex) => {
                     runInAction(() => {
                       if (!local.template) return;

@@ -3,7 +3,6 @@ import { Checkbox } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
-import { useModeContext } from '../context';
 
 export default function CCheckbox({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {

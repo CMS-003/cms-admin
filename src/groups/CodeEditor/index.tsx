@@ -5,7 +5,6 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
-import { useModeContext } from '../context';
 
 export default function Editor({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {

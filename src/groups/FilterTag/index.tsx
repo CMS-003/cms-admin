@@ -2,7 +2,6 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Tag } from 'antd'
 import { Observer } from 'mobx-react';
 import { ComponentWrap } from '../style';
-import { useModeContext } from '../context';
 
 export default function ComponentFilterTag({ self, children, drag, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (

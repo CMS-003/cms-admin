@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import Acon from '@/components/Acon'
 import { ComponentWrap } from '../style';
 import { FullHeight } from '@/components/style';
-import { useModeContext } from '../context';
 
 const Header = styled.div`
  font-weight: 600;
