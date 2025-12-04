@@ -16,7 +16,7 @@ export default function CMenu({ self, drag, children, mode, page, ...props }: IA
       }}
     >
       {children}
-      <div style={{ height: '100%', display: 'flex', flexDirection: self.attrs.layout === 'vertical' ? 'column' : 'row' }}>
+      <div style={{ height: '100%', display: 'flex', overflow: 'auto', flex: 1, flexDirection: self.attrs.layout === 'vertical' ? 'column' : 'row' }}>
         <SortDD
           items={self.children.map(child => ({ id: child._id, data: child }))}
           direction='vertical'

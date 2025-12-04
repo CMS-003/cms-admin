@@ -28,22 +28,7 @@ const ScrollWrap = styled.div`
     display: none;
   }
 `
-const Temp = types.model({
-  list: types.array(types.model({ id: types.string, label: types.string, value: types.string }))
-}).actions(self => ({
-  sort(oldIndex: number, newIndex: number) {
 
-  }
-}));
-
-const temp = Temp.create({
-  list: [
-    { id: '-', label: '-', value: '', },
-    { id: '1', label: '1', value: '1', },
-    { id: '2', label: '2', value: '2', },
-    { id: '3', label: '3', value: '3', },
-  ]
-})
 const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent, setData: Function, tabkey: string, setTabkey: Function }) => {
   const local = useLocalObservable(() => ({
     addWidgetReferVisible: false,
@@ -158,13 +143,24 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   </Space.Compact>
                 </EditItem>
                 <EditItem>
-                  <Input prefix="来源" placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
-                    data.setWidget('source', e.target.value);
-                  }} />
-                  默认值
-                  <Input.TextArea value={data.widget.value.toString()} onChange={e => {
-                    data.setWidget('value', e.target.value);
-                  }} />
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>字段</Space.Addon>
+                    <Input value={data.widget.field} onChange={e => {
+                      data.setWidget('field', e.target.value);
+                    }} />
+                  </Space.Compact>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>来源</Space.Addon>
+                    <Input placeholder="默认" defaultValue={data.widget.source} onBlur={e => {
+                      data.setWidget('source', e.target.value);
+                    }} />
+                  </Space.Compact>
+                  <Space.Compact block orientation="vertical">
+                    默认值
+                    <Input.TextArea value={data.widget.value.toString()} onChange={e => {
+                      data.setWidget('value', e.target.value);
+                    }} />
+                  </Space.Compact>
                   参考值
                   <SortDD
                     direction='vertical'
@@ -192,10 +188,16 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                   <AlignAround>
                     {local.addWidgetReferVisible
                       ? <Fragment>
-                        <Input prefix='名称' />
+                        <Space.Compact block>
+                          <Space.Addon style={{ flexShrink: 0 }}>名称</Space.Addon>
+                          <Input />
+                        </Space.Compact>
                         <Divider orientation="vertical" />
-                        <Input prefix='值' />
-                        <Acon icon='Check' onClick={e => {
+                        <Space.Compact block>
+                          <Space.Addon style={{ flexShrink: 0 }}>值</Space.Addon>
+                          <Input />
+                        </Space.Compact>
+                        <Acon icon='CircleCheck' style={{ marginLeft: 5 }} onClick={e => {
                           const op = e.currentTarget.parentElement;
                           if (op && data) {
                             const oinputs = op.getElementsByTagName('input');
@@ -206,7 +208,7 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                           }
                         }} />
                       </Fragment>
-                      : <Acon icon='Plus' onClick={() => local.setVisible(true)} />}
+                      : <Acon icon='CirclePlus' onClick={() => local.setVisible(true)} />}
                   </AlignAround>
                 </EditItem>
               </ScrollWrap>

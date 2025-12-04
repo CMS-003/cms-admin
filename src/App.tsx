@@ -66,6 +66,7 @@ function App() {
             navigate('/manager/dashboard')
           }
         }
+        local.setError(false)
         local.setBooting(false)
       } catch (e) {
         local.error = true;

@@ -28,6 +28,7 @@ export default function CSelect({ self, drag, source, query, setDataField, child
       <Space.Compact>
         {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
         <Select
+          style={{ flex: 1 }}
           value={data[self.widget.field]}
           onChange={async (v) => {
             if (mode === 'edit') return;

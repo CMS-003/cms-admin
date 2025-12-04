@@ -66,7 +66,6 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
       {...drag.events}
       style={{
         display: 'flex',
-        ...self.style,
       }}
     >
       {children}
@@ -85,7 +84,7 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
           ? <Popconfirm title='确认是否删除' okText='是' cancelText='否' onConfirm={async () => {
             await request()
           }}>
-            <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} />
+            <span style={{ display: 'flex' }}><Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} /></span>
           </Popconfirm>
           : <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} onClick={async () => {
             await request()

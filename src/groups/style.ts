@@ -194,6 +194,9 @@ export const ConerRB = styled.span`
 export const EditItem = styled.div`
   margin-bottom: 8px;
   padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 `
 
 export const ScrollWrap = styled.div`

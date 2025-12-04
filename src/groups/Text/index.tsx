@@ -25,7 +25,6 @@ export default function CText({ self, source = {}, setDataField, drag, children,
     <ComponentWrap
       className={drag.className}
       {...drag.events}
-      style={self.style}
     >
       {children}
       <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.widget.value)}</Text>

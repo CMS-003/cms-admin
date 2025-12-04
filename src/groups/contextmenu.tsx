@@ -21,9 +21,7 @@ const ActionItem = styled.div`
 // 编辑中组件的右键菜单
 const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent }: { setEditComponent: Function, copyComponent: Function, pasteComponent: Function }) => (
   <Menu id='group_menu'>
-
     <ContextMenuItem style={{ color: "purple" }} onClick={async (e: any) => {
-
       switch (e.event.target.getAttribute('data-action')) {
         case 'edit':
           setEditComponent(e.props, 'base');
@@ -32,7 +30,7 @@ const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent 
           copyComponent(e.props._id)
           break;
         case 'paste':
-          pasteComponent(e.props._id)
+          pasteComponent(e.props._id, e.props.tree_id)
           break;
         default: break;
       }

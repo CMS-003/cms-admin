@@ -25,7 +25,6 @@ export default function CInput({ self, source = {}, drag, setDataField, children
         {self.title ? <Space.Addon style={{ flexShrink: 0 }}>{self.title}</Space.Addon> : null}
         <Input
           value={source[self.widget.field]}
-          style={self.style}
           onChange={e => {
             setDataField(self.widget, e.target.value);
           }}

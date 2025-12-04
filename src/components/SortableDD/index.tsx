@@ -20,7 +20,6 @@ interface SortableItemProps {
   handle: boolean,
   disabled: boolean,
   renderItem: Function;
-  style?: React.CSSProperties | undefined;
 }
 
 function SortableItem(props: SortableItemProps) {
@@ -48,7 +47,7 @@ function SortableItem(props: SortableItemProps) {
   return (
     <div
       ref={setNodeRef}
-      style={{ ...props.style, ...props.item.style, ...style, ...props.item.data.style }}
+      style={{ ...props.item.style, ...style }}
       {...(props.handle || props.item.disabled || props.disabled ? {} : handler)}
     >
       {props.renderItem(props.item, props.handle && !props.item.disabled && !props.disabled ? handler : {})}
@@ -59,7 +58,6 @@ export function SortDD({
   direction,
   items,
   sort,
-  style,
   handle = false,
   disabled = false,
   renderItem,
@@ -69,7 +67,6 @@ export function SortDD({
     items: any[],
     sort?: (oldIndex: number, newIndex: number) => void,
     handle?: boolean,
-    style?: React.CSSProperties,
     disabled?: boolean,
     onDragEnd?: Function,
     renderItem: Function,
@@ -80,7 +77,6 @@ export function SortDD({
       return <SortableItem
         key={item.id}
         id={item.id}
-        style={style}
         item={item}
         handle={handle}
         disabled={item.disabled}

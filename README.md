@@ -55,7 +55,7 @@
     - method => action 为 FETCH 时,method 是请求 method 类型; 为 MODAL 时,method 是模板 id;为 PREVIEW 时,是预览类型 image/video
   - ✅ 事件: widget_action/
   - ✅ 布局: layout/style
-- 重写Table
+- ❌ 重写Table
 - ✅ 组件包裹层设计: handler+组件 flex 水平排列,通过 attrs 来控制布局,实际的组件通过 style 布局
 - ✅ 多可视化编辑页
 
@@ -136,4 +136,6 @@
 - ✅ rbd改用dnd-kit
   - ✅ SortList
   - ✅ NatureSortable
-- 组件的样式和排序列表的样式 相互影响！
+- ✅ 组件的样式和排序列表的样式 相互影响！(虚拟组件和UI组件处理样式是不一样的,前者作用于包裹层,后者自身使用)
+- ✅ 页面改为动态页project/config/component/
+- ✅ 修改复制/粘贴/删除组件的bug

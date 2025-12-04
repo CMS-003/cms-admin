@@ -1,7 +1,7 @@
 import { Fragment, useCallback, } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
-import { IComponent, ITemplate } from '@/types'
+import { IComponent, IMode, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
@@ -67,7 +67,7 @@ function getTree(templates: ITemplate[]) {
 const ComponentTemplatePage = (props: any) => {
   const setTitle = useSetTitleContext()
   const local = useLocalObservable<{
-    mode: string,
+    mode: IMode,
     loading: boolean,
     fetching: boolean,
     temp: IComponent | null,
@@ -196,7 +196,7 @@ const ComponentTemplatePage = (props: any) => {
                       if (type === 'text/plain') {
                         const blob = await clipboardItem.getType(type);
                         const text = await blob.text();
-                        events.emit('paste_component', text)
+                        events.emit('paste_component', text, '', local.edit_template_id)
                       }
                     }
                   }

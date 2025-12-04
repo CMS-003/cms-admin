@@ -62,7 +62,7 @@ export default function ObjectList({ self, drag, source, children, setDataField,
       style={{ justifyContent: 'center', alignItems: 'center', }}
     >
       {children}
-      <FullHeight style={{ flex: 1 }}>
+      <FullHeight style={{ flex: 1, ...self.style }}>
         {mode === 'preview'
           ? <SortDD
             direction='vertical'

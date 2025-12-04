@@ -157,7 +157,7 @@ const ComponentTemplatePage: React.FC = () => {
   })
   return (<Observer>{() => <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
     <Space style={{ margin: 10 }}>
-      <Select defaultValue={local.selectedProjectId} onChange={v => {
+      <Select style={{ minWidth: 120 }} defaultValue={local.selectedProjectId} onChange={v => {
         local.selectedProjectId = v;
         refresh()
       }}>
@@ -218,7 +218,7 @@ const ComponentTemplatePage: React.FC = () => {
               await apis.delTemplate(record._id);
               refresh()
             }}>
-              <Acon icon="CircleX" />
+              <span><Acon icon="CircleX" /></span>
             </Popconfirm>
 
           </Space>

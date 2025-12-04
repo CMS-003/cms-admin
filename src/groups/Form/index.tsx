@@ -203,20 +203,22 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
         <FullHeightAuto style={{ display: 'flex', flexDirection: 'column', paddingTop: 8, gap: 8, ...self.style }}>
-          {local.booting ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div> : <SortDD
-            items={self.children.map(child => ({ id: child._id, data: child }))}
-            direction='vertical'
-            disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-            sort={self.swap}
-            renderItem={(item: any) => (
-              <MemoComponent
-                self={item.data}
-                source={local.source}
-                setDataField={local.setDataField}
-                page={page}
-              />
-            )}
-          />}
+          {local.booting
+            ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
+            : <SortDD
+              items={self.children.map(child => ({ id: child._id, data: child }))}
+              direction='vertical'
+              disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
+              sort={self.swap}
+              renderItem={(item: any) => (
+                <MemoComponent
+                  self={item.data}
+                  source={local.source}
+                  setDataField={local.setDataField}
+                  page={page}
+                />
+              )}
+            />}
         </FullHeightAuto>
         <Center>
           {!local.booting && <Space style={{ padding: 8 }}>

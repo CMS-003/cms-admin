@@ -180,7 +180,10 @@ export const Component = types.model('Component', {
     const i = self.children.findIndex(c => c._id === _id);
     if (i !== -1) {
       detach(self.children[i])
-      self.children.splice(i, 1);
+      const j = self.children.findIndex(c => c._id === _id);
+      if (j !== -1) {
+        self.children.splice(j, 1);
+      }
     } else {
       self.children.forEach(c => {
         c.removeChild(_id);

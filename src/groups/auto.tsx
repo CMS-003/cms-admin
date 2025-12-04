@@ -8,7 +8,6 @@ import { isArray, omit, isNil } from 'lodash-es'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
-import styled from 'styled-components';
 import { Component as ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
@@ -34,6 +33,7 @@ import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 import { SortDD } from '@/components/SortableDD';
 import React from 'react';
+import { detach } from 'mobx-state-tree';
 
 export function Component({
   self, children,
@@ -124,20 +124,23 @@ export function Component({
           drag={mode === 'edit' ? dragStore : { isDragOver: false, className: 'component preview', events: {} }}
           {...(props)}
         >
-          <Handler className='handler' onMouseEnter={() => {
-            if (mode === 'preview') return;
-            store.component.setCanDragId(self.parent_id)
-          }}>
-            <Style.IconSVG src={icon_drag} />
-          </Handler>
-          <LineL className='line' />
-          <LineT className='line' />
-          <LineR className='line' />
-          <LineB className='line' />
-          <ConerLB className='coner' />
-          <ConerRB className='coner' />
-          <ConerLT className='coner' />
-          <ConerRT className='coner' />
+          {mode === 'edit'
+            ? <Fragment>
+              <Handler className='handler' onMouseEnter={() => {
+                store.component.setCanDragId(self.parent_id)
+              }}>
+                <Style.IconSVG src={icon_drag} />
+              </Handler>
+              <LineL className='line' />
+              <LineT className='line' />
+              <LineR className='line' />
+              <LineB className='line' />
+              <ConerLB className='coner' />
+              <ConerRB className='coner' />
+              <ConerLT className='coner' />
+              <ConerRT className='coner' />
+            </Fragment>
+            : null}
         </Com>
       )
       }
@@ -290,7 +293,13 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           if (local.editComponent && ids.includes(local.editComponent._id)) {
             local.setEditComponent(null, '');
           }
-          local.template.children.forEach(child => child.removeChild(id));
+          const i = local.template.children.findIndex(child => child._id === id);
+          if (i === -1) {
+            local.template.children.forEach(child => child.removeChild(id));
+          } else {
+            detach(local.template.children[i]);
+            local.template.children.splice(i, 1)
+          }
           apis.batchDestroyComponent({ ids: toJS(ids).join(',') })
         }
       }
@@ -323,7 +332,10 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           });
       }
     },
-    pasteComponent: (text: string, cid?: string) => {
+    pasteComponent: (text: string, cid: string, tid: string) => {
+      if (tid !== template_id) {
+        return;
+      }
       try {
         const data = JSON.parse(text);
         const arr = isArray(data) ? data : [data]
@@ -428,8 +440,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   const onCopyComponent = useCallback(async (id: string) => {
     local.copyComponent(id);
   }, []);
-  const onPasteComponent = useCallback(async (text: string, id?: string) => {
-    local.pasteComponent(text, id)
+  const onPasteComponent = useCallback(async (text: string, id: string, tid: string) => {
+    local.pasteComponent(text, id, tid)
   }, []);
   useEffect(() => {
     local.setEditComponent(null)
@@ -452,11 +464,11 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   return <PageContext.Provider value={page}>
     <ModeContext.Provider value={mode}>
       <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-        <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string) => {
+        <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string, tid: string) => {
           navigator.clipboard.readText()
             .then((text) => {
               console.log('已读取剪贴板:');
-              onPasteComponent(text, id)
+              onPasteComponent(text, id, tid)
               // 可以在这里添加复制成功的提示
             })
             .catch(err => {
@@ -483,7 +495,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 <SortDD
                   direction='vertical'
                   disabled={mode === 'preview' || store.component.can_drag_id !== ''}
-                  items={local.template.children.map(child => ({ id: child._id, data: child }))}
+                  items={local.template.children.map(child => ({ id: child._id, data: child, style: child.type === 'Form' ? { height: '100%' } : (child.type === 'Table' || child.type === 'Menu' ? { flex: 1, overflow: 'auto' } : {}) }))}
                   sort={(oldIndex, newIndex) => {
                     runInAction(() => {
                       if (!local.template) return;
