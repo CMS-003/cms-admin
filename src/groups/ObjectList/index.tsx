@@ -23,9 +23,6 @@ const ObjectItem = styled.div`
   flex: 1;
   padding: 2px;
   border: 1px dashed #00000036;
-  &:hover {
-    background-color: lightblue;
-  }
 `
 
 export default function ObjectList({ self, drag, source, children, setDataField, mode, page, ...props }: IAuto & IBaseComponent) {
@@ -142,7 +139,7 @@ export default function ObjectList({ self, drag, source, children, setDataField,
             }
           </div>
         )}
-        <Center style={{ borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
+        <Center style={{ borderRadius: 5, backgroundColor: '#dededead', display: 'flex', justifyContent: 'center' }}>
           {local.showAdd
             ? <Space>
               <Acon icon="CircleX" style={{ padding: '10px 15px' }} onClick={() => {

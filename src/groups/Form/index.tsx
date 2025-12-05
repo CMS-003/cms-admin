@@ -222,8 +222,8 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
         </FullHeightAuto>
         <Center>
           {!local.booting && <Space style={{ padding: 8 }}>
-            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
-            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+            <Button loading={local.loading} disabled={mode === 'edit' || local.loading || !local.isDiff()} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+            <Button loading={local.loading} disabled={mode === 'edit' || local.loading || !local.isDiff()} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
           </Space>}
         </Center>
       </FullWidthAuto>

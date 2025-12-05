@@ -28,18 +28,33 @@ function App() {
     },
     setError(b: boolean) {
       this.error = b;
+    },
+    setValue(key: 'booting' | 'booted' | 'error', value: boolean) {
+      local[key] = value;
     }
   }))
   const init = useCallback(async () => {
-    local.setError(false)
-    local.setBooting(true)
-    await store.getBoot();
-    const result = await apis.getProfile();
-    if (result.code !== 0) {
-      return;
-    } else {
-      store.user.setInfo(result.data.item)
+    try {
+      local.setValue('error', false)
+      local.setValue('booting', true)
+
+      const data = await apis.getBootData();
+      store.project.setList(data.projects.items)
+      store.menu.setTree(data.tree.children[0])
+      store.component.setTypes(data.types.items)
+
+      const result = await apis.getProfile();
+      if (result.code !== 0) {
+        throw (result.message)
+      } else {
+        local.setValue('booted', true)
+        store.user.setInfo(result.data.item)
+      }
+      return true;
+    } catch (e) {
+      local.setValue('error', true)
     }
+    return false;
   }, [])
   useEffect(() => {
     (async () => {
@@ -58,25 +73,27 @@ function App() {
           navigate(window.location.pathname)
         }
         if (!local.booted) {
-          await init();
-          local.booted = true
+          const finished = await init();
+          if (!finished) {
+            throw new Error('boot fail');
+          }
           if (!store.user.isLogin() && !['/manager/oauth/bind', '/manager/oauth/success', '/manager/oauth/failure'].includes(location.pathname)) {
             navigate('/manager/sign-in')
           } else if (location.pathname === '/' || location.pathname === '/manager/') {
             navigate('/manager/dashboard')
           }
         }
-        local.setError(false)
-        local.setBooting(false)
+        local.setValue('error', false)
+        local.setValue('booting', false)
       } catch (e) {
-        local.error = true;
+        local.setValue('error', true)
         console.log(e, 'boot')
       }
     })();
     return () => {
 
     }
-  }, [location.pathname]);
+  }, []);
   useEffectOnce(() => {
     ws.on('connect', () => {
       console.log('connected');

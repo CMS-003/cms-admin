@@ -15,7 +15,7 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+  <BrowserRouter future={{ v7_relativeSplatPath: true, }}>
     <ConfigProvider theme={{
       token: {
         colorBgContainerDisabled: '#eee'

@@ -168,7 +168,6 @@ function Item({
       </FullWidth>
       {local.showSub && <Fragment>
         {data.type === 'Object' && <SortDD
-          mode='edit'
           direction='vertical'
           handle={true}
           items={local.array.map(v => ({ id: v[0], data: v }))}

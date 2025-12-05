@@ -75,7 +75,7 @@ export default function CTpl({ self, source, drag, children, mode, page }: IAuto
       {...drag.events}
     >
       {children}
-      <div style={{ lineHeight: '32px' }}>
+      <div style={{ lineHeight: '32px', flexShrink: 0 }}>
         {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
       </div>
     </ComponentWrap>

@@ -14,7 +14,7 @@ import { runInAction } from 'mobx';
 
 const ComponentTemplatePage: React.FC = () => {
   const navigate = useNavigate();
-  const local = useLocalObservable<{ loading: boolean, page: number, showEditPage: boolean, temp: ITemplate | null, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
+  const local = useLocalObservable<{ loading: boolean, page: number, showEditPage: boolean, temp: any, setValue: Function, setData: Function, closeEditor: Function, openEditor: Function, list: ITemplate[], types: { name: string, value: string }[], selectedProjectId: string }>(() => ({
     loading: false,
     showEditPage: false,
     list: [],
@@ -22,9 +22,28 @@ const ComponentTemplatePage: React.FC = () => {
     temp: null,
     selectedProjectId: store.app.project_id === 'manager' ? '' : store.app.project_id,
     types: store.component.types.map(item => ({ name: item.title, value: item.name })),
+    setData(key: string, v: any) {
+      if (local.temp) {
+        local.temp[key] = v;
+      }
+    },
+    setValue(key: 'loading' | 'page' | 'list' | 'temp' | 'selectedProjectId', v: any) {
+      switch (key) {
+        case 'loading': local.loading = v; break
+        case 'page': local.page = v; break
+        case 'list': local.list = v; break
+        case 'temp': local.temp = v; break
+        case 'selectedProjectId': local.selectedProjectId = v; break
+        default: break;
+      }
+    },
     openEditor(data: ITemplate) {
       local.temp = data
       local.showEditPage = true
+    },
+    closeEditor() {
+      local.temp = null;
+      local.showEditPage = false;
     }
   }))
   const [fields] = useState([
@@ -130,19 +149,17 @@ const ComponentTemplatePage: React.FC = () => {
   ])
   const refresh = useCallback(async () => {
     try {
-      local.loading = true;
+      local.setValue('loading', true)
       const result = await apis.getTemplates({ query: { page: local.page, project_id: local.selectedProjectId } })
       if (result.code === 0) {
-        runInAction(() => {
-          local.list = result.data.items
-        })
+        local.setValue('list', result.data.items)
       } else {
         message.warning(result.message)
       }
     } catch (e) {
 
     } finally {
-      local.loading = false;
+      local.setValue('loading', false)
     }
   }, [])
   const editTemplate = useCallback(async (params: { body: any }) => {
@@ -158,7 +175,7 @@ const ComponentTemplatePage: React.FC = () => {
   return (<Observer>{() => <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
     <Space style={{ margin: 10 }}>
       <Select style={{ minWidth: 120 }} defaultValue={local.selectedProjectId} onChange={v => {
-        local.selectedProjectId = v;
+        local.setValue('selectedProjectId', v)
         refresh()
       }}>
         {store.project.list.map(it => <Select.Option key={it._id} value={it._id}>{it.title}</Select.Option>)}
@@ -167,14 +184,14 @@ const ComponentTemplatePage: React.FC = () => {
         refresh()
       }}>搜索</Button>
       < Button type="primary" onClick={e => {
-        local.temp = { _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 };
-        local.showEditPage = true
+        local.openEditor({ _id: '', project_id: store.app.project_id, title: '', name: '', desc: '', cover: '', type: '', path: '', attrs: {}, style: {}, available: false, children: [], order: 1 })
       }}>新增</Button>
     </Space>
     <Editor
       visible={local.showEditPage}
-      close={() => { local.showEditPage = false; local.temp = null }}
+      close={() => { local.closeEditor() }}
       data={local.temp}
+      setData={local.setData}
       fetch={editTemplate}
       fields={fields}
     />
@@ -182,11 +199,11 @@ const ComponentTemplatePage: React.FC = () => {
       <Table
         sticky={true}
         tableLayout='auto'
-        pagination={{ current: local.page, pageSize: 20, position: ['bottomRight'] }}
+        pagination={{ current: local.page, pageSize: 20, placement: ['bottomEnd'] }}
         rowKey="_id"
         dataSource={local.list}
         onChange={(pagination) => {
-          local.page = pagination.current || 1;
+          local.setValue('page', pagination.current || 1)
           refresh()
         }}
       >
@@ -214,7 +231,7 @@ const ComponentTemplatePage: React.FC = () => {
               navigate(`/manager/template/editable?id=${record._id}`)
             }} />
             <Popconfirm title='是否确认删除' okText='是' cancelText='否' onConfirm={async () => {
-              local.loading = true;
+              local.setValue('loading', true)
               await apis.delTemplate(record._id);
               refresh()
             }}>

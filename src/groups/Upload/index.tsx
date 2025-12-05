@@ -54,13 +54,11 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
           ref={inputRef}
           style={{ marginBottom: 5 }}
           value={url}
-          onChange={e => {
-            setURL(e.currentTarget.value)
-          }}
           onFocus={() => {
             setFocused(true)
           }}
           onBlur={e => {
+            setURL(e.currentTarget.value)
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
           }}

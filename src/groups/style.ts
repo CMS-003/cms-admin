@@ -19,8 +19,6 @@ export const ComponentWrap = styled.div`
   box-sizing: border-box;
   flex-direction: row;
   display: flex;
-  // align-items: center;
-  // justify-content: center;
   flex: 1 1 100%; // 个组件自己控制默认值
 
   &::-webkit-scrollbar {

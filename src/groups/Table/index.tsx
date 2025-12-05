@@ -203,7 +203,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
                 align: child.attrs.align || 'left',
                 dataIndex: self.widget.field,
                 onHeaderCell: () => { return { _id: child._id, title: child.title, self: child, mode: mode, page: page } },
-                render: (data: any) => (
+                render: (field: any, data: any) => (
                   mode === 'edit' ?
                     <SortDD
                       direction='vertical'

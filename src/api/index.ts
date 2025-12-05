@@ -10,33 +10,21 @@ import resource from './resource'
 import componentType from './component-type'
 import schema from './schema'
 import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
-import { keyBy } from 'lodash-es'
 
-function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) {
-  if (map[child.type]) {
-    child.accepts = map[child.type].accepts;
-  }
-  if (child.children) {
-    child.children.forEach(sun => fillAccepts(sun, map))
-  }
-}
+// function fillAccepts(child: IComponent, map: { [key: string]: IComponentType }) {
+//   if (map[child.type]) {
+//     child.accepts = map[child.type].accepts;
+//   }
+//   if (child.children) {
+//     child.children.forEach(sun => fillAccepts(sun, map))
+//   }
+// }
 const apis = {
   getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10): Promise<BaseWrapper<ITemplate & { children: IComponent[] }>> => {
     const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/gw/api/v1/templates/${template_id}/components?page=${page}&size=${size}`);
-    return new Promise((resolve, reject) => {
-      import('../store').then(store => {
-        if (store.default.component.types.length) {
-          const map = keyBy(store.default.component.types, 'type')
-          results.data.children.forEach((child: any) => fillAccepts(child, map))
-        }
-        resolve(results)
-      }).catch(e => {
-        reject(e)
-      })
-    })
-
+    return results;
   },
-  getBoot: async () => {
+  getBootData: async () => {
     // component-type,projects,admin template
     const templateResult = await apis.getTemplateComponents('admin');
     const typesResult = await componentType.getComponentTypes();
