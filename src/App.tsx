@@ -16,7 +16,7 @@ import events from './utils/event';
 import 'react-resizable/css/styles.css';
 import { CenterXY } from './components/style';
 
-function App() {
+function Main() {
   const location = useLocation()
   const navigate = useNavigate()
   const local = useLocalObservable(() => ({
@@ -94,6 +94,30 @@ function App() {
 
     }
   }, []);
+  return <Observer>{() => {
+    if (local.error) {
+      return (
+        <CenterXY>
+          <Button type="primary" onClick={init}>重试</Button>
+        </CenterXY>
+      )
+    }
+    if (local.booting) {
+      return (
+        <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Space>
+            <Spin spinning />加载中...
+          </Space>
+        </div>
+      )
+    }
+    return <Layout data={store.menu.tree} flag={store.menu.flag} />
+  }}</Observer>
+}
+
+
+function App() {
+  const navigate = useNavigate()
   useEffectOnce(() => {
     ws.on('connect', () => {
       console.log('connected');
@@ -108,17 +132,13 @@ function App() {
   return (
     <Observer>{() => (
       <div className="App">
-        {local.error ? <CenterXY><Button type="primary" onClick={init}>重试</Button></CenterXY> : local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Space>
-            <Spin spinning />加载中...
-          </Space>
-        </div> : <Routes>
+        <Routes>
           <Route path={"/manager/sign-in"} element={<SignInPage />} />
           <Route path={"/manager/oauth/bind"} element={<BindPage />} />
           <Route path={"/manager/oauth/success"} element={<SuccessPage />} />
           <Route path={"/manager/oauth/failure"} element={<FailPage />} />
-          <Route path="/manager/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
-        </Routes>}
+          <Route path="/manager/*" element={<Main />} />
+        </Routes>
       </div>
     )}</Observer>
   );

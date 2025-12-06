@@ -105,7 +105,6 @@ export default function BindPage() {
             })
             if (res.code === 0 && res.data) {
               store.user.setAccessToken(res.data.access_token)
-              await store.getBoot();
               navigate('/manager/dashboard')
             } else {
               message.error(res.message)

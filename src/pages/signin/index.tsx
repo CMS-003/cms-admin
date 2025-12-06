@@ -53,7 +53,6 @@ export default function SignInPage() {
                 if (result.code === 0) {
                   store.user.setInfo(result.data.item as any)
                 }
-                await store.getBoot();
                 navigate('/manager/dashboard')
               } else {
                 message.error(res.message)

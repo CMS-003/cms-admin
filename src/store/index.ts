@@ -30,19 +30,6 @@ const menu = IMenu.create();
 const component = IComponent.create();
 const project = IProject.create();
 
-async function getBoot() {
-  await new Promise((resolve, reject) => {
-    import('../api').then(async ({ default: apis }: any) => {
-      const bootData = await apis.getBoot();
-      store.project.setList(bootData.projects.items)
-      store.menu.setTree(bootData.tree.children[0])
-      store.component.setTypes(bootData.types.items)
-      resolve(true)
-    }).catch((e) => {
-      reject(e)
-    })
-  })
-}
 const global = IGlobal.create({
   config: {
     RESOURCE: {
@@ -170,7 +157,6 @@ const store = {
   global,
   component,
   project,
-  getBoot,
 }
 
 export default store;

@@ -67,6 +67,7 @@ export default function CTpl({ self, source, drag, children, mode, page }: IAuto
   return <Observer>{() => (
     <ComponentWrap
       className={drag.className}
+      style={{ alignItems: 'center' }}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
           navigate(`${self.url}?id=${source._id}`)
@@ -75,9 +76,7 @@ export default function CTpl({ self, source, drag, children, mode, page }: IAuto
       {...drag.events}
     >
       {children}
-      <div style={{ lineHeight: '32px', flexShrink: 0 }}>
-        {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
-      </div>
+      {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
     </ComponentWrap>
   )
   }</Observer >
