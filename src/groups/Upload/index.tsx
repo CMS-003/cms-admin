@@ -57,10 +57,13 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
           onFocus={() => {
             setFocused(true)
           }}
-          onBlur={e => {
+          onChange={e => {
             setURL(e.currentTarget.value)
+          }}
+          onBlur={e => {
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
+            setPreview(e.currentTarget.value)
           }}
           suffix={focused ? <Acon icon="CircleCheck" onClick={() => {
             setFocused(false)
@@ -96,7 +99,7 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
             return false
           }}
         >
-          <Preview style={{ backgroundImage: preview || url ? `url(${preview || url})` : '' }}>
+          <Preview style={{ backgroundImage: preview ? `url(${preview})` : '' }}>
             <Acon icon="Upload" />
           </Preview>
         </Upload>
