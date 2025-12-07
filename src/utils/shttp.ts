@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { message } from 'antd'
 import store from '../store'
 import { set, isArray } from 'lodash-es';
+import { ComponentNode } from '../protos/component'
 
 let isRefreshing = false;
 let requestQueue: any = [];
@@ -28,7 +29,51 @@ instance.interceptors.request.use(
     Promise.reject(error)
   }
 );
+export function valueToJson(value: any): any {
+  if (!value) return undefined;
 
+  // string
+  if (value.stringValue !== undefined) {
+    return value.stringValue;
+  }
+
+  // number
+  if (value.numberValue !== undefined) {
+    return value.numberValue;
+  }
+
+  // boolean
+  if (value.boolValue !== undefined) {
+    return value.boolValue;
+  }
+
+  // null
+  if (value.nullValue !== undefined) {
+    return null;
+  }
+
+  // array
+  if (value.arrayValue !== undefined) {
+    return value.arrayValue.values.map(valueToJson);
+  }
+
+  // object
+  if (value.objectValue !== undefined) {
+    const obj: any = {};
+    for (const [key, v] of Object.entries(value.objectValue.fields || {})) {
+      obj[key] = valueToJson(v);
+    }
+    return obj;
+  }
+
+  return undefined;
+}
+function transAll(tree: any) {
+  tree.style = valueToJson(tree.style)
+  tree.attrs = valueToJson(tree.attrs)
+  tree.children = (tree.children || []).map((child: any) => transAll(child));
+  return tree;
+}
 instance.interceptors.response.use(
   async (response) => {
     const config: AxiosRequestConfig & { _retry?: boolean } = response.config;
@@ -64,6 +109,18 @@ instance.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
+    }
+    try {
+      if (response.headers['x-proto']) {
+        const buffer = new Uint8Array(response.data);
+        const decoded = ComponentNode.toJson(ComponentNode.fromBinary(buffer))
+        const data = transAll(decoded)
+        console.log(response.data.byteLength, new TextEncoder().encode(JSON.stringify(decoded)).length)
+        response.data = { code: 0, message: '', data }
+        return response;
+      }
+    } catch (e) {
+      console.log(e)
     }
     return response;
   },
@@ -117,10 +174,12 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
   private params: Record<string, any> = {};
   private data: any = undefined;
   private headers: Record<string, any> = {};
+  private config: AxiosRequestConfig = {};
 
-  constructor(method: Method, url: string) {
+  constructor(method: Method, url: string, config: AxiosRequestConfig = {}) {
     this.url = url;
     this.method = method;
+    this.config = config;
     return this;
   }
 
@@ -149,10 +208,10 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
     } else {
       url = store.app.baseURL + url
     }
-    const option: AxiosRequestConfig = {
+    const option: AxiosRequestConfig = Object.assign(this.config, {
       url,
       method: this.method,
-    }
+    })
     if (this.data) {
       option.data = this.data
     }
@@ -192,11 +251,11 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
 
 // 使用 request 统一调用，包括封装的get、post、put、delete等方法
 const shttp = {
-  get<T>(url: string) {
+  get<T>(url: string, config: AxiosRequestConfig = {}) {
     // @ts-ignore
-    return new Request<T>('get', url)
+    return new Request<T>('get', url, config)
   },
-  delete<T>(url: string) {
+  delete<T>(url: string, config: AxiosRequestConfig = {}) {
     // @ts-ignore
     return new Request<T>('delete', url)
   },

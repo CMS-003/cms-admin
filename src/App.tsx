@@ -45,7 +45,7 @@ function Main() {
 
       const result = await apis.getProfile();
       if (result.code !== 0) {
-        throw (result.message)
+        navigate('/manager/sign-in')
       } else {
         local.setValue('booted', true)
         store.user.setInfo(result.data.item)

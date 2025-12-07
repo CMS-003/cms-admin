@@ -155,6 +155,9 @@ export default function CTable({ self, drag, source, query, children, mode, page
   };
 
   useEffectOnce(() => {
+    if (!page.query.page_size) {
+      page.setQuery('page_size', 20)
+    }
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
     events.on('event', local.changeResource)
@@ -186,7 +189,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
               tableLayout='auto'
               style={{ width: '100%' }}
               loading={local.loading}
-              pagination={{ total: local.total, pageSize: page.query.page_size as number || 20 }}
+              pagination={{ total: local.total, pageSize: parseInt(page.query.page_size as string) || 20 }}
               rowKey={'_id'}
               sticky={true}
               dataSource={mode === 'edit' ? [local.temp] : local.resources}

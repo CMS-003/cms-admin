@@ -148,7 +148,7 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
         <Popover trigger='click' content={<div>
           {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video controls src={store.app.videoLine + source[self.widget.field]} style={{ height: 300 }} />}
         </div>}>
-          <Acon icon={self.icon || 'FileSearch' as any} title={self.title} style={self.style} />
+          <span style={{ display: 'flex' }}><Acon icon={self.icon || 'FileSearch' as any} title={self.title} style={self.style} /></span>
         </Popover>
       </VisualBox>
       <VisualBox visible={self.widget.action === ''}>

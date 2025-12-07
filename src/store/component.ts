@@ -88,7 +88,7 @@ export const Component = types.model('Component', {
     type: types.enumeration<typeof FIELD_TYPE_VALUES>(['string', 'number', 'boolean', 'json', 'array']),
     query: types.optional(types.boolean, false),
     source: types.optional(types.string, ''),
-    refer: types.optional(types.array(types.model({ value: types.union(types.string, types.number, types.boolean), label: types.string })), []),
+    refer: types.optional(types.array(types.model({ value: types.optional(types.union(types.string, types.number, types.boolean), ''), label: types.optional(types.string, '') })), []),
     action: types.optional(types.string, ''),
     method: types.optional(types.string, ''),
   }),
