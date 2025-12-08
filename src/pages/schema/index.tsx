@@ -11,7 +11,7 @@ import { Affix, Form, Input, message, Modal, Switch } from 'antd';
 import CodeMirror from '@uiw/react-codemirror';
 import { runInAction, toJS } from 'mobx';
 import { json } from '@codemirror/lang-json';
-import { chunk } from 'lodash'
+import { chunk } from 'lodash-es'
 
 const lb = { span: 4 }, rb = { span: 16 }
 export default function Page() {

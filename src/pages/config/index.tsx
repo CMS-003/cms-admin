@@ -6,14 +6,15 @@ import { IComponent, IConfig, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside } from '@/components/style'
 import { useEffectOnce } from 'react-use';
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import Acon from '@/components/Acon';
 
 const ConfigPage: React.FC = () => {
-  const local = useLocalObservable<{ showEditPage: boolean, temp: IComponent | null, openEditor: Function, type: string, list: IConfig[] }>(() => ({
+  const local = useLocalObservable<{ showEditPage: boolean, page: number, temp: IComponent | null, openEditor: Function, type: string, list: IConfig[] }>(() => ({
     showEditPage: false,
     list: [],
     temp: null,
+    page: 1,
     type: '',
     openEditor(data: IComponent) {
       local.temp = data || {}
@@ -22,7 +23,7 @@ const ConfigPage: React.FC = () => {
   }))
   const searchInput: any = useRef(null)
   const refresh = useCallback(async () => {
-    const result = await apis.getConfig({ type: local.type })
+    const result = await apis.getConfig({ type: local.type, page: local.page })
     if (result.code === 0) {
       local.list = result.data.items
     }
@@ -103,7 +104,7 @@ const ConfigPage: React.FC = () => {
     refresh()
   })
   return (
-    <Observer>{() => (<div style={{ padding: '0 10px' }}>
+    <Observer>{() => (<div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <AlignAside style={{ margin: 10 }}>
         <Space>
           分类类型:
@@ -132,7 +133,10 @@ const ConfigPage: React.FC = () => {
         fields={fields}
         fetch={editConfig}
       />
-      <Table style={{ height: '100%' }} pagination={false} rowKey="_id" dataSource={local.list}>
+      <Table style={{ flex: 1, overflow: 'auto' }} pagination={{ current: local.page, pageSize: 20 }} rowKey="_id" dataSource={local.list} onChange={e => {
+        local.page = e.current || 1
+        refresh()
+      }}>
         <Table.Column title="分类类型" dataIndex="type" />
         <Table.Column title="配置类型" dataIndex="name" />
         <Table.Column title="配置名称" dataIndex="title" />

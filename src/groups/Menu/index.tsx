@@ -1,40 +1,36 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react'
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import store from '@/store';
+import { SortDD } from '@/components/SortableDD';
 
-export default function CMenu({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CMenu({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         flexDirection: 'row',
         height: '100%',
-        ...dnd?.style
       }}
     >
       {children}
-      <NatureSortable
-        items={self.children}
-        direction='vertical'
-        disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-        droppableId={self._id}
-        sort={self.swap}
-        style={{ height: '100%', overflow: 'auto' }}
-        renderItem={({ item, dnd }) => (
-          <Component
-            self={item}
-            mode={mode}
-            dnd={dnd}
-            {...props}
-          />
-        )}
-      />
+      <div style={{ height: '100%', display: 'flex', overflow: 'auto', flex: 1, flexDirection: self.attrs.layout === 'vertical' ? 'column' : 'row' }}>
+        <SortDD
+          items={self.children.map(child => ({ id: child._id, data: child }))}
+          direction='vertical'
+          disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
+          sort={self.swap}
+          renderItem={(item: any) => (
+            <MemoComponent
+              self={item.data}
+              {...props}
+            />
+          )}
+        />
+
+      </div>
     </ComponentWrap>
   )}</Observer>
 }

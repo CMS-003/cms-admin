@@ -1,37 +1,27 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Row, Col } from 'antd'
 import { Observer } from 'mobx-react'
-import { Component } from '../auto'
-import NatureSortable from '@/components/NatureSortable'
+import { MemoComponent } from '../auto'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 
-export default function CRow({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CRow({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}>
+      style={{ width: '100%', ...self.style }}
+    >
       {children}
-      <NatureSortable
-        items={self.children}
+      <SortDD
+        items={self.children.map(child => ({ id: child._id, data: child, style: { flex: 1 } }))}
         direction='horizontal'
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-        droppableId={self._id}
-        style={{ flex: 1 }}
-        wrap={Row}
         sort={self.swap}
-        renderItem={({ item, dnd }) => (
-          <Component
-            self={item}
-            mode={mode}
-            dnd={dnd}
+        renderItem={(item: any) => (
+          <MemoComponent
+            self={item.data}
             {...props}
           />
         )}

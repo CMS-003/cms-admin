@@ -3,9 +3,23 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import hbs from 'handlebars'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
-import moment from 'moment'
 import store from '@/store'
 import { ComponentWrap } from '../style';
+import dayjs from 'dayjs';
+import utc from "dayjs/plugin/utc"
+import timezone from "dayjs/plugin/timezone"
+
+// 初始化插件（只初始化一次）
+let initialized = false;
+
+function init() {
+  if (!initialized) {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    initialized = true;
+  }
+}
+init();
 
 // @ts-ignore
 hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
@@ -39,37 +53,30 @@ hbs.registerHelper('compare', function (lvalue, operator, rvalue, options) {
 });
 hbs.registerHelper('formatDate', function (o, format) {
   if (typeof o === 'string') {
-    return moment(o).utcOffset(8).format(format);
+    return dayjs(o).utcOffset(8).format(format);
   }
   return o;
 });
 
 
-export default function CTpl({ self, mode, source, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CTpl({ self, source, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     tpl: hbs.compile(self.widget.value as string, {})
   }))
   const navigate = useNavigate();
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
+      style={{ alignItems: 'center' }}
       onClick={() => {
         if (self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE) {
           navigate(`${self.url}?id=${source._id}`)
         }
       }}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
     >
       {children}
-      <div style={{ lineHeight: '32px' }}>
-        {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
-      </div>
+      {mode === 'edit' ? self.title : <div dangerouslySetInnerHTML={{ __html: local.tpl({ ...(source || {}), store }) }}></div>}
     </ComponentWrap>
   )
   }</Observer >

@@ -10,13 +10,13 @@ import BindPage from './pages/oauthResult/bind'
 import SuccessPage from './pages/oauthResult/success'
 import FailPage from './pages/oauthResult/failure'
 import store from './store'
-import { IUser } from '@/types'
 import { useEffectOnce } from 'react-use';
 import { ws } from '@/utils/ws'
 import events from './utils/event';
 import 'react-resizable/css/styles.css';
+import { CenterXY } from './components/style';
 
-function App() {
+function Main() {
   const location = useLocation()
   const navigate = useNavigate()
   const local = useLocalObservable(() => ({
@@ -28,18 +28,33 @@ function App() {
     },
     setError(b: boolean) {
       this.error = b;
+    },
+    setValue(key: 'booting' | 'booted' | 'error', value: boolean) {
+      local[key] = value;
     }
   }))
   const init = useCallback(async () => {
-    local.setError(false)
-    local.setBooting(true)
-    await store.getBoot();
-    const result = await apis.getProfile();
-    if (result.code !== 0) {
-      return;
-    } else {
-      store.user.setInfo(result.data.item)
+    try {
+      local.setValue('error', false)
+      local.setValue('booting', true)
+
+      const data = await apis.getBootData();
+      store.project.setList(data.projects.items)
+      store.menu.setTree(data.tree.children[0])
+      store.component.setTypes(data.types.items)
+
+      const result = await apis.getProfile();
+      if (result.code !== 0) {
+        navigate('/manager/sign-in')
+      } else {
+        local.setValue('booted', true)
+        store.user.setInfo(result.data.item)
+      }
+      return true;
+    } catch (e) {
+      local.setValue('error', true)
     }
+    return false;
   }, [])
   useEffect(() => {
     (async () => {
@@ -58,24 +73,51 @@ function App() {
           navigate(window.location.pathname)
         }
         if (!local.booted) {
-          await init();
-          local.booted = true
+          const finished = await init();
+          if (!finished) {
+            throw new Error('boot fail');
+          }
           if (!store.user.isLogin() && !['/manager/oauth/bind', '/manager/oauth/success', '/manager/oauth/failure'].includes(location.pathname)) {
             navigate('/manager/sign-in')
           } else if (location.pathname === '/' || location.pathname === '/manager/') {
             navigate('/manager/dashboard')
           }
         }
-        local.setBooting(false)
+        local.setValue('error', false)
+        local.setValue('booting', false)
       } catch (e) {
-        local.error = true;
+        local.setValue('error', true)
         console.log(e, 'boot')
       }
     })();
     return () => {
 
     }
-  }, [location.pathname]);
+  }, []);
+  return <Observer>{() => {
+    if (local.error) {
+      return (
+        <CenterXY>
+          <Button type="primary" onClick={init}>重试</Button>
+        </CenterXY>
+      )
+    }
+    if (local.booting) {
+      return (
+        <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Space>
+            <Spin spinning />加载中...
+          </Space>
+        </div>
+      )
+    }
+    return <Layout data={store.menu.tree} flag={store.menu.flag} />
+  }}</Observer>
+}
+
+
+function App() {
+  const navigate = useNavigate()
   useEffectOnce(() => {
     ws.on('connect', () => {
       console.log('connected');
@@ -90,17 +132,13 @@ function App() {
   return (
     <Observer>{() => (
       <div className="App">
-        {local.error ? <Button type="primary" onClick={init}>重试</Button> : local.booting ? <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Space>
-            <Spin spinning />加载中...
-          </Space>
-        </div> : <Routes>
+        <Routes>
           <Route path={"/manager/sign-in"} element={<SignInPage />} />
           <Route path={"/manager/oauth/bind"} element={<BindPage />} />
           <Route path={"/manager/oauth/success"} element={<SuccessPage />} />
           <Route path={"/manager/oauth/failure"} element={<FailPage />} />
-          <Route path="/manager/*" element={<Observer>{() => <Layout data={store.menu.tree} flag={store.menu.flag} />}</Observer>} />
-        </Routes>}
+          <Route path="/manager/*" element={<Main />} />
+        </Routes>
       </div>
     )}</Observer>
   );

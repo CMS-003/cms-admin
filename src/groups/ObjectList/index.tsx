@@ -1,11 +1,10 @@
 
 import { Center, FullHeight } from '@/components/style'
-import { IAuto, IBaseComponent, IWidget } from '@/types/component'
-import NatureSortable from '@/components/NatureSortable'
-import { Component } from '../auto'
+import { IAuto, IBaseComponent, IComponent, IWidget } from '@/types/component'
+import { MemoComponent } from '../auto'
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
-import { Acon, SortList, Style } from '@/components'
+import { Acon, Style } from '@/components'
 import icon_drag from '@/asserts/images/drag.svg'
 import { Space, message } from 'antd'
 import { ComponentWrap } from '../style';
@@ -13,7 +12,8 @@ import apis from '@/api';
 import styled from 'styled-components';
 import CONST from '@/constant';
 import { getWidgetValue } from '../utils';
-import _ from 'lodash';
+import { isNil } from 'lodash-es';
+import { SortDD } from '@/components/SortableDD';
 
 const ObjectItem = styled.div`
   display: flex;
@@ -23,12 +23,9 @@ const ObjectItem = styled.div`
   flex: 1;
   padding: 2px;
   border: 1px dashed #00000036;
-  &:hover {
-    background-color: lightblue;
-  }
 `
 
-export default function ObjectList({ self, mode, drag, dnd, source, children, setDataField, ...props }: IAuto & IBaseComponent) {
+export default function ObjectList({ self, drag, source, children, setDataField, mode, page, ...props }: IAuto & IBaseComponent) {
   const local = useLocalObservable<{
     showAdd: boolean;
     source: any;
@@ -43,7 +40,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
         return;
       }
       value = getWidgetValue(widget, value);
-      if (_.isNil(value)) {
+      if (isNil(value)) {
         return;
       }
       local.source[widget.field] = value;
@@ -57,29 +54,27 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
   }));
   return <Observer>{() => (
     <ComponentWrap key={self.children.length}
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{ justifyContent: 'center', alignItems: 'center', ...dnd?.style }}
+      style={{ justifyContent: 'center', alignItems: 'center', }}
     >
       {children}
-      <FullHeight style={{ flex: 1 }}>
+      <FullHeight style={{ flex: 1, ...self.style }}>
         {mode === 'preview'
-          ? <SortList
-            sort={(srcIndex: number, dstIndex: number) => {
-              const items = source[self.widget.field] || [];
-              const [item] = items.splice(srcIndex, 1);
-              items.splice(dstIndex, 0, item);
-              setDataField(self.widget, items);
-            }}
-            droppableId={self._id}
-            items={source[self.widget.field] || []}
-            itemStyle={{ overflow: 'initial', gap: 2, marginBottom: 2 }}
-            mode='edit'
+          ? <SortDD
             direction='vertical'
-            renderItem={({ item, handler }: { item: any, handler: any }) => (
-              <ObjectItem key={item._id}>
+            handle
+            sort={(srcIndex: number, dstIndex: number) => {
+              runInAction(() => {
+                const items = source[self.widget.field] || [];
+                const [item] = items.splice(srcIndex, 1);
+                items.splice(dstIndex, 0, item);
+                setDataField(self.widget, items);
+              })
+            }}
+            items={(source[self.widget.field] || []).map((v: any) => ({ id: v._id, data: v }))}
+            renderItem={(item: any, handler: any) => (
+              <ObjectItem>
                 <span {...handler}>
                   <Style.IconSVG src={icon_drag} />
                 </span>
@@ -90,22 +85,21 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
                   gap: 2,
                 }}>
                   {self.children.map(child => (
-                    <Component
+                    <MemoComponent
                       key={child._id}
                       self={child}
-                      mode={mode}
-                      source={item}
+                      source={item.data}
                       initField={false}
                       setDataField={(widget: IWidget, value: any) => {
                         if (!widget.field) {
                           return;
                         }
                         value = getWidgetValue(widget, value);
-                        if (_.isNil(value)) {
+                        if (isNil(value)) {
                           return;
                         }
                         runInAction(() => {
-                          item[widget.field] = value
+                          item.data[widget.field] = value
                         })
                       }}
                       {...props}
@@ -115,18 +109,13 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
               </ObjectItem>
             )}
           />
-          : <NatureSortable
-            items={self.children}
+          : <SortDD
             direction='vertical'
-            disabled={mode === 'preview'}
-            droppableId={self._id}
-            style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, }}
             sort={self.swap}
-            renderItem={({ item, dnd }) => (
-              <Component
-                self={item}
-                mode={mode}
-                dnd={dnd}
+            items={self.children.map(child => ({ id: child._id, data: child }))}
+            renderItem={(item: any) => (
+              <MemoComponent
+                self={item.data as IComponent}
                 source={local.source}
                 setDataField={local.setTempDataField}
                 {...props}
@@ -138,11 +127,9 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
           <div style={{ padding: 4, display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 2, border: '1px dashed #ccc' }}>
             {
               self.children.map(child => (
-                <Component
+                <MemoComponent
                   key={child._id}
                   self={child}
-                  mode={mode}
-                  dnd={dnd}
                   source={local.source}
                   setDataField={(widget: IWidget, value: any) => {
                     local.setTempDataField(widget, value)
@@ -152,7 +139,7 @@ export default function ObjectList({ self, mode, drag, dnd, source, children, se
             }
           </div>
         )}
-        <Center style={{ borderRadius: 5, backgroundColor: '#dedede', display: 'flex', justifyContent: 'center' }}>
+        <Center style={{ borderRadius: 5, backgroundColor: '#dededead', display: 'flex', justifyContent: 'center' }}>
           {local.showAdd
             ? <Space>
               <Acon icon="CircleX" style={{ padding: '10px 15px' }} onClick={() => {

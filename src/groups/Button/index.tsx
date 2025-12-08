@@ -1,18 +1,16 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Button } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { usePageContext } from '../context'
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 import { useNavigate } from 'react-router-dom'
 import CONST from '@/constant';
 import { Acon } from '@/components';
 import ModalPage from '../modal';
 import { ComponentWrap } from '../style';
 
-export default function CButton({ self, mode, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CButton({ self, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const navigate = useNavigate()
-  const page = usePageContext()
   const local = useLocalObservable(() => ({
     template_id: '',
     id: '',
@@ -26,16 +24,9 @@ export default function CButton({ self, mode, drag, dnd, setDataField, children 
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        flex: 0,
-        ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon} /> : null} onClick={() => {

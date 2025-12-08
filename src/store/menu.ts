@@ -1,8 +1,8 @@
 import { types } from 'mobx-state-tree'
-import { ComponentItem } from './component';
+import { Component } from './component';
 
 const menu = types.model({
-  tree: types.maybe(ComponentItem),
+  tree: types.maybe(Component),
   flag: types.optional(types.number, Date.now()),
 }).views(self => ({
   getTree() {

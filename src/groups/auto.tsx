@@ -1,19 +1,17 @@
-import { Fragment, useCallback, useEffect, useRef } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useRef, useMemo } from 'react';
 import { useEffectOnce } from 'react-use';
-import { toJS } from 'mobx';
+import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
-import { isArray, omit } from 'lodash'
+import { isArray, omit, isNil } from 'lodash-es'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
-import styled from 'styled-components';
-import { ComponentItem } from '@/store/component';
+import { Component as ComponentItem } from '@/store/component';
 import icon_drag from '@/asserts/images/drag.svg'
 import { Style } from '@/components/index';
-import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget } from '@/types'
-import NatureSortable from '@/components/NatureSortable'
+import { IPageInfo, ITemplate, IComponent, IResource, IAuto, IWidget, IMode } from '@/types'
 import BaseComponent from './index';
 import GroupMenu from './contextmenu'
 import Edit from './edit'
@@ -30,17 +28,34 @@ import {
   ConerLT,
   ConerRT,
 } from './style'
-import { PageContext, useSetTitleContext } from './context';
+import { ModeContext, PageContext, useModeContext, useSetTitleContext } from './context';
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
-import _ from 'lodash';
+import { SortDD } from '@/components/SortableDD';
+import React from 'react';
+import { detach } from 'mobx-state-tree';
 
-export function Component({ self, children, mode, dnd, query, source, setDataField, page, parent, ...props }: IAuto) {
+export function Component({
+  self, children,
+  query, source, setDataField,
+  mode, page, parent,
+  ...props }: IAuto & { mode?: IMode; page?: IPageInfo }) {
   // 拖拽事件
   const dragStore = useLocalObservable(() => ({
     isDragOver: false,
     get className() {
-      return ` component${self.status === 0 ? ' delete' : ''}${mode === 'edit' && store.component.hover_component_id === self._id && !store.component.isDragging ? ' hover' : ''}${store.component.editing_component_id === self._id ? ' focus' : ''}${store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : ''}`
+      return [
+        'component',
+        mode,
+        // 删除样式
+        self.status === 0 ? ' delete' : '',
+        // 鼠标交互
+        mode === 'edit' && store.component.hover_component_id === self._id ? ' hover' : '',
+        // 选中样式
+        store.component.editing_component_id === self._id ? ' focus' : '',
+        // 拖放交互
+        store.component.dragingType && dragStore.isDragOver ? (store.component.canDrop(store.component.dragingType, self.type) ? ' dragover' : ' cantdrag') : '',
+      ].filter(v => v !== '').join(' ')
     },
     events: {
       onDrop: (e: any) => {
@@ -66,17 +81,17 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
         }
       },
       onMouseEnter() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         store.component.setHoverComponentId(self._id)
       },
       onMouseOver() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         if (!store.component.hover_component_id) {
           store.component.setHoverComponentId(self._id)
         }
       },
       onMouseLeave() {
-        if (mode === 'preview') return;
+        if (mode === 'preview' || store.component.isDragging) return;
         store.component.setHoverComponentId('')
       },
       onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -100,37 +115,39 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
       {() => (
         <Com
           self={self}
-          mode={mode}
-          page={page}
+          mode={mode as IMode}
+          page={page as IPageInfo}
           parent={parent}
           query={query}
           source={source}
           setDataField={setDataField}
-          dnd={dnd}
-          drag={mode === 'edit' ? dragStore : { isDragOver: false, className: ' component', events: {} }}
+          drag={mode === 'edit' ? dragStore : { isDragOver: false, className: 'component preview', events: {} }}
           {...(props)}
         >
-          <Handler className='handler' onMouseEnter={() => {
-            if (mode === 'preview') return;
-            store.component.setCanDragId(self.parent_id)
-          }}>
-            <Style.IconSVG src={icon_drag} />
-          </Handler>
-          <LineL className='line' />
-          <LineT className='line' />
-          <LineR className='line' />
-          <LineB className='line' />
-          <ConerLB className='coner' />
-          <ConerRB className='coner' />
-          <ConerLT className='coner' />
-          <ConerRT className='coner' />
+          {mode === 'edit'
+            ? <Fragment>
+              <Handler className='handler' onMouseEnter={() => {
+                store.component.setCanDragId(self.parent_id)
+              }}>
+                <Style.IconSVG src={icon_drag} />
+              </Handler>
+              <LineL className='line' />
+              <LineT className='line' />
+              <LineR className='line' />
+              <LineB className='line' />
+              <ConerLB className='coner' />
+              <ConerRB className='coner' />
+              <ConerLT className='coner' />
+              <ConerRT className='coner' />
+            </Fragment>
+            : null}
         </Com>
       )
       }
     </Observer >
   } else {
     return <div>
-      <Handler className='handler' style={dnd?.isDragging ? { visibility: 'visible', cursor: 'move' } : {}}>
+      <Handler className='handler'>
         <Style.IconSVG src={icon_drag} />
       </Handler>
       <span>不支持</span>
@@ -138,14 +155,22 @@ export function Component({ self, children, mode, dnd, query, source, setDataFie
   }
 }
 
-const ScrollWrap = styled.div`
-  flex: 1;
-  height: 100%;
-  overflow-y: auto;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`
+// 记忆化组件工厂
+function createMemoComponent<P>(
+  Component: React.ComponentType<P>
+) {
+  return React.memo(function ModeAwareComponent(props: P) {
+    const mode = useContext(ModeContext);
+    const page = useContext(PageContext)
+
+    // 使用 useMemo 记忆化组件
+    return useMemo(() => {
+      return <Component {...props} mode={mode} page={page} />;
+    }, [props, mode]); // 只有当 props 或 mode 变化时才重新渲染
+  });
+}
+
+export const MemoComponent = createMemoComponent(Component);
 
 function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
   const new_node: any = omit(node, ['$new', '$selected', 'children', '$origin', '_id']);
@@ -162,7 +187,7 @@ function editCopyID(node: IComponent, parent_node: Partial<IComponent> | null) {
   return new_node;
 }
 
-export default function AutoPage({ parent, template_id, mode, path, close }: { parent?: IPageInfo, template_id: string, mode: string, path: string, close: Function, [key: string]: any }) {
+export default function AutoPage({ parent, template_id, mode, path, close }: { parent?: IPageInfo, template_id: string, mode: IMode, path: string, close: Function, [key: string]: any }) {
   const page = useLocalObservable<IPageInfo>(() => ({
     template_id,
     path,
@@ -268,7 +293,13 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           if (local.editComponent && ids.includes(local.editComponent._id)) {
             local.setEditComponent(null, '');
           }
-          local.template.children.forEach(child => child.removeChild(id));
+          const i = local.template.children.findIndex(child => child._id === id);
+          if (i === -1) {
+            local.template.children.forEach(child => child.removeChild(id));
+          } else {
+            detach(local.template.children[i]);
+            local.template.children.splice(i, 1)
+          }
           apis.batchDestroyComponent({ ids: toJS(ids).join(',') })
         }
       }
@@ -301,7 +332,10 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           });
       }
     },
-    pasteComponent: (text: string, cid?: string) => {
+    pasteComponent: (text: string, cid: string, tid: string) => {
+      if (tid !== template_id) {
+        return;
+      }
       try {
         const data = JSON.parse(text);
         const arr = isArray(data) ? data : [data]
@@ -339,7 +373,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
         return;
       }
       value = getWidgetValue(widget, value);
-      if (_.isNil(value)) {
+      if (isNil(value)) {
         return;
       }
       if (widget.query) {
@@ -406,8 +440,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
   const onCopyComponent = useCallback(async (id: string) => {
     local.copyComponent(id);
   }, []);
-  const onPasteComponent = useCallback(async (text: string, id?: string) => {
-    local.pasteComponent(text, id)
+  const onPasteComponent = useCallback(async (text: string, id: string, tid: string) => {
+    local.pasteComponent(text, id, tid)
   }, []);
   useEffect(() => {
     local.setEditComponent(null)
@@ -428,24 +462,24 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     }
   })
   return <PageContext.Provider value={page}>
-    <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-      <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string) => {
-        navigator.clipboard.readText()
-          .then((text) => {
-            console.log('已读取剪贴板:');
-            onPasteComponent(text, id)
-            // 可以在这里添加复制成功的提示
-          })
-          .catch(err => {
-            console.error('读取失败:', err);
-          });
-      }} />
-      <div style={{ display: 'flex', width: '100%', padding: 5, overflow: 'hidden', justifyContent: 'center', alignItems: 'center', height: '100%', boxShadow: mode === 'edit' ? 'inset #1890ff 0 0 5px' : '' }}>
-        <div className='hidden-scrollbar' style={{
-          height: '100%',
-          minWidth: 400,
+    <ModeContext.Provider value={mode}>
+      <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+        <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string, tid: string) => {
+          navigator.clipboard.readText()
+            .then((text) => {
+              console.log('已读取剪贴板:');
+              onPasteComponent(text, id, tid)
+              // 可以在这里添加复制成功的提示
+            })
+            .catch(err => {
+              console.error('读取失败:', err);
+            });
+        }} />
+        <div style={{
+          display: 'flex',
           width: '100%',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          ...(mode === 'edit' ? { boxShadow: '0 0 10px #1890ff', height: 'calc(100% - 20px)', margin: 10 } : { height: '100%' }),
         }}>
           <Observer>{() => {
             if (local.loading) {
@@ -456,21 +490,25 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
                 onDragLeave={local.onDragLeave}
                 onDrop={local.onDrop}
                 className={`${mode} ${local.isDragOver ? (BaseComponent[store.component.dragingType as keyof typeof BaseComponent] ? "dragover" : 'cantdrag') : ""}`}
-                style={{ ...toJS(local.template?.style) }}
+                style={{ flexDirection: 'column', width: '100%', ...toJS(local.template?.style) }}
               >
-                <NatureSortable
-                  key={local.template.children.length}
-                  items={(local.template as ITemplate).children}
+                <SortDD
                   direction='vertical'
                   disabled={mode === 'preview' || store.component.can_drag_id !== ''}
-                  wrap={TemplateBox}
-                  droppableId={local.template._id}
-                  sort={() => { }}
-                  renderItem={({ item, dnd }) => (
-                    <Component
-                      self={item}
-                      mode={mode}
-                      dnd={dnd}
+                  items={local.template.children.map(child => ({ id: child._id, data: child, style: child.type === 'Form' ? { height: '100%' } : (child.type === 'Table' || child.type === 'Menu' || child.type === 'GridLayout' ? { flex: 1, overflow: 'auto' } : {}) }))}
+                  sort={(oldIndex, newIndex) => {
+                    runInAction(() => {
+                      if (!local.template) return;
+                      const [old] = local.template.children.splice(oldIndex, 1)
+                      local.template.children.splice(newIndex, 0, old)
+                      local.template.children.forEach((child, i) => {
+                        child.setAttr('order', i)
+                      })
+                    })
+                  }}
+                  renderItem={(item: any) => (
+                    <MemoComponent
+                      self={item.data}
                       parent={parent}
                       source={local.source}
                       query={page.query}
@@ -485,11 +523,11 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
           }
           }</Observer >
         </div>
-      </div>
-      {local.editComponent && (
-        <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.setEditPanelKey(v) }} />
-      )}
-    </div>)
-    }</Observer >
+        {local.editComponent && (
+          <Edit data={local.editComponent} setData={local.setEditComponent} tabkey={local.editPanelKey} setTabkey={(v: string) => { local.setEditPanelKey(v) }} />
+        )}
+      </div>)
+      }</Observer >
+    </ModeContext.Provider>
   </PageContext.Provider>
 }

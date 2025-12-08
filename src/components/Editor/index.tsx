@@ -4,9 +4,12 @@ import { Modal, notification, } from 'antd'
 import { IEditorField } from '@/types'
 import Content from './content'
 
-export default function EditPage({ isAdd, visible, fetch, fields, data, close, ...props }: { isAdd?: boolean, visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function }) {
+export default function EditPage({ isAdd, visible, fetch, fields, data, setData, close, ...props }: { isAdd?: boolean, visible: boolean, data: any, fields: IEditorField[], fetch: Function, close: Function, setData: Function }) {
   const local = useLocalObservable(() => ({
     fetching: false,
+    setValue(key: 'fetching', v: any) {
+      local[key] = v;
+    }
   }))
   useEffect(() => {
 
@@ -24,7 +27,7 @@ export default function EditPage({ isAdd, visible, fetch, fields, data, close, .
         confirmLoading={local.fetching}
         cancelText="取消"
         onOk={async () => {
-          local.fetching = true
+          local.setValue('fetching', true)
           try {
             fields.forEach(item => {
               if (item.type === 'json' && typeof data[item.field] === 'string') {
@@ -44,16 +47,16 @@ export default function EditPage({ isAdd, visible, fetch, fields, data, close, .
           } catch (e: any) {
             notification.error({ title: e.message })
           } finally {
-            local.fetching = false
+            local.setValue('fetching', false)
             close();
           }
         }}
         onCancel={async () => {
-          local.fetching = false
+          local.setValue('fetching', false)
           close();
         }}
       >
-        <Content data={data} fields={fields} fetch={fetch} />
+        <Content data={data} fields={fields} setData={setData} fetch={fetch} />
       </Modal>
     </Fragment>)
   }}</Observer>

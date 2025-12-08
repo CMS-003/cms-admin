@@ -1,20 +1,14 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Row, Col } from 'antd'
+import { Col } from 'antd'
 import { Observer } from 'mobx-react'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { ComponentWrap } from '../style';
 
-export default function CField({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
+export default function CField({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => <ComponentWrap
-    className={'ant-row ' + mode + drag.className}
+    className={'ant-row ' + drag.className}
     {...drag.events}
-    ref={dnd?.ref}
-    {...dnd?.props}
-    style={{
-      paddingTop: 5, paddingBottom: 5,
-      ...dnd?.style,
-      backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-    }}
+    style={self.style}
   >
     {children}
     <Col span={self.attrs.left || 6}>
@@ -22,7 +16,7 @@ export default function CField({ self, mode, dnd, drag, children, ...props }: IA
     </Col>
     <Col span={self.attrs.right || 18}>
       {self.children.map((child, i) => (
-        <Component key={i} self={child} mode={mode} index={i} {...props} />
+        <MemoComponent key={i} self={child} {...props} />
       ))}
     </Col>
   </ComponentWrap>}</Observer>

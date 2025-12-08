@@ -2,7 +2,7 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
-import { isNil } from 'lodash';
+import { isNil } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
 
 const Text = styled.div`
@@ -13,10 +13,9 @@ const Text = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 32px;
-  white-space: nowrap;
 `
 
-export default function CText({ self, mode, source = {}, setDataField, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CText({ self, source = {}, setDataField, drag, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)
@@ -24,15 +23,8 @@ export default function CText({ self, mode, source = {}, setDataField, drag, dnd
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        flex: self.attrs.flex ? 1 : 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
     >
       {children}
       <Text className='two-line-ellipsis' style={self.style}>{mode === 'edit' ? self.title : (!isNil(source[self.widget.field]) ? source[self.widget.field] : self.widget.value)}</Text>

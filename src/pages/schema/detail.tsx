@@ -5,7 +5,7 @@ import { useEffectOnce } from 'react-use';
 import JsonSchemaEditor from '@/components/JsonSchemaEditor';
 import { AlignAround } from '@/components/style';
 import { Button, message, Space } from 'antd';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import apis from '@/api';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Acon from '@/components/Acon';

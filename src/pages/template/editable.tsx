@@ -1,7 +1,7 @@
 import { Fragment, useCallback, } from 'react';
 import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
-import { IComponent, ITemplate } from '@/types'
+import { IComponent, IMode, ITemplate } from '@/types'
 import apis from '@/api'
 import { useEffectOnce } from 'react-use';
 import store from '@/store';
@@ -11,7 +11,7 @@ import AutoPage from '../../groups/auto'
 import events from '@/utils/event';
 import Acon from '@/components/Acon';
 import { useSetTitleContext } from '@/groups/context';
-import { groupBy, isEmpty } from 'lodash';
+import { groupBy, isEmpty } from 'lodash-es';
 
 type TreeNode = {
   value: string;
@@ -67,7 +67,7 @@ function getTree(templates: ITemplate[]) {
 const ComponentTemplatePage = (props: any) => {
   const setTitle = useSetTitleContext()
   const local = useLocalObservable<{
-    mode: string,
+    mode: IMode,
     loading: boolean,
     fetching: boolean,
     temp: IComponent | null,
@@ -164,18 +164,6 @@ const ComponentTemplatePage = (props: any) => {
           <FullHeightFix>
             <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
               <Space>
-                {/* <Select
-                  disabled={local.locked_template_id !== ''}
-                  options={store.project.list.map(p => ({
-                    label: <span>{p.title}</span>,
-                    title: p.title,
-                    options: local.templates.filter(t => t.project_id === p._id).map(t => ({ label: t.title, value: t._id }))
-                  }))}
-                  value={local.locked_template_id || local.edit_template_id} style={{ width: 200 }}
-                  onChange={v => {
-                    local.setEditTemplateID(v)
-                    refresh()
-                  }} /> */}
                 <TreeSelect
                   disabled={local.locked_template_id !== ''}
                   treeData={local.tree}
@@ -208,7 +196,7 @@ const ComponentTemplatePage = (props: any) => {
                       if (type === 'text/plain') {
                         const blob = await clipboardItem.getType(type);
                         const text = await blob.text();
-                        events.emit('paste_component', text)
+                        events.emit('paste_component', text, '', local.edit_template_id)
                       }
                     }
                   }

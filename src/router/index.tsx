@@ -12,7 +12,6 @@ import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import store from '@/store'
 
-import HomePage from '@/pages/dashboard'
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
 import OAuthSuccessPage from '@/pages/oauthResult/success';
@@ -62,16 +61,12 @@ function getPanelByPath(path: string, title?: string): IPanel {
   }
 }
 
-const LoadableConfigPage = lazy(() => import('@/pages/config'))
 const LoadableFilePage = lazy(() => import('@/pages/file'))
-const LoadableProjectPage = lazy(() => import('@/pages/project'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
 const LoadableEditable = lazy(() => import('@/pages/template/editable'))
 const LoadableTemplatePage = lazy(() => import('@/pages/template'))
 
 const LoadableDynamicPage = lazy(() => import('@/pages/dynamic'))
-
-const LoadableComponentPage = lazy(() => import('@/pages/component'))
 
 const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
 const LoadableSchemasPage = lazy(() => import('@/pages/schema'))
@@ -80,12 +75,9 @@ const templateArr: IPage[] = [
   { title: '首页', Content: (props: any) => <LoadableDynamicPage {...props} id="dashboard" />, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
   { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
   { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
-  { title: '配置管理', Content: (props: any) => <LoadableConfigPage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/config' },
   { title: '文件管理', Content: (props: any) => <LoadableFilePage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/file' },
   { title: '所有表', Content: (props: any) => <LoadableSchemasPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/all' },
   { title: '表定义', Content: (props: any) => <LoadableSchemaInfolPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/info' },
-  { title: '项目管理', Content: (props: any) => <LoadableProjectPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/project' },
-  { title: '组件管理', Content: (props: any) => <LoadableComponentPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/data' },
   { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },
   { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
   { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/dynamic/:id' },

@@ -1,5 +1,8 @@
 import { DraggableProvided } from "react-beautiful-dnd";
-import { IResource } from "./resource";
+import { type IComponent } from "@/store/component";
+export { type IComponent };
+
+export type IMode = 'edit' | 'preview'
 
 export type IPageInfo = {
   template_id: string;
@@ -37,74 +40,18 @@ export type IWidget = {
   method: string;
 }
 
-export type IComponent = {
-  _id: string;
-  parent_id: string;
-  project_id: string;
-  tree_id: string;
-  template_id: string;
-  title: string;
-  name: string;
-  type: string;
-  cover: string;
-  icon: string;
-  desc: string;
-  order: number;
-  status: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  accepts: string[];
-  style: any;
-  attrs: any;
-  url: string;
-  resources?: IResource[];
-  queries: string[];
-  widget: IWidget;
-
-  children: IComponent[];
-  data?: IResource[];
-  $new?: boolean;
-  $origin?: any;
-  $selected?: boolean;
-  diff: Function;
-  setAttr: Function;
-  setWidget: Function;
-  changeWidgetType: Function;
-  setAttrs: Function;
-  resetOrigin: Function;
-  updateStyle: Function;
-  appendChild: Function;
-  appendChildData: Function;
-  removeChild: Function;
-  addResource: Function;
-  remResource: Function;
-  getApi: (id: string, query?: { [key: string]: any }) => string;
-  swap: (srcIndex: number, dstIndex: number) => void;
-  swapResource: Function;
-  swapRefer: Function;
-  toJSON: Function;
-  pushRefer: Function;
-  remRefer: Function;
-}
-
 export type IAuto = {
   self: IComponent;
-  mode: string;
   parent?: IPageInfo;
   children?: any;
   query?: any;
   source: any;
   initField?: boolean;
   setDataField: (widget: IWidget, value: any) => void;
-  dnd?: {
-    isDragging: boolean;
-    ref: DraggableProvided['innerRef'];
-    props: DraggableProvided['draggableProps'] | DraggableProvided['dragHandleProps'];
-    style: DraggableProvided['draggableProps']['style'];
-  };
-  [key: string]: any;
 }
 export type IBaseComponent = {
+  mode:IMode;
+  page:IPageInfo;
   drag: {
     isDragOver: boolean;
     get className(): string;

@@ -3,10 +3,9 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { message, Popconfirm, Popover, Upload, Button, notification } from 'antd'
-import { usePageContext } from '../context'
+import { message, Popconfirm, Popover, Upload, notification } from 'antd'
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick, isEmpty } from 'lodash-es';
 import CONST from '@/constant'
 import apis from '@/api';
 import ModalPage from '../modal';
@@ -14,7 +13,6 @@ import { ComponentWrap } from '../style';
 import { useCallback, useState } from 'react';
 import store from '@/store';
 import hbs from 'handlebars'
-import _ from 'lodash';
 import type { RcFile } from 'antd/es/upload';
 import styled from 'styled-components'
 
@@ -29,9 +27,8 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CIcon({ self, mode, drag, dnd, source, children, parent }: IAuto & IBaseComponent) {
+export default function CIcon({ self, drag, source, children, parent, mode, page }: IAuto & IBaseComponent) {
   const navigate = useNavigate();
-  const page = usePageContext();
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
   const local = useLocalObservable(() => ({
@@ -51,7 +48,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
         return;
       }
       // pick/omit keys
-      const result = await apis.fetch(self.widget.method, self.getApi(source._id), _.isEmpty(self.widget.refer) ? source : _.pick(source, self.widget.refer.map(r => r.value as string)))
+      const result = await apis.fetch(self.widget.method, self.getApi(source._id), isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
         notification.info({ title: '请求成功', placement: 'topRight' })
@@ -65,15 +62,10 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
   }, [])
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
-        ...dnd?.style,
-        flex: self.attrs.flex ? 1 : 0,
         display: 'flex',
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
@@ -92,7 +84,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
           ? <Popconfirm title='确认是否删除' okText='是' cancelText='否' onConfirm={async () => {
             await request()
           }}>
-            <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} />
+            <span style={{ display: 'flex' }}><Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} /></span>
           </Popconfirm>
           : <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} onClick={async () => {
             await request()
@@ -156,7 +148,7 @@ export default function CIcon({ self, mode, drag, dnd, source, children, parent 
         <Popover trigger='click' content={<div>
           {self.widget.method === 'image' ? <img src={store.app.imageLine + source[self.widget.field]} style={{ height: 100 }} /> : <video controls src={store.app.videoLine + source[self.widget.field]} style={{ height: 300 }} />}
         </div>}>
-          <Acon icon={self.icon || 'FileSearch' as any} title={self.title} style={self.style} />
+          <span style={{ display: 'flex' }}><Acon icon={self.icon || 'FileSearch' as any} title={self.title} style={self.style} /></span>
         </Popover>
       </VisualBox>
       <VisualBox visible={self.widget.action === ''}>

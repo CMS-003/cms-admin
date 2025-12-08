@@ -1,22 +1,19 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 
-export default function GridCell({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
-
+export default function GridCell({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
-      <ComponentWrap key={self.children.length}
-        className={mode + drag.className}
+      <ComponentWrap
+        className={drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{ height: '100%', ...dnd?.style }}
+        style={{ height: '100%', }}
       >
         {children}
         {self.children.map(child => (
-          <Component key={child._id} self={child} mode={mode} {...props} />
+          <MemoComponent key={child._id} self={child} {...props} />
         ))}
       </ComponentWrap>
     )}

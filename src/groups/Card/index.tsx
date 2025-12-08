@@ -3,9 +3,6 @@ import Acon from '@/components/Acon'
 import { Observer, useLocalObservable } from 'mobx-react'
 import styled from 'styled-components'
 import { Center, FullHeight } from '@/components/style'
-import ResourceModal from '@/components/ResourceModal'
-import { IResource } from '@/types/resource'
-import { pick } from 'lodash'
 import { Fragment } from 'react'
 import store from '@/store'
 import { ComponentWrap } from '../style';
@@ -56,7 +53,7 @@ const ItemTitle = styled.div`
   line-height: 1.2;
   margin: 5px 0;
 `
-export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CCard({ self, drag, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     show: false,
     close() {
@@ -68,15 +65,9 @@ export default function CCard({ self, mode, drag, dnd, children }: IAuto & IBase
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        flex: 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <FullHeight>

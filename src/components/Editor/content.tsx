@@ -4,10 +4,9 @@ import { Form, Input, Switch, Upload, Button, Select, Spin, } from 'antd'
 import Acon from '../Acon'
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
-import { debounce } from 'lodash'
+import { debounce } from 'lodash-es'
 import store from '@/store'
 import { IEditorField } from '@/types'
-import { runInAction } from 'mobx';
 
 function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceTimeout = 800, ...props }: { placeholder: string, onChange: Function, value: any, defaultValue: any, showSearch: boolean, fetchOptions: any, onChoose: Function, debounceTimeout?: number, props?: any }) {
   const [fetching, setFetching] = useState(false);
@@ -45,7 +44,7 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
         props.onChange && props.onChange(e);
       }}
       onInputKeyDown={e => {
-        if (e.keyCode === 13) {
+        if (e.key === 'Enter') {
           debounceFetcher('')
         }
       }}
@@ -56,22 +55,26 @@ function DebounceSelect({ fetchOptions, onChoose, value, defaultValue, debounceT
 
 const lb = { span: 4 }, rb = { span: 20 }
 
-export default function EditPage({ fetch, fields, data, ...props }: { data: any, fields: IEditorField[], fetch: Function, }) {
-  const local = useLocalObservable<{ jsonMap: { [key: string]: string } }>(() => ({
+export default function EditPage({ fetch, fields, data, setData, ...props }: { data: any, setData: Function, fields: IEditorField[], fetch: Function, }) {
+  const local = useLocalObservable<{ jsonMap: { [key: string]: string }; setMap: Function, clear: Function }>(() => ({
     jsonMap: {},
+    setMap(key: string, v: any) {
+      local.jsonMap[key] = v;
+    },
+    clear() {
+      local.jsonMap = {}
+    }
   }))
   useEffect(() => {
-    runInAction(() => {
-      fields.forEach(item => {
-        if (item.type === 'json') {
-          local.jsonMap[item.field] = JSON.stringify(data[item.field] || {}, null, 2)
-        } else {
-          local.jsonMap[item.field] = data[item.field];
-        }
-      })
+    fields.forEach(item => {
+      if (item.type === 'json') {
+        local.setMap(item.field, JSON.stringify(data[item.field] || {}, null, 2))
+      } else {
+        local.setMap(item.field, data[item.field])
+      }
     })
     return () => {
-      local.jsonMap = {}
+      local.clear()
     }
   })
   return <Observer>{() => (<Fragment>
@@ -81,13 +84,13 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
           case 'Input':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input defaultValue={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
-                data[item.field] = e.target.value
+                setData(item.field, e.target.value)
               }} />
             </Form.Item>;
           case 'Number':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input type="number" value={data[item.field] || item.defaultValue} autoFocus={item.autoFocus || false} onChange={e => {
-                data[item.field] = e.target.value
+                setData(item.field, e.target.value)
               }} />
             </Form.Item>;
           case 'Hidden':
@@ -101,15 +104,13 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
           case 'Area':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Input.TextArea value={data[item.field]} onChange={e => {
-                data[item.field] = e.target.value
+                setData(item.field, e.target.value)
               }} />
             </Form.Item>;
           case 'Select':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Select key={i + item.field} defaultValue={data[item.field] || item.defaultValue} onChange={(value) => {
-                runInAction(() => {
-                  data[item.field] = value
-                })
+                setData(item.field, value)
               }}>
                 {item.value.map((v: any, index: number) => (<Select.Option key={index} value={v.value}>{v.name}</Select.Option>))}
                 {/* {store.component.types.map((v: any, index: number) => (<Select.Option key={index} value={v.type}>{v.title}</Select.Option>))} */}
@@ -136,14 +137,14 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                   return []
                 }}
                 onChange={(value: any) => {
-                  data[item.field] = value.value
+                  setData(item.field, value.value)
                 }}
               />
             </Form.Item>;
           case 'Switch':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
               <Switch checked={data[item.field] === item.value[0].value} onClick={e => {
-                data[item.field] = data[item.field] === item.value[0].value ? item.value[1].value : item.value[0].value
+                setData(item.field, data[item.field] === item.value[0].value ? item.value[1].value : item.value[0].value)
               }} /> {data[item.field] === item.value[0].value ? item.value[0].name : item.value[1].name}
             </Form.Item>
           case 'Image':
@@ -158,13 +159,9 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 name="image"
                 onChange={(e) => {
                   if (e.file.status === 'uploading') {
-                    console.log(e.event?.percent)
-                    // data[item.field] = e.file
-                    // const reader = new FileReader();
-                    // reader.addEventListener('load', () => { data[item.field] = reader.result });
-                    // reader.readAsDataURL(e.file as any);
+
                   } else if (e.file.status === 'done') {
-                    data[item.field] = e.file.response.data;
+                    setData(item.field, e.file.response.data)
                   }
                 }} beforeUpload={(f) => {
                   return true
@@ -177,12 +174,6 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
             </Form.Item>
           case 'Editor':
             return <Form.Item key={i + item.field} label={item.title} labelCol={lb} wrapperCol={rb}>
-              <Select defaultValue={item.type} onChange={type => {
-                item.type = type;
-              }}>
-                <Select.Option value="html">html</Select.Option>
-                <Select.Option value="json">json</Select.Option>
-              </Select>
               <CodeMirror
                 key={i + item.field}
                 autoFocus
@@ -190,7 +181,7 @@ export default function EditPage({ fetch, fields, data, ...props }: { data: any,
                 className="code-mirror"
                 extensions={[json()]}
                 onChange={(value, options) => {
-                  data[item.field] = value
+                  setData(item.field, value)
                 }}
               />
             </Form.Item>

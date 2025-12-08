@@ -4,7 +4,7 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
 import { ComponentWrap } from '../style';
 
-export default function CCheckbox({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
+export default function CCheckbox({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
@@ -12,15 +12,9 @@ export default function CCheckbox({ self, mode, source = {}, drag, dnd, setDataF
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <div>

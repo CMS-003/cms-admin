@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import { IAnyModelType, types } from 'mobx-state-tree'
 
 const global = types.model('global', {

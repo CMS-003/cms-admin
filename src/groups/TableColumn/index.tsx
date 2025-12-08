@@ -2,16 +2,16 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { ComponentWrap } from '../style';
 
-export default function TableColumn({ self, mode, source, drag, isTitle = true, children }: IAuto & IBaseComponent & { isTitle?: boolean }) {
+export default function TableColumn({ self, source, drag, children, mode, page }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       key={self._id}
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      style={isTitle ? { lineHeight: '32px' } : {}}
+      style={{ alignItems: 'center', ...self.style }}
     >
       {children}
-      {isTitle ? self.title : (source ? source[self.widget.field] : '')}
+      <div>{self.title}</div>
     </ComponentWrap>
   )}</Observer>
 }

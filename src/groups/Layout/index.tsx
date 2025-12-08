@@ -1,45 +1,27 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react'
-import NatureSortable from '@/components/NatureSortable'
-import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
-export default function ComponentLayout({ self, mode, dnd, drag, children, ...props }: IAuto & IBaseComponent) {
-  const page = usePageContext()
+export default function ComponentLayout({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
       id={self._id}
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        minHeight: self.children.length === 0 ? 32 : 'auto',
-        flex: self.attrs.flex ? 1 : 0,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-        ...dnd?.style,
-      }}
+      style={self.style}
     >
       {children}
-      <NatureSortable
-        droppableId={self._id}
-        direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
+      <SortDD
         disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-        style={{
-          flex: 1,
-          flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column',
-          ...self.style,
-        }}
-        items={self.children}
+        direction={self.attrs.layout === 'horizontal' ? 'horizontal' : 'vertical'}
+        items={self.children.map(child => ({ id: child._id, data: child, style: { flexShrink: 0, flexGrow: child.attrs.flex || 0 } }))}
         sort={self.swap}
-        renderItem={({ item, dnd }) => (
-          <Component
-            mode={mode}
-            self={item}
-            dnd={dnd}
-            page={page}
+        renderItem={(item: any) => (
+          <MemoComponent
+            self={item.data}
             {...props}
           />
         )}

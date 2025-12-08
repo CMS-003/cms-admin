@@ -3,14 +3,15 @@ import { FullHeight, FullWidth } from '@/components/style'
 import { Checkbox, Input, message, Select, Space } from 'antd'
 import Acon from '@/components/Acon';
 import "react-contexify/dist/ReactContexify.css";
-import SortList from '@/components/SortList/';
 import { IJsonSchema } from '@/types';
-import { entries, isUndefined, clone } from 'lodash';
+import { entries, isUndefined, clone } from 'lodash-es';
 import { useEffectOnce } from 'react-use';
 import { CSSProperties, Fragment } from 'react';
 import './custom.css';
 import VisualBox from '../VisualBox';
 import styled from 'styled-components'
+import { SortDD } from '../SortableDD';
+import { runInAction } from 'mobx';
 
 const Handler = styled.div`
   padding-right: 10px;
@@ -88,7 +89,9 @@ function Item({
           rotate={local.showSub ? '90deg' : '0deg'}
           style={{ marginLeft: -15, transform: 'translate(-10px, 0)' }}
           onClick={() => {
-            local.showSub = !local.showSub;
+            runInAction(() => {
+              local.showSub = !local.showSub;
+            })
           }}
         />}
         <VisualBox visible={!isRoot}>
@@ -164,25 +167,23 @@ function Item({
         </Space>
       </FullWidth>
       {local.showSub && <Fragment>
-        {data.type === 'Object' && <SortList
-          items={local.array}
-          sort={(oi: number, ni: number) => {
-            local.sortKey(oi, ni);
-          }}
-          droppableId="json-schema-editor"
-          itemStyle={{ marginLeft: 20 }}
-          renderItem={({ item, handler }: { item: [string, IJsonSchema], handler: any }) => {
-            return <Item
-              key={item[0]}
+        {data.type === 'Object' && <SortDD
+          direction='vertical'
+          handle={true}
+          items={local.array.map(v => ({ id: v[0], data: v }))}
+          sort={local.sortKey}
+          renderItem={(item: any, handler: any) => (
+            <Item
+              key={item.data[0]}
               parent={data}
-              data={item[1]}
-              field={item[0]}
+              data={item.data[1]}
+              field={item.data[0]}
               onChange={onChange}
               handler={handler}
             />
-          }}
-          mode="edit"
-        />}
+          )}
+        />
+        }
         {data.type === 'Array' && <div style={{ marginLeft: 30 }}>
           {data.items?.map((v, i) => {
             return <Item key={i} data={v} field={'items'} onChange={onChange} handler={null} />

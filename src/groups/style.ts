@@ -19,8 +19,6 @@ export const ComponentWrap = styled.div`
   box-sizing: border-box;
   flex-direction: row;
   display: flex;
-  // align-items: center;
-  // justify-content: center;
   flex: 1 1 100%; // 个组件自己控制默认值
 
   &::-webkit-scrollbar {
@@ -194,6 +192,9 @@ export const ConerRB = styled.span`
 export const EditItem = styled.div`
   margin-bottom: 8px;
   padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 `
 
 export const ScrollWrap = styled.div`

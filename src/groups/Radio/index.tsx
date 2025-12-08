@@ -2,11 +2,11 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Radio } from 'antd'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
-import _ from 'lodash'
+import { get } from 'lodash-es'
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CRadio({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+export default function CRadio({ self, drag, source = {}, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
@@ -14,13 +14,9 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style, ...dnd?.style
-      }}
+      style={self.style}
     >
       {children}
       <Radio.Group style={{
@@ -29,7 +25,7 @@ export default function CRadio({ self, mode, drag, dnd, source = {}, setDataFiel
         minHeight: 35,
       }} options={[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])]} onChange={e => {
         setDataField(self.widget, e.target.value);
-      }} value={_.get(source, self.widget.field)} />
+      }} value={get(source, self.widget.field)} />
     </ComponentWrap>
   )
   }</Observer >

@@ -19,14 +19,12 @@ background-color: #fff;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CRandom({ self, mode, drag, dnd, children }: IAuto & IBaseComponent) {
+export default function CRandom({ self, drag, children, mode, page }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{ flex: 0, ...dnd?.style }}
+      style={self.style}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>

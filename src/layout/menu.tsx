@@ -19,7 +19,7 @@ const NoScrollbar = styled.div`
   }
 `
 
-export function transform(tree: any, collapsed = true) {
+function transform(tree: any, collapsed = true) {
   if (!tree) {
     return [];
   }
@@ -32,7 +32,7 @@ export function transform(tree: any, collapsed = true) {
     node.label = null;
   }
   if (tree.children && tree.children.length) {
-    node.children = tree.children.filter((item: any) => item.status === 1).map((item: any) => transform(item, collapsed))
+    node.children = tree.children.filter((item: any) => item.status === 1).map((item: any) => transform(item, false))
   }
   if (!node.children || node.children.length === 0) {
     delete node.children

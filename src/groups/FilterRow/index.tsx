@@ -1,11 +1,11 @@
 import { IAuto, IBaseComponent } from '@/types/component'
 import styled from 'styled-components'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use'
-import NatureSortable from '@/components/NatureSortable'
 import { ComponentWrap } from '../style';
 import store from '@/store'
+import { SortDD } from '@/components/SortableDD'
 
 const Wrap = styled.div`
   display: flex;
@@ -22,7 +22,7 @@ const Row = styled.div`
   align-items: flex-start;
 `
 
-export default function CFilterRow({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
+export default function CFilterRow({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     self.children.forEach(child => {
       if (child.attrs.selected) {
@@ -33,30 +33,22 @@ export default function CFilterRow({ self, mode, drag, dnd, children, ...props }
   return <Observer>
     {() => (
       <ComponentWrap key={self.children.length}
-        className={mode + drag.className}
+        className={drag.className}
         {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
         style={{
-          overflowX: 'auto',
-          ...dnd?.style,
-          backgroundColor: dnd?.isDragging ? 'lightblue' : '',
+          alignItems: 'center',
+          justifyContent:'center',
         }}
       >
         {children}
-        <NatureSortable
-          style={{ alignItems: 'center' }}
-          items={self.children}
+        <SortDD
+          items={self.children.map(child => ({ id: child._id, data: child }))}
           direction='horizontal'
           disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-          droppableId={self._id}
           sort={self.swap}
-          wrap={Row}
-          renderItem={({ item, dnd }) => (
-            <Component
-              self={item}
-              mode={mode}
-              dnd={dnd}
+          renderItem={(item: any) => (
+            <MemoComponent
+              self={item.data}
               {...props}
             />
           )}

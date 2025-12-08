@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Select, Space, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
@@ -7,8 +8,18 @@ import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
 import store from '@/store';
 
-export default function CSelect({ self, mode, drag, dnd, source, query, setDataField, children }: IAuto & IBaseComponent) {
+export default function CSelect({ self, drag, source, query, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const data = !self.widget.query ? source : query;
+  const local = useLocalObservable(() => ({
+    isLeftClickOpen: false,
+    setOpen(open: boolean) {
+      local.isLeftClickOpen = open
+    }
+  }))
+  const handleOutsideClick = useCallback(() => {
+    local.setOpen(false)
+    document.removeEventListener('click', handleOutsideClick);
+  }, []);
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)
@@ -16,22 +27,31 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         whiteSpace: 'nowrap',
         flex: 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
+        ...self.style,
       }}
     >
       {children}
       <Space.Compact>
         {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
         <Select
+          style={{ flex: 1 }}
           value={data[self.widget.field]}
+          open={local.isLeftClickOpen}
+          onClick={(e) => {
+            if (e.button === 0) {
+              local.setOpen(!local.isLeftClickOpen)
+            }
+            if (local.isLeftClickOpen) {
+              setTimeout(() => {
+                document.addEventListener('click', handleOutsideClick);
+              }, 0);
+            }
+          }}
           onChange={async (v) => {
             if (mode === 'edit') return;
             const old = data[self.widget.value as string]
@@ -58,5 +78,6 @@ export default function CSelect({ self, mode, drag, dnd, source, query, setDataF
         </Select>
       </Space.Compact>
     </ComponentWrap>
-  )}</Observer>
+  )
+  }</Observer >
 }

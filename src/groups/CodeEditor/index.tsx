@@ -6,7 +6,7 @@ import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
 import { ComponentWrap } from '../style';
 
-export default function Editor({ self, mode, drag, dnd, source, setDataField, children }: IAuto & IBaseComponent) {
+export default function Editor({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   useEffectOnce(() => {
     if (!source._id) {
       setDataField(self.widget, self.widget.value)
@@ -14,15 +14,11 @@ export default function Editor({ self, mode, drag, dnd, source, setDataField, ch
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
-        ...dnd?.style,
         width: '100%',
         flex: 0,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}

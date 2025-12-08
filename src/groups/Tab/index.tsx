@@ -2,13 +2,13 @@ import { Tabs } from "antd";
 import { Observer } from "mobx-react";
 import { IAuto, IBaseComponent } from '@/types/component';
 import Acon from '@/components/Acon'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import styled from "styled-components";
 import { contextMenu } from 'react-contexify';
 import { Fragment } from "react";
 import Auto from '../auto'
-import { usePageContext } from '../context'
 import { ComponentWrap } from '../style';
+import { cloneDeep } from "lodash-es";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -33,30 +33,22 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, mode, drag, dnd, children, ...props }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CTab({ self, drag, children, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>
     {() => (
-      <ComponentWrap
-        className={mode + drag.className}
-        {...drag.events}
-        ref={dnd?.ref}
-        {...dnd?.props}
-        style={{
-          ...dnd?.style,
-          backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-        }}>
+      <ComponentWrap className={drag.className} {...drag.events}>
         {children}
         <TabWrap>
           <Tabs
             activeKey={self.attrs.selected_id}
-            tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'menu'} /> }}
+            tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'Menu'} /> }}
             onChange={activeKey => {
-              self.setAttrs('selected_id', activeKey)
+              const attrs = cloneDeep(self.attrs);
+              attrs.selected_id = activeKey
+              self.setAttr('attrs', attrs)
             }}
             items={self.children.map((child, i) => ({
               label: <TabItemWrap
-                className={mode + drag.className}
                 onContextMenu={e => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -73,7 +65,7 @@ export default function CTab({ self, mode, drag, dnd, children, ...props }: IAut
                 child.attrs.content_type === 'template' ? (<Fragment>
                   <Auto mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
                 </Fragment>) :
-                  <Component mode={mode} self={child} key={i} index={i} {...props} />
+                  <MemoComponent self={child} key={i} {...props} />
               )
             }))}
           >

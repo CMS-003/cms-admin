@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent } from '@/types/component'
-import { Button, Input, Upload, message } from 'antd'
+import { Input, Upload, message } from 'antd'
 import { Observer } from 'mobx-react'
 import styled from 'styled-components'
 import { ComponentWrap } from '../style';
@@ -9,14 +9,6 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
-
-const getBase64 = (file: RcFile): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-  });
 
 const Preview = styled.div`
   display: flex;
@@ -31,7 +23,7 @@ const Preview = styled.div`
   background-color: lightsteelblue;
 `
 
-export default function CUpload({ self, mode, drag, dnd, source = {}, setDataField, children }: IAuto & IBaseComponent) {
+export default function CUpload({ self, drag, source = {}, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const inputRef = useRef(null);
   const [url, setURL] = useState('')
   const [preview, setPreview] = useState('')
@@ -51,15 +43,9 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
   }, [focused])
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...self.style,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <FullHeight style={{ flex: 1 }}>
@@ -68,15 +54,16 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
           ref={inputRef}
           style={{ marginBottom: 5 }}
           value={url}
-          onChange={e => {
-            setURL(e.currentTarget.value)
-          }}
           onFocus={() => {
             setFocused(true)
+          }}
+          onChange={e => {
+            setURL(e.currentTarget.value)
           }}
           onBlur={e => {
             setFocused(false)
             setDataField(self.widget, e.currentTarget.value)
+            setPreview(e.currentTarget.value)
           }}
           suffix={focused ? <Acon icon="CircleCheck" onClick={() => {
             setFocused(false)
@@ -112,7 +99,7 @@ export default function CUpload({ self, mode, drag, dnd, source = {}, setDataFie
             return false
           }}
         >
-          <Preview style={{ backgroundImage: preview || url ? `url(${preview || url})` : '' }}>
+          <Preview style={{ backgroundImage: preview ? `url(${preview})` : '' }}>
             <Acon icon="Upload" />
           </Preview>
         </Upload>

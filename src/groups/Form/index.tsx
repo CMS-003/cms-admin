@@ -2,21 +2,19 @@ import { Center, FullHeightAuto, FullWidthAuto } from '@/components/style'
 import { IAuto, IBaseComponent, IWidget } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Button, message, Space } from 'antd'
-import { Component } from '../auto'
+import { MemoComponent } from '../auto'
 import { useCallback, useEffect } from 'react'
 import apis from '@/api'
-import NatureSortable from '@/components/NatureSortable'
-import { usePageContext } from '../context'
 import { runInAction, toJS } from 'mobx'
 import { IResource } from '@/types'
 import events from '@/utils/event';
-import { pick, set, isEqual, isEmpty, omit } from 'lodash';
+import { pick, set, isEqual, isEmpty, omit, cloneDeep, isNil, assign } from 'lodash-es';
 import CONST from '@/constant';
 import { ComponentWrap } from '../style';
 import { useEffectOnce } from 'react-use'
 import store from '@/store'
 import { getWidgetValue } from '../utils'
-import _ from 'lodash'
+import { SortDD } from '@/components/SortableDD'
 
 function getFields(widget: IWidget) {
   const picks: string[] = [], omits: string[] = [];
@@ -34,21 +32,23 @@ function getFields(widget: IWidget) {
   return { picks, omits }
 }
 
-export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CForm({ self, drag, children, parent, mode, page }: IAuto & IBaseComponent) {
   const local: {
     source: { [key: string]: any };
     query: { [key: string]: any };
     $origin: { [key: string]: any };
+    booting: boolean;
     loading: boolean;
     setSource: Function;
     setDataField: (widget: IWidget, value: any) => void;
     getDiff: Function;
     isDiff: Function;
+    setBooting: Function;
     setLoading: Function;
     setSubStatus: Function;
   }
     = useLocalObservable(() => ({
+      booting: true,
       loading: false,
       source: {},
       query: {},
@@ -61,7 +61,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
         } else {
           let v = args[1];
           if (args[2] === true) {
-            local.$origin = _.assign(_.cloneDeep(local.$origin), { [args[0]]: args[1] });
+            local.$origin = assign(cloneDeep(local.$origin), { [args[0]]: args[1] });
           }
           set(local.source, args[0], v)
         }
@@ -71,7 +71,7 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
           return;
         }
         value = getWidgetValue(widget, value);
-        if (_.isNil(value)) {
+        if (isNil(value)) {
           return;
         }
         if (widget.query) {
@@ -103,6 +103,9 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       isDiff() {
         return !isEmpty(local.getDiff())
       },
+      setBooting(b: boolean) {
+        local.booting = b
+      },
       setLoading(b: boolean) {
         local.loading = b
       },
@@ -125,7 +128,8 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
       }
       local.setLoading(false)
     }
-  }, [self.widget.action, page.query['id']])
+    local.setBooting(false)
+  }, [self.widget.action])
   const updateInfo = useCallback(async (close = false) => {
     try {
       local.setLoading(true)
@@ -189,43 +193,38 @@ export default function CForm({ self, mode, drag, dnd, children, parent }: IAuto
   })
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
       style={{
         width: '100%',
         height: '100%',
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
       }}
     >
       {children}
       <FullWidthAuto style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%' }}>
-        <FullHeightAuto>
-          <NatureSortable
-            items={self.children}
-            direction='vertical'
-            disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
-            droppableId={self._id}
-            sort={self.swap}
-            renderItem={({ item, dnd }) => (
-              <Component
-                self={item}
-                mode={mode}
-                source={local.source}
-                setDataField={local.setDataField}
-                dnd={dnd}
-                page={page}
-              />
-            )}
-          />
+        <FullHeightAuto style={{ display: 'flex', flexDirection: 'column', paddingTop: 8, gap: 8, ...self.style }}>
+          {local.booting
+            ? <div style={{ margin: '100px auto', textAlign: 'center' }}>loading...</div>
+            : <SortDD
+              items={self.children.map(child => ({ id: child._id, data: child }))}
+              direction='vertical'
+              disabled={mode === 'preview' || store.component.can_drag_id !== self._id}
+              sort={self.swap}
+              renderItem={(item: any) => (
+                <MemoComponent
+                  self={item.data}
+                  source={local.source}
+                  setDataField={local.setDataField}
+                  page={page}
+                />
+              )}
+            />}
         </FullHeightAuto>
         <Center>
-          <Space style={{ padding: 8 }}>
-            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(false)}>保存</Button>
-            <Button loading={local.loading} disabled={local.loading || !local.isDiff() && isEmpty(local.query)} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
-          </Space>
+          {!local.booting && <Space style={{ padding: 8 }}>
+            <Button loading={local.loading} disabled={mode === 'edit' || local.loading || !local.isDiff()} type='primary' onClick={() => updateInfo(false)}>保存</Button>
+            <Button loading={local.loading} disabled={mode === 'edit' || local.loading || !local.isDiff()} type='primary' onClick={() => updateInfo(true)}>保存并关闭</Button>
+          </Space>}
         </Center>
       </FullWidthAuto>
     </ComponentWrap>

@@ -6,7 +6,7 @@ import { IComponent, IEditorComponent } from '../../types'
 import apis from '@/api'
 import { AlignAside, FullWidth } from '@/components/style'
 import { useEffectOnce } from 'react-use';
-import { cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash-es'
 import store from '@/store';
 import Acon from '@/components/Acon';
 
@@ -205,7 +205,7 @@ const ComponentPage: React.FC = () => {
       <div style={{ flex: 1, overflow: 'auto' }}>
         <Table
           style={{ height: '100%' }}
-          pagination={{ placement:['bottomEnd'], total: local.total, pageSize: 20, current: local.page }}
+          pagination={{ placement: ['bottomEnd'], total: local.total, pageSize: 20, current: local.page }}
           sticky={true}
           rowKey="_id"
           dataSource={local.list}
@@ -215,7 +215,7 @@ const ComponentPage: React.FC = () => {
           }}
         >
           <Table.Column title="组件名称" dataIndex="title" render={(title, record: any) => (
-            <FullWidth><Acon icon={record.icon} />{title}</FullWidth>
+            <FullWidth>{record.icon && <Acon icon={record.icon} />}{title}</FullWidth>
           )} />
           <Table.Column title="组件类型" dataIndex="name" />
           <Table.Column title="分类类型" dataIndex="type" />

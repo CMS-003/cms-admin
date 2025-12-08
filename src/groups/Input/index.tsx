@@ -2,13 +2,11 @@ import CONST from '@/constant';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Input, Space } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { usePageContext } from '../context';
 import { ComponentWrap } from '../style';
 import events from '@/utils/event';
-import { pick } from 'lodash';
+import { pick } from 'lodash-es';
 
-export default function CInput({ self, mode, source = {}, drag, dnd, setDataField, children }: IAuto & IBaseComponent) {
-  const page = usePageContext();
+export default function CInput({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
     composing: false,
     setComposition(is: boolean) {
@@ -17,22 +15,15 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
   }))
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        ...dnd?.style,
-        flex: self.style.flex,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <Space.Compact block>
         {self.title ? <Space.Addon style={{ flexShrink: 0 }}>{self.title}</Space.Addon> : null}
         <Input
           value={source[self.widget.field]}
-          style={self.style}
           onChange={e => {
             setDataField(self.widget, e.target.value);
           }}
@@ -58,7 +49,6 @@ export default function CInput({ self, mode, source = {}, drag, dnd, setDataFiel
             }
           }} />
       </Space.Compact>
-
     </ComponentWrap>
   )}</Observer>
 }

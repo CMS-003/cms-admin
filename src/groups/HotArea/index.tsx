@@ -2,8 +2,8 @@ import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react';
 import { ComponentWrap } from '../style';
 import styled from 'styled-components';
-import { chunk } from 'lodash';
-import { Component } from '../auto';
+import { chunk } from 'lodash-es';
+import { MemoComponent } from '../auto';
 
 const Area = styled.div`
   display: flex;
@@ -24,18 +24,12 @@ const Row = styled.div`
   justify-content: space-around;
 `
 
-export default function CHotArea({ self, mode, children, drag, dnd, ...props }: IAuto & IBaseComponent) {
+export default function CHotArea({ self, children, drag, mode, page, ...props }: IAuto & IBaseComponent) {
   return <Observer>{() => (
     <ComponentWrap
-      className={mode + drag.className}
+      className={drag.className}
       {...drag.events}
-      ref={dnd?.ref}
-      {...dnd?.props}
-      style={{
-        flex: 0,
-        ...dnd?.style,
-        backgroundColor: dnd?.isDragging ? 'lightblue' : '',
-      }}
+      style={self.style}
     >
       {children}
       <Area>
@@ -44,10 +38,9 @@ export default function CHotArea({ self, mode, children, drag, dnd, ...props }: 
           {chunk(self.children, self.attrs.columns || 1).map((rows, i) => (
             <Row key={i}>
               {rows.map(child => (
-                <Component
+                <MemoComponent
                   key={child._id}
                   self={child}
-                  mode={mode}
                   source={{}}
                   setDataField={() => { }}
                 />
