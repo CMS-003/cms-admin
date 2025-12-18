@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "/manager",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "analyze": "vite build --mode analyze",
+    "lint": "vite lint"
+  },
   "dependencies": {
     "@codemirror/lang-html": "^6.4.9",
     "@codemirror/lang-javascript": "^6.2.2",
@@ -40,12 +46,6 @@
     "socket.io-client": "^4.8.1",
     "styled-components": "^5.3.11",
     "uuid": "^9.0.0"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "analyze": "vite build --mode analyze",
-    "lint": "vite lint"
   },
   "eslintConfig": {
     "extends": [
