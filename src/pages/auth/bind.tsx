@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import { Observer, useLocalObservable } from 'mobx-react-lite'
 import { Button, Input, Avatar, message, Tabs, Select, Space, Divider } from 'antd'
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,7 @@ export default function BindPage() {
     const bind_token = searchParams.get('bind_token') || '';
     if (bind_token) {
       local.bind_token = bind_token;
-      navigate('/manager/oauth/bind', { replace: true });
+      navigate('/manager/auth/bind', { replace: true });
     }
   })
   return <Observer>{() => (

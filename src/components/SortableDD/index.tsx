@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo, CSSProperties } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -31,13 +31,13 @@ function SortableItem(props: SortableItemProps) {
     transition,
     isDragging,
   } = useSortable({ id: props.id, });
-  const transformWithoutScale = React.useMemo(() => {
+  const transformWithoutScale = useMemo(() => {
     if (!transform) return null;
     const { scaleX, scaleY, ...rest } = transform;
     return { ...rest, scaleX: 1, scaleY: 1 };
   }, [transform]);
 
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     transform: CSS.Transform.toString(transformWithoutScale),
     transition,
     display: 'flex',

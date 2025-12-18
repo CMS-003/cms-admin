@@ -22,9 +22,9 @@ import { IComponent, IComponentType, ILog, ITemplate } from "@/types";
 const apis = {
   getTemplateComponents: async (template_id: string, page: number = 1, size: number = 10): Promise<BaseWrapper<ITemplate & { children: IComponent[] }>> => {
     const results = await shttp.get<ITemplate & { children: IComponent[] }>(`/gw/api/v1/templates/${template_id}/components?page=${page}&size=${size}`, {
-      responseType: 'arraybuffer'
+      // responseType: 'arraybuffer'
     }).header({
-      'x-proto': 'component'
+      // 'x-proto': 'component'
     });
     return results;
   },

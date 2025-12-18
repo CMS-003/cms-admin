@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useState } from 'react';
+import { FC, Fragment, useCallback, useState } from 'react';
 import { Button, Image, notification, Space, Table } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'
@@ -11,7 +11,7 @@ import { IType, IMSTArray } from 'mobx-state-tree'
 import { IComponentType } from '@/types/component.js';
 import Acon from '@/components/Acon';
 
-const ComponentTypePage: React.FC = () => {
+const ComponentTypePage: FC = () => {
   const local = useLocalObservable<{
     page: number,
     showEditPage: boolean,

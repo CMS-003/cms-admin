@@ -1,5 +1,5 @@
 import { Menu } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom'
 import Acon from '@/components/Acon';
 import store from '@/store'
@@ -40,7 +40,7 @@ function transform(tree: any, collapsed = true) {
   return node;
 }
 
-const MENU: React.FC<{ tree: any, collapsed: boolean, flag: number }> = (props: { tree: any, collapsed: boolean, flag: number }) => {
+const MENU: FC<{ tree: any, collapsed: boolean, flag: number }> = (props: { tree: any, collapsed: boolean, flag: number }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const [tree, setTree] = useState([])

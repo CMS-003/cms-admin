@@ -3,7 +3,7 @@ import { useEffectOnce } from 'react-use';
 import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import "react-contexify/dist/ReactContexify.css";
-import { contextMenu } from 'react-contexify';
+import { contextMenu, TriggerEvent } from 'react-contexify';
 import { isArray, omit, isNil } from 'lodash-es'
 import apis from '@/api'
 import store from '@/store'
@@ -32,7 +32,7 @@ import { ModeContext, PageContext, useModeContext, useSetTitleContext } from './
 import { CenterXY } from '@/components/style';
 import { v4 } from 'uuid';
 import { SortDD } from '@/components/SortableDD';
-import React from 'react';
+import {MouseEvent, memo, ComponentType} from 'react';
 import { detach } from 'mobx-state-tree';
 
 export function Component({
@@ -94,7 +94,7 @@ export function Component({
         if (mode === 'preview' || store.component.isDragging) return;
         store.component.setHoverComponentId('')
       },
-      onContextMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+      onContextMenu(e: TriggerEvent) {
         e.preventDefault();
         e.stopPropagation();
         contextMenu.show({
@@ -157,9 +157,9 @@ export function Component({
 
 // 记忆化组件工厂
 function createMemoComponent<P>(
-  Component: React.ComponentType<P>
+  Component: ComponentType<P>
 ) {
-  return React.memo(function ModeAwareComponent(props: P) {
+  return memo(function ModeAwareComponent(props: P) {
     const mode = useContext(ModeContext);
     const page = useContext(PageContext)
 
