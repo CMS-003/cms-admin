@@ -36,6 +36,7 @@ import HotArea from './HotArea'
 import GridLayout from './GridLayout'
 import GridCell from './GridCell'
 import Chart from './Chart'
+import Progress from './Progress'
 
 /**
  * 组件与属性 attr
@@ -115,6 +116,7 @@ const components = {
   GridLayout,
   GridCell,
   Chart,
+  Progress,
 }
 
 export default components;

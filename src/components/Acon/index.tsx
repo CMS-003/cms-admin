@@ -61,6 +61,7 @@ import {
   Bell,
   Mail,
   Menu,
+  CirclePercent,
 } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -82,7 +83,7 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   ScanLine,
   Link,
   Plus,
-  
+
   Check,
   CopyMinus,
   ChevronRight,
@@ -90,6 +91,7 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   MoveLeft,
   MoveRight,
 
+  Progress: CirclePercent,
   CirclePlus,
   CircleCheck,
   CircleAlert,

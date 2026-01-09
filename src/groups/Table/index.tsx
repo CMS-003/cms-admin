@@ -112,6 +112,9 @@ export default function CTable({ self, drag, source, query, children, mode, page
             if (!isNil(data.transcode)) {
               resource.transcode = data.transcode;
             }
+            if (!isNil(data.progress) && data.resource_type === 'task') {
+              resource.progress = data.progress;
+            }
           }
         })
       }

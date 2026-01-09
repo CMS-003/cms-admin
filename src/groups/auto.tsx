@@ -4,7 +4,7 @@ import { runInAction, toJS } from 'mobx';
 import { Observer, useLocalObservable } from 'mobx-react'
 import "react-contexify/dist/ReactContexify.css";
 import { contextMenu } from 'react-contexify';
-import { isArray, omit, isNil } from 'lodash-es'
+import { isArray, omit, isNil, set } from 'lodash-es'
 import apis from '@/api'
 import store from '@/store'
 import events from '@/utils/event';
@@ -379,7 +379,8 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       if (widget.query) {
         page.setQuery(widget.field, value)
       } else {
-        local.source[widget.field] = value;
+        set(local.source, widget.field, value)
+        // local.source[widget.field] = value;
       }
     },
   }))

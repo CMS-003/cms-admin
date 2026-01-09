@@ -16,7 +16,7 @@ import ResourceModal from "@/components/ResourceModal";
 import JSON5 from 'json5';
 import store from "@/store";
 import { SortDD } from "@/components/SortableDD";
-import { getSnapshot, types } from "mobx-state-tree";
+import { IMSTArray, ISimpleType, getSnapshot } from "mobx-state-tree";
 
 const { AlignAround, AlignAside } = Style;
 
@@ -228,13 +228,15 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
 
                   {data.queries.map(id => (
                     <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
-                      data.queries.replace(data.queries.filter(q => q !== id))
+                      data.setAttr('queries', data.queries.filter(q => q !== id) as IMSTArray<ISimpleType<string>>)
                     }} />} />
                   ))}
                   {local.showQueryModal && <QueryModal
                     show={local.showQueryModal}
                     queries={data.queries}
-                    setQueries={(queries: string[]) => data.queries.replace(queries)}
+                    setQueries={(queries: IMSTArray<ISimpleType<string>>) => {
+                      data.setAttr('queries', queries)
+                    }}
                     q={local.q}
                     close={() => local.setShowQueryModal(false)}
                   />}

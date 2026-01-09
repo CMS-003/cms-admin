@@ -31,7 +31,7 @@ ws.on('message', (data: any) => {
   }
   if (data.type === 'notify') {
     // module robot name uin action chat
-    notification.info({ message: data.data.message, description: `from ${data.name}` })
+    notification.info({ title: '提醒', message: data.data.message, description: `from ${data.name}` })
   } else if (data.type === 'system') {
     events.emit(data.module === 'qqBot' ? 'qqSystem' : 'other', { uin: data.name, action: data.action })
   } else if (data.type === 'modal') {

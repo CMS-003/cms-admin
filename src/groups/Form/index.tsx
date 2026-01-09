@@ -77,7 +77,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
         if (widget.query) {
           local.query[widget.field] = value;
         } else {
-          local.source[widget.field] = value
+          set(local.source, widget.field, value)
         }
       },
       getDiff() {

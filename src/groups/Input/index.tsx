@@ -4,7 +4,7 @@ import { Input, Space } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { ComponentWrap } from '../style';
 import events from '@/utils/event';
-import { pick } from 'lodash-es';
+import { pick, get } from 'lodash-es';
 
 export default function CInput({ self, source = {}, drag, setDataField, children, mode, page }: IAuto & IBaseComponent) {
   const local = useLocalObservable(() => ({
@@ -23,7 +23,7 @@ export default function CInput({ self, source = {}, drag, setDataField, children
       <Space.Compact block>
         {self.title ? <Space.Addon style={{ flexShrink: 0 }}>{self.title}</Space.Addon> : null}
         <Input
-          value={source[self.widget.field]}
+          value={get(source, self.widget.field)}
           onChange={e => {
             setDataField(self.widget, e.target.value);
           }}
