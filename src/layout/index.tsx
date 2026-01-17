@@ -1,5 +1,5 @@
 import { Layout, Dropdown, Menu, Popover, Button } from 'antd';
-import React, { useCallback, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import logo from '@/asserts/images/logo.svg';
 import MenuComponent from './menu'
 import Router from '../router'
@@ -11,7 +11,7 @@ import Acon from '@/components/Acon';
 
 const { Content, Sider } = Layout;
 
-const CLayout: React.FC<{ data: any, flag: number }> = (props: { data: any, flag: number }) => {
+const CLayout: FC<{ data: any, flag: number }> = (props: { data: any, flag: number }) => {
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false);
   const [logouting, setLogout] = useState(false);

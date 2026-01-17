@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer } from 'mobx-react'
 import { useEffectOnce } from 'react-use';
@@ -9,7 +9,7 @@ import { ComponentWrap } from '../style';
 import store from '@/store';
 
 export default function CEditor({ self, drag, source, setDataField, children, mode, page }: IAuto & IBaseComponent) {
-  const [editorState, setEditorState] = React.useState(
+  const [editorState, setEditorState] = useState(
     () => EditorState.createEmpty(),
   );
   const editorRef = useRef(null);

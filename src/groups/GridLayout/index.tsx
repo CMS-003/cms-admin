@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef, useState, forwardRef } from "react";
 import { IAuto, IBaseComponent } from '@/types/component'
 import { MemoComponent } from '../auto'
 import { Observer, useLocalObservable } from 'mobx-react';
@@ -28,7 +28,7 @@ const LineH = styled.div`
   background: #cccd;
   z-index: -1;
 `
-const GridLines = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
+const GridLines = forwardRef<HTMLDivElement, {}>((props, ref) => {
   const { cols = 12, rows = 8 } = props as any;
   return (
     <div ref={ref} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>

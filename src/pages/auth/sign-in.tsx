@@ -1,4 +1,3 @@
-import React from 'react'
 import { Observer, useLocalObservable } from 'mobx-react-lite'
 import { Form, Button, Input, Avatar, message, Popconfirm } from 'antd'
 import { useNavigate } from "react-router-dom";

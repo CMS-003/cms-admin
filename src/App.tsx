@@ -5,10 +5,10 @@ import { Observer, useLocalObservable } from 'mobx-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { Space, Spin, Button } from 'antd'
 import apis from './api';
-import SignInPage from './pages/signin'
-import BindPage from './pages/oauthResult/bind'
-import SuccessPage from './pages/oauthResult/success'
-import FailPage from './pages/oauthResult/failure'
+import BindPage from './pages/auth/bind'
+import SignInPage from './pages/auth/sign-in'
+import SuccessPage from './pages/auth/success'
+import FailurePage from './pages/auth/failure'
 import store from './store'
 import { useEffectOnce } from 'react-use';
 import { ws } from '@/utils/ws'
@@ -77,8 +77,8 @@ function Main() {
           if (!finished) {
             throw new Error('boot fail');
           }
-          if (!store.user.isLogin() && !['/manager/oauth/bind', '/manager/oauth/success', '/manager/oauth/failure'].includes(location.pathname)) {
-            navigate('/manager/sign-in')
+          if (!store.user.isLogin() && !['/manager/auth/bind', '/manager/auth/success', '/manager/auth/failure'].includes(location.pathname)) {
+            navigate('/manager/auth/sign-in')
           } else if (location.pathname === '/' || location.pathname === '/manager/') {
             navigate('/manager/dashboard')
           }
@@ -133,10 +133,10 @@ function App() {
     <Observer>{() => (
       <div className="App">
         <Routes>
-          <Route path={"/manager/sign-in"} element={<SignInPage />} />
-          <Route path={"/manager/oauth/bind"} element={<BindPage />} />
-          <Route path={"/manager/oauth/success"} element={<SuccessPage />} />
-          <Route path={"/manager/oauth/failure"} element={<FailPage />} />
+          <Route path={"/manager/auth/sign-in"} element={<SignInPage />} />
+          <Route path={"/manager/auth/bind"} element={<BindPage />} />
+          <Route path={"/manager/auth/success"} element={<SuccessPage />} />
+          <Route path={"/manager/auth/failure"} element={<FailurePage />} />
           <Route path="/manager/*" element={<Main />} />
         </Routes>
       </div>

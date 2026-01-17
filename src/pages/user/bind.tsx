@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useEffectOnce } from 'react-use';
 import { Observer, useLocalObservable } from 'mobx-react';
 import apis from '@/api';

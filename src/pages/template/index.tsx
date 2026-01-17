@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useState } from 'react';
+import { FC, Fragment, useCallback, useState } from 'react';
 import { Button, notification, Space, Table, Select, message, Popconfirm } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import Editor from '@/components/Editor'

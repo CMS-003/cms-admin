@@ -26,7 +26,7 @@ import {
   SortableContext,
   useSortable,
 } from '@dnd-kit/sortable';
-import React from 'react'
+import { FC, CSSProperties, memo, ComponentType, ReactNode, HTMLAttributes } from 'react'
 
 interface DragIndexState {
   active: UniqueIdentifier;
@@ -39,7 +39,7 @@ const DragIndexContext = createContext<DragIndexState>({ active: -1, over: -1 })
 const dragActiveStyle = (dragState: DragIndexState, id: string) => {
   const { active, over } = dragState;
   // drag active style
-  let style: React.CSSProperties = {};
+  let style: CSSProperties = {};
   if (active && active === id) {
     style = { backgroundColor: 'lightgrey', opacity: 0.5 };
   } else if (over && id === over && active !== over) {
@@ -48,10 +48,10 @@ const dragActiveStyle = (dragState: DragIndexState, id: string) => {
   return style;
 };
 
-const TableHeaderCell: React.FC<React.HTMLAttributes<HTMLTableCellElement> & { _id: string; mode: IMode, page: IPageInfo; self: IComponent }> = (props) => {
+const TableHeaderCell: FC<HTMLAttributes<HTMLTableCellElement> & { _id: string; mode: IMode, page: IPageInfo; self: IComponent }> = (props) => {
   const dragState = useContext(DragIndexContext);
   const { attributes, listeners, setNodeRef, isDragging } = useSortable({ id: props._id });
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     ...(isDragging ? { position: 'relative', zIndex: 9999, userSelect: 'none' } : {}),
     ...dragActiveStyle(dragState, props._id),
   };
@@ -66,9 +66,9 @@ const TableHeaderCell: React.FC<React.HTMLAttributes<HTMLTableCellElement> & { _
 };
 
 function createHeaderComponent<P>(
-  Component: React.ComponentType<P>
+  Component: ComponentType<P>
 ) {
-  return React.memo(function ModeAwareComponent(props: P & { _id: string; }) {
+  return memo(function ModeAwareComponent(props: P & { _id: string; }) {
     // 使用 useMemo 记忆化组件
     return useMemo(() => {
       return <Component {...props} />;
@@ -273,7 +273,7 @@ export default function CTable({ self, drag, source, query, children, mode, page
         </SortableContext>
         <DragOverlay>
           <th style={{ backgroundColor: 'lightyellow', padding: 16, border: '1px solid #ccc' }}>
-            {self.children[self.children.findIndex((i) => i._id === dragIndex.active)]?.title as React.ReactNode}
+            {self.children[self.children.findIndex((i) => i._id === dragIndex.active)]?.title as ReactNode}
           </th>
         </DragOverlay>
       </DndContext>

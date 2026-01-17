@@ -1,8 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { message } from 'antd'
 import store from '../store'
-import { set, isArray } from 'lodash-es';
-import { ComponentNode } from '../protos/component'
+import { set } from 'lodash-es';
 
 let isRefreshing = false;
 let requestQueue: any = [];
@@ -29,51 +28,7 @@ instance.interceptors.request.use(
     Promise.reject(error)
   }
 );
-export function valueToJson(value: any): any {
-  if (!value) return undefined;
 
-  // string
-  if (value.stringValue !== undefined) {
-    return value.stringValue;
-  }
-
-  // number
-  if (value.numberValue !== undefined) {
-    return value.numberValue;
-  }
-
-  // boolean
-  if (value.boolValue !== undefined) {
-    return value.boolValue;
-  }
-
-  // null
-  if (value.nullValue !== undefined) {
-    return null;
-  }
-
-  // array
-  if (value.arrayValue !== undefined) {
-    return value.arrayValue.values.map(valueToJson);
-  }
-
-  // object
-  if (value.objectValue !== undefined) {
-    const obj: any = {};
-    for (const [key, v] of Object.entries(value.objectValue.fields || {})) {
-      obj[key] = valueToJson(v);
-    }
-    return obj;
-  }
-
-  return undefined;
-}
-function transAll(tree: any) {
-  tree.style = valueToJson(tree.style)
-  tree.attrs = valueToJson(tree.attrs)
-  tree.children = (tree.children || []).map((child: any) => transAll(child));
-  return tree;
-}
 instance.interceptors.response.use(
   async (response) => {
     const config: AxiosRequestConfig & { _retry?: boolean } = response.config;
@@ -109,18 +64,6 @@ instance.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
-    }
-    try {
-      if (response.headers['x-proto']) {
-        const buffer = new Uint8Array(response.data);
-        const decoded = ComponentNode.toJson(ComponentNode.fromBinary(buffer))
-        const data = transAll(decoded)
-        console.log(response.data.byteLength, new TextEncoder().encode(JSON.stringify(decoded)).length)
-        response.data = { code: 0, message: '', data }
-        return response;
-      }
-    } catch (e) {
-      console.log(e)
     }
     return response;
   },

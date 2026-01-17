@@ -7,15 +7,13 @@ import {
 } from 'react'
 import { useEffectOnce } from 'react-use';
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Tabs, Alert, Dropdown, Menu, Spin } from 'antd'
+import { Tabs, Alert, Dropdown, Spin } from 'antd'
 
 import { Observer, useLocalObservable } from 'mobx-react'
 import store from '@/store'
 
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
-import OAuthSuccessPage from '@/pages/oauthResult/success';
-import OAuthFailPage from '@/pages/oauthResult/failure';
 import { TitleContext } from '@/groups/context';
 
 // path=pathname+search=xxxkey=fullpath
@@ -63,27 +61,28 @@ function getPanelByPath(path: string, title?: string): IPanel {
 
 const LoadableFilePage = lazy(() => import('@/pages/file'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
+
 const LoadableEditable = lazy(() => import('@/pages/template/editable'))
 const LoadableTemplatePage = lazy(() => import('@/pages/template'))
+const LoadableComponentTypePage = lazy(() => import('@/pages/template/component-type'))
 
 const LoadableDynamicPage = lazy(() => import('@/pages/dynamic'))
 
-const LoadableComponentTypePage = lazy(() => import('@/pages/component/type'))
 const LoadableSchemasPage = lazy(() => import('@/pages/schema'))
 const LoadableSchemaInfolPage = lazy(() => import('@/pages/schema/detail'))
+
+const prefix = process.env.PUBLIC_URL;
 const templateArr: IPage[] = [
-  { title: '首页', Content: (props: any) => <LoadableDynamicPage {...props} id="dashboard" />, closable: false, route: process.env.PUBLIC_URL + '/dashboard' },
-  { title: '授权成功', Content: OAuthSuccessPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/success' },
-  { title: '授权失败', Content: OAuthFailPage, closable: true, route: process.env.PUBLIC_URL + '/oauth/fail' },
-  { title: '文件管理', Content: (props: any) => <LoadableFilePage  {...props} />, closable: true, route: process.env.PUBLIC_URL + '/file' },
-  { title: '所有表', Content: (props: any) => <LoadableSchemasPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/all' },
-  { title: '表定义', Content: (props: any) => <LoadableSchemaInfolPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/schema/info' },
-  { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/component/type' },
-  { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/page' },
-  { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: process.env.PUBLIC_URL + '/dynamic/:id' },
-  { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: process.env.PUBLIC_URL + '/template/editable' },
-  { title: '', Content: function (props: any) { return <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} /> }, closable: true, route: process.env.PUBLIC_URL + '/result/404' },
-  { title: '第三方账号绑定', Content: (props: any) => <LoadableUserBind {...props} />, closable: true, route: process.env.PUBLIC_URL + '/user/bind' },
+  { title: '首页', Content: (props: any) => <LoadableDynamicPage {...props} id="dashboard" />, closable: false, route: prefix + '/dashboard' },
+  { title: '第三方账号绑定', Content: (props: any) => <LoadableUserBind {...props} />, closable: true, route: prefix + '/user/bind' },
+  { title: '文件管理', Content: (props: any) => <LoadableFilePage  {...props} />, closable: true, route: prefix + '/file' },
+  { title: '所有表', Content: (props: any) => <LoadableSchemasPage {...props} />, closable: true, route: prefix + '/schema/all' },
+  { title: '表定义', Content: (props: any) => <LoadableSchemaInfolPage {...props} />, closable: true, route: prefix + '/schema/info' },
+  { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: prefix + '/component/type' },
+  { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: prefix + '/template/page' },
+  { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: prefix + '/dynamic/:id' },
+  { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: prefix + '/template/editable' },
+  { title: '页面不存在', Content: (props: any) => <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} />, closable: true, route: prefix + '/result/404' },
 ];
 
 const Templates: { [key: string]: IPage } = {};
@@ -149,7 +148,7 @@ const TabPanes: FC = () => {
     if (Templates[pathname] && !store.router.openedPanels.find(v => v.path === fullPath)) {
       store.router.addPanel(fullPath)
     }
-    store.router.setCurrentPath(store.router.openedPanels.find(v => v.path === fullPath) ? fullPath : process.env.PUBLIC_URL + '/dashboard')
+    store.router.setCurrentPath(store.router.openedPanels.find(v => v.path === fullPath) ? fullPath : prefix + '/dashboard')
     store.router.openedPanels.forEach((tag, i) => {
       if (store.router.openedPanels.findIndex(v => v === tag) !== i) return;
       const [new_pathname] = tag.path.split('?');
@@ -171,7 +170,7 @@ const TabPanes: FC = () => {
       (item: IPanel) => item.path === targetTag
     )
     // 删除当前tab，地址往前推
-    const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || { path: process.env.PUBLIC_URL + '/dashboard' }
+    const nextPath = store.router.openedPanels[delIndex - 1] || store.router.openedPanels[delIndex + 1] || { path: prefix + '/dashboard' }
     if (targetTag === store.router.currentPath) {
       navigate(nextPath.path)
     }
