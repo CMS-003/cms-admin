@@ -2,7 +2,7 @@ import IApp from './app'
 import IUser from './user'
 import IMenu from './menu'
 import IRouter from './router'
-import IComponent from './component'
+import component from './component'
 import IProject from './project'
 import IGlobal from './global'
 import constant from '../constant'
@@ -27,7 +27,6 @@ const router = IRouter.create({
   openedMenu: storage.getKey('opened-menu') || [],
 });
 const menu = IMenu.create();
-const component = IComponent.create();
 const project = IProject.create();
 
 const global = IGlobal.create({

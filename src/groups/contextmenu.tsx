@@ -19,18 +19,29 @@ const ActionItem = styled.div`
 `
 
 // 编辑中组件的右键菜单
-const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent }: { setEditComponent: Function, copyComponent: Function, pasteComponent: Function }) => (
+const ContextMenu = observer(({ setEditComponent }: { setEditComponent: Function }) => (
   <Menu id='group_menu'>
     <ContextMenuItem style={{ color: "purple" }} onClick={async (e: any) => {
       switch (e.event.target.getAttribute('data-action')) {
+        case 'add':
+          if (e.props.accepts.length === 1) {
+            events.emit('add_component', e.props._id, e.props.accepts[0])
+          }
+          break;
         case 'edit':
           setEditComponent(e.props, 'base');
           break;
         case 'copy':
-          copyComponent(e.props._id)
+          events.emit('copy_component', e.props._id)
           break;
         case 'paste':
-          pasteComponent(e.props._id, e.props.tree_id)
+          navigator.clipboard.readText()
+            .then((text) => {
+              events.emit('paste_component', text, e.props._id, e.props.template_id)
+            })
+            .catch(err => {
+              console.error('读取失败:', err);
+            });
           break;
         default: break;
       }
@@ -39,6 +50,7 @@ const ContextMenu = observer(({ setEditComponent, copyComponent, pasteComponent 
         <ActionItem data-action='edit'>编辑</ActionItem>
         <ActionItem data-action='copy'>复制</ActionItem>
         <ActionItem data-action='paste'>粘贴</ActionItem>
+        <ActionItem data-action='add'>添加子组件</ActionItem>
       </AlignAround>
     </ContextMenuItem>
     <ContextMenuItem onClick={async (e: any) => {

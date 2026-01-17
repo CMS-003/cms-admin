@@ -12,6 +12,16 @@ code {
     monospace;
 }
 
+:root {
+  --ant-focus-outline: none;
+  --ant-focus-shadow: none;
+}
+
+:focus-visible {
+  outline: var(--ant-focus-outline);
+  box-shadow: var(--ant-focus-shadow);
+}
+
 .App {
   height: 100vh;
 }

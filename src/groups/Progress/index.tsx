@@ -18,7 +18,7 @@ export default function CProgress({ self, drag, source = {}, setDataField, child
       style={self.style}
     >
       {children}
-      <Progress percent={source[self.widget.field]} type='circle' size={'small'}/>
+      <Progress percent={source[self.widget.field]} type='circle' size={'small'} />
     </ComponentWrap>
   )
   }</Observer >

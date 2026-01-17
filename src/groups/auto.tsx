@@ -212,6 +212,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
     onDragOver: any;
     onDragLeave: any;
     onDrop: any;
+    addComponent: Function;
     remComponent: Function;
     copyComponent: Function;
     pasteComponent: Function;
@@ -318,6 +319,12 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       }
       return found;
     },
+    addComponent: (id: string, type: string) => {
+      const parentNode = local.findNodeById(id);
+      if (parentNode) {
+        (parentNode as IComponent).appendChild(type)
+      }
+    },
     copyComponent: (id: string) => {
       const found = local.findNodeById(id);
       if (found) {
@@ -333,6 +340,7 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       }
     },
     pasteComponent: (text: string, cid: string, tid: string) => {
+      // 当前发生粘贴事件的编辑模板
       if (tid !== template_id) {
         return;
       }
@@ -435,47 +443,31 @@ export default function AutoPage({ parent, template_id, mode, path, close }: { p
       }
     }
   }, [])
-  const onRemoveComponent = useCallback(async (id: string) => {
-    local.remComponent(id)
-  }, []);
-  const onCopyComponent = useCallback(async (id: string) => {
-    local.copyComponent(id);
-  }, []);
-  const onPasteComponent = useCallback(async (text: string, id: string, tid: string) => {
-    local.pasteComponent(text, id, tid)
-  }, []);
+
   useEffect(() => {
     local.setEditComponent(null)
   }, [mode])
   useEffectOnce(() => {
     refresh()
     events.on('editable', afterUpdateTemplate)
-    events.on('copy_component', onCopyComponent)
-    events.on('paste_component', onPasteComponent)
-    events.on('remove_component', onRemoveComponent)
+    events.on('add_component', local.addComponent)
+    events.on('copy_component', local.copyComponent)
+    events.on('paste_component', local.pasteComponent)
+    events.on('remove_component', local.remComponent)
     return () => {
       if (events) {
         events.off('editable', afterUpdateTemplate);
-        events.off('copy_component', onCopyComponent)
-        events.off('paste_component', onPasteComponent)
-        events.off('remove_component', onRemoveComponent)
+        events.off('add_component', local.addComponent)
+        events.off('copy_component', local.copyComponent)
+        events.off('paste_component', local.pasteComponent)
+        events.off('remove_component', local.remComponent)
       }
     }
   })
   return <PageContext.Provider value={page}>
     <ModeContext.Provider value={mode}>
       <Observer>{() => (<div style={{ display: 'flex', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-        <GroupMenu setEditComponent={local.setEditComponent} copyComponent={local.copyComponent} pasteComponent={(id: string, tid: string) => {
-          navigator.clipboard.readText()
-            .then((text) => {
-              console.log('已读取剪贴板:');
-              onPasteComponent(text, id, tid)
-              // 可以在这里添加复制成功的提示
-            })
-            .catch(err => {
-              console.error('读取失败:', err);
-            });
-        }} />
+        <GroupMenu setEditComponent={local.setEditComponent} />
         <div style={{
           display: 'flex',
           width: '100%',

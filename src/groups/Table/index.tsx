@@ -1,5 +1,5 @@
 import { IAuto, IBaseComponent, IComponent, IMode, IPageInfo, IWidget } from '@/types/component'
-import { Table } from 'antd'
+import { Table, message } from 'antd'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { Component, MemoComponent } from '../auto'
 import { useEffectOnce } from 'react-use'
@@ -114,6 +114,10 @@ export default function CTable({ self, drag, source, query, children, mode, page
             }
             if (!isNil(data.progress) && data.resource_type === 'task') {
               resource.progress = data.progress;
+            }
+            if (!isNil(data.message) && data.resource_type === 'task') {
+              resource.message = data.message;
+              data.message && message.warning(data.message)
             }
           }
         })

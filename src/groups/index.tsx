@@ -37,6 +37,7 @@ import GridLayout from './GridLayout'
 import GridCell from './GridCell'
 import Chart from './Chart'
 import Progress from './Progress'
+import Tip from './Tip'
 
 /**
  * 组件与属性 attr
@@ -117,6 +118,7 @@ const components = {
   GridCell,
   Chart,
   Progress,
+  Tip,
 }
 
 export default components;

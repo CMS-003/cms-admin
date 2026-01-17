@@ -130,6 +130,9 @@ export const Component = types.model('Component', {
     set(self, key, value)
   },
   afterCreate() {
+    const type = manager.types.find(t => t.name === self.type);
+    // @ts-ignore
+    self.accepts = type ? getSnapshot(type.accepts) : []
     if (self._id) {
       self.$origin = self.$new ? {} : self.toJSON() as any;
     } else {
@@ -304,6 +307,7 @@ const componentManager = types.model({
     return self.list.toJSON();
   },
 })).actions((self) => ({
+})).actions((self) => ({
   setList(items: IComponent[]) {
     self.list = items as IMSTArray<typeof Component>;
   },
@@ -341,4 +345,6 @@ const componentManager = types.model({
 
   },
 }))
-export default componentManager;
+const manager = componentManager.create();
+
+export default manager;

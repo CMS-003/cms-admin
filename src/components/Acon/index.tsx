@@ -62,6 +62,7 @@ import {
   Mail,
   Menu,
   CirclePercent,
+  MessageSquare,
 } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -129,6 +130,7 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   Bell,
   Mail,
   Menu,
+  Tip: MessageSquare
 }
 
 const Wrap = styled.span`
