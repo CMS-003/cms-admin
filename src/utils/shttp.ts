@@ -46,7 +46,7 @@ instance.interceptors.response.use(
       isRefreshing = true;
       try {
         const resp = await axios.post(`${store.app.baseURL}/gw/user/oauth/refresh`, null, {
-          headers: { Authorization: store.user.getRefreshToken(), }
+          headers: { Authorization: 'Bearer ' + store.user.getRefreshToken(), }
         });
         if (resp && resp.data && resp.data.code === 0) {
           const tokens = resp.data.data;

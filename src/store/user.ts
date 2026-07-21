@@ -26,11 +26,11 @@ const user = types.model('UserItem', {
 })).actions(self => ({
   setAccessToken(token: string) {
     self.token[constant.ACCESS_TOKEN] = token;
-    storage.setKey(constant.ACCESS_TOKEN, token);
+    localStorage.setItem(constant.storage_prefix + constant.ACCESS_TOKEN, token)
   },
   setRefreshToken(token: string) {
     self.token[constant.REFRESH_TOKEN] = token;
-    storage.setKey(constant.REFRESH_TOKEN, token);
+    localStorage.setItem(constant.storage_prefix + constant.REFRESH_TOKEN, token)
   },
   setInfo(info: ({
     _id: string;

@@ -19,7 +19,12 @@ const app = IApp.create({
   project_id: storage.getKey('project_id') || '',
 });
 // 用户信息状态
-const user = IUser.create({ token: { [constant.ACCESS_TOKEN]: storage.getKey('access_token') || '', [constant.REFRESH_TOKEN]: storage.getKey('refresh_token') || '' } });
+const user = IUser.create({
+  token: {
+    [constant.ACCESS_TOKEN]: localStorage.getItem(constant.storage_prefix + constant.ACCESS_TOKEN) || '',
+    [constant.REFRESH_TOKEN]: localStorage.getItem(constant.storage_prefix + constant.REFRESH_TOKEN) || ''
+  }
+});
 
 const router = IRouter.create({
   currentPath: storage.getKey('current-path') || '',

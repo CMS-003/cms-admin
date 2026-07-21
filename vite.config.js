@@ -39,31 +39,31 @@ export default defineConfig({
     open: true, // 自动打开浏览器
     proxy: {
       '/ws': {
-        target: 'ws://192.168.0.124',
+        target: 'ws://192.168.1.124',
         ws: true,
         changeOrigin: true,
       },
       '/gw': {
-        target: 'http://192.168.0.124',
+        target: 'http://192.168.1.124',
         changeOrigin: true,
       },
       '/manager/upload/': {
-        target: 'http://192.168.0.124:3333',
+        target: 'http://192.168.1.124:3333',
         changeOrigin: true,
         pathRewrite: { '^/manager': '/' }
       },
       '/manager/images/': {
-        target: 'http://192.168.0.124:3333',
+        target: 'http://192.168.1.124:3333',
         changeOrigin: true,
       },
       '/images/': {
-        target: 'http://192.168.0.124',
+        target: 'http://192.168.1.124',
         changeOrigin: true,
       },
     },
   },
   build: {
-    outDir: 'build', // 保持与 CRA 相同的输出目录
+    outDir: 'manager', // 保持与 CRA 相同的输出目录
     sourcemap: false,
   },
 })
