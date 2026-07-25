@@ -76,7 +76,7 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
           multiple={false}
           disabled={loading || self.widget.action !== CONST.ACTION_TYPE.FETCH}
           onChange={async (info) => {
-            if (!self.url || !url) {
+            if (!self.url) {
               return;
             }
             const reader = new FileReader();
@@ -89,7 +89,11 @@ export default function CUpload({ self, drag, source = {}, setDataField, childre
               const data = new FormData();
               data.append(self.name || 'file', info.file as RcFile)
               data.append('filepath', source[self.widget.field])
-              apis.fetch(self.widget.method, self.url, data);
+              const result = await apis.fetch(self.widget.method, self.url, data);
+              if (result.code === 0 && result.data.filepath) {
+                setDataField(self.widget, result.data.filepath)
+                setURL(result.data.filepath)
+              }
             } catch (e) {
               message.error('上传失败')
             }

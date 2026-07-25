@@ -102,8 +102,8 @@ const global = IGlobal.create({
       TYPE: [
         { label: '查询', value: 'where' },
         { label: '排序', value: 'sort' },
-        { label: '数量', value: 'limit' },
-        { label: '聚合', value: 'aggregate' },
+        { label: '范围', value: 'range' },
+        { label: '随机', value: 'random' },
       ]
     },
     SCHEDULE_STATUS: [
