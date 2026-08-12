@@ -1,7 +1,7 @@
 import { Acon, VisualBox } from '@/components'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { message, Popconfirm, Popover, Upload, notification } from 'antd'
 import events from '@/utils/event';
@@ -15,6 +15,7 @@ import store from '@/store';
 import hbs from 'handlebars'
 import type { RcFile } from 'antd/es/upload';
 import styled from 'styled-components'
+import { useEffectOnce } from 'react-use';
 
 const Preview = styled.div`
   display: flex;
@@ -31,6 +32,7 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
   const navigate = useNavigate();
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
+  const [url, setURL] = useState('')
   const local = useLocalObservable(() => ({
     template_id: '',
     id: '',
@@ -48,7 +50,7 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
         return;
       }
       // pick/omit keys
-      const result = await apis.fetch(self.widget.method, self.getApi(source._id), isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map(r => r.value as string)))
+      const result = await apis.fetch(self.widget.method, self.getApi({ id: source._id }), isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map(r => r.value as string)))
       if (result.code === 0) {
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
         notification.info({ title: '请求成功', placement: 'topRight' })
@@ -60,6 +62,11 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
       message.error('操作异常');
     }
   }, [])
+  useEffectOnce(() => {
+    if (self.widget.action === CONST.ACTION_TYPE.OPEN_URL) {
+      setURL(hbs.compile(self.url)(source))
+    }
+  })
   return <Observer>{() => (
     <ComponentWrap
       className={drag.className}
@@ -128,10 +135,10 @@ export default function CIcon({ self, drag, source, children, parent, mode, page
         </Upload>
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.OPEN_URL}>
-        <Acon icon={self.icon} style={self.style} title={self.title} onClick={async () => {
-          const url = hbs.compile(self.url)(source)
-          window.open(url)
-        }} />
+        <Link to={url} target='_blank'>
+          <Acon icon={self.icon} style={self.style} title={self.title} />
+        </Link>
+
       </VisualBox>
       <VisualBox visible={self.widget.action === CONST.ACTION_TYPE.GOTO_PAGE}>
         <Acon icon={self.icon} style={self.style} title={self.title} onClick={async () => {

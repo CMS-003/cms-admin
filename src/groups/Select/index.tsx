@@ -58,7 +58,7 @@ export default function CSelect({ self, drag, source, query, setDataField, child
             setDataField(self.widget, v)
             if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
               try {
-                const result = await apis.fetch(self.widget.method, self.getApi(data._id), { [self.widget.field]: v })
+                const result = await apis.fetch(self.widget.method, self.getApi({ id: data._id }), { [self.widget.field]: v })
                 if (result.code === 0) {
                   message.info('修改成功', 1)
                 } else {

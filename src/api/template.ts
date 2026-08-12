@@ -23,6 +23,10 @@ const apis = {
     const result: any = await shttp.get(`/gw/api/v1/templates/${template_id}/fields`);
     return result;
   },
+  clearTemplateCache: async (template_id: String) => {
+    const result: any = await shttp.delete(`/gw/api/v1/templates/${template_id}/cache`);
+    return result;
+  },
 }
 
 export default apis

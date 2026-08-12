@@ -132,7 +132,8 @@ export default function CTable({ self, drag, source, query, children, mode, page
   const init = useCallback(async () => {
     if (self.widget.action === 'FETCH' && mode === 'preview') {
       local.setValue('loading', true)
-      const resp = await apis.fetch(self.widget.method, self.getApi('', Object.assign({}, page.query, query)));
+      const params = Object.assign({}, page.query, query)
+      const resp = await apis.fetch(self.widget.method, self.getApi(params, params));
       if (resp.code === 0) {
         local.setResources((resp.data as any).items as IResource[]);
         local.setValue('total', (resp.data as any).total || 0)

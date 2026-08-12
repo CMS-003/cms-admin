@@ -118,11 +118,14 @@ export const Component = types.model('Component', {
     }
     return false;
   },
-  getApi(id: string, query?: any) {
-    let url = self.url.replace(':id', id || '');
-    if (query) {
-      url = mergeQuery(url, query)
-    }
+  getApi(params: any = {}, query: any = {}) {
+    let url = self.url;
+    const regex = /:([a-zA-Z\-_]+)/g;
+    const matches = [...url.matchAll(regex)];
+    matches.forEach(match => {
+      url = url.replace(match[0], params[match[1]])
+    })
+    url = mergeQuery(url, query)
     return url;
   }
 })).actions(self => ({

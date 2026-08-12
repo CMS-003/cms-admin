@@ -150,7 +150,7 @@ export default function ObjectList({ self, drag, source, children, setDataField,
                 const videos = (toJS(source[self.widget.field])) || []
                 const video = toJS(local.source)
                 if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
-                  const url = self.getApi(source._id)
+                  const url = self.getApi({ id: source._id })
                   try {
                     const resp = await apis.fetch(self.widget.method, url, video);
                     if (resp.code === 0) {

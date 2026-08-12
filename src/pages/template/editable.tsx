@@ -1,5 +1,5 @@
 import { Fragment, useCallback, } from 'react';
-import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, } from 'antd';
+import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, notification, } from 'antd';
 import { Observer, useLocalObservable } from 'mobx-react';
 import { IComponent, IMode, ITemplate } from '@/types'
 import apis from '@/api'
@@ -181,6 +181,20 @@ const ComponentTemplatePage = (props: any) => {
                 < Button type="primary" onClick={e => {
                   refresh()
                 }}>刷新</Button>
+              </Space>
+              <Divider orientation="vertical" />
+              <Space>
+                < Button type="primary" onClick={async () => {
+                  apis.clearTemplateCache(local.edit_template_id).then((result) => {
+                    if (result.code === 0) {
+                      notification.success({ title: `缓存清理成功` })
+                    } else {
+                      notification.error({ title: `请求失败 ${result.message}` })
+                    }
+                  }).catch(err => {
+                    notification.error({ title: `请求失败 ${err.message}` })
+                  })
+                }}>清除缓存</Button>
               </Space>
               <Divider orientation="vertical" />
               <Switch checked={local.mode === 'edit'} onChange={v => { local.mode = v ? 'edit' : 'preview' }} />{local.mode === 'edit' ? '编辑' : '预览'}

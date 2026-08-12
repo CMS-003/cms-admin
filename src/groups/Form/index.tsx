@@ -51,7 +51,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
       booting: true,
       loading: false,
       source: {},
-      query: {},
+      query: { id: page.query.id },
       $origin: {},
       setSource: function () {
         const args = Array.from(arguments);
@@ -122,7 +122,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
   const getInfo = useCallback(async () => {
     if (self.widget.action === 'FETCH' && mode === 'preview' && page.query.id) {
       local.setLoading(true)
-      const resp = await apis.fetch('get', self.getApi(page.query['id'] as string));
+      const resp = await apis.fetch('get', self.getApi(page.query));
       if (resp.code === 0) {
         local.setSource(resp.data);
       }
@@ -136,7 +136,7 @@ export default function CForm({ self, drag, children, parent, mode, page }: IAut
       const { omits, picks } = getFields(self.widget);
       const data = toJS(local.source) as IResource;
       const changes = omits.length ? omit(data, omits) : (picks.length ? pick(data, picks) : data);
-      const url = self.getApi(page.query.id as string, local.query)
+      const url = self.getApi(local.query)
       const result = await (page.query.id ? apis.fetch<IResource>('put', url, changes) : apis.fetch<IResource>('post', url, changes));
       if (result.code === 0) {
         runInAction(() => {
