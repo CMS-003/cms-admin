@@ -84,7 +84,7 @@ export const Component = types.model('Component', {
   attrs: types.optional(types.frozen(), {}),
   widget: types.model({
     field: types.optional(types.string, ''),
-    value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen()), ''),
+    value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen({})), ''),
     type: types.enumeration<typeof FIELD_TYPE_VALUES>(['string', 'number', 'boolean', 'json', 'array']),
     query: types.optional(types.boolean, false),
     source: types.optional(types.string, ''),
@@ -266,7 +266,7 @@ export const Component = types.model('Component', {
       self.widget[k] = v as string;
     }
   },
-  changeWidgetType(type: 'string' | 'number' | 'boolean') {
+  changeWidgetType(type: 'string' | 'number' | 'boolean' | 'json' | 'array') {
     if (type === self.widget.type) {
       return;
     } else if (type === 'number') {
@@ -274,6 +274,14 @@ export const Component = types.model('Component', {
       self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
     } else if (type === 'boolean') {
       self.widget.value = ['1', 'true', 'TRUE'].includes(self.widget.value as any) as boolean;
+    } else if (type === 'json') {
+      if (typeof self.widget.value !== 'object') {
+        try {
+          self.widget.value = JSON.parse(self.widget.value as string);
+        } catch (err) {
+          self.widget.value = {};
+        }
+      }
     } else {
       self.widget.value = self.widget.value.toString();
       self.widget.refer.forEach(r => r.value = r.value.toString());

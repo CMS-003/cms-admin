@@ -164,6 +164,9 @@ class Request<T> implements PromiseLike<BaseResultWrapper<T>> {
     if (this.headers) {
       option.headers = this.headers
     }
+    if (this.data instanceof FormData) {
+      this.config.timeout = 60000
+    }
     set(option, 'headers.Authorization', `Bearer ${store.user.getAccessToken()}`)
     const response = instance.request(option)
     return new Promise<any>((resolve, reject) => {

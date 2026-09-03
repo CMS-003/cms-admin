@@ -148,6 +148,16 @@ const Edit = observer(({ data, setData, tabkey, setTabkey }: { data: IComponent,
                     <Input value={data.widget.field} onChange={e => {
                       data.setWidget('field', e.target.value);
                     }} />
+                    <Space.Addon>
+                      <Select value={data.widget.type} onChange={(vv) => {
+                        data.changeWidgetType(vv)
+                      }}>
+                        <Select.Option value="json" >json</Select.Option>
+                        <Select.Option value="string" >string</Select.Option>
+                        <Select.Option value="number" >number</Select.Option>
+                        <Select.Option value="boolean" >boolean</Select.Option>
+                      </Select>
+                    </Space.Addon>
                   </Space.Compact>
                   <Space.Compact block>
                     <Space.Addon style={{ flexShrink: 0 }}>来源</Space.Addon>
