@@ -16,10 +16,14 @@ body {
   color: #1e293b;
 }
 
+.lucide:focus {
+  outline: none;
+}
+
 /* ---------- 两栏布局 ---------- */
 .app {
   display: flex;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   width: 100%;
 }
@@ -51,6 +55,7 @@ body {
   gap: 8px;
   overflow: scroll;
 }
+
 .palette-list::-webkit-scrollbar {
   display: none;
 }
@@ -69,15 +74,18 @@ body {
   transition: background 120ms, border-color 120ms;
   gap: 10px;
 }
+
 .palette-item img {
   width: 24px;
   height: 24px;
 }
+
 .palette-item .main {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
+
 .palette-item:hover {
   background: #f1f5f9;
   border-color: #94a3b8;
@@ -124,45 +132,13 @@ body {
 /* ---------- 节点 ---------- */
 .node {
   box-sizing: border-box;
-}
-
-.node-container {
   display: flex;
-  /* gap: 10px;
-  padding: 10px; 先关闭组件间留白 */
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  min-width: 48px;
-  min-height: 48px;
-  /* 关键：gap/padding 的过渡 */
-  transition: gap 200ms ease, padding 200ms ease;
-}
-
-.node-container[data-dir="row"] {
-  background: #f0f9ff;
-}
-
-.node-container[data-dir="column"] {
-  background: #eef2ff;
-}
-
-.node-leaf {
-  padding: 12px 20px;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid #cbd5e1;
-  font-weight: 500;
-  font-size: 13px;
-  color: #1e293b;
-  cursor: grab;
-  user-select: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  display: inline-flex;
-  align-items: center;
+  min-width: 32px;
+  min-height: 32px;
 }
 
 .node.is-dragging {
-  opacity: 0.25;
+  opacity: 0.5;
 }
 
 .node.is-preview {
@@ -174,19 +150,18 @@ body {
   pointer-events: none;
 }
 
-.node-empty-hint {
-  color: #94a3b8;
-  font-size: 12px;
-  font-weight: 400;
-  padding: 4px 8px;
-  white-space: nowrap;
-}
-
-/* ---------- 拖动开始：撑开 gap/padding 先关闭 ---------- */
-.canvas[data-dragging="true"] .node-container {
-  /* gap: 26px;
-  padding: 16px; */
-  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
+.drop-container-highlight {
+  position: absolute;
+  pointer-events: none;
+  z-index: 15;
+  border-radius: 10px;
+  background: rgba(250, 204, 21, 0.10);
+  box-shadow: inset 0 0 0 1.5px rgba(250, 204, 21, 0.55);
+  transition:
+    left 120ms cubic-bezier(.2, .9, .3, 1.15),
+    top 120ms cubic-bezier(.2, .9, .3, 1.15),
+    width 120ms ease,
+    height 120ms ease;
 }
 
 /* ---------- 指示条 ---------- */
@@ -206,8 +181,8 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 6px;
-  background: rgba(59, 130, 246, 0.3);
-  border: 2px solid rgb(59, 130, 246);
+  background: rgba(59, 131, 246, 0.907);
+  /* border: 2px solid rgb(59, 130, 246); */
   box-sizing: border-box;
   /* border 算进尺寸，避免 2px 溢出 */
   transform-origin: center;
@@ -240,108 +215,22 @@ body {
   }
 }
 
-/* ---------- 节点布局：handle + 内容 并排 ---------- */
-.node-container {
-  /* 已有代码保留 */
-  position: relative;
-  /* 让 handle 可以绝对定位或正常流动 */
-}
-
 /* handle：小图标，只在 hover 时明显 */
 .node-handle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
+  width: 20px;
   flex-shrink: 0;
   border-radius: 4px;
   cursor: grab;
   color: #94a3b8;
   transition: background 120ms, color 120ms;
-  /* 不撑高布局...就是要居中 */
-  /* align-self: flex-start;
-  height: 18px; */
-  /* height: 100%; */
+  height: 100%;
 }
 
 .node-handle:hover {
-  background: rgba(100, 116, 139, 0.15);
-  color: #475569;
-}
-
-.node-handle:active {
-  cursor: grabbing;
-}
-
-.node-handle-dots {
-  width: 10px;
-  height: 10px;
-  background-image: radial-gradient(circle, currentColor 1.2px, transparent 1.2px);
-  background-size: 5px 5px;
-  background-position: 0 0;
-  opacity: 0.85;
-}
-
-/* ---------- 叶子内容：input / 卡片 ---------- */
-.node-leaf {
-  /* 覆盖旧样式：改为横向排列 handle + 内容 */
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px 6px 6px;
-  /* 左侧给 handle 留位置 */
-  cursor: default;
-  /* 不再整块 grab */
-}
-
-.node-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font: inherit;
-  color: inherit;
-  width: 100%;
-  min-width: 40px;
-  padding: 2px 4px;
-  cursor: text;
-}
-
-.node-input:focus {
-  background: rgba(59, 130, 246, 0.08);
-  border-radius: 4px;
-}
-
-.node-card {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 4px;
-}
-
-.node-close {
-  border: none;
-  background: transparent;
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #94a3b8;
-  font-size: 14px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.node-close:hover {
-  background: #fee2e2;
-  color: #ef4444;
-}
-
-/* 拖动时，禁止文本选中（避免拖的时候选中 input 内容） */
-.canvas[data-dragging="true"] {
-  user-select: none;
+  background-color: lightblue;
 }
 
 .node-handle--ghost {
@@ -356,8 +245,7 @@ body {
 
 /* 可选：给锁定节点一个视觉暗示 */
 .node.is-locked {
-  /* 例如 */
-  /* border-style: dashed; */
+  border-style: dashed;
 }
 
 /* ---------- 右键菜单 ---------- */
@@ -374,9 +262,17 @@ body {
   z-index: 1000;
   animation: ctx-in 110ms ease-out;
 }
+
 @keyframes ctx-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .ctx-item {
@@ -389,25 +285,30 @@ body {
   cursor: pointer;
   user-select: none;
 }
+
 /* Radix 用 data-highlighted 统一鼠标 hover + 键盘高亮 */
 .ctx-item[data-highlighted] {
   background: #eff6ff;
   color: #1d4ed8;
 }
+
 .ctx-item[data-disabled] {
   opacity: 0.4;
   cursor: default;
   color: inherit;
 }
+
 .ctx-item--danger[data-highlighted] {
   background: #fef2f2;
   color: #dc2626;
 }
+
 .ctx-sep {
   height: 1px;
   background: #e2e8f0;
   margin: 4px 2px;
 }
+
 .ctx-arrow {
   font-size: 10px;
   color: #94a3b8;
@@ -425,6 +326,7 @@ body {
   gap: 14px;
   overflow-y: auto;
 }
+
 .editor--empty {
   justify-content: center;
   align-items: center;
@@ -433,11 +335,13 @@ body {
   font-size: 13px;
   line-height: 1.6;
 }
+
 .editor-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .editor-head h3 {
   margin: 0;
   font-size: 13px;
@@ -446,6 +350,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
 .editor-close {
   border: none;
   background: transparent;
@@ -457,7 +362,11 @@ body {
   font-size: 16px;
   line-height: 1;
 }
-.editor-close:hover { background: #f1f5f9; color: #475569; }
+
+.editor-close:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
 
 .editor-field {
   display: flex;
@@ -466,6 +375,7 @@ body {
   font-size: 12px;
   color: #64748b;
 }
+
 .editor-field input,
 .editor-field select {
   padding: 6px 8px;
@@ -476,11 +386,13 @@ body {
   background: #fff;
   outline: none;
 }
+
 .editor-field input:focus,
 .editor-field select:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
+
 .editor-field code {
   font-size: 11px;
   color: #475569;
@@ -489,6 +401,7 @@ body {
   border-radius: 4px;
   word-break: break-all;
 }
+
 .editor-meta {
   margin-top: auto;
   font-size: 11px;

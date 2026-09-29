@@ -1,9 +1,9 @@
 // src/EditorPanel.tsx
-import { IComponent } from '@/types';
+import { IComponent, ITemplate } from '@/types';
 import React from 'react';
 
 type Props = {
-  node: IComponent | null;
+  node: ITemplate | IComponent | null;
   onChange: (patch: Partial<Omit<IComponent, '_id'>>) => void;
   onClose: () => void;
 };

@@ -1,4 +1,5 @@
-import { IMode, IPageInfo } from '@/types';
+import { IComponent, IMode, IPageInfo, ITemplate } from '@/types';
+import React, { useRef } from 'react';
 import { createContext, useContext } from 'react'
 
 export const PageContext = createContext<IPageInfo>({

@@ -1,8 +1,8 @@
-import { IComponent } from "@/types";
+import { IComponent, ITemplate } from "@/types";
 import { cast, IMSTArray, IType } from "mobx-state-tree";
 
-export function findNode(root: IComponent|null, id: string): IComponent | null {
-  if(!root) return null;
+export function findNode(root: ITemplate | IComponent | null, id: string): ITemplate | IComponent | null {
+  if (!root) return null;
   if (root._id === id) return root;
   if (!root.children) return null;
   for (const c of root.children) {
@@ -12,7 +12,7 @@ export function findNode(root: IComponent|null, id: string): IComponent | null {
   return null;
 }
 
-export function findParent(root: IComponent, id: string): IComponent | null {
+export function findParent(root: ITemplate | IComponent, id: string): ITemplate | IComponent | null {
   if (!root.children) return null;
   for (const c of root.children) {
     if (c.id === id) return root;
@@ -72,11 +72,11 @@ export function moveNode(
  *   （+1 是因为：摘除当前节点后，它后面的空位填上来，再插回去就回到原位）
  */
 export function isNoopDrop(
-  root: IComponent|null,
+  root: ITemplate | IComponent | null,
   dragId: string,
   target: { containerId: string; index: number }
 ): boolean {
-  if(!root) return false;
+  if (!root) return false;
   const parent = findParent(root, dragId);
   if (!parent || !parent.children) return false;
   if (parent._id !== target.containerId) return false;

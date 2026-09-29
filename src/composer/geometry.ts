@@ -33,7 +33,7 @@ const DEFAULT_OPTS: Required<HitOptions> = {
 };
 
 export function measureContainers(
-  root: ITemplate | IComponent,
+  root: ITemplate,
   canvas: HTMLElement
 ): ContainerInfo[] {
   const base = canvas.getBoundingClientRect();
@@ -44,13 +44,12 @@ export function measureContainers(
 
     const el = canvas.querySelector<HTMLElement>(`[data-node-id="${node._id}"]`);
     if (!el) return;
-
     const r = el.getBoundingClientRect();
     const isRow = node.attrs.layout === 'row';// node.dir === 'row';
 
-    const childBoxes: ChildBox[] = node.children.map((child) => {
+    const childBoxes: ChildBox[] = node.children.map((child: IComponent) => {
       const childEl = canvas.querySelector<HTMLElement>(
-        `[data-node-id="${child.id}"]`
+        `[data-node-id="${child._id}"]`
       );
       if (!childEl) {
         return { mainStart: 0, mainEnd: 0, crossStart: 0, crossEnd: 0 };
@@ -75,7 +74,7 @@ export function measureContainers(
     out.push({
       id: node._id,
       parentId,                       // ← 记录
-      axis: node.attrs.layout === 'row' ? 'row' : 'column',
+      axis: isRow ? 'row' : 'column',
       rect: {
         left: r.left - base.left,
         top: r.top - base.top,
@@ -164,16 +163,16 @@ function findIndexInContainer(
 }
 
 export function getIndicatorRect(c: ContainerInfo, index: number): Rect {
-  const THICK = 8;
-  const INSET = 4;
+  const THICK = 2;
+  const INSET = 2;
   const isRow = c.axis === 'row';
   const boxes = c.childBoxes;
 
   let mainPos: number;
   if (boxes.length === 0) {
     mainPos = isRow
-      ? c.rect.left + c.rect.width / 2
-      : c.rect.top + c.rect.height / 2;
+      ? c.rect.left + c.rect.width
+      : c.rect.top + c.rect.height
   } else if (index <= 0) {
     mainPos = boxes[0].mainStart;
   } else if (index >= boxes.length) {

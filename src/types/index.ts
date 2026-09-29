@@ -1,4 +1,6 @@
+import { DraggableAttributes } from "@dnd-kit/core"
 import { IComponent } from "./component"
+import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
 
 export * from "./user"
 export * from "./menu"
@@ -43,4 +45,16 @@ export type ILog = {
   group: string;
   content: string;
   createdAt: Date;
+}
+
+export type IBaseCom = {
+  self: IComponent;
+  children: any;
+  drag: {
+    attributes: DraggableAttributes;
+    listeners: SyntheticListenerMap | undefined;
+    setNodeRef: (element: HTMLElement | null) => void;
+    isDragging: boolean;
+  };
+  mode: 'edit' | 'preview';
 }
