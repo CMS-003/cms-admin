@@ -313,6 +313,8 @@ const componentManager = types.model({
   dragingWidgetType: types.optional(types.string, ''),
   can_drag_id: types.optional(types.string, ''),
   isDragging: types.optional(types.boolean, false),
+  listLoading: types.optional(types.boolean, true),
+  typesLoading: types.optional(types.boolean, true),
 }).views(self => ({
   getList(): IComponent[] {
     return self.list.toJSON();
@@ -321,9 +323,11 @@ const componentManager = types.model({
 })).actions((self) => ({
   setList(items: IComponent[]) {
     self.list = items as IMSTArray<typeof Component>;
+    self.listLoading = false;
   },
   setTypes(items: IComponentType[]) {
     self.types = items as IMSTArray<typeof ComponentType>;
+    self.typesLoading = false
   },
   canDrop(from: string, to: string) {
     const com = self.types.find(it => it.name === to);

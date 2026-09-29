@@ -63,6 +63,7 @@ const LoadableFilePage = lazy(() => import('@/pages/file'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
 
 const LoadableEditable = lazy(() => import('@/pages/template/editable'))
+const LoadableComposer = lazy(() => import('@/composer/index'))
 const LoadableTemplatePage = lazy(() => import('@/pages/template'))
 const LoadableComponentTypePage = lazy(() => import('@/pages/template/component-type'))
 
@@ -81,7 +82,7 @@ const templateArr: IPage[] = [
   { title: '组件类型', Content: (props: any) => <LoadableComponentTypePage {...props} />, closable: true, route: prefix + '/component/type' },
   { title: '模板页', Content: (props: any) => <LoadableTemplatePage {...props} />, closable: true, route: prefix + '/template/page' },
   { title: '动态页', Content: (props: any) => <LoadableDynamicPage {...props} />, closable: true, route: prefix + '/dynamic/:id' },
-  { title: '可视化编辑', Content: (props: any) => <LoadableEditable {...props} />, closable: true, route: prefix + '/template/editable' },
+  { title: '可视化编辑', Content: (props: any) => <LoadableComposer {...props} />, closable: true, route: prefix + '/template/editable' },
   { title: '页面不存在', Content: (props: any) => <ErrorPage status="404" subTitle="?" errTitle="Not Found" {...props} />, closable: true, route: prefix + '/result/404' },
 ];
 

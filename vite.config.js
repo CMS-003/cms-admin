@@ -39,25 +39,25 @@ export default defineConfig({
     open: true, // 自动打开浏览器
     proxy: {
       '/ws': {
-        target: 'ws://192.168.1.124',
+        target: 'ws://jiayou.work',
         ws: true,
         changeOrigin: true,
       },
       '/gw': {
-        target: 'http://192.168.1.124',
+        target: 'https://jiayou.work',
         changeOrigin: true,
       },
       '/manager/upload/': {
-        target: 'http://192.168.1.124:3333',
+        target: 'https://jiayou.work',
         changeOrigin: true,
         pathRewrite: { '^/manager': '/' }
       },
       '/manager/images/': {
-        target: 'http://192.168.1.124:3333',
+        target: 'https://jiayou.work',
         changeOrigin: true,
       },
       '/images/': {
-        target: 'http://192.168.1.124',
+        target: 'https://jiayou.work',
         changeOrigin: true,
       },
     },

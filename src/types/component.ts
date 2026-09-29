@@ -72,6 +72,7 @@ export type IComponentType = {
   name: string;
   group: string;
   title: string;
+  cover: string;
   status: number;
   accepts: string[];
 }

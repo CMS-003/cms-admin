@@ -12,6 +12,7 @@ import events from '@/utils/event';
 import Acon from '@/components/Acon';
 import { useSetTitleContext } from '@/groups/context';
 import { groupBy, isEmpty } from 'lodash-es';
+import Composer from '../../composer/index';
 
 type TreeNode = {
   value: string;
@@ -138,27 +139,7 @@ const ComponentTemplatePage = (props: any) => {
   })
   return (<Observer>{() => <Fragment>
     <FullWidth style={{ flex: 1, overflowY: 'auto' }}>
-      <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', flex: '140px 0 0', height: '100%', overflow: 'auto' }}>
-        <Wrap>
-          {[{ value: 'container', label: '容器' }, { value: 'widget', label: '控件' }, { value: 'component', label: '组件' }].map(t => (<div key={t.value} style={{ marginTop: 10, marginLeft: 5, position: 'relative', overflow: 'hidden', border: '1px solid #ccc' }}>
-            <div>{t.label}</div>
-            {store.component.types.filter(it => it.group === t.value).map(item => (<Card
-              draggable
-              key={item._id}
-              title={item.title}
-              onDragStartCapture={() => {
-                store.component.setDragType(item.name, item.level);
-              }}
-              onDragEndCapture={() => {
-                store.component.setDragType('', 0)
-              }}>
-              <Image style={{ width: 24, height: 24 }} draggable={false} src={store.app.imageLine + item.cover} preview={false}
-              />
-              <div className='txt-omit'>{item.title}</div>
-            </Card>))}
-          </div>))}
-        </Wrap>
-      </FullWidthAuto>
+
       <FullWidthAuto style={{ height: '100%', overflow: 'auto' }}>
         <FullHeight style={{ alignItems: 'center' }}>
           <FullHeightFix>
@@ -224,7 +205,8 @@ const ComponentTemplatePage = (props: any) => {
           <FullWidthAuto className='hidden-scrollbar' style={{ display: 'flex', justifyContent: 'center', position: 'relative', padding: 10, width: '100%', height: '100%', overflow: 'hidden' }}>
             {local.loading
               ? <Spin style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', height: 300, }} indicator={<Acon icon='Loader' />}>加载中...</Spin>
-              : <AutoPage template_id={local.edit_template_id} mode={local.mode} path="" close={() => { }} />
+              : <Composer />
+              // <AutoPage template_id={local.edit_template_id} mode={local.mode} path="" close={() => { }} />
             }
           </FullWidthAuto>
           <FullHeightFix style={{ justifyContent: 'center', paddingBottom: 10 }}>
