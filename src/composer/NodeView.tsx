@@ -24,7 +24,7 @@ const HIT_OPTS = {
 /** 拖动预览（不挂 useDraggable，纯展示） */
 function DragPreview({ node }: { node: ITemplate | IComponent }) {
   return (
-    <div style={{ opacity: 0.7, backgroundColor: '#ccc',transform:'translate(0,49%)' }}>
+    <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
       <NodeWrapper self={node} />
     </div>
   );
@@ -296,12 +296,11 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div
-          className="app" style={{ display: 'flex', flexDirection: 'row', flex: 1, overflow: 'auto' }}>
+        <div className="app">
           <Palette types={store.component.types} loading={store.component.typesLoading} />
           <ModeContext.Provider value={mode}>
             <div className='canvas' ref={canvasRef}>
-              <div style={{ flex: 1, boxShadow: '0 0 10px #1890ff', height: 'calc(100% - 20px)', margin: 10 }} data-node-id={template_id}>
+              <div style={{ flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
                 {local.template ? local.template.children.map(c => (
                   <NodeWrapper
                     key={c._id}

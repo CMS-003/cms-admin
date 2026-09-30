@@ -26,6 +26,8 @@ body {
   height: 100%;
   overflow: hidden;
   width: 100%;
+  flex-direction: row;
+  flex: 1;
 }
 
 /* ---------- 左侧组件库 ---------- */

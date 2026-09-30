@@ -12,11 +12,14 @@ export default function MenuItem({ self, drag, mode, children }: IBaseCom) {
     data-node-id={self._id}
     data-node-type={self.type}
     data-dragging={drag.isDragging}
-    className={cls} style={{ flexDirection: 'row', alignItems: 'center' }}>
-
-    <GripVertical className="node-handle" {...drag.listeners} {...drag.attributes} />
+    className={cls}
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+    }}>
+    {mode === 'edit' && <GripVertical className="node-handle" {...drag.listeners} {...drag.attributes} />}
     {self.title}
-    {children && <div style={{ paddingLeft: 40 }}>
+    {children && <div className="child" style={{ paddingLeft: 40 }}>
       {children}
     </div>}
   </div>

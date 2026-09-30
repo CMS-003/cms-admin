@@ -32,11 +32,40 @@ const DEFAULT_OPTS: Required<HitOptions> = {
   midRatio: 0.5,
 };
 
+/**
+ * 获取元素相对于 root 内容区左上角的坐标，
+ * 自动处理所有嵌套滚动容器的偏移
+ */
+function getRelativeRect(element: HTMLElement, root: HTMLElement) {
+  const elementRect = element.getBoundingClientRect();
+  const rootRect = root.getBoundingClientRect();
+
+  // 累加 element 到 root 之间所有滚动容器的 scrollTop/scrollLeft
+  let scrollX = 0;
+  let scrollY = 0;
+  let current: HTMLElement | null = element;
+
+  while (current && current !== root) {
+    if (current.scrollTop || current.scrollLeft) {
+      scrollX += current.scrollLeft;
+      scrollY += current.scrollTop;
+    }
+    current = current.parentElement;
+  }
+
+  return {
+    left: elementRect.left - rootRect.left + scrollX,
+    top: elementRect.top - rootRect.top + scrollY,
+    width: elementRect.width,
+    height: elementRect.height,
+  };
+}
+
 export function measureContainers(
   root: ITemplate,
   canvas: HTMLElement
 ): ContainerInfo[] {
-  const base = canvas.getBoundingClientRect();
+  const base = getRelativeRect(canvas, canvas)
   const out: ContainerInfo[] = [];
 
   const walk = (node: ITemplate | IComponent, parentId: string | null) => {
@@ -44,8 +73,8 @@ export function measureContainers(
 
     const el = canvas.querySelector<HTMLElement>(`[data-node-id="${node._id}"]`);
     if (!el) return;
-    const r = el.getBoundingClientRect();
-    const isRow = node.attrs.layout === 'row';// node.dir === 'row';
+    const r = getRelativeRect(el, canvas)
+    const isRow = node.attrs.layout === 'row';
 
     const childBoxes: ChildBox[] = node.children.map((child: IComponent) => {
       const childEl = canvas.querySelector<HTMLElement>(
@@ -54,20 +83,20 @@ export function measureContainers(
       if (!childEl) {
         return { mainStart: 0, mainEnd: 0, crossStart: 0, crossEnd: 0 };
       }
-      const cr = childEl.getBoundingClientRect();
+      const cr = getRelativeRect(childEl, canvas)
       if (isRow) {
         return {
           mainStart: cr.left - base.left,
-          mainEnd: cr.right - base.left,
+          mainEnd: cr.left + cr.width - base.left,
           crossStart: cr.top - base.top,
-          crossEnd: cr.bottom - base.top,
+          crossEnd: cr.top + cr.height - base.top,
         };
       }
       return {
         mainStart: cr.top - base.top,
-        mainEnd: cr.bottom - base.top,
+        mainEnd: cr.top + cr.height - base.top,
         crossStart: cr.left - base.left,
-        crossEnd: cr.right - base.left,
+        crossEnd: cr.left + cr.width - base.left,
       };
     });
 
@@ -165,11 +194,13 @@ function findIndexInContainer(
 export function getIndicatorRect(c: ContainerInfo, index: number): Rect {
   const THICK = 2;
   const INSET = 2;
+  const EMPTY_MAX_MAIN = 200;
   const isRow = c.axis === 'row';
   const boxes = c.childBoxes;
+  const isEmpty = boxes.length === 0;
 
   let mainPos: number;
-  if (boxes.length === 0) {
+  if (isEmpty) {
     mainPos = isRow
       ? c.rect.left + c.rect.width
       : c.rect.top + c.rect.height
@@ -181,18 +212,40 @@ export function getIndicatorRect(c: ContainerInfo, index: number): Rect {
     mainPos = (boxes[index - 1].mainEnd + boxes[index].mainStart) / 2;
   }
 
+  let crossStart: number;
+  let crossEnd: number;
+  if (isEmpty) {
+    crossStart = isRow ? c.rect.top : c.rect.left;
+    crossEnd = isRow ? c.rect.top + c.rect.height
+      : c.rect.left + c.rect.width;
+  } else {
+    crossStart = Math.min(...boxes.map((b) => b.crossStart));
+    crossEnd = Math.max(...boxes.map((b) => b.crossEnd));
+  }
+  crossStart += INSET;
+  crossEnd -= INSET;
+
+  const crossMid = (crossStart + crossEnd) / 2;
+
   if (isRow) {
+    // 竖条：宽度 THICK，高度 = cross 范围
+    const fullH = crossEnd - crossStart;
+    const h = isEmpty ? Math.min(fullH, EMPTY_MAX_MAIN) : fullH;
     return {
       left: mainPos - THICK / 2,
-      top: c.rect.top + INSET,
+      top: crossMid - h / 2,
       width: THICK,
-      height: c.rect.height - INSET * 2,
+      height: h,
     };
   }
+
+  // 横条：高度 THICK，宽度 = cross 范围
+  const fullW = crossEnd - crossStart;
+  const w = isEmpty ? Math.min(fullW, EMPTY_MAX_MAIN) : fullW;
   return {
-    left: c.rect.left + INSET,
+    left: crossMid - w / 2,
     top: mainPos - THICK / 2,
-    width: c.rect.width - INSET * 2,
+    width: w,
     height: THICK,
   };
 }

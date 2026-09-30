@@ -10,7 +10,7 @@ export default function Menu({ self, drag, mode, children }: IBaseCom) {
     ref={drag.setNodeRef}
     data-node-id={self._id}
     data-node-type={self.type}
-    className={cls} style={{ flexDirection: 'row', justifyContent: 'center', height: '100%', overflow: 'auto' }}>
+    className={cls} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', overflow: 'auto' }}>
     {mode === 'edit' && <GripVertical className="node-handle" {...drag.listeners} {...drag.attributes} />}
     <div style={{ overflow: 'auto' }}>
       {children}
