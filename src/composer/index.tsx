@@ -13,6 +13,8 @@ import { ITemplate } from '@/types';
 import { cast } from 'mobx-state-tree';
 import { useEffectOnce } from 'react-use';
 import { groupBy, isEmpty } from 'lodash-es';
+import { useLocalProxy } from '@/utils/valtio';
+import { DataNode } from 'antd/es/tree';
 
 type PageTreeNode = {
   value: string;
@@ -21,23 +23,13 @@ type PageTreeNode = {
   children: PageTreeNode[];
 }
 export default function Composer(props: any) {
-  const local = useLocalObservable(() => ({
+  const [snap, proxy] = useLocalProxy({
     locked: false,
-    pageTree: cast([]),
+    pageTree: [] as PageTreeNode[],
     template_id: '',
-    fetching: false,
-    setPageTree(tree: PageTreeNode[]) {
-      this.pageTree = tree;
-    },
-    setTemplateId(id: string, locked = false) {
-      this.template_id = id;
-      this.locked = locked;
-    },
+    loading: true,
     mode: 'edit' as 'edit' | 'preview',
-    setMode(mode: 'edit' | 'preview') {
-      this.mode = mode
-    }
-  }))
+  })
 
   // 获取模板页
   const refreshTemplates = useCallback(async () => {
@@ -85,10 +77,11 @@ export default function Composer(props: any) {
           trees.push(typeTree);
         }
       })
-      local.setPageTree(trees)
-      if (!local.template_id && templates.length !== 0) {
-        local.setTemplateId(templates[0]._id);
+      proxy.pageTree = trees;
+      if (!proxy.template_id && templates.length !== 0) {
+        proxy.template_id = templates[0]._id;
       }
+      proxy.loading = false;
     } catch (err) {
 
     }
@@ -96,7 +89,8 @@ export default function Composer(props: any) {
   useEffectOnce(() => {
     const template_id = new URLSearchParams(props.path.split('?')[1] || '').get('id') || '';
     if (template_id) {
-      local.setTemplateId(template_id, true)
+      proxy.template_id = template_id
+      proxy.locked = true;
     }
     refreshTemplates()
   })
@@ -110,12 +104,12 @@ export default function Composer(props: any) {
           <Space>
             <Observer>{() => (
               <TreeSelect
-                disabled={local.locked}
-                treeData={local.pageTree}
-                value={local.template_id}
+                disabled={snap.locked}
+                treeData={snap.pageTree as unknown as DataNode[]}
+                value={snap.template_id}
                 style={{ width: 300 }}
                 onChange={(v: string) => {
-                  local.setTemplateId(v)
+                  proxy.template_id = v;
                 }}
                 treeDefaultExpandAll
               />
@@ -123,15 +117,16 @@ export default function Composer(props: any) {
           </Space>
           <Divider orientation="vertical" />
           <Space>
-            < Button type="primary" onClick={() => {
+            < Button type="primary" loading={snap.loading} onClick={() => {
               refreshTemplates()
             }}>刷新</Button>
           </Space>
           <Divider orientation="vertical" />
-          <Switch checked={local.mode === 'edit'} onChange={v => { local.setMode(v ? 'edit' : 'preview') }} />{local.mode === 'edit' ? '编辑' : '预览'}
+          <Switch checked={snap.mode === 'edit'} onChange={v => { proxy.mode = (v ? 'edit' : 'preview') }} />{snap.mode === 'edit' ? '编辑' : '预览'}
+          <Divider orientation="vertical" />
           <Space>
             < Button type="primary" onClick={async () => {
-              apis.clearTemplateCache(local.template_id).then((result) => {
+              apis.clearTemplateCache(snap.template_id).then((result) => {
                 if (result.code === 0) {
                   notification.success({ title: `缓存清理成功` })
                 } else {
@@ -144,17 +139,15 @@ export default function Composer(props: any) {
           </Space>
           <Divider orientation="vertical" />
           <Button type="primary" block={false} onClick={async () => {
-            local.fetching = true
+            proxy.loading = true
           }}>保存</Button>
         </AlignAside>
         <TemplateView
-          template_id={local.template_id}
+          template_id={snap.template_id}
           path=""
-          mode={local.mode}
+          mode={snap.mode}
           close={() => { }}
         />
-
-
       </div>
     )}</Observer>
   );
