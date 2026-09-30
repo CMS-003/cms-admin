@@ -4,7 +4,7 @@ import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelec
 import { AlignAside } from '@/components/style'
 import apis from '@/api'
 
-import { TemplateView } from './NodeView';
+import { TemplateView } from './TemplateView';
 
 import './styles.css';
 import store from '../store';

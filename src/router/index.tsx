@@ -63,7 +63,7 @@ const LoadableFilePage = lazy(() => import('@/pages/file'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
 
 const LoadableEditable = lazy(() => import('@/pages/template/editable'))
-const LoadableComposer = lazy(() => import('@/composer/index'))
+const LoadableComposer = lazy(() => import('@/composer/page'))
 const LoadableTemplatePage = lazy(() => import('@/pages/template'))
 const LoadableComponentTypePage = lazy(() => import('@/pages/template/component-type'))
 

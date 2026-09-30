@@ -19,7 +19,7 @@ const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
 
 export const TemplateView = React.memo(function Template({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function }) {
 
-  const [page, pageProxy] = useLocalProxy<IPageInfo>(({
+  const page = proxy<IPageInfo>(({
     template_id,
     path,
     param: {},
@@ -321,65 +321,67 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         <div className="app">
           <Palette types={store.component.types} loading={store.component.typesLoading} />
           <ModeContext.Provider value={mode}>
-            <div className='canvas' ref={canvasRef}>
-              <ContextMenuContext.Provider value={contextmenu}>
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
-                  {editorState.template ? editorState.template.children.map(c => (
-                    <NodeWrapper
-                      key={c._id}
-                      self={c as IComponent}
-                      onContextMenu={onContextMenu}
-                    />
-                  )) : null}
-                </div>
-              </ContextMenuContext.Provider>
-              {editorState.indicator && (
-                <div
-                  className="drop-indicator-wrap"
-                  style={{
-                    left: editorState.indicator.left,
-                    top: editorState.indicator.top,
-                    width: editorState.indicator.width,
-                    height: editorState.indicator.height,
-                  }}
-                >
-                  {/* key 变化 → 内层重挂载 → pop 动画重播 */}
-                  <div
-                    className="drop-indicator-inner"
-                    key={`${editorState.drop!.containerId}:${editorState.drop!.index}`}
-                  />
-                </div>
-              )}
-              {/* 背景 */}
-              {editorState.dropContainer && (
-                <div
-                  className="drop-container-highlight"
-                  style={{
-                    left: editorState.dropContainer.rect.left,
-                    top: editorState.dropContainer.rect.top,
-                    width: editorState.dropContainer.rect.width,
-                    height: editorState.dropContainer.rect.height,
-                  }}
-                />
-              )}
-            </div>
-            <EditorPanel
-              node={editorStore.selectedNode}
-              onChange={(patch) => {
-                // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
-              }}
-              onClose={() => editorStore.selectedId = ''}
-            />
-            {/* 预览 */}
-            <DragOverlay dropAnimation={null}>
-              {
-                editorState.activeNode
-                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
-                    <NodeWrapper self={editorState.activeNode} />
+            <PageContext.Provider value={page}>
+              <div className='canvas' ref={canvasRef}>
+                <ContextMenuContext.Provider value={contextmenu}>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
+                    {editorState.template ? editorState.template.children.map(c => (
+                      <NodeWrapper
+                        key={c._id}
+                        self={c as IComponent}
+                        onContextMenu={onContextMenu}
+                      />
+                    )) : null}
                   </div>
-                  : null
-              }
-            </DragOverlay>
+                </ContextMenuContext.Provider>
+                {editorState.indicator && (
+                  <div
+                    className="drop-indicator-wrap"
+                    style={{
+                      left: editorState.indicator.left,
+                      top: editorState.indicator.top,
+                      width: editorState.indicator.width,
+                      height: editorState.indicator.height,
+                    }}
+                  >
+                    {/* key 变化 → 内层重挂载 → pop 动画重播 */}
+                    <div
+                      className="drop-indicator-inner"
+                      key={`${editorState.drop!.containerId}:${editorState.drop!.index}`}
+                    />
+                  </div>
+                )}
+                {/* 背景 */}
+                {editorState.dropContainer && (
+                  <div
+                    className="drop-container-highlight"
+                    style={{
+                      left: editorState.dropContainer.rect.left,
+                      top: editorState.dropContainer.rect.top,
+                      width: editorState.dropContainer.rect.width,
+                      height: editorState.dropContainer.rect.height,
+                    }}
+                  />
+                )}
+              </div>
+              <EditorPanel
+                node={editorStore.selectedNode}
+                onChange={(patch) => {
+                  // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
+                }}
+                onClose={() => editorStore.selectedId = ''}
+              />
+              {/* 预览 */}
+              <DragOverlay dropAnimation={null}>
+                {
+                  editorState.activeNode
+                    ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
+                      <NodeWrapper self={editorState.activeNode} />
+                    </div>
+                    : null
+                }
+              </DragOverlay>
+            </PageContext.Provider>
           </ModeContext.Provider>
           {editorState.loading && <Spin fullscreen spinning />}
         </div>

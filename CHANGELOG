@@ -30,3 +30,5 @@
   - notification 的 message 改为 title
   - message 的 warn 改为 warning
   - input 的 addon 废弃
+# 2026-09-30 18:09:19
+- 优化代码: 使用`@dnd-kit/core`代替`@dnd-kit/sortable`,使用valtio代替mobx,`@radix-ui/react-dropdown-menu`代替`react-contexify`
