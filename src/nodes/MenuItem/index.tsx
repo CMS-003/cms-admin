@@ -10,6 +10,7 @@ export default function MenuItem({ self, drag, mode, children }: IBaseCom) {
     ref={drag.setNodeRef}
     data-node-id={self._id}
     data-node-type={self.type}
+    onContextMenu={drag.onContextMenu}
     className={cls}
     style={{
       flexDirection: 'column',

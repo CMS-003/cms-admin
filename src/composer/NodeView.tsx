@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
-import { ContextMenu, type MenuAction } from './ContextMenu';
+import { ContextMenuContent } from './ContextMenu';
 import { IComponent, IPageInfo, ITemplate } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
@@ -11,26 +11,39 @@ import { EditorPanel } from './EditorPanel';
 import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
 import BaseNode from '../nodes/index'
 import { useLocalProxy } from '@/utils/valtio';
+import { proxy } from 'valtio';
 
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
 
-const MemoNodeView = memo(function ComponentView({ self, mode }: { self: IComponent, mode: 'edit' | 'preview' }) {
+
+
+const MemoNodeView = memo(function ComponentView({ self, mode, contextmenu }: { self: IComponent, mode: 'edit' | 'preview', contextmenu: { open: Function } }) {
   const Com = BaseNode[self.type as keyof typeof BaseNode];
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: self._id,
   });
-  const handleMenuAction = useCallback((a: MenuAction) => {
-    if (a.kind === 'append') {
+  // 右键回调：打开全局单例菜单
+  const onContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();  // 阻止冒泡到父节点
+      contextmenu.open(self._id, e.clientX, e.clientY);
+    },
+    [self._id]
+  );
 
-    }
-  }, []);
+  // ★ 关键：drag 对象必须 memo，否则每次渲染新引用 → 子组件 memo 失效
+  const drag = useMemo(
+    () => ({ attributes, listeners, setNodeRef, isDragging, onContextMenu }),
+    [attributes, listeners, setNodeRef, isDragging, onContextMenu]
+  );
   if (Com) {
-    return <ContextMenu node={self} template_id={self.template_id} onAction={handleMenuAction}>
-      <Com self={self} drag={{ attributes, listeners, setNodeRef, isDragging }} mode={mode}>
-        {self.children ? self.children.map(child => <MemoNodeView key={child._id} self={child} mode={mode} />) : null}
+    return (
+      <Com self={self} drag={drag} mode={mode}>
+        {self.children ? self.children.map(child => <MemoNodeView key={child._id} self={child} mode={mode} contextmenu={contextmenu} />) : null}
       </Com>
-    </ContextMenu>
+    )
   } else {
     return <div>不支持</div>
   }
@@ -39,7 +52,7 @@ const MemoNodeView = memo(function ComponentView({ self, mode }: { self: ICompon
 function NodeWrapper(props: any) {
   const mode = useContext(ModeContext);
   const page = useContext(PageContext);
-  return <MemoNodeView {...props} mode={mode} page={page} />;
+  return <MemoNodeView {...props} contextmenu={props.contextmenu} mode={mode} page={page} />;
 }
 
 
@@ -55,7 +68,20 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
     close,
   }));
-  const [editor, proxy] = useLocalProxy({
+  const contextmenu = proxy({
+    id: '',
+    x: 0,
+    y: 0,
+    open(id: string, x: number, y: number) {
+      this.id = id;
+      this.x = x;
+      this.y = y;
+    },
+    close() {
+      this.id = '';
+    },
+  });
+  const [editorState, editorStore] = useLocalProxy({
     template_id: '',
     template: null as ITemplate | null,
     loading: true,
@@ -151,16 +177,16 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
   const refreshTemplateDetail = useCallback(async () => {
     try {
-      if (!proxy.template_id) return;
-      proxy.loading = true
-      const resp = await apis.getTemplateComponents(proxy.template_id)
-      proxy.template = resp.data;
-      proxy.loading = false;
+      if (!editorStore.template_id) return;
+      editorStore.loading = true
+      const resp = await apis.getTemplateComponents(editorStore.template_id)
+      editorStore.template = resp.data;
+      editorStore.loading = false;
     } catch (err) {
-      proxy.loading = false;
+      editorStore.loading = false;
       console.log(err)
     }
-  }, [proxy.template_id])
+  }, [editorStore.template_id])
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
@@ -170,18 +196,18 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
   const measure = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !proxy.template) return;
-    const cs = measureContainers(proxy.template, canvas);
-    proxy.containers = cs;
+    if (!canvas || !editorStore.template) return;
+    const cs = measureContainers(editorStore.template, canvas);
+    editorStore.containers = cs;
     const r = canvas.getBoundingClientRect();
-    proxy.canvasBase = { left: r.left, top: r.top };
+    editorStore.canvasBase = { left: r.left, top: r.top };
   }, []);
 
   const reset = useCallback(() => {
-    proxy.activeId = '';
-    proxy.drop = null;
-    proxy.containers = [];
-    proxy.blocked = new Set();
+    editorStore.activeId = '';
+    editorStore.drop = null;
+    editorStore.containers = [];
+    editorStore.blocked = new Set();
   }, []);
 
   // ---------- 拖动开始 ----------
@@ -189,8 +215,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     (event: DragStartEvent) => {
       const id = String(event.active.id);
       // 保险：不管什么原因，锁定节点不允许进入拖拽流程
-      if (!id.startsWith(PALETTE_PREFIX) && proxy.template) {
-        const n = proxy.findNode(id);
+      if (!id.startsWith(PALETTE_PREFIX) && editorStore.template) {
+        const n = editorStore.findNode(id);
         // TODO:
         // if (n&& n.draggable === false) {
         //   reset();
@@ -198,14 +224,14 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         // }
       }
 
-      proxy.activeId = id;
+      editorStore.activeId = id;
 
       if (id.startsWith(PALETTE_PREFIX)) {
         // 从组件库拖入：不屏蔽任何容器
-        proxy.blocked = new Set();
+        editorStore.blocked = new Set();
       } else {
         // 从画布拖出：屏蔽自身 + 所有后代
-        const dragged = proxy.findNode(id);
+        const dragged = editorStore.findNode(id);
         const blocked = new Set<string>();
         if (dragged) {
           const collect = (n: IComponent | ITemplate) => {
@@ -214,7 +240,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
           };
           collect(dragged);
         }
-        proxy.blocked = blocked;
+        editorStore.blocked = blocked;
       }
 
       // 两阶段测量：
@@ -234,27 +260,27 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     if (!canvas) return;
 
     const ae = event.activatorEvent as PointerEvent;
-    const { left, top } = proxy.canvasBase;
+    const { left, top } = editorStore.canvasBase;
     const x = ae.clientX + event.delta.x - left;
     const y = ae.clientY + event.delta.y - top;
 
     const raw = hitTest(
-      proxy.containers,
+      editorStore.containers,
       x,
       y,
-      proxy.blocked,
+      editorStore.blocked,
     );
     // 画布内节点：等价于原地不动的落点视为无效
-    const id = proxy.activeId;
+    const id = editorStore.activeId;
     const hit =
       raw &&
         id &&
         !id.startsWith(PALETTE_PREFIX) &&
-        proxy.isNoopDrop(id, raw)
+        editorStore.isNoopDrop(id, raw)
         ? null
         : raw;
 
-    const prev = proxy.drop;
+    const prev = editorStore.drop;
     const same =
       (prev === null && hit === null) ||
       (prev !== null &&
@@ -263,15 +289,15 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         prev.index === hit.index);
 
     if (!same) {
-      proxy.drop = hit;
+      editorStore.drop = hit;
     }
   }, []);
 
   // ---------- 拖动结束 ----------
   const handleDragEnd = useCallback(
     (_event: DragEndEvent) => {
-      const id = proxy.activeId;
-      const target = proxy.drop;
+      const id = editorStore.activeId;
+      const target = editorStore.drop;
 
       if (id && target) {
         if (id.startsWith(PALETTE_PREFIX)) {
@@ -282,7 +308,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
           // setTree((prev) =>
           //   insertNode(prev, target.containerId, target.index, node)
           // );
-        } else if (!proxy.isNoopDrop(id, target)) {
+        } else if (!editorStore.isNoopDrop(id, target)) {
           // 来自画布 → 移动
           // setTree((prev) =>
           //   prev && moveNode(prev, id, target.containerId, target.index)
@@ -296,83 +322,94 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
   const handleDragCancel = useCallback(() => reset(), [reset]);
 
+  const handleMenuAction = useCallback((a: ({ kind: string; })) => {
+    if (a.kind === 'append') {
+
+    }
+  }, []);
+
   useEffect(() => {
-    if (template_id && template_id !== proxy.template_id) {
-      proxy.template_id = template_id
+    if (template_id && template_id !== editorStore.template_id) {
+      editorStore.template_id = template_id
       refreshTemplateDetail()
     }
   }, [template_id])
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <div className="app">
-        <Palette types={store.component.types} loading={store.component.typesLoading} />
-        <ModeContext.Provider value={mode}>
-          <div className='canvas' ref={canvasRef}>
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
-              {editor.template ? editor.template.children.map(c => (
-                <NodeWrapper
-                  key={c._id}
-                  self={c}
-                />
-              )) : null}
-            </div>
-            {editor.indicator && (
-              <div
-                className="drop-indicator-wrap"
-                style={{
-                  left: editor.indicator.left,
-                  top: editor.indicator.top,
-                  width: editor.indicator.width,
-                  height: editor.indicator.height,
-                }}
-              >
-                {/* key 变化 → 内层重挂载 → pop 动画重播 */}
-                <div
-                  className="drop-indicator-inner"
-                  key={`${editor.drop!.containerId}:${editor.drop!.index}`}
-                />
+    <>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="app">
+          <Palette types={store.component.types} loading={store.component.typesLoading} />
+          <ModeContext.Provider value={mode}>
+            <div className='canvas' ref={canvasRef}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
+                {editorState.template ? editorState.template.children.map(c => (
+                  <NodeWrapper
+                    key={c._id}
+                    self={c}
+                    contextmenu={contextmenu}
+                  />
+                )) : null}
               </div>
-            )}
-            {/* 背景 */}
-            {editor.dropContainer && (
-              <div
-                className="drop-container-highlight"
-                style={{
-                  left: editor.dropContainer.rect.left,
-                  top: editor.dropContainer.rect.top,
-                  width: editor.dropContainer.rect.width,
-                  height: editor.dropContainer.rect.height,
-                }}
-              />
-            )}
-          </div>
-          <EditorPanel
-            node={proxy.selectedNode}
-            onChange={(patch) => {
-              // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
-            }}
-            onClose={() => proxy.selectedId = ''}
-          />
-          {/* 预览 */}
-          <DragOverlay dropAnimation={null}>
-            {
-              editor.activeNode
-                ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
-                  <NodeWrapper self={editor.activeNode} />
+              {editorState.indicator && (
+                <div
+                  className="drop-indicator-wrap"
+                  style={{
+                    left: editorState.indicator.left,
+                    top: editorState.indicator.top,
+                    width: editorState.indicator.width,
+                    height: editorState.indicator.height,
+                  }}
+                >
+                  {/* key 变化 → 内层重挂载 → pop 动画重播 */}
+                  <div
+                    className="drop-indicator-inner"
+                    key={`${editorState.drop!.containerId}:${editorState.drop!.index}`}
+                  />
                 </div>
-                : null
-            }
-          </DragOverlay>
-        </ModeContext.Provider>
-        {editor.loading && <Spin fullscreen spinning />}
-      </div>
-    </DndContext>
+              )}
+              {/* 背景 */}
+              {editorState.dropContainer && (
+                <div
+                  className="drop-container-highlight"
+                  style={{
+                    left: editorState.dropContainer.rect.left,
+                    top: editorState.dropContainer.rect.top,
+                    width: editorState.dropContainer.rect.width,
+                    height: editorState.dropContainer.rect.height,
+                  }}
+                />
+              )}
+            </div>
+            <EditorPanel
+              node={editorStore.selectedNode}
+              onChange={(patch) => {
+                // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
+              }}
+              onClose={() => editorStore.selectedId = ''}
+            />
+            {/* 预览 */}
+            <DragOverlay dropAnimation={null}>
+              {
+                editorState.activeNode
+                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
+                    <NodeWrapper self={editorState.activeNode} />
+                  </div>
+                  : null
+              }
+            </DragOverlay>
+          </ModeContext.Provider>
+          {editorState.loading && <Spin fullscreen spinning />}
+        </div>
+      </DndContext>
+      {/* 单例菜单层：全局仅此一个 */}
+      <ContextMenuContent contextmenu={contextmenu} onAction={handleMenuAction} />
+    </>
   )
 })

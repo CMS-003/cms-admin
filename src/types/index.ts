@@ -1,6 +1,7 @@
 import { DraggableAttributes } from "@dnd-kit/core"
 import { IComponent } from "./component"
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
+import { MouseEventHandler } from "react"
 
 export * from "./user"
 export * from "./menu"
@@ -55,6 +56,7 @@ export type IBaseCom = {
     listeners: SyntheticListenerMap | undefined;
     setNodeRef: (element: HTMLElement | null) => void;
     isDragging: boolean;
+    onContextMenu: MouseEventHandler<HTMLDivElement>;
   };
   mode: 'edit' | 'preview';
 }
