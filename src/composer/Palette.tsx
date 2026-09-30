@@ -1,7 +1,4 @@
-// src/Palette.tsx
-import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import type { NodeType } from './tree';
 import { IComponentType } from '../types';
 
 export function Palette({ types, loading }: { types: IComponentType[]; loading: boolean }) {

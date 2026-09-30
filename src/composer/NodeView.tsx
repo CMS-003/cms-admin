@@ -1,25 +1,19 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
 import { ContextMenu, type MenuAction } from './ContextMenu';
 import { IComponent, IPageInfo, ITemplate } from '@/types';
-import { ModeContext, PageContext, useModeContext, useSetTitleContext } from '../groups/context';
-import { Observer, useLocalObservable } from 'mobx-react';
+import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
 import store from '@/store';
 import { Spin } from 'antd';
 import { Palette } from './Palette';
 import { EditorPanel } from './EditorPanel';
-import { ContainerInfo, DropTarget, measureContainers, hitTest, getIndicatorRect } from './geometry';
-import { removeNode, findNode, isNoopDrop, NodeType, moveNode, updateNode } from './tree';
-import { Component } from '@/store/component';
+import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
 import BaseNode from '../nodes/index'
+import { useLocalProxy } from '@/utils/valtio';
 
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
-const HIT_OPTS = {
-  edgeRatio: 0.22,   // 交叉轴边缘带宽度，控制"让给父容器"的敏感度
-  midRatio: 0.5,     // 主轴二分点，控制"内部 index 切换"的敏感度
-};
 
 const MemoNodeView = memo(function ComponentView({ self, mode }: { self: IComponent, mode: 'edit' | 'preview' }) {
   const Com = BaseNode[self.type as keyof typeof BaseNode];
@@ -51,7 +45,7 @@ function NodeWrapper(props: any) {
 
 export const TemplateView = React.memo(function Template({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function }) {
 
-  const page = useLocalObservable<IPageInfo>(() => ({
+  const [page, pageProxy] = useLocalProxy<IPageInfo>(({
     template_id,
     path,
     param: {},
@@ -61,53 +55,114 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
     close,
   }));
-  const local = useLocalObservable(() => ({
+  const [editor, proxy] = useLocalProxy({
     template_id: '',
     template: null as ITemplate | null,
-    loadingTemplate: false,
-    setLoadingTemplate(bool: boolean) {
-      this.loadingTemplate = bool;
+    loading: true,
+    findNode(id: string, root?: ITemplate | IComponent): null | ITemplate | IComponent {
+      if (!this.template) return null;
+      if (!root) {
+        root = this.template;
+      }
+      if (root._id === id) return root;
+      if (!root.children) return null;
+      for (const c of root.children) {
+        const r = this.findNode(id, c)
+        if (r) return r;
+      }
+      return null;
     },
-    setTemplate(template: ITemplate) {
-      this.template = template;
+    findParent(id: string, root?: ITemplate | IComponent): ITemplate | IComponent | null {
+      if (!root) {
+        root = this.template!;
+      }
+      if (!root.children) return null;
+      for (const c of root.children) {
+        if (c._id === id) return root;
+        const p = this.findParent(id, c)
+        if (p) return p;
+      }
+      return null;
     },
-    setTemplateId(id: string) {
-      this.template_id = id;
+    /**
+     * 该落点是否等价于「原地不动」
+     * - 只有目标容器 == 当前父容器时才可能
+     * - 同容器时，index == currentIndex 或 currentIndex + 1 都等于不动
+     *   （+1 是因为：摘除当前节点后，它后面的空位填上来，再插回去就回到原位）
+     */
+    isNoopDrop(dragId: string, target: { containerId: string; index: number }) {
+      const parent = this.findParent(dragId);
+      if (!parent || !parent.children) return false;
+      if (parent._id !== target.containerId) return false;
+
+      const currentIndex = parent.children.findIndex((c) => c._id === dragId);
+      if (currentIndex < 0) return false;
+
+      return target.index === currentIndex || target.index === currentIndex + 1;
     },
-  }))
+    insertNode(parentId: string, index: number, node: IComponent) {
+      const parent = this.findParent(parentId);
+      if (!parent) return;
+      const i = Math.max(0, Math.min(index, parent.children.length));
+      parent.children.splice(i, 0, node)
+    },
+    removeNode(id: string) {
+      const parent = this.findParent(id)
+      if (!parent) return;
+      const idx = parent.children.findIndex(c => c._id === id);
+      if (idx >= 0) {
+        parent.children.splice(idx, 1)
+      }
+    },
+
+
+
+    activeId: '',
+    drop: null as { containerId: string; index: number } | null,
+    selectedId: '' as string | null,
+    containers: [] as ContainerInfo[],
+    blocked: new Set<string>(),
+    canvasBase: { left: 0, top: 0 },
+    get selectedNode() {
+      return this.selectedId ? this.findNode(this.selectedId) : null;
+    },
+
+    get activeNode() {
+      if (!this.activeId) return null;
+      if (this.activeId.startsWith(PALETTE_PREFIX)) {
+        // TODO: insert
+        // return createNodeByType(
+        //   activeId.slice(PALETTE_PREFIX.length) as NodeType
+        // );
+      }
+      return this.findNode(this.activeId);
+    },
+    get indicator() {
+      if (!this.drop) return null;
+      const c = this.containers.find((x: ContainerInfo) => x.id === this.drop!.containerId);
+      return c ? getIndicatorRect(c, this.drop.index) : null;
+    },
+
+    get dropContainer() {
+      if (!this.drop) return null;
+      return this.containers.find((c: ContainerInfo) => c.id === this.drop!.containerId) ?? null;
+    },
+  })
 
   const refreshTemplateDetail = useCallback(async () => {
     try {
-      if (!local.template_id) return;
-      local.setLoadingTemplate(true)
-      const resp = await apis.getTemplateComponents(local.template_id)
-      const { children, ...template } = resp.data;
-      console.log(resp)
-      local.setTemplate({
-        ...template,
-        children: children.map(child => Component.create(child))
-      })
-      local.setLoadingTemplate(false)
+      if (!proxy.template_id) return;
+      proxy.loading = true
+      const resp = await apis.getTemplateComponents(proxy.template_id)
+      proxy.template = resp.data;
+      proxy.loading = false;
     } catch (err) {
-      local.setLoadingTemplate(false)
+      proxy.loading = false;
       console.log(err)
     }
-  }, [local.template_id])
-
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [containers, setContainers] = useState<ContainerInfo[]>([]);
-  const [drop, setDrop] = useState<DropTarget | null>(null);
+  }, [proxy.template_id])
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
-  const canvasBaseRef = useRef({ left: 0, top: 0 });
-  const containersRef = useRef<ContainerInfo[]>([]);
-  const dropRef = useRef<DropTarget | null>(null);
-  const activeIdRef = useRef<string | null>(null);
-  const blockedRef = useRef<Set<string>>(new Set());
-
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const selectedNode = selectedId && local.template ? findNode(local.template, selectedId) : null;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
@@ -115,22 +170,18 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
   const measure = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !local.template) return;
-    const cs = measureContainers(local.template, canvas);
-    containersRef.current = cs;
-    setContainers(cs);
+    if (!canvas || !proxy.template) return;
+    const cs = measureContainers(proxy.template, canvas);
+    proxy.containers = cs;
     const r = canvas.getBoundingClientRect();
-    canvasBaseRef.current = { left: r.left, top: r.top };
+    proxy.canvasBase = { left: r.left, top: r.top };
   }, []);
 
   const reset = useCallback(() => {
-    activeIdRef.current = null;
-    dropRef.current = null;
-    containersRef.current = [];
-    blockedRef.current = new Set();
-    setActiveId(null);
-    setDrop(null);
-    setContainers([]);
+    proxy.activeId = '';
+    proxy.drop = null;
+    proxy.containers = [];
+    proxy.blocked = new Set();
   }, []);
 
   // ---------- 拖动开始 ----------
@@ -138,8 +189,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     (event: DragStartEvent) => {
       const id = String(event.active.id);
       // 保险：不管什么原因，锁定节点不允许进入拖拽流程
-      if (!id.startsWith(PALETTE_PREFIX) && local.template) {
-        const n = findNode(local.template, id);
+      if (!id.startsWith(PALETTE_PREFIX) && proxy.template) {
+        const n = proxy.findNode(id);
         // TODO:
         // if (n&& n.draggable === false) {
         //   reset();
@@ -147,15 +198,14 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         // }
       }
 
-      activeIdRef.current = id;
-      setActiveId(id);
+      proxy.activeId = id;
 
       if (id.startsWith(PALETTE_PREFIX)) {
         // 从组件库拖入：不屏蔽任何容器
-        blockedRef.current = new Set();
+        proxy.blocked = new Set();
       } else {
         // 从画布拖出：屏蔽自身 + 所有后代
-        const dragged = findNode(local.template, id);
+        const dragged = proxy.findNode(id);
         const blocked = new Set<string>();
         if (dragged) {
           const collect = (n: IComponent | ITemplate) => {
@@ -164,7 +214,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
           };
           collect(dragged);
         }
-        blockedRef.current = blocked;
+        proxy.blocked = blocked;
       }
 
       // 两阶段测量：
@@ -184,28 +234,27 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     if (!canvas) return;
 
     const ae = event.activatorEvent as PointerEvent;
-    const { left, top } = canvasBaseRef.current;
+    const { left, top } = proxy.canvasBase;
     const x = ae.clientX + event.delta.x - left;
     const y = ae.clientY + event.delta.y - top;
 
     const raw = hitTest(
-      containersRef.current,
+      proxy.containers,
       x,
       y,
-      blockedRef.current,
-      HIT_OPTS
+      proxy.blocked,
     );
     // 画布内节点：等价于原地不动的落点视为无效
-    const id = activeIdRef.current;
+    const id = proxy.activeId;
     const hit =
       raw &&
         id &&
         !id.startsWith(PALETTE_PREFIX) &&
-        isNoopDrop(local.template, id, raw)
+        proxy.isNoopDrop(id, raw)
         ? null
         : raw;
 
-    const prev = dropRef.current;
+    const prev = proxy.drop;
     const same =
       (prev === null && hit === null) ||
       (prev !== null &&
@@ -214,27 +263,26 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         prev.index === hit.index);
 
     if (!same) {
-      dropRef.current = hit;
-      setDrop(hit);
+      proxy.drop = hit;
     }
   }, []);
 
   // ---------- 拖动结束 ----------
   const handleDragEnd = useCallback(
     (_event: DragEndEvent) => {
-      const id = activeIdRef.current;
-      const target = dropRef.current;
+      const id = proxy.activeId;
+      const target = proxy.drop;
 
       if (id && target) {
         if (id.startsWith(PALETTE_PREFIX)) {
           // 来自组件库 → 新建节点并插入
-          const type = id.slice(PALETTE_PREFIX.length) as NodeType;
+          // const type = id.slice(PALETTE_PREFIX.length) as NodeType;
           // TODO: insert
           // const node = createNodeByType(type);
           // setTree((prev) =>
           //   insertNode(prev, target.containerId, target.index, node)
           // );
-        } else if (!isNoopDrop(local.template, id, target)) {
+        } else if (!proxy.isNoopDrop(id, target)) {
           // 来自画布 → 移动
           // setTree((prev) =>
           //   prev && moveNode(prev, id, target.containerId, target.index)
@@ -248,108 +296,83 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
   const handleDragCancel = useCallback(() => reset(), [reset]);
 
-  // ---------- 指示条几何 ----------
-  const indicator = useMemo(() => {
-    if (!drop) return null;
-    const c = containers.find((x) => x.id === drop.containerId);
-    return c ? getIndicatorRect(c, drop.index) : null;
-  }, [drop, containers]);
-  const dropContainer = useMemo(() => {
-    if (!drop) return null;
-    return containers.find(c => c.id === drop.containerId) ?? null;
-  }, [drop, containers]);
-
-  // ---------- 拖动预览用节点 ----------
-  const activeNode = useMemo(() => {
-    if (!activeId) return null;
-    if (activeId.startsWith(PALETTE_PREFIX)) {
-      // TODO: insert
-      // return createNodeByType(
-      //   activeId.slice(PALETTE_PREFIX.length) as NodeType
-      // );
-    }
-    return findNode(local.template, activeId);
-  }, [activeId, local.template]);
-
   useEffect(() => {
-    if (template_id && template_id !== local.template_id) {
-      local.setTemplateId(template_id)
+    if (template_id && template_id !== proxy.template_id) {
+      proxy.template_id = template_id
       refreshTemplateDetail()
     }
   }, [template_id])
 
   return (
-    <Observer>{() => (
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-      >
-        <div className="app">
-          <Palette types={store.component.types} loading={store.component.typesLoading} />
-          <ModeContext.Provider value={mode}>
-            <div className='canvas' ref={canvasRef}>
-              <div style={{ flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
-                {local.template ? local.template.children.map(c => (
-                  <NodeWrapper
-                    key={c._id}
-                    self={c}
-                  />
-                )) : null}
-              </div>
-              {indicator && (
-                <div
-                  className="drop-indicator-wrap"
-                  style={{
-                    left: indicator.left,
-                    top: indicator.top,
-                    width: indicator.width,
-                    height: indicator.height,
-                  }}
-                >
-                  {/* key 变化 → 内层重挂载 → pop 动画重播 */}
-                  <div
-                    className="drop-indicator-inner"
-                    key={`${drop!.containerId}:${drop!.index}`}
-                  />
-                </div>
-              )}
-              {/* 背景 */}
-              {dropContainer && (
-                <div
-                  className="drop-container-highlight"
-                  style={{
-                    left: dropContainer.rect.left,
-                    top: dropContainer.rect.top,
-                    width: dropContainer.rect.width,
-                    height: dropContainer.rect.height,
-                  }}
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
+      <div className="app">
+        <Palette types={store.component.types} loading={store.component.typesLoading} />
+        <ModeContext.Provider value={mode}>
+          <div className='canvas' ref={canvasRef}>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
+              {editor.template ? editor.template.children.map(c => (
+                <NodeWrapper
+                  key={c._id}
+                  self={c}
                 />
-              )}
+              )) : null}
             </div>
-            <EditorPanel
-              node={selectedNode}
-              onChange={(patch) => {
-                // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
-              }}
-              onClose={() => setSelectedId(null)}
-            />
-            {/* 预览 */}
-            <DragOverlay dropAnimation={null}>
-              {
-                activeNode
-                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
-                    <NodeWrapper self={activeNode} />
-                  </div>
-                  : null
-              }
-            </DragOverlay>
-          </ModeContext.Provider>
-          {local.loadingTemplate && <Spin fullscreen spinning />}
-        </div>
-      </DndContext>
-    )}</Observer>
+            {editor.indicator && (
+              <div
+                className="drop-indicator-wrap"
+                style={{
+                  left: editor.indicator.left,
+                  top: editor.indicator.top,
+                  width: editor.indicator.width,
+                  height: editor.indicator.height,
+                }}
+              >
+                {/* key 变化 → 内层重挂载 → pop 动画重播 */}
+                <div
+                  className="drop-indicator-inner"
+                  key={`${editor.drop!.containerId}:${editor.drop!.index}`}
+                />
+              </div>
+            )}
+            {/* 背景 */}
+            {editor.dropContainer && (
+              <div
+                className="drop-container-highlight"
+                style={{
+                  left: editor.dropContainer.rect.left,
+                  top: editor.dropContainer.rect.top,
+                  width: editor.dropContainer.rect.width,
+                  height: editor.dropContainer.rect.height,
+                }}
+              />
+            )}
+          </div>
+          <EditorPanel
+            node={proxy.selectedNode}
+            onChange={(patch) => {
+              // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
+            }}
+            onClose={() => proxy.selectedId = ''}
+          />
+          {/* 预览 */}
+          <DragOverlay dropAnimation={null}>
+            {
+              editor.activeNode
+                ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
+                  <NodeWrapper self={editor.activeNode} />
+                </div>
+                : null
+            }
+          </DragOverlay>
+        </ModeContext.Provider>
+        {editor.loading && <Spin fullscreen spinning />}
+      </div>
+    </DndContext>
   )
 })

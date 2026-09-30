@@ -1,8 +1,7 @@
 import { useCallback } from 'react';
 
 import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, notification, } from 'antd';
-import { AlignAside, FullWidth, FullWidthAuto, FullHeight, FullHeightFix, FullHeightAuto } from '@/components/style'
-import { Observer, useLocalObservable } from 'mobx-react';
+import { AlignAside } from '@/components/style'
 import apis from '@/api'
 
 import { TemplateView } from './NodeView';
@@ -10,7 +9,6 @@ import { TemplateView } from './NodeView';
 import './styles.css';
 import store from '../store';
 import { ITemplate } from '@/types';
-import { cast } from 'mobx-state-tree';
 import { useEffectOnce } from 'react-use';
 import { groupBy, isEmpty } from 'lodash-es';
 import { useLocalProxy } from '@/utils/valtio';
@@ -95,60 +93,55 @@ export default function Composer(props: any) {
     refreshTemplates()
   })
   return (
-
-    <Observer>{() => (
-      <div
-        style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-      >
-        <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
-          <Space>
-            <Observer>{() => (
-              <TreeSelect
-                disabled={snap.locked}
-                treeData={snap.pageTree as unknown as DataNode[]}
-                value={snap.template_id}
-                style={{ width: 300 }}
-                onChange={(v: string) => {
-                  proxy.template_id = v;
-                }}
-                treeDefaultExpandAll
-              />
-            )}</Observer>
-          </Space>
-          <Divider orientation="vertical" />
-          <Space>
-            < Button type="primary" loading={snap.loading} onClick={() => {
-              refreshTemplates()
-            }}>刷新</Button>
-          </Space>
-          <Divider orientation="vertical" />
-          <Switch checked={snap.mode === 'edit'} onChange={v => { proxy.mode = (v ? 'edit' : 'preview') }} />{snap.mode === 'edit' ? '编辑' : '预览'}
-          <Divider orientation="vertical" />
-          <Space>
-            < Button type="primary" onClick={async () => {
-              apis.clearTemplateCache(snap.template_id).then((result) => {
-                if (result.code === 0) {
-                  notification.success({ title: `缓存清理成功` })
-                } else {
-                  notification.error({ title: `请求失败 ${result.message}` })
-                }
-              }).catch(err => {
-                notification.error({ title: `请求失败 ${err.message}` })
-              })
-            }}>清除缓存</Button>
-          </Space>
-          <Divider orientation="vertical" />
-          <Button type="primary" block={false} onClick={async () => {
-            proxy.loading = true
-          }}>保存</Button>
-        </AlignAside>
-        <TemplateView
-          template_id={snap.template_id}
-          path=""
-          mode={snap.mode}
-          close={() => { }}
-        />
-      </div>
-    )}</Observer>
+    <div
+      style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+    >
+      <AlignAside style={{ padding: 10, width: '100%', justifyContent: 'center' }}>
+        <Space>
+          <TreeSelect
+            disabled={snap.locked}
+            treeData={snap.pageTree as unknown as DataNode[]}
+            value={snap.template_id}
+            style={{ width: 300 }}
+            onChange={(v: string) => {
+              proxy.template_id = v;
+            }}
+            treeDefaultExpandAll
+          />
+        </Space>
+        <Divider orientation="vertical" />
+        <Space>
+          < Button type="primary" loading={snap.loading} onClick={() => {
+            refreshTemplates()
+          }}>刷新</Button>
+        </Space>
+        <Divider orientation="vertical" />
+        <Switch checked={snap.mode === 'edit'} onChange={v => { proxy.mode = (v ? 'edit' : 'preview') }} />{snap.mode === 'edit' ? '编辑' : '预览'}
+        <Divider orientation="vertical" />
+        <Space>
+          < Button type="primary" onClick={async () => {
+            apis.clearTemplateCache(snap.template_id).then((result) => {
+              if (result.code === 0) {
+                notification.success({ title: `缓存清理成功` })
+              } else {
+                notification.error({ title: `请求失败 ${result.message}` })
+              }
+            }).catch(err => {
+              notification.error({ title: `请求失败 ${err.message}` })
+            })
+          }}>清除缓存</Button>
+        </Space>
+        <Divider orientation="vertical" />
+        <Button type="primary" block={false} onClick={async () => {
+          proxy.loading = true
+        }}>保存</Button>
+      </AlignAside>
+      <TemplateView
+        template_id={snap.template_id}
+        path=""
+        mode={snap.mode}
+        close={() => { }}
+      />
+    </div>
   );
 }

@@ -1,11 +1,10 @@
 // src/ContextMenu.tsx
 import React from 'react';
 import * as RadixMenu from '@radix-ui/react-context-menu';
-import type { NodeType } from './tree';
 import { IComponent, ITemplate } from '@/types';
 
 export type MenuAction =
-  | { kind: 'append'; parentId: string; nodeType: NodeType }
+  | { kind: 'append'; parentId: string; nodeType: string }
   | { kind: 'delete'; nodeId: string }
   | { kind: 'edit'; nodeId: string };
 
@@ -37,7 +36,7 @@ export function ContextMenu({ node, template_id, onAction, children }: Props) {
                 </RadixMenu.SubTrigger>
                 <RadixMenu.Portal>
                   <RadixMenu.SubContent className="ctx-menu" sideOffset={4}>
-                    {(['row', 'column', 'text'] as NodeType[]).map((t) => (
+                    {(['row', 'column', 'text']).map((t) => (
                       <RadixMenu.Item
                         key={t}
                         className="ctx-item"
