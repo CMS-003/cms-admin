@@ -1,4 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { createContext } from 'react';
 import { useSnapshot } from 'valtio';
 
 export type MenuAction =
@@ -11,6 +12,17 @@ const NODE_TYPES: Array<{ type: string; label: string }> = [
   { type: 'text', label: '文本' },
 ];
 
+type CONTEXTMENU = {
+  id: string;
+  x: number;
+  y: number;
+  open: Function;
+  close: Function;
+}
+
+export const ContextMenuContext = createContext<CONTEXTMENU | null>(null)
+
+
 export function ContextMenuContent({
   contextmenu, onAction,
 }: {
@@ -18,7 +30,6 @@ export function ContextMenuContent({
   onAction: (a: MenuAction) => void;
 }) {
   const state = useSnapshot(contextmenu)
-  console.log(state)
   const canAppend = true;// node.dir != null;         // 只有容器能加子节点
   const canDelete = true;//node._id !== nodeId;       // root 不可删
 

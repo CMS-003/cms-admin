@@ -1,5 +1,5 @@
 import { DraggableAttributes } from "@dnd-kit/core"
-import { IComponent } from "./component"
+import { IComponent, IPageInfo } from "./component"
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
 import { MouseEventHandler } from "react"
 
@@ -51,7 +51,7 @@ export type ILog = {
 export type IBaseCom = {
   self: IComponent;
   children: any;
-  drag: {
+  events: {
     attributes: DraggableAttributes;
     listeners: SyntheticListenerMap | undefined;
     setNodeRef: (element: HTMLElement | null) => void;
@@ -59,4 +59,5 @@ export type IBaseCom = {
     onContextMenu: MouseEventHandler<HTMLDivElement>;
   };
   mode: 'edit' | 'preview';
+  page: IPageInfo;
 }

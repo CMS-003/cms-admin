@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
-import { ContextMenuContent } from './ContextMenu';
+import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
 import { IComponent, IPageInfo, ITemplate } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
@@ -16,32 +16,16 @@ import { proxy } from 'valtio';
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
 
+const MemoNodeView = memo(function ComponentView({ self, events }: { self: IComponent, events: any; }) {
+  const mode = useContext(ModeContext);
+  const page = useContext(PageContext);
 
-
-const MemoNodeView = memo(function ComponentView({ self, mode, contextmenu }: { self: IComponent, mode: 'edit' | 'preview', contextmenu: { open: Function } }) {
   const Com = BaseNode[self.type as keyof typeof BaseNode];
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: self._id,
-  });
-  // 右键回调：打开全局单例菜单
-  const onContextMenu = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();  // 阻止冒泡到父节点
-      contextmenu.open(self._id, e.clientX, e.clientY);
-    },
-    [self._id]
-  );
 
-  // ★ 关键：drag 对象必须 memo，否则每次渲染新引用 → 子组件 memo 失效
-  const drag = useMemo(
-    () => ({ attributes, listeners, setNodeRef, isDragging, onContextMenu }),
-    [attributes, listeners, setNodeRef, isDragging, onContextMenu]
-  );
   if (Com) {
     return (
-      <Com self={self} drag={drag} mode={mode}>
-        {self.children ? self.children.map(child => <MemoNodeView key={child._id} self={child} mode={mode} contextmenu={contextmenu} />) : null}
+      <Com self={self} events={events} mode={mode} page={page}>
+        {self.children ? self.children.map(child => <NodeWrapper key={child._id} self={child} onContextMenu={events.onContextMenu} />) : null}
       </Com>
     )
   } else {
@@ -49,10 +33,14 @@ const MemoNodeView = memo(function ComponentView({ self, mode, contextmenu }: { 
   }
 })
 
-function NodeWrapper(props: any) {
-  const mode = useContext(ModeContext);
-  const page = useContext(PageContext);
-  return <MemoNodeView {...props} contextmenu={props.contextmenu} mode={mode} page={page} />;
+function NodeWrapper({ self, onContextMenu }: { self: IComponent; onContextMenu?: Function }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: self._id, });
+  // ★ 关键：drag 对象必须 memo，否则每次渲染新引用 → 子组件 memo 失效
+  const events = useMemo(
+    () => ({ attributes, listeners, setNodeRef, isDragging, onContextMenu }),
+    [attributes, listeners, setNodeRef, isDragging]
+  );
+  return <MemoNodeView self={self} events={events} />;
 }
 
 
@@ -68,19 +56,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
     close,
   }));
-  const contextmenu = proxy({
-    id: '',
-    x: 0,
-    y: 0,
-    open(id: string, x: number, y: number) {
-      this.id = id;
-      this.x = x;
-      this.y = y;
-    },
-    close() {
-      this.id = '';
-    },
-  });
+
   const [editorState, editorStore] = useLocalProxy({
     template_id: '',
     template: null as ITemplate | null,
@@ -174,6 +150,31 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       return this.containers.find((c: ContainerInfo) => c.id === this.drop!.containerId) ?? null;
     },
   })
+  const contextmenu = useMemo(() => proxy({
+    id: '',
+    x: 0,
+    y: 0,
+    open(id: string, x: number, y: number) {
+      this.id = id;
+      this.x = x;
+      this.y = y;
+    },
+    close() {
+      this.id = '';
+    },
+  }), [template_id])
+  // 右键回调：打开全局单例菜单
+  const onContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();  // 阻止冒泡到父节点
+      if (contextmenu) {
+        const nodeId = (e.currentTarget as HTMLElement).dataset.nodeId;
+        contextmenu.open(nodeId || '', e.clientX, e.clientY);
+      }
+    },
+    [contextmenu]
+  );
 
   const refreshTemplateDetail = useCallback(async () => {
     try {
@@ -348,15 +349,17 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
           <Palette types={store.component.types} loading={store.component.typesLoading} />
           <ModeContext.Provider value={mode}>
             <div className='canvas' ref={canvasRef}>
-              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
-                {editorState.template ? editorState.template.children.map(c => (
-                  <NodeWrapper
-                    key={c._id}
-                    self={c}
-                    contextmenu={contextmenu}
-                  />
-                )) : null}
-              </div>
+              <ContextMenuContext.Provider value={contextmenu}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
+                  {editorState.template ? editorState.template.children.map(c => (
+                    <NodeWrapper
+                      key={c._id}
+                      self={c as IComponent}
+                      onContextMenu={onContextMenu}
+                    />
+                  )) : null}
+                </div>
+              </ContextMenuContext.Provider>
               {editorState.indicator && (
                 <div
                   className="drop-indicator-wrap"
@@ -398,7 +401,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
             <DragOverlay dropAnimation={null}>
               {
                 editorState.activeNode
-                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
+                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
                     <NodeWrapper self={editorState.activeNode} />
                   </div>
                   : null

@@ -1,27 +1,27 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 
-export default function MenuItem({ self, drag, mode, children }: IBaseCom) {
+export default function MenuItem({ self, events, mode, children }: IBaseCom) {
   const cls = [
     'node',
-    drag.isDragging ? 'is-dragging' : '',
+    events.isDragging ? 'is-dragging' : '',
   ].join(' ');
   return <div
-    ref={drag.setNodeRef}
+    ref={events.setNodeRef}
     data-node-id={self._id}
     data-node-type={self.type}
-    onContextMenu={drag.onContextMenu}
+    onContextMenu={events.onContextMenu}
     className={cls}
     style={{
       flexDirection: 'column',
     }}>
 
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...drag.listeners} {...drag.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" {...events.listeners} {...events.attributes} />}
       {self.title}
     </div>
 
-    {children && <div className="child" style={{ paddingLeft: 40, paddingTop: 10 }}>
+    {children && <div className="child" style={{ paddingLeft: 40, }}>
       {children}
     </div>}
   </div>
