@@ -21,15 +21,6 @@ const HIT_OPTS = {
   midRatio: 0.5,     // 主轴二分点，控制"内部 index 切换"的敏感度
 };
 
-/** 拖动预览（不挂 useDraggable，纯展示） */
-function DragPreview({ node }: { node: ITemplate | IComponent }) {
-  return (
-    <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
-      <NodeWrapper self={node} />
-    </div>
-  );
-}
-
 const MemoNodeView = memo(function ComponentView({ self, mode }: { self: IComponent, mode: 'edit' | 'preview' }) {
   const Com = BaseNode[self.type as keyof typeof BaseNode];
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -325,6 +316,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
                   />
                 </div>
               )}
+              {/* 背景 */}
               {dropContainer && (
                 <div
                   className="drop-container-highlight"
@@ -344,8 +336,15 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
               }}
               onClose={() => setSelectedId(null)}
             />
+            {/* 预览 */}
             <DragOverlay dropAnimation={null}>
-              {activeNode ? <DragPreview node={activeNode} /> : null}
+              {
+                activeNode
+                  ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', transform: 'translate(0,49%)' }}>
+                    <NodeWrapper self={activeNode} />
+                  </div>
+                  : null
+              }
             </DragOverlay>
           </ModeContext.Provider>
           {local.loadingTemplate && <Spin fullscreen spinning />}

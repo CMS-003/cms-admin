@@ -1,4 +1,4 @@
-import { IBaseCom, IComponent } from "@/types";
+import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 
 export default function Menu({ self, drag, mode, children }: IBaseCom) {
@@ -10,7 +10,7 @@ export default function Menu({ self, drag, mode, children }: IBaseCom) {
     ref={drag.setNodeRef}
     data-node-id={self._id}
     data-node-type={self.type}
-    className={cls} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', overflow: 'auto' }}>
+    className={cls} style={{ flexDirection: 'row', minWidth: 200, alignItems: 'center', overflow: 'auto' }}>
     {mode === 'edit' && <GripVertical className="node-handle" {...drag.listeners} {...drag.attributes} />}
     <div style={{ overflow: 'auto' }}>
       {children}
