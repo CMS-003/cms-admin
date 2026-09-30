@@ -6,10 +6,10 @@ export default function Menu({ self, bindings, mode, page, children }: IBaseCom)
   return <div
     {...bindings.root}
     className={cls}
-    style={{ flexDirection: 'row', overflow: 'auto' }}
+    style={{ flexDirection: 'row', overflow: 'auto', }}
   >
     {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
-    <div style={{ overflow: 'auto' }}>
+    <div className="no-scrollbar" style={{ overflow: 'auto' }}>
       {children}
     </div>
   </div>

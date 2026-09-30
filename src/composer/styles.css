@@ -58,6 +58,9 @@ body {
   overflow: scroll;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 .palette-list::-webkit-scrollbar {
   display: none;
 }

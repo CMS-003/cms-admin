@@ -90,8 +90,6 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       }
     },
 
-
-
     activeId: '',
     drop: null as { containerId: string; index: number } | null,
     selectedId: '' as string | null,
@@ -101,7 +99,6 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     get selectedNode() {
       return this.selectedId ? this.findNode(this.selectedId) : null;
     },
-
     get activeNode() {
       if (!this.activeId) return null;
       if (this.activeId.startsWith(PALETTE_PREFIX)) {
@@ -117,11 +114,116 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       const c = this.containers.find((x: ContainerInfo) => x.id === this.drop!.containerId);
       return c ? getIndicatorRect(c, this.drop.index) : null;
     },
-
     get dropContainer() {
       if (!this.drop) return null;
       return this.containers.find((c: ContainerInfo) => c.id === this.drop!.containerId) ?? null;
     },
+
+    dragStart(event: DragStartEvent) {
+      const id = String(event.active.id);
+      // 保险：不管什么原因，锁定节点不允许进入拖拽流程
+      if (!id.startsWith(PALETTE_PREFIX) && this.template) {
+        const n = this.findNode(id);
+        // TODO:
+        // if (n&& n.draggable === false) {
+        //   reset();
+        //   return;
+        // }
+      }
+
+      this.activeId = id;
+
+      if (id.startsWith(PALETTE_PREFIX)) {
+        // 从组件库拖入：不屏蔽任何容器
+        this.blocked = new Set();
+      } else {
+        // 从画布拖出：屏蔽自身 + 所有后代
+        const dragged = this.findNode(id);
+        const blocked = new Set<string>();
+        if (dragged) {
+          const collect = (n: IComponent | ITemplate) => {
+            blocked.add(n._id);
+            n.children?.forEach(collect);
+          };
+          collect(dragged);
+        }
+        this.blocked = blocked;
+      }
+
+      // 两阶段测量：
+      // 1) rAF 后先测一次，尽量贴近"按下瞬间"的布局
+      // 2) gap 过渡结束后再测一次，得到最终布局
+      requestAnimationFrame(() => {
+        console.log('?')
+        measure();
+        window.setTimeout(measure, GAP_TRANSITION_MS);
+      });
+    },
+    dragMove(event: DragMoveEvent) {
+      const ae = event.activatorEvent as PointerEvent;
+      const { left, top } = this.canvasBase;
+      const x = ae.clientX + event.delta.x - left;
+      const y = ae.clientY + event.delta.y - top;
+
+      const raw = hitTest(
+        this.containers,
+        x,
+        y,
+        this.blocked,
+      );
+      // 画布内节点：等价于原地不动的落点视为无效
+      const id = this.activeId;
+      const hit =
+        raw &&
+          id &&
+          !id.startsWith(PALETTE_PREFIX) &&
+          this.isNoopDrop(id, raw)
+          ? null
+          : raw;
+
+      const prev = this.drop;
+      const same =
+        (prev === null && hit === null) ||
+        (prev !== null &&
+          hit !== null &&
+          prev.containerId === hit.containerId &&
+          prev.index === hit.index);
+
+      if (!same) {
+        this.drop = hit;
+      }
+    },
+    dragReset() {
+      this.activeId = '';
+      this.drop = null;
+      this.containers = [];
+      this.blocked = new Set();
+    },
+    dragEnd() {
+      const id = editorStore.activeId;
+      const target = editorStore.drop;
+
+      if (id && target) {
+        if (id.startsWith(PALETTE_PREFIX)) {
+          // 来自组件库 → 新建节点并插入
+          // const type = id.slice(PALETTE_PREFIX.length) as NodeType;
+          // TODO: insert
+          // const node = createNodeByType(type);
+          // setTree((prev) =>
+          //   insertNode(prev, target.containerId, target.index, node)
+          // );
+        } else if (!editorStore.isNoopDrop(id, target)) {
+          // 来自画布 → 移动
+          // setTree((prev) =>
+          //   prev && moveNode(prev, id, target.containerId, target.index)
+          // );
+        }
+      }
+      this.dragReset();
+    },
+    menuAction(action: { kind: string }) {
+
+    }
   })
   const contextmenu = useMemo(() => proxy({
     id: '',
@@ -177,131 +279,6 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     editorStore.canvasBase = { left: r.left, top: r.top };
   }, []);
 
-  const reset = useCallback(() => {
-    editorStore.activeId = '';
-    editorStore.drop = null;
-    editorStore.containers = [];
-    editorStore.blocked = new Set();
-  }, []);
-
-  // ---------- 拖动开始 ----------
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const id = String(event.active.id);
-      // 保险：不管什么原因，锁定节点不允许进入拖拽流程
-      if (!id.startsWith(PALETTE_PREFIX) && editorStore.template) {
-        const n = editorStore.findNode(id);
-        // TODO:
-        // if (n&& n.draggable === false) {
-        //   reset();
-        //   return;
-        // }
-      }
-
-      editorStore.activeId = id;
-
-      if (id.startsWith(PALETTE_PREFIX)) {
-        // 从组件库拖入：不屏蔽任何容器
-        editorStore.blocked = new Set();
-      } else {
-        // 从画布拖出：屏蔽自身 + 所有后代
-        const dragged = editorStore.findNode(id);
-        const blocked = new Set<string>();
-        if (dragged) {
-          const collect = (n: IComponent | ITemplate) => {
-            blocked.add(n._id);
-            n.children?.forEach(collect);
-          };
-          collect(dragged);
-        }
-        editorStore.blocked = blocked;
-      }
-
-      // 两阶段测量：
-      // 1) rAF 后先测一次，尽量贴近"按下瞬间"的布局
-      // 2) gap 过渡结束后再测一次，得到最终布局
-      requestAnimationFrame(() => {
-        measure();
-        window.setTimeout(measure, GAP_TRANSITION_MS);
-      });
-    },
-    [measure]
-  );
-
-  // ---------- 拖动中 ----------
-  const handleDragMove = useCallback((event: DragMoveEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ae = event.activatorEvent as PointerEvent;
-    const { left, top } = editorStore.canvasBase;
-    const x = ae.clientX + event.delta.x - left;
-    const y = ae.clientY + event.delta.y - top;
-
-    const raw = hitTest(
-      editorStore.containers,
-      x,
-      y,
-      editorStore.blocked,
-    );
-    // 画布内节点：等价于原地不动的落点视为无效
-    const id = editorStore.activeId;
-    const hit =
-      raw &&
-        id &&
-        !id.startsWith(PALETTE_PREFIX) &&
-        editorStore.isNoopDrop(id, raw)
-        ? null
-        : raw;
-
-    const prev = editorStore.drop;
-    const same =
-      (prev === null && hit === null) ||
-      (prev !== null &&
-        hit !== null &&
-        prev.containerId === hit.containerId &&
-        prev.index === hit.index);
-
-    if (!same) {
-      editorStore.drop = hit;
-    }
-  }, []);
-
-  // ---------- 拖动结束 ----------
-  const handleDragEnd = useCallback(
-    (_event: DragEndEvent) => {
-      const id = editorStore.activeId;
-      const target = editorStore.drop;
-
-      if (id && target) {
-        if (id.startsWith(PALETTE_PREFIX)) {
-          // 来自组件库 → 新建节点并插入
-          // const type = id.slice(PALETTE_PREFIX.length) as NodeType;
-          // TODO: insert
-          // const node = createNodeByType(type);
-          // setTree((prev) =>
-          //   insertNode(prev, target.containerId, target.index, node)
-          // );
-        } else if (!editorStore.isNoopDrop(id, target)) {
-          // 来自画布 → 移动
-          // setTree((prev) =>
-          //   prev && moveNode(prev, id, target.containerId, target.index)
-          // );
-        }
-      }
-      reset();
-    },
-    [reset]
-  );
-
-  const handleDragCancel = useCallback(() => reset(), [reset]);
-
-  const handleMenuAction = useCallback((a: ({ kind: string; })) => {
-    if (a.kind === 'append') {
-
-    }
-  }, []);
-
   useEffect(() => {
     if (template_id && template_id !== editorStore.template_id) {
       editorStore.template_id = template_id
@@ -313,10 +290,10 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     <>
       <DndContext
         sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
+        onDragStart={e => editorStore.dragStart(e)}
+        onDragMove={e => editorStore.dragMove(e)}
+        onDragEnd={() => editorStore.dragEnd()}
+        onDragCancel={() => editorStore.dragReset()}
       >
         <div className="app">
           <Palette types={store.component.types} loading={store.component.typesLoading} />
@@ -387,7 +364,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         </div>
       </DndContext>
       {/* 单例菜单层：全局仅此一个 */}
-      <ContextMenuContent contextmenu={contextmenu} onAction={handleMenuAction} />
+      <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />
     </>
   )
 })
