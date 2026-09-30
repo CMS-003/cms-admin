@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
 import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
 import { IComponent, IPageInfo, ITemplate } from '@/types';
@@ -7,42 +7,15 @@ import apis from '@/api';
 import store from '@/store';
 import { Spin } from 'antd';
 import { Palette } from './Palette';
+import { NodeWrapper } from './NodeWrapper';
 import { EditorPanel } from './EditorPanel';
 import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
-import BaseNode from '../nodes/index'
+
 import { useLocalProxy } from '@/utils/valtio';
 import { proxy } from 'valtio';
 
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
-
-const MemoNodeView = memo(function ComponentView({ self, events }: { self: IComponent, events: any; }) {
-  const mode = useContext(ModeContext);
-  const page = useContext(PageContext);
-
-  const Com = BaseNode[self.type as keyof typeof BaseNode];
-
-  if (Com) {
-    return (
-      <Com self={self} events={events} mode={mode} page={page}>
-        {self.children ? self.children.map(child => <NodeWrapper key={child._id} self={child} onContextMenu={events.onContextMenu} />) : null}
-      </Com>
-    )
-  } else {
-    return <div>不支持</div>
-  }
-})
-
-function NodeWrapper({ self, onContextMenu }: { self: IComponent; onContextMenu?: Function }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: self._id, });
-  // ★ 关键：drag 对象必须 memo，否则每次渲染新引用 → 子组件 memo 失效
-  const events = useMemo(
-    () => ({ attributes, listeners, setNodeRef, isDragging, onContextMenu }),
-    [attributes, listeners, setNodeRef, isDragging]
-  );
-  return <MemoNodeView self={self} events={events} />;
-}
-
 
 export const TemplateView = React.memo(function Template({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function }) {
 

@@ -48,16 +48,23 @@ export type ILog = {
   createdAt: Date;
 }
 
+export type IBindings = {
+  root: {
+    ref: (element: HTMLElement | null) => void;
+    'data-node-id': string;
+    'data-node-type': string;
+    onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
+  };
+  handle: {
+    listeners: any;
+    attributes: any;
+  };
+  isDragging: boolean;
+}
 export type IBaseCom = {
   self: IComponent;
-  children: any;
-  events: {
-    attributes: DraggableAttributes;
-    listeners: SyntheticListenerMap | undefined;
-    setNodeRef: (element: HTMLElement | null) => void;
-    isDragging: boolean;
-    onContextMenu: MouseEventHandler<HTMLDivElement>;
-  };
+  bindings: IBindings;
   mode: 'edit' | 'preview';
   page: IPageInfo;
-}
+  children: any;
+};
