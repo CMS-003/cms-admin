@@ -1,8 +1,4 @@
-import { DraggableAttributes } from "@dnd-kit/core"
-import { IComponent, IPageInfo } from "./component"
-import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
-import { MouseEventHandler } from "react"
-
+import { IComponent, IPageInfo, IWidget } from "./component"
 export * from "./user"
 export * from "./menu"
 export * from "./component"
@@ -64,7 +60,20 @@ export type IBindings = {
 export type IBaseCom = {
   self: IComponent;
   bindings: IBindings;
+  setNodeField: (node: ITemplate | IComponent, key: string, value: any) => void;
+  source: any;
+  setDataField: (widget: IWidget, value: any) => void;
   mode: 'edit' | 'preview';
   page: IPageInfo;
   children: any;
+  [props: string]: any;
 };
+
+export type INode = {
+  self: IComponent;
+  source: any;
+  setNodeField: (node: ITemplate | IComponent, key: string, value: any) => void;
+  setDataField: (widget: IWidget, value: any) => void;
+  onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
+  [props: string]: any;
+}

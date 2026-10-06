@@ -28,7 +28,9 @@ export type IConfig = {
 export type IWidget = {
   field: string,
   value: any;
-  // 仅用于查询
+  /**
+   * 是否仅用于查询
+   */
   query: boolean;
   type: 'boolean' | 'number' | 'string' | 'json' | 'array';
   source: string;

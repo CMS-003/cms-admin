@@ -74,7 +74,7 @@ export function measureContainers(
     const el = canvas.querySelector<HTMLElement>(`[data-node-id="${node._id}"]`);
     if (!el) return;
     const r = getRelativeRect(el, canvas)
-    const isRow = node.attrs.layout === 'row';
+    const isRow = node.attrs && node.attrs.layout === 'vertical' ? false : true;
 
     const childBoxes: ChildBox[] = node.children.map((child: IComponent) => {
       const childEl = canvas.querySelector<HTMLElement>(

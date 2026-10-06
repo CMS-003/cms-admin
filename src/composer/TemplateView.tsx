@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
 import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
-import { IComponent, IPageInfo, ITemplate } from '@/types';
+import { IComponent, IPageInfo, ITemplate, IWidget } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
 import store from '@/store';
@@ -13,6 +13,32 @@ import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './g
 
 import { useLocalProxy } from '@/utils/valtio';
 import { proxy } from 'valtio';
+import { MouseSensor as LibMouseSensor } from '@dnd-kit/core';
+import type { MouseEvent } from 'react';
+import { getWidgetValue } from './utils';
+import { isNil, set } from 'lodash-es';
+
+function shouldHandleEvent(element: HTMLElement | null): boolean {
+  let cur = element;
+  while (cur) {
+    if (cur.dataset && cur.dataset.noDnd) {
+      return false;
+    }
+    cur = cur.parentElement;
+  }
+  return true;
+}
+
+export class CustomMouseSensor extends LibMouseSensor {
+  static activators = [
+    {
+      eventName: 'onMouseDown' as const,
+      handler: ({ nativeEvent: event }: MouseEvent) => {
+        return shouldHandleEvent(event.target as HTMLElement);
+      },
+    },
+  ];
+}
 
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
@@ -31,6 +57,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
   }));
 
   const [editorState, editorStore] = useLocalProxy({
+    // 组件树部分
     template_id: '',
     template: null as ITemplate | null,
     loading: true,
@@ -90,6 +117,30 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       }
     },
 
+    // 表单数据部分
+    source: {} as any,
+    setDataField(widget: IWidget, value: any) {
+      if (!widget.field) {
+        return;
+      }
+      value = getWidgetValue(widget, value);
+      if (isNil(value)) {
+        return;
+      }
+      if (widget.query) {
+        page.setQuery(widget.field, value);
+      } else {
+        set(this.source, widget.field, value)
+      }
+    },
+    setNodeField(node: ITemplate | IComponent, key: string, value: any) {
+      // this 丢失了~~
+      const n = editorStore.findNode(node._id);
+      if (n) {
+        set(n, key, value)
+      }
+    },
+    // 拖拽界面部分
     activeId: '',
     drop: null as { containerId: string; index: number } | null,
     selectedId: '' as string | null,
@@ -154,7 +205,6 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       // 1) rAF 后先测一次，尽量贴近"按下瞬间"的布局
       // 2) gap 过渡结束后再测一次，得到最终布局
       requestAnimationFrame(() => {
-        console.log('?')
         measure();
         window.setTimeout(measure, GAP_TRANSITION_MS);
       });
@@ -267,7 +317,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(CustomMouseSensor)
   );
 
   const measure = useCallback(() => {
@@ -306,6 +357,9 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
                       <NodeWrapper
                         key={c._id}
                         self={c as IComponent}
+                        setNodeField={editorStore.setNodeField}
+                        source={editorState.source}
+                        setDataField={editorStore.setDataField}
                         onContextMenu={onContextMenu}
                       />
                     )) : null}
@@ -353,7 +407,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
                 {
                   editorState.activeNode
                     ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
-                      <NodeWrapper self={editorState.activeNode} />
+                      <NodeWrapper self={editorState.activeNode} setNodeField={editorStore.setNodeField} source={editorState.source} setDataField={editorStore.setDataField} />
                     </div>
                     : null
                 }
