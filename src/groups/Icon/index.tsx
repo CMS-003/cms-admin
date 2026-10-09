@@ -2,7 +2,7 @@ import { Acon, VisualBox } from '@/components'
 import { IAuto, IBaseComponent } from '@/types/component'
 import { Observer, useLocalObservable } from 'mobx-react'
 import { useNavigate, Link } from 'react-router-dom'
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 import { message, Popconfirm, Popover, Upload, notification } from 'antd'
 import events from '@/utils/event';
 import { pick, isEmpty } from 'lodash-es';

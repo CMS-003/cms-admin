@@ -7,7 +7,7 @@ import { AlignAround } from '@/components/style';
 import { Button, message, Space } from 'antd';
 import { cloneDeep } from 'lodash-es';
 import apis from '@/api';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 import Acon from '@/components/Acon';
 import { runInAction } from 'mobx';
 

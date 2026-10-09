@@ -111,7 +111,7 @@ export default function CForm({ self, bindings, mode, page, children }: IBaseCom
           if (result.data) {
             this.$origin = result.data as any;
             this.initSource(result.data)
-            page.setQuery('id', result.data._id)
+            // page.setQuery('id', result.data._id)
           } else {
             this.$origin = this.source;
           }

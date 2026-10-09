@@ -75,11 +75,11 @@ export default function Chart({ self, bindings, mode, children }: IBaseCom) {
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', position: 'relative'
+      flexDirection: 'column', position: 'relative', height: '100%'
     }}>
     <div style={{ display: 'flex' }}>
       {mode === 'edit' && <GripVertical className="node-handle" style={{ position: 'absolute', height: 'auto', zIndex: 3 }} {...bindings.handle.listeners} {...bindings.handle.attributes} />}
     </div>
-    <div style={{ height: '100%', width: '100%', minWidth: 100, minHeight: 100 }} ref={divRef}></div>
+    <div style={{ height: '100%', width: '100%', }} ref={divRef}></div>
   </div>
 }

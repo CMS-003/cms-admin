@@ -24,10 +24,11 @@ export const NodeWrapper = memo(function ComponentView({ self, setNodeField, sou
     }),
     [setNodeRef, self._id, self.type, onContextMenu, attributes, listeners, isDragging]
   );
+
   const Com = BaseNode[self.type as keyof typeof BaseNode];
   if (Com) {
     return (
-      <Com self={self} setNodeField={setNodeField} bindings={bindings} source={source} setDataField={setDataField} mode={mode} page={page} {...props}>
+      <Com self={self} setNodeField={setNodeField} bindings={bindings} source={source} setDataField={setDataField} mode={mode} page={page} >
         {self.children ? self.children.map(child => <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.root.onContextMenu} />) : null}
       </Com>
     )

@@ -51,10 +51,7 @@ export type IBindings = {
     'data-node-type': string;
     onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
   };
-  handle: {
-    listeners: any;
-    attributes: any;
-  };
+  handleRef: (element: Element | null) => void;
   isDragging: boolean;
 }
 export type IBaseCom = {

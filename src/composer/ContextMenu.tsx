@@ -2,10 +2,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { createContext } from 'react';
 import { useSnapshot } from 'valtio';
 
-export type MenuAction =
-  | { kind: 'append'; parentId: string; nodeType: string }
-  | { kind: 'delete'; nodeId: string }
-  | { kind: 'edit'; nodeId: string };
+export type MenuAction = { kind: string; nodeId: string; };
 const NODE_TYPES: Array<{ type: string; label: string }> = [
   { type: 'row', label: '水平容器' },
   { type: 'column', label: '垂直容器' },
@@ -50,6 +47,15 @@ export function ContextMenuContent({
           // 关键：阻止关闭时焦点跑回 0×0 的 trigger
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
+          <DropdownMenu.Item
+            className="ctx-item"
+            onSelect={() => onAction({ kind: 'edit', nodeId: state.id })}
+          >
+            编辑属性
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Separator className="ctx-sep" />
+
           {canAppend && (
             <>
               <DropdownMenu.Sub>
@@ -66,8 +72,7 @@ export function ContextMenuContent({
                         onSelect={() =>
                           onAction({
                             kind: 'append',
-                            parentId: state.id,
-                            nodeType: t.type,
+                            nodeId: state.id,
                           })
                         }
                       >
@@ -81,15 +86,6 @@ export function ContextMenuContent({
               <DropdownMenu.Separator className="ctx-sep" />
             </>
           )}
-
-          <DropdownMenu.Item
-            className="ctx-item"
-            onSelect={() => onAction({ kind: 'edit', nodeId: state.id })}
-          >
-            编辑属性
-          </DropdownMenu.Item>
-
-          <DropdownMenu.Separator className="ctx-sep" />
 
           <DropdownMenu.Item
             className="ctx-item ctx-item--danger"

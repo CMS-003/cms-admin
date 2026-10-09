@@ -1,15 +1,15 @@
 import { IBaseCom } from "@/types";
-import { GripVertical } from "lucide-react";
+import { Grip } from "lucide-react";
 import { Tabs } from "antd";
 import styled from "styled-components";
-import { cloneDeep } from "lodash-es";
 import Acon from '@/components/Acon'
-import { TemplateView } from '@/composer/TemplateView'
+import { TemplateView, TView } from '@/composer/TemplateView'
 import { NodeWrapper } from "@/composer/NodeWrapper";
 
 const TabWrap = styled.div`
   height: 100%;
   flex: 1;
+  overflow: hidden;
   & > div {
     height: 100%;
   }
@@ -36,11 +36,10 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column',
+      flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
-      {self.title}
+      {mode === 'edit' && <Grip className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
     </div>
     <TabWrap>
       <Tabs
@@ -56,7 +55,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
           key: child._id,
           children: (
             child.attrs.content_type === 'template'
-              ? <TemplateView key={child._id} mode={mode} template_id={child.attrs.template_id} path={page.path} close={page.close} />
+              ? <TView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
               : <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} />
           )
         }))}

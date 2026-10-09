@@ -1,7 +1,7 @@
 import { observer, useLocalObservable } from "mobx-react"
 import { Fragment, useMemo } from 'react';
 import { Input, Button, Divider, Select, Tabs, Radio, message, Space, Modal, Switch, Flex } from 'antd'
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 import { cloneDeep, isPlainObject, pick } from 'lodash-es'
 import { Acon, Style } from '@/components/index';
 import { IComponent, IResource, } from '@/types'

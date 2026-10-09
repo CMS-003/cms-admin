@@ -12,11 +12,11 @@ export default function GridCell({ self, bindings, mode, children }: IBaseCom) {
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column',
+      flexDirection: 'column', height: '100%'
     }}>
     <div style={{ display: 'flex', }}>
       {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
     </div>
-      {children}
+    {children}
   </div>
 }

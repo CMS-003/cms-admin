@@ -16,7 +16,7 @@ import { proxy } from 'valtio';
 import { MouseSensor as LibMouseSensor } from '@dnd-kit/core';
 import type { MouseEvent } from 'react';
 import { getWidgetValue } from './utils';
-import { isNil, set } from 'lodash-es';
+import { cloneDeep, isNil, set } from 'lodash-es';
 
 function shouldHandleEvent(element: HTMLElement | null): boolean {
   let cur = element;
@@ -43,17 +43,18 @@ export class CustomMouseSensor extends LibMouseSensor {
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
 
-export const TemplateView = React.memo(function Template({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function }) {
-
+export const TView = React.memo(function T({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function; }) {
   const page = proxy<IPageInfo>(({
     template_id,
     path,
-    param: {},
-    query: Object.fromEntries(new URLSearchParams(path.split('?')[1])),
-    setQuery(field, value) {
-      this.query[field] = value;
-    },
     close,
+    param: {},
+    query: {} as any,
+    setQuery(field, value) {
+      const query = cloneDeep(this.query);
+      query[field] = value
+      this.query = query;
+    },
   }));
 
   const [editorState, editorStore] = useLocalProxy({
@@ -130,7 +131,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       if (widget.query) {
         page.setQuery(widget.field, value);
       } else {
-        set(this.source, widget.field, value)
+        set(editorStore.source, widget.field, value)
       }
     },
     setNodeField(node: ITemplate | IComponent, key: string, value: any) {
@@ -140,6 +141,96 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         set(n, key, value)
       }
     },
+
+    menuAction(action: { kind: string; nodeId: string }) {
+      if (action.kind === 'edit') {
+
+      }
+    }
+  })
+  const contextmenu = useMemo(() => proxy({
+    id: '',
+    x: 0,
+    y: 0,
+    open(id: string, x: number, y: number) {
+      this.id = id;
+      this.x = x;
+      this.y = y;
+    },
+    close() {
+      this.id = '';
+    },
+  }), [template_id])
+  // 右键回调：打开全局单例菜单
+  const onContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();  // 阻止冒泡到父节点
+      if (contextmenu) {
+        const nodeId = (e.currentTarget as HTMLElement).dataset.nodeId;
+        console.log(nodeId)
+        contextmenu.open(nodeId || '', e.clientX, e.clientY);
+      }
+    },
+    [contextmenu]
+  );
+
+  const refreshTemplateDetail = useCallback(async () => {
+    try {
+      if (!editorStore.template_id) return;
+      editorStore.loading = true
+      const resp = await apis.getTemplateComponents(editorStore.template_id)
+      editorStore.template = resp.data;
+      editorStore.loading = false;
+    } catch (err) {
+      editorStore.loading = false;
+      console.log(err)
+    }
+  }, [editorStore.template_id])
+
+  useEffect(() => {
+    if (template_id && template_id !== editorStore.template_id) {
+      editorStore.template_id = template_id
+      refreshTemplateDetail()
+    }
+  }, [template_id])
+
+  return <ModeContext.Provider value={mode}>
+    <PageContext.Provider value={page}>
+      <ContextMenuContext.Provider value={contextmenu}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }} data-node-id={template_id}>
+          {editorState.template ? editorState.template.children.map(c => (
+            <NodeWrapper
+              key={c._id}
+              self={c as IComponent}
+              setNodeField={editorStore.setNodeField}
+              source={editorState.source}
+              setDataField={editorStore.setDataField}
+              onContextMenu={onContextMenu}
+            />
+          )) : null}
+          {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />}
+          {editorState.loading && <Spin fullscreen spinning />}
+        </div>
+      </ContextMenuContext.Provider>
+    </PageContext.Provider>
+  </ModeContext.Provider>
+});
+
+export const TemplateView = React.memo(function Template({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function; }) {
+  const page = proxy<IPageInfo>(({
+    template_id,
+    path,
+    close,
+    param: {},
+    query: {} as any,
+    setQuery(field, value) {
+      this.query[field] = value;
+    },
+  }));
+
+  const [editorState, editorStore] = useLocalProxy({
+
     // 拖拽界面部分
     activeId: '',
     drop: null as { containerId: string; index: number } | null,
@@ -147,19 +238,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     containers: [] as ContainerInfo[],
     blocked: new Set<string>(),
     canvasBase: { left: 0, top: 0 },
-    get selectedNode() {
-      return this.selectedId ? this.findNode(this.selectedId) : null;
-    },
-    get activeNode() {
-      if (!this.activeId) return null;
-      if (this.activeId.startsWith(PALETTE_PREFIX)) {
-        // TODO: insert
-        // return createNodeByType(
-        //   activeId.slice(PALETTE_PREFIX.length) as NodeType
-        // );
-      }
-      return this.findNode(this.activeId);
-    },
+    selectedNode: null as null | IComponent,
+    activeNode: null as null | IComponent,
     get indicator() {
       if (!this.drop) return null;
       const c = this.containers.find((x: ContainerInfo) => x.id === this.drop!.containerId);
@@ -173,13 +253,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     dragStart(event: DragStartEvent) {
       const id = String(event.active.id);
       // 保险：不管什么原因，锁定节点不允许进入拖拽流程
-      if (!id.startsWith(PALETTE_PREFIX) && this.template) {
-        const n = this.findNode(id);
+      if (!id.startsWith(PALETTE_PREFIX)) {
         // TODO:
-        // if (n&& n.draggable === false) {
-        //   reset();
-        //   return;
-        // }
       }
 
       this.activeId = id;
@@ -189,25 +264,25 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         this.blocked = new Set();
       } else {
         // 从画布拖出：屏蔽自身 + 所有后代
-        const dragged = this.findNode(id);
-        const blocked = new Set<string>();
-        if (dragged) {
-          const collect = (n: IComponent | ITemplate) => {
-            blocked.add(n._id);
-            n.children?.forEach(collect);
-          };
-          collect(dragged);
-        }
-        this.blocked = blocked;
+        // const dragged = this.findNode(id);
+        // const blocked = new Set<string>();
+        // if (dragged) {
+        //   const collect = (n: IComponent | ITemplate) => {
+        //     blocked.add(n._id);
+        //     n.children?.forEach(collect);
+        //   };
+        //   collect(dragged);
+        // }
+        // this.blocked = blocked;
       }
 
       // 两阶段测量：
       // 1) rAF 后先测一次，尽量贴近"按下瞬间"的布局
       // 2) gap 过渡结束后再测一次，得到最终布局
-      requestAnimationFrame(() => {
-        measure();
-        window.setTimeout(measure, GAP_TRANSITION_MS);
-      });
+      // requestAnimationFrame(() => {
+      //   measure();
+      //   window.setTimeout(measure, GAP_TRANSITION_MS);
+      // });
     },
     dragMove(event: DragMoveEvent) {
       const ae = event.activatorEvent as PointerEvent;
@@ -226,8 +301,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       const hit =
         raw &&
           id &&
-          !id.startsWith(PALETTE_PREFIX) &&
-          this.isNoopDrop(id, raw)
+          !id.startsWith(PALETTE_PREFIX)
+          // && this.isNoopDrop(id, raw)
           ? null
           : raw;
 
@@ -262,7 +337,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
           // setTree((prev) =>
           //   insertNode(prev, target.containerId, target.index, node)
           // );
-        } else if (!editorStore.isNoopDrop(id, target)) {
+          // } else if (!editorStore.isNoopDrop(id, target)) {
           // 来自画布 → 移动
           // setTree((prev) =>
           //   prev && moveNode(prev, id, target.containerId, target.index)
@@ -271,48 +346,12 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       }
       this.dragReset();
     },
-    menuAction(action: { kind: string }) {
-
+    menuAction(action: { kind: string; nodeId: string }) {
+      if (action.kind === 'edit') {
+        editorStore.selectedId = action.nodeId
+      }
     }
   })
-  const contextmenu = useMemo(() => proxy({
-    id: '',
-    x: 0,
-    y: 0,
-    open(id: string, x: number, y: number) {
-      this.id = id;
-      this.x = x;
-      this.y = y;
-    },
-    close() {
-      this.id = '';
-    },
-  }), [template_id])
-  // 右键回调：打开全局单例菜单
-  const onContextMenu = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();  // 阻止冒泡到父节点
-      if (contextmenu) {
-        const nodeId = (e.currentTarget as HTMLElement).dataset.nodeId;
-        contextmenu.open(nodeId || '', e.clientX, e.clientY);
-      }
-    },
-    [contextmenu]
-  );
-
-  const refreshTemplateDetail = useCallback(async () => {
-    try {
-      if (!editorStore.template_id) return;
-      editorStore.loading = true
-      const resp = await apis.getTemplateComponents(editorStore.template_id)
-      editorStore.template = resp.data;
-      editorStore.loading = false;
-    } catch (err) {
-      editorStore.loading = false;
-      console.log(err)
-    }
-  }, [editorStore.template_id])
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
@@ -321,21 +360,14 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     useSensor(CustomMouseSensor)
   );
 
-  const measure = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !editorStore.template) return;
-    const cs = measureContainers(editorStore.template, canvas);
-    editorStore.containers = cs;
-    const r = canvas.getBoundingClientRect();
-    editorStore.canvasBase = { left: r.left, top: r.top };
-  }, []);
-
-  useEffect(() => {
-    if (template_id && template_id !== editorStore.template_id) {
-      editorStore.template_id = template_id
-      refreshTemplateDetail()
-    }
-  }, [template_id])
+  // const measure = useCallback(() => {
+  //   const canvas = canvasRef.current;
+  //   if (!canvas) return;
+  //   const cs = measureContainers(editorStore.template, canvas);
+  //   editorStore.containers = cs;
+  //   const r = canvas.getBoundingClientRect();
+  //   editorStore.canvasBase = { left: r.left, top: r.top };
+  // }, []);
 
   return (
     <>
@@ -347,78 +379,65 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         onDragCancel={() => editorStore.dragReset()}
       >
         <div className="app">
-          <Palette types={store.component.types} loading={store.component.typesLoading} />
-          <ModeContext.Provider value={mode}>
-            <PageContext.Provider value={page}>
-              <div className='canvas' ref={canvasRef}>
-                <ContextMenuContext.Provider value={contextmenu}>
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, boxShadow: '0 0 10px #1890ff', overflow: 'auto' }} data-node-id={template_id}>
-                    {editorState.template ? editorState.template.children.map(c => (
-                      <NodeWrapper
-                        key={c._id}
-                        self={c as IComponent}
-                        setNodeField={editorStore.setNodeField}
-                        source={editorState.source}
-                        setDataField={editorStore.setDataField}
-                        onContextMenu={onContextMenu}
-                      />
-                    )) : null}
-                  </div>
-                </ContextMenuContext.Provider>
-                {editorState.indicator && (
-                  <div
-                    className="drop-indicator-wrap"
-                    style={{
-                      left: editorState.indicator.left,
-                      top: editorState.indicator.top,
-                      width: editorState.indicator.width,
-                      height: editorState.indicator.height,
-                    }}
-                  >
-                    {/* key 变化 → 内层重挂载 → pop 动画重播 */}
-                    <div
-                      className="drop-indicator-inner"
-                      key={`${editorState.drop!.containerId}:${editorState.drop!.index}`}
-                    />
-                  </div>
-                )}
-                {/* 背景 */}
-                {editorState.dropContainer && (
-                  <div
-                    className="drop-container-highlight"
-                    style={{
-                      left: editorState.dropContainer.rect.left,
-                      top: editorState.dropContainer.rect.top,
-                      width: editorState.dropContainer.rect.width,
-                      height: editorState.dropContainer.rect.height,
-                    }}
-                  />
-                )}
-              </div>
-              <EditorPanel
-                node={editorStore.selectedNode}
-                onChange={(patch) => {
-                  // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
+          {mode === 'edit' && <Palette types={store.component.types} loading={store.component.typesLoading} />}
+          <div className='canvas' ref={canvasRef} style={{ boxShadow: 'inset 0 0 10px #1890ff' }}>
+            <TView template_id={template_id} path={path} mode={mode} close={close} />
+            {mode === 'edit' && editorState.indicator && (
+              <div
+                className="drop-indicator-wrap"
+                style={{
+                  left: editorState.indicator.left,
+                  top: editorState.indicator.top,
+                  width: editorState.indicator.width,
+                  height: editorState.indicator.height,
                 }}
-                onClose={() => editorStore.selectedId = ''}
+              >
+                {/* key 变化 → 内层重挂载 → pop 动画重播 */}
+                <div
+                  className="drop-indicator-inner"
+                  key={`${editorState.drop!.containerId}:${editorState.drop!.index}`}
+                />
+              </div>
+            )}
+            {/* 背景 */}
+            {mode === 'edit' && editorState.dropContainer && (
+              <div
+                className="drop-container-highlight"
+                style={{
+                  left: editorState.dropContainer.rect.left,
+                  top: editorState.dropContainer.rect.top,
+                  width: editorState.dropContainer.rect.width,
+                  height: editorState.dropContainer.rect.height,
+                }}
               />
-              {/* 预览 */}
-              <DragOverlay dropAnimation={null}>
-                {
-                  editorState.activeNode
-                    ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
-                      <NodeWrapper self={editorState.activeNode} setNodeField={editorStore.setNodeField} source={editorState.source} setDataField={editorStore.setDataField} />
-                    </div>
-                    : null
-                }
-              </DragOverlay>
-            </PageContext.Provider>
-          </ModeContext.Provider>
-          {editorState.loading && <Spin fullscreen spinning />}
+            )}
+          </div>
+          {mode === 'edit' && editorState.selectedNode && <EditorPanel
+            node={editorState.selectedNode as IComponent}
+            tabKey='base'
+            setNode={(field: string, value: any) => {
+              console.log(editorStore.selectedNode, field, value)
+              if (editorStore.selectedNode) {
+                set(editorStore.selectedNode, field, value)
+              }
+            }}
+            onChange={(patch) => {
+              // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
+            }}
+            onClose={() => editorStore.selectedId = ''}
+          />}
+          {/* 预览 */}
+          <DragOverlay dropAnimation={null}>
+            {
+              editorState.activeNode
+                ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
+                  overlay{/* <NodeWrapper self={editorState.activeNode} setNodeField={editorStore.setNodeField} source={editorState.source} setDataField={editorStore.setDataField} /> */}
+                </div>
+                : null
+            }
+          </DragOverlay>
         </div>
       </DndContext>
-      {/* 单例菜单层：全局仅此一个 */}
-      <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />
     </>
   )
 })

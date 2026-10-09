@@ -16,7 +16,7 @@ const Responsive = WidthProvider(RGL) as unknown as (
   props: ResponsiveProps
 ) => JSX.Element;
 
-export default function GridLayout({ self, bindings, mode, children }: IBaseCom) {
+export default function GridLayout({ self, bindings, source, setDataField, setNodeField, mode, page, children }: IBaseCom) {
   const [localState, localStore] = useLocalProxy({
     loading: true,
     layouts: [] as { x: number; y: number; w: number; h: number; i: string }[],
@@ -89,7 +89,7 @@ export default function GridLayout({ self, bindings, mode, children }: IBaseCom)
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column',
+      flexDirection: 'column', height: '100%',
     }}>
     <Responsive
       autoSize={true}
@@ -104,7 +104,7 @@ export default function GridLayout({ self, bindings, mode, children }: IBaseCom)
       compactType={null}
       layout={localState.layouts}
       isResizable={true}
-      resizeHandles={['se']}
+      resizeHandles={['se','nw']}
       // 允许重叠
       // allowOverlap={true}
       // 防止碰撞
@@ -121,7 +121,7 @@ export default function GridLayout({ self, bindings, mode, children }: IBaseCom)
     >
       {self.children.map(child => (
         <Cell key={child._id} data-no-dnd>
-          <NodeWrapper self={child} />
+          <NodeWrapper self={child} source={source} setDataField={setDataField} setNodeField={setNodeField} />
         </Cell>
       ))}
     </Responsive>

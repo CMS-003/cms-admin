@@ -8,7 +8,7 @@ import { Acon, VisualBox } from '@/components'
 import Modal from 'antd/lib/modal/Modal';
 import { Link } from 'react-router-dom';
 import TextArea from 'antd/lib/input/TextArea';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 import { useEffectOnce } from 'react-use';
 import events from '@/utils/event';
 import styled from 'styled-components'

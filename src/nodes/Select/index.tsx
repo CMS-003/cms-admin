@@ -5,10 +5,12 @@ import store from "@/store";
 import { useEffectOnce } from "react-use";
 import apis from "@/api";
 import CONST from "@/constant";
+import { snapshot } from "valtio";
 
-export default function CSelect({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CSelect({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
-  const data = source;
+  const data = !self.widget.query ? source : page.query;
+
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
       setDataField(self.widget, self.widget.value)
