@@ -33,7 +33,7 @@ export default function CObjects({ self, bindings, source, setDataField,setNodeF
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <FullHeight>
       {mode === 'edit'
@@ -41,7 +41,7 @@ export default function CObjects({ self, bindings, source, setDataField,setNodeF
         : (source[self.widget.field] || []).map((item: IResource) => (
           <ObjectItem key={item._id}>
             {childrenNodes.map(child => (
-              <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} />
+              <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
             ))}
           </ObjectItem>
         ))}

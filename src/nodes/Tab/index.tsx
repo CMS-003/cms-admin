@@ -39,7 +39,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <TabWrap>
       <Tabs
@@ -56,7 +56,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
           children: (
             child.attrs.content_type === 'template'
               ? <TView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} />
+              : <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />

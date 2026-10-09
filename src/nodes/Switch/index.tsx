@@ -28,7 +28,7 @@ export default function CSwitch({ self, bindings, source, setDataField, mode, pa
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <div style={{ lineHeight: '32px' }}>
       {self.title && <span style={{ marginRight: 10 }}>{self.title}</span>}
       <Switch checkedChildren={localState.TRUE} unCheckedChildren={localState.FALSE} checked={[1, '1', 'TRUE', 'true', true].includes(!self.widget.query ? source[self.widget.field] : page.query[self.widget.field])} onChange={checked => {

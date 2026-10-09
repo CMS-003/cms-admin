@@ -28,7 +28,7 @@ export default function CTags({ self, bindings, source, setDataField, mode, chil
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <FullHeight>
       <FullWidth>

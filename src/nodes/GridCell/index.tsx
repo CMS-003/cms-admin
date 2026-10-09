@@ -15,7 +15,7 @@ export default function GridCell({ self, bindings, mode, children }: IBaseCom) {
       flexDirection: 'column', height: '100%'
     }}>
     <div style={{ display: 'flex', }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     {children}
   </div>

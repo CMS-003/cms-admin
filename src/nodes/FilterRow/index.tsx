@@ -19,10 +19,10 @@ export default function CFilterRow({ self, bindings, setNodeField, source, setDa
       flexDirection: 'row', flex: 1, overflow: 'auto'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     {childrenNodes.map(child => (
-      <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onSelect={(id: string) => {
+      <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} onSelect={(id: string) => {
         childrenNodes.forEach(c => {
           setNodeField(c, '$selected', id === c._id ? true : false)
         })

@@ -1,10 +1,11 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button, Space, Select, Image, Divider, Switch, Spin, message, TreeSelect, notification, } from 'antd';
 import { AlignAside } from '@/components/style'
 import apis from '@/api'
 
 import { TemplateView } from './TemplateView';
+import { createEditorStatus } from './status';
 
 import './styles.css';
 import store from '../store';
@@ -12,6 +13,7 @@ import { ITemplate } from '@/types';
 import { useEffectOnce } from 'react-use';
 import { groupBy, isEmpty } from 'lodash-es';
 import { useLocalProxy } from '@/utils/valtio';
+import { useSnapshot } from 'valtio';
 import { DataNode } from 'antd/es/tree';
 
 type PageTreeNode = {
@@ -28,6 +30,11 @@ export default function Composer(props: any) {
     loading: true,
     mode: 'edit' as 'edit' | 'preview',
   })
+
+  // 编辑器状态（脏数据数量 / 保存中）。由这里创建、往下传给 TemplateView → TView，
+  // 这样工具栏上的保存按钮能按 dirtyCount 高亮，而嵌套的 TView 用的是各自的状态。
+  const [status] = useState(() => createEditorStatus());
+  const snapStatus = useSnapshot(status);
 
   // 获取模板页
   const refreshTemplates = useCallback(async () => {
@@ -132,15 +139,31 @@ export default function Composer(props: any) {
           }}>清除缓存</Button>
         </Space>
         <Divider orientation="vertical" />
-        <Button type="primary" block={false} onClick={async () => {
-          proxy.loading = true
-        }}>保存</Button>
+        {/* 有变更时高亮并且可点；没有变更时禁用。提交走 batchUpdateComponent / batchDestroyComponent */}
+        <Button
+          type="primary"
+          danger={snapStatus.dirtyCount > 0}
+          disabled={snapStatus.dirtyCount === 0}
+          loading={snapStatus.saving}
+          style={{ minWidth: 90 }}
+          onClick={async () => {
+            try {
+              await status.save();
+              message.success('保存成功');
+            } catch (e) {
+              // TView 里已经弹过错误提示了
+            }
+          }}
+        >
+          保存{snapStatus.dirtyCount > 0 ? ` (${snapStatus.dirtyCount})` : ''}
+        </Button>
       </AlignAside>
       <TemplateView
         template_id={snap.template_id}
         mode={snap.mode}
         path=""
         close={() => { }}
+        status={status}
       />
     </div>
   );

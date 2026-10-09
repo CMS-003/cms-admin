@@ -11,7 +11,7 @@ export default function CIcon({ self, bindings, mode, children }: IBaseCom) {
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <Acon icon={self.icon || 'CirclePlus' as any} style={self.style} title={self.title} />
   </div>

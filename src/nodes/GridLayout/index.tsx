@@ -91,6 +91,9 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
     style={{
       flexDirection: 'column', height: '100%',
     }}>
+    <div style={{ display: 'flex' }}>
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
+    </div>
     <Responsive
       autoSize={true}
       style={{ width: '100%', height: '100%', zIndex: 1 }}
@@ -121,7 +124,7 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
     >
       {childrenNodes.map(child => (
         <Cell key={child._id} data-no-dnd>
-          <NodeWrapper self={child} source={source} setDataField={setDataField} setNodeField={setNodeField} />
+          <NodeWrapper self={child} source={source} setDataField={setDataField} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} />
         </Cell>
       ))}
     </Responsive>

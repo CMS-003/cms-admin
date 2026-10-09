@@ -26,7 +26,7 @@ export default function CMenuItem({ self, bindings, mode, children }: IBaseCom) 
     </div>
     <MenuItem className={mode}>
       <FullWidth>
-        {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}<Acon icon={self.icon} style={{ marginRight: 5 }} />{self.title}
+        {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}<Acon icon={self.icon} style={{ marginRight: 5 }} />{self.title}
       </FullWidth>
     </MenuItem>
     <div className="child" style={{ paddingLeft: 40, }}>

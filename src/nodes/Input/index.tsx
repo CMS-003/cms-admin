@@ -19,7 +19,7 @@ export default function CInput({ self, bindings, source, setDataField, mode, pag
       flexDirection: 'row',
     }}>
     <div>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
 
     <Input

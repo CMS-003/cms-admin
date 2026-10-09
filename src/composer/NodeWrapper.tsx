@@ -50,8 +50,9 @@ export const NodeWrapper = memo(function ComponentView({ self, setNodeField, sou
         ref,
         'data-node-id': self._id,
         'data-node-type': self.type,
-        onContextMenu,
       },
+      // 右键菜单统一由各组件挂到 .node-handle（拖拽手柄）上，root 不再承担
+      onContextMenu,
       handleRef,
       isDragging,
     }),
@@ -62,7 +63,7 @@ export const NodeWrapper = memo(function ComponentView({ self, setNodeField, sou
   if (Com) {
     return (
       <Com self={self} setNodeField={setNodeField} bindings={bindings} page={page} setQuery={setQuery} source={source} setDataField={setDataField} mode={mode} childrenNodes={childrenNodes} resolveChildren={resolveChildren}>
-        {childrenNodes.map(child => <NodeWrapper key={child._id} self={child} page={page} setQuery={setQuery} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.root.onContextMenu} />)}
+        {childrenNodes.map(child => <NodeWrapper key={child._id} self={child} page={page} setQuery={setQuery} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={onContextMenu} />)}
       </Com>
     )
   } else {

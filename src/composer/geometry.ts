@@ -25,9 +25,16 @@ export type HitOptions = {
   edgeRatio?: number;
   /** 子节点主轴二分点比例（0~1）。0.5 = 中心二分。 */
   midRatio?: number;
+  /**
+   * 额外的容器过滤：返回 false 的容器直接跳过，判定继续往祖先容器走。
+   *
+   * 拖放约束（accepts / level）就是靠它生效的 —— 「这个容器不收这种子节点，
+   * 但它的父容器可能收」，所以不能简单地整体判空，得让它自然地往上一层落。
+   */
+  canDrop?: (containerId: string) => boolean;
 };
 
-const DEFAULT_OPTS: Required<HitOptions> = {
+const DEFAULT_OPTS = {
   edgeRatio: 0.25,
   midRatio: 0.5,
 };
@@ -144,10 +151,13 @@ export function hitTest(
   opts: HitOptions = {}
 ): DropTarget | null {
   const { edgeRatio, midRatio } = { ...DEFAULT_OPTS, ...opts };
+  const { canDrop } = opts;
 
   for (let i = containers.length - 1; i >= 0; i--) {
     const c = containers[i];
     if (blocked.has(c.id)) continue;
+    // 不接收这种子节点 → 跳过它，让它的祖先容器来判定
+    if (canDrop && !canDrop(c.id)) continue;
 
     const r = c.rect;
     if (x < r.left || x > r.left + r.width) continue;

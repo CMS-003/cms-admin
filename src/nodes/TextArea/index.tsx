@@ -17,7 +17,7 @@ export default function CTextArea({ self, bindings, source, setDataField, mode, 
       flexDirection: 'row', flex: 1,
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <Input.TextArea
       rows={4}

@@ -49,8 +49,9 @@ export type IBindings = {
     ref: (element: HTMLElement | null) => void;
     'data-node-id': string;
     'data-node-type': string;
-    onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
   };
+  /** 右键菜单：由各组件挂到 .node-handle（拖拽手柄）上，只有手柄区域可右键 */
+  onContextMenu?: React.MouseEventHandler<any>;
   handleRef: (element: Element | null) => void;
   isDragging: boolean;
 }
@@ -86,6 +87,18 @@ export type FlatNode = {
   widget: IWidget;
   queries: string[];
   resources: any[];
+
+  // ---------- 编辑态字段：数据库里没有，只在编辑器 / 预览里用 ----------
+  /**
+   * 从数据库读回来时的快照（不含 $ 字段和 children）。
+   * 拿它和当前值对比就知道这个节点改过没有 —— 本次保存要提交哪些节点就靠它。
+   */
+  $origin: any;
+  /** 编辑器里新加、还没落库的节点 */
+  $new: boolean;
+  /** 编辑模式下选中态，预览时取代 attrs.selected 用 */
+  $selected: boolean;
+
   [props: string]: any;
 };
 
@@ -113,6 +126,6 @@ export type INode = {
   source: any;
   setNodeField: (node: ITemplate | IComponent | FlatNode, key: string, value: any) => void;
   setDataField: (widget: IWidget, value: any) => void;
-  onContextMenu?: React.MouseEventHandler<HTMLDivElement>;
+  onContextMenu?: React.MouseEventHandler<any>;
   [props: string]: any;
 }

@@ -32,7 +32,7 @@ export default function CHotArea({ self, bindings, source, setDataField, setNode
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <Area>
       {self.title && <Title>{self.title}</Title>}
       <Content>
@@ -42,6 +42,7 @@ export default function CHotArea({ self, bindings, source, setDataField, setNode
               <NodeWrapper
                 key={child._id}
                 self={child}
+                onContextMenu={bindings.onContextMenu}
                 source={source}
                 setDataField={setDataField}
                 setNodeField={setNodeField}

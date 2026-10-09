@@ -6,6 +6,7 @@ import { isNil } from 'lodash-es'
 import apis from "@/api";
 import CONST from "@/constant";
 import events from "@/utils/event";
+import { GripVertical } from "lucide-react";
 import { useCallback } from "react";
 import { useEffectOnce } from "react-use";
 import { message, Table } from "antd";
@@ -77,6 +78,9 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
     style={{
       flexDirection: 'column', overflow: 'hidden'
     }}>
+    <div style={{ display: 'flex' }}>
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
+    </div>
     <Table<IResource>
       style={{}}
       loading={localState.loading}
@@ -97,7 +101,7 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
         onHeaderCell: () => ({ _id: child._id, title: child.title, self: child, mode: mode, page: page }),
         render: (field: string, data: any) => (
           resolveChildren(child._id).map((item, k: number) => (
-            <NodeWrapper key={k} self={item} source={data} setNodeField={setNodeField} setDataField={(widget: IWidget, value: any) => {
+            <NodeWrapper key={k} self={item} source={data} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} setDataField={(widget: IWidget, value: any) => {
               if (!widget.field) {
                 return;
               }
@@ -114,7 +118,7 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
         header: {
           cell: (props: any) => {
             return <th>
-              <NodeWrapper self={props.self} source={source} setDataField={setDataField} setNodeField={setNodeField} />
+              <NodeWrapper self={props.self} source={source} setDataField={setDataField} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} />
             </th>
           }
         }

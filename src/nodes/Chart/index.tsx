@@ -78,7 +78,7 @@ export default function Chart({ self, bindings, mode, children }: IBaseCom) {
       flexDirection: 'column', position: 'relative', height: '100%'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" style={{ position: 'absolute', height: 'auto', zIndex: 3 }} ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" style={{ position: 'absolute', height: 'auto', zIndex: 3 }} ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <div style={{ height: '100%', width: '100%', }} ref={divRef}></div>
   </div>

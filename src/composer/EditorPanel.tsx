@@ -1,5 +1,5 @@
 // src/EditorPanel.tsx
-import { FlatNode, IComponent, IResource } from '@/types';
+import { FlatNode, IResource } from '@/types';
 import { useLocalProxy } from '@/utils/valtio';
 import { Button, Divider, Input, Radio, Select, Space, Switch, Tabs } from 'antd';
 import styled from 'styled-components'
@@ -10,17 +10,21 @@ import { FullWidth, AlignAround } from '@/components/style';
 import store from '@/store';
 import { cloneDeep, isPlainObject, pick } from 'lodash-es';
 import { getSnapshot } from 'mobx-state-tree';
-import { Fragment } from 'react/jsx-runtime';
+import { Fragment, useEffect } from 'react';
 import ResourceModal from '@/components/ResourceModal';
 import CONST from '@/constant';
 import QueryModal from '@/groups/queriesModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
+import { getVersion, proxy, useSnapshot } from 'valtio';
 
 type Props = {
   node: FlatNode;
-  setNode: Function;
+  /**
+   * 唯一的写入口。field 是字段路径，支持 'title' / 'widget.field' / 'attrs.x'
+   * 这种写法（TView 那边走 lodash set 落到节点上，同时标脏）。
+   */
+  onChange: (field: string, value?: any) => void;
   tabKey: string;
-  onChange: (patch: Partial<Omit<IComponent, '_id'>>) => void;
   onClose: () => void;
 };
 
@@ -49,7 +53,38 @@ export const EditItem = styled.div`
   gap: 5px;
 `
 
-export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
+/** useSnapshot 必须拿到真正的 proxy，非 proxy 传进去 subscribe 会直接报错 */
+const EMPTY_NODE = proxy({}) as unknown as FlatNode;
+
+/**
+ * 订阅节点。
+ *
+ * 面板拿到的 node 是 TView 树 store 里的节点代理，订阅它之后受控输入才能跟着数据走
+ * ——「加参考值 / 删资源 / 拖排序」这类改动改的是 store，不订阅的话面板不会重渲染，
+ * 界面会跳回旧值。传进来的若是普通对象（不是 proxy）就退回原对象，不做订阅。
+ */
+function useNodeSnapshot(node: FlatNode): FlatNode {
+  const reactive = !!node && typeof node === 'object' && getVersion(node) !== undefined;
+  const snap = useSnapshot(reactive ? node : EMPTY_NODE);
+  return reactive ? (snap as unknown as FlatNode) : node;
+}
+
+/** 交换数组里两个下标（返回新数组）。越界 / 相同则原样返回 */
+function swapArray<T>(list: T[], a: number, b: number): T[] {
+  if (a === b || a < 0 || b < 0 || a >= list.length || b >= list.length) return list;
+  const next = list.slice();
+  const tmp = next[a];
+  next[a] = next[b];
+  next[b] = tmp;
+  return next;
+}
+
+export function EditorPanel({ node: rawNode, onChange, tabKey, onClose }: Props) {
+  const node = useNodeSnapshot(rawNode);
+  const refer = node.widget?.refer || [];
+  const resources = node.resources || [];
+  const queries = node.queries || [];
+
   const [localState, localStore] = useLocalProxy({
     addWidgetReferVisible: false,
     q: '',
@@ -57,6 +92,14 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
     showQueryModal: false,
     showResourceModal: false,
   });
+
+  // 从右键菜单切换 tab（菜单里点「数据」→ 面板直接跳到数据页）
+  useEffect(() => {
+    if (tabKey && tabKey !== localStore.tabKey) {
+      localStore.tabKey = tabKey;
+    }
+  }, [tabKey]);
+
   return (
     <Panel>
       <Tabs
@@ -74,39 +117,39 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
             label: '基础', key: 'base', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} defaultValue={node.title} onChange={e => {
-                    setNode('title', e.target.value);
+                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} value={node.title} onChange={e => {
+                    onChange('title', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input prefix={<span>描述<Divider orientation="vertical" /></span>} value={node.desc} />
+                  <Input prefix={<span>描述<Divider orientation="vertical" /></span>} value={node.desc} onChange={e => {
+                    onChange('desc', e.target.value);
+                  }} />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>项目id<Divider orientation="vertical" /></span>} value={node.project_id} onChange={e => {
-                    setNode('project_id', e.target.value);
+                    onChange('project_id', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={node.parent_id} onChange={e => {
-                    setNode('parent_id', e.target.value)
-                  }} />
+                  <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={node.parent_id} readOnly />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>_id<Divider orientation="vertical" /></span>} readOnly value={node._id} />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>状态<Divider orientation="vertical" /></span>} type="number" value={node.status} onChange={e => {
-                    setNode('status', e.target.value)
+                    onChange('status', Number(e.target.value))
                   }} />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>name<Divider orientation="vertical" /></span>} value={node.name} onChange={e => {
-                    setNode('name', e.target.value)
+                    onChange('name', e.target.value)
                   }} />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>图标<Divider orientation="vertical" /></span>} value={node.icon} onChange={e => {
-                    setNode('icon', e.target.value)
+                    onChange('icon', e.target.value)
                   }} />
                 </EditItem>
                 <EditItem>
@@ -114,7 +157,7 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(node.attrs, null, 2)} onBlur={e => {
                     try {
                       const attrs = JSON5.parse(e.target.value)
-                      setNode('attrs', attrs)
+                      onChange('attrs', attrs)
                     } catch (e) {
 
                     } finally {
@@ -132,8 +175,8 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                   <Space.Compact style={{ width: '100%', }}>
                     <Space.Addon style={{ padding: '6px 8px' }}>仅查询</Space.Addon>
                     <Space.Addon style={{ flex: 1 }}>
-                      <Switch checkedChildren='是' unCheckedChildren='否' checked={node.widget.query} onChange={checked => {
-                        setNode('widget.query', checked)
+                      <Switch checkedChildren='是' unCheckedChildren='否' checked={!!node.widget?.query} onChange={checked => {
+                        onChange('widget.query', checked)
                       }} />
                     </Space.Addon>
                   </Space.Compact>
@@ -141,12 +184,12 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                 <EditItem>
                   <Space.Compact block>
                     <Space.Addon style={{ flexShrink: 0 }}>字段</Space.Addon>
-                    <Input value={node.widget.field} onChange={e => {
-                      setNode('widget.field', e.target.value);
+                    <Input value={node.widget?.field} onChange={e => {
+                      onChange('widget.field', e.target.value);
                     }} />
                     <Space.Addon>
-                      <Select value={node.widget.type} onChange={(vv) => {
-                        setNode('widget.type', vv)
+                      <Select value={node.widget?.type} onChange={(vv) => {
+                        onChange('widget.type', vv)
                       }}>
                         <Select.Option value="json" >json</Select.Option>
                         <Select.Option value="string" >string</Select.Option>
@@ -157,21 +200,21 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                   </Space.Compact>
                   <Space.Compact block>
                     <Space.Addon style={{ flexShrink: 0 }}>来源</Space.Addon>
-                    <Input placeholder="默认" defaultValue={node.widget.source} onBlur={e => {
-                      setNode('widget.source', e.target.value);
+                    <Input placeholder="默认" value={node.widget?.source} onChange={e => {
+                      onChange('widget.source', e.target.value);
                     }} />
                   </Space.Compact>
                   <Space.Compact block orientation="vertical">
                     默认值
-                    <Input.TextArea value={node.widget.value.toString()} onChange={e => {
-                      setNode('widget.value', e.target.value);
+                    <Input.TextArea value={String(node.widget?.value ?? '')} onChange={e => {
+                      onChange('widget.value', e.target.value);
                     }} />
                   </Space.Compact>
                   参考值
                   <SortDD
                     direction='vertical'
                     handle={true}
-                    items={[...node.widget.refer, ...(store.global.getValue(node.widget.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
+                    items={[...refer, ...(store.global.getValue(node.widget?.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
                       return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
                     })}
                     renderItem={(item: any, handler: any) => {
@@ -189,7 +232,11 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                         />
                       </Space.Compact>
                     }}
-                    sort={node.swapRefer}
+                    sort={(oldIndex: number, newIndex: number) => {
+                      // items 里尾随的是「来源」里带出来的只读项，拖到它们身上直接忽略
+                      if (oldIndex >= refer.length || newIndex >= refer.length) return;
+                      onChange('widget.refer', swapArray([...refer], oldIndex, newIndex));
+                    }}
                   />
                   <AlignAround>
                     {localState.addWidgetReferVisible
@@ -208,7 +255,7 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                           if (op && node) {
                             const oinputs = op.getElementsByTagName('input');
                             if (oinputs?.length === 2 && oinputs[0].value) {
-                              node.pushRefer({ label: oinputs[0].value, value: oinputs[1].value });
+                              onChange('widget.refer', [...refer, { label: oinputs[0].value, value: oinputs[1].value }]);
                             }
                             localStore.addWidgetReferVisible = false
                           }
@@ -232,16 +279,16 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                     }} />
                   </Space.Compact>
 
-                  {node.queries.map(id => (
+                  {queries.map(id => (
                     <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
-                      setNode('queries', node.queries.filter(q => q !== id))
+                      onChange('queries', queries.filter(q => q !== id))
                     }} />} />
                   ))}
                   {localState.showQueryModal && <QueryModal
                     show={localState.showQueryModal}
-                    queries={node.queries}
-                    setQueries={(queries: any) => {
-                      setNode('queries', queries)
+                    queries={queries}
+                    setQueries={(next: any) => {
+                      onChange('queries', next)
                     }}
                     q={localState.q}
                     close={() => localStore.showQueryModal = false}
@@ -251,23 +298,26 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                   静态数据
                   <SortDD
                     direction='vertical'
-                    items={((node.resources || []).map(v => ({ id: v._id, data: v })))}
+                    items={resources.map((v: any) => ({ id: v._id, data: v }))}
                     renderItem={(item: any, handler: any) => {
                       return <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
                         <Acon icon='Move' style={{ marginRight: 5 }} {...handler} />
                         <Input
                           value={item.data.title}
                           prefix={<CopyToClipboard text={item.data._id as string}><Acon icon='Copy' onClick={() => { }} /></CopyToClipboard>}
-                          suffix={<Acon icon='CircleX' onClick={() => { node.remResource(node._id) }}
-                          />} />
+                          suffix={<Acon icon='CircleX' onClick={() => {
+                            onChange('resources', resources.filter((r: any) => r._id !== item.data._id))
+                          }} />} />
                       </div>
                     }}
-                    sort={node.swapResource}
+                    sort={(oldIndex: number, newIndex: number) => {
+                      onChange('resources', swapArray([...resources], oldIndex, newIndex));
+                    }}
                   />
                   {localState.showResourceModal && <ResourceModal
                     show={localState.showResourceModal}
                     onAdd={(d: IResource) => {
-                      node.addResource(pick(d, ['_id', 'title', 'cover', 'thumbnail', 'status']) as IResource)
+                      onChange('resources', [...resources, pick(d, ['_id', 'title', 'cover', 'thumbnail', 'status'])])
                     }}
                     onClose={() => {
                       localStore.showResourceModal = false
@@ -287,27 +337,27 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
               <ScrollWrap>
                 <EditItem>
                   {
-                    (node.widget.action === CONST.ACTION_TYPE.GOTO_PAGE || node.widget.action === CONST.ACTION_TYPE.OPEN_URL)
+                    (node.widget?.action === CONST.ACTION_TYPE.GOTO_PAGE || node.widget?.action === CONST.ACTION_TYPE.OPEN_URL)
                     && <Input prefix="跳转url" value={node.url} onChange={e => {
-                      setNode('widget.url', e.target.value);
+                      onChange('url', e.target.value);
                     }} />
                   }
                   {
-                    node.widget.action === CONST.ACTION_TYPE.MODAL && <Input prefix='模板id' value={node.widget.method} onChange={e => {
-                      setNode('widget.method', e.target.value);
+                    node.widget?.action === CONST.ACTION_TYPE.MODAL && <Input prefix='模板id' value={node.widget?.method} onChange={e => {
+                      onChange('widget.method', e.target.value);
                     }} />
                   }
                   {
-                    node.widget.action === CONST.ACTION_TYPE.PREVIEW && <Select defaultValue={node.widget.method} onChange={v => {
-                      setNode('widget.method', v);
+                    node.widget?.action === CONST.ACTION_TYPE.PREVIEW && <Select value={node.widget?.method} onChange={v => {
+                      onChange('widget.method', v);
                     }}>
                       <Select.Option value='image'>图片</Select.Option>
                       <Select.Option value='video'>视频</Select.Option>
                     </Select>
                   }
-                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(node.widget.action) && <Space.Compact block>
-                    <Select value={node.widget.method} onChange={v => {
-                      setNode('widget.method', v);
+                  {[CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(node.widget?.action) && <Space.Compact block>
+                    <Select value={node.widget?.method} onChange={v => {
+                      onChange('widget.method', v);
                     }}>
                       <Select.Option value="AUTO">AUTO</Select.Option>
                       <Select.Option value="GET">GET</Select.Option>
@@ -318,9 +368,8 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                     </Select>
                     <Input
                       value={node.url}
-                      readOnly={![CONST.ACTION_TYPE.FETCH, CONST.ACTION_TYPE.UPLOAD].includes(node.widget.action)}
                       onChange={e => {
-                        setNode('url', e.target.value);
+                        onChange('url', e.target.value);
                       }} />
                   </Space.Compact>}
                 </EditItem>
@@ -329,8 +378,8 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                     <Space.Addon style={{ flexShrink: 0 }}>
                       事件类型
                     </Space.Addon>
-                    <Select style={{ width: '100%' }} value={node.widget.action} onChange={v => {
-                      setNode('widget.action', v);
+                    <Select style={{ width: '100%' }} value={node.widget?.action} onChange={v => {
+                      onChange('widget.action', v);
                     }} >
                       <Select.Option value="">无</Select.Option>
                       <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
@@ -352,13 +401,13 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
               <ScrollWrap>
                 <EditItem>
                   布局方向<Divider orientation='vertical' />
-                  <Radio.Group value={node.attrs.layout} options={[
+                  <Radio.Group value={node.attrs?.layout} options={[
                     { label: '水平', value: 'horizontal' },
                     { label: '垂直', value: 'vertical' },
                   ]} onChange={e => {
-                    const attrs = cloneDeep(node.attrs);
+                    const attrs = cloneDeep(node.attrs || {});
                     attrs.layout = e.target.value
-                    setNode('attrs', attrs)
+                    onChange('attrs', attrs)
                   }} />
                 </EditItem>
                 <EditItem>
@@ -366,7 +415,7 @@ export function EditorPanel({ node, setNode, tabKey, onClose }: Props) {
                   <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(node.style, null, 2)} onBlur={e => {
                     try {
                       const style = JSON5.parse(e.target.value)
-                      setNode('style', style);
+                      onChange('style', style);
                     } catch (e) {
 
                     } finally {

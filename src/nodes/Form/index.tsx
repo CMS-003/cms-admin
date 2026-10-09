@@ -168,14 +168,14 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
       flexDirection: 'column', height: '100%'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <FullHeight>
       <FullHeightAuto>
         {localState.booting
           ? <Spin></Spin>
           : childrenNodes.map(child => (
-            <NodeWrapper key={child._id} self={child} setNodeField={localStore.setNodeField} source={localState.source} setDataField={localStore.setDataField} />
+            <NodeWrapper key={child._id} self={child} setNodeField={localStore.setNodeField} source={localState.source} setDataField={localStore.setDataField} onContextMenu={bindings.onContextMenu} />
           ))}
       </FullHeightAuto>
       <Space style={{ padding: 8, justifyContent: 'center' }}>

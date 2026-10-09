@@ -16,7 +16,7 @@ export default function CProgress({ self, bindings, source, setDataField, mode, 
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <Progress percent={source[self.widget.field]} type='circle' size={'small'} />
   </div>
 }

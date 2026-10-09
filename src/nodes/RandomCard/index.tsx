@@ -26,7 +26,7 @@ export default function CPickCard({ self, bindings, source, setDataField, mode, 
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <FullHeight style={{ flex: 1 }}>
       <Header>
         {self.title}

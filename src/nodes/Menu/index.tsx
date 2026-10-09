@@ -8,7 +8,7 @@ export default function Menu({ self, bindings, mode, page, children }: IBaseCom)
     className={cls}
     style={{ flexDirection: 'row', overflow: 'auto', }}
   >
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <div className="no-scrollbar" style={{ overflow: 'auto' }}>
       {children}
     </div>

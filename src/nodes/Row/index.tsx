@@ -13,7 +13,7 @@ export default function CRow({ self, bindings, source, setDataField, mode, page,
       flexDirection: 'row', width: '100%',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     {children}
   </div>

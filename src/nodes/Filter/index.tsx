@@ -12,7 +12,7 @@ export default function CFilter({ self, bindings, source, setDataField, mode, pa
       flexDirection: 'row', height: '100%', overflow: 'hidden',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <FullHeight style={{ flex: 1, overflow: 'auto' }}>
       <div style={{ display: 'flex', flexDirection: 'column' }}>

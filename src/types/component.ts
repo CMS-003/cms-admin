@@ -76,6 +76,12 @@ export type IComponentType = {
   title: string;
   cover: string;
   status: number;
+  /**
+   * 层级：1 = 可以接收任意子节点；2 / 3 = 只能是 accepts 里指定类型的子节点，
+   * 父节点也必须在自己的 accepts 里。拖放和新增都要按这个校验。
+   */
+  level?: number;
+  /** 允许接收的子节点类型；含 'all' 表示全收，空数组表示不接收子节点 */
   accepts: string[];
 }
 

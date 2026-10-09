@@ -41,7 +41,7 @@ export default function CPickCard({ self, bindings, source, setDataField,setNode
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <TabItemWrap>
       <Tabs
         activeKey={self.attrs.selected_id}
@@ -62,7 +62,7 @@ export default function CPickCard({ self, bindings, source, setDataField,setNode
           children: (
             child.attrs.content_type === 'template'
               ? <TemplateView mode='preview' template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper self={child} source={source} setNodeField={setNodeField} setDataField={setDataField} />
+              : <NodeWrapper self={child} source={source} setNodeField={setNodeField} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />
