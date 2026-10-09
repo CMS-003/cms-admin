@@ -3,10 +3,10 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { useEffectOnce } from "react-use";
 
-export default function CFilterRow({ self, bindings, setNodeField, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CFilterRow({ self, bindings, setNodeField, source, setDataField, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', 'no-scrollbar', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
-    self.children.forEach(child => {
+    childrenNodes.forEach(child => {
       if (child.attrs.selected) {
         setNodeField(child, '$selected', true)
       }
@@ -19,11 +19,11 @@ export default function CFilterRow({ self, bindings, setNodeField, source, setDa
       flexDirection: 'row', flex: 1, overflow: 'auto'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
-    {self.children.map(child => (
+    {childrenNodes.map(child => (
       <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onSelect={(id: string) => {
-        self.children.forEach(c => {
+        childrenNodes.forEach(c => {
           setNodeField(c, '$selected', id === c._id ? true : false)
         })
       }} />

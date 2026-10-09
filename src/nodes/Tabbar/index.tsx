@@ -32,7 +32,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CPickCard({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CPickCard({ self, bindings, source, setDataField,setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div
@@ -41,7 +41,7 @@ export default function CPickCard({ self, bindings, source, setDataField, mode, 
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     <TabItemWrap>
       <Tabs
         activeKey={self.attrs.selected_id}
@@ -51,9 +51,9 @@ export default function CPickCard({ self, bindings, source, setDataField, mode, 
         onChange={activeKey => {
           const attrs = cloneDeep(self.attrs);
           attrs.selected_id = activeKey
-          self.setAttr('attrs', attrs)
+          setNodeField(self, 'attrs', attrs)
         }}
-        items={self.children.map((child, i) => ({
+        items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
             {child.icon ? <Acon icon={child.icon} /> : null}
             {child.title}
@@ -62,7 +62,7 @@ export default function CPickCard({ self, bindings, source, setDataField, mode, 
           children: (
             child.attrs.content_type === 'template'
               ? <TemplateView mode='preview' template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper self={child} source={source} setDataField={setDataField} />
+              : <NodeWrapper self={child} source={source} setNodeField={setNodeField} setDataField={setDataField} />
           )
         }))}
       />

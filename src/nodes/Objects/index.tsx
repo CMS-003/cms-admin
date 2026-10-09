@@ -19,7 +19,7 @@ const ObjectItem = styled.div`
   border: 1px dashed #00000036;
 `
 
-export default function CObjects({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CObjects({ self, bindings, source, setDataField,setNodeField, mode, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     showAdd: false,
@@ -33,15 +33,15 @@ export default function CObjects({ self, bindings, source, setDataField, mode, c
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     <FullHeight>
       {mode === 'edit'
         ? children
         : (source[self.widget.field] || []).map((item: IResource) => (
           <ObjectItem key={item._id}>
-            {self.children.map(child => (
-              <NodeWrapper key={child._id} self={child} source={source} setDataField={setDataField} />
+            {childrenNodes.map(child => (
+              <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} />
             ))}
           </ObjectItem>
         ))}

@@ -16,7 +16,7 @@ const Responsive = WidthProvider(RGL) as unknown as (
   props: ResponsiveProps
 ) => JSX.Element;
 
-export default function GridLayout({ self, bindings, source, setDataField, setNodeField, mode, page, children }: IBaseCom) {
+export default function GridLayout({ self, bindings, source, setDataField, setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
   const [localState, localStore] = useLocalProxy({
     loading: true,
     layouts: [] as { x: number; y: number; w: number; h: number; i: string }[],
@@ -27,7 +27,7 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
   const gridRef = useRef<HTMLDivElement | null>(null)
   const [rowHeight, setRowHeight] = useState(30)
   const generateLayout = useCallback(function () {
-    return map(self.children, function (item, i) {
+    return map(childrenNodes, function (item, i) {
       return {
         x: get(item.attrs, 'x', i * 2),
         y: get(item.attrs, 'y', i),
@@ -36,26 +36,26 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
         i: item._id,
       }
     })
-  }, [self.children])
+  }, [childrenNodes])
   const sync = useCallback(function (layouts: any) {
     // TODO: 
     return console.log('update data')
-    const diffs = self.children.map((c, i) => {
-      const d = cloneDeep(c.toJSON())
-      const o = c.$origin;
+    const diffs = childrenNodes.map((c, i) => {
+      const d = cloneDeep(c as any)
+      const o = (c as any).$origin;
       if (d._id === layouts[i].i) {
         d.attrs.x = layouts[i].x;
         d.attrs.y = layouts[i].y;
         d.attrs.w = layouts[i].w;
         d.attrs.h = layouts[i].h;
         if (!localStore.loading) {
-          c.setAttr('attrs', d.attrs)
+          setNodeField(c, 'attrs', d.attrs)
         }
       }
-      if (c.$new !== true && isEqual(d.attrs, o.attrs)) {
+      if ((c as any).$new !== true && isEqual(d.attrs, o.attrs)) {
         return null
       } else if (mode === 'preview') {
-        c.setAttr('$origin', d)
+        setNodeField(c, '$origin', d)
       }
       return d;
     }).filter(v => v !== null);
@@ -119,7 +119,7 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
       onDragStop={sync}
       onResizeStop={sync}
     >
-      {self.children.map(child => (
+      {childrenNodes.map(child => (
         <Cell key={child._id} data-no-dnd>
           <NodeWrapper self={child} source={source} setDataField={setDataField} setNodeField={setNodeField} />
         </Cell>

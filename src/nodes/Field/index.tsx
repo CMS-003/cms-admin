@@ -11,7 +11,7 @@ export default function CField({ self, bindings, mode, children }: IBaseCom) {
       flexDirection: 'row', flex: 1,
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     <Col span={self.attrs.left || 6}>
       <div style={{ textAlign: 'right', lineHeight: '32px', paddingRight: 10, whiteSpace: 'nowrap' }}>{self.title}</div>

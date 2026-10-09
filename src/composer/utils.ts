@@ -1,4 +1,4 @@
-import { IComponent, ITemplate, IWidget } from "@/types";
+import { FlatNode, IComponent, ITemplate, IWidget } from "@/types";
 
 export function getDiff(t: ITemplate | IComponent | null) {
   if (!t) {
@@ -68,7 +68,7 @@ export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any
     ? url.toString()                         // 完整 URL：返回完整的带 host 的 URL
     : url.pathname + url.search;            // 相对路径：去掉 host，只保留路径和 query
 }
-export function getApi(self: IComponent, params: any = {}, query: any = {}) {
+export function getApi(self: FlatNode, params: any = {}, query: any = {}) {
   let url = self.url;
   const regex = /:([a-zA-Z\-_]+)/g;
   const matches = [...url.matchAll(regex)];

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { DndContext, DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, PointerSensor, useDraggable, useSensor, useSensors } from '@dnd-kit/core';
+import { DragMoveEvent, DragOverlay, DragStartEvent, DragDropProvider } from '@dnd-kit/react';
 import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
-import { IComponent, IPageInfo, ITemplate, IWidget } from '@/types';
+import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
+import { FlatNode, IPageInfo, IWidget } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
 import store from '@/store';
@@ -10,18 +11,23 @@ import { Palette } from './Palette';
 import { NodeWrapper } from './NodeWrapper';
 import { EditorPanel } from './EditorPanel';
 import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
+import { TreeContext } from './TreeContext';
+import { DropTarget, TreeApi, TreeData, normalizeTree, resolveInsertIndex } from './tree';
 
 import { useLocalProxy } from '@/utils/valtio';
 import { proxy } from 'valtio';
-import { MouseSensor as LibMouseSensor } from '@dnd-kit/core';
-import type { MouseEvent } from 'react';
 import { getWidgetValue } from './utils';
 import { cloneDeep, isNil, set } from 'lodash-es';
 
-function shouldHandleEvent(element: HTMLElement | null): boolean {
-  let cur = element;
+/**
+ * 该元素是否允许发起拖拽。
+ * 命中 [data-no-dnd] 的祖先（如 GridCell、react-grid-layout 容器）时禁止拖动。
+ */
+function shouldHandleEvent(element: Element | null): boolean {
+  let cur: Element | null = element;
   while (cur) {
-    if (cur.dataset && cur.dataset.noDnd) {
+    const dataset = (cur as HTMLElement).dataset;
+    if (dataset && dataset.noDnd) {
       return false;
     }
     cur = cur.parentElement;
@@ -29,21 +35,23 @@ function shouldHandleEvent(element: HTMLElement | null): boolean {
   return true;
 }
 
-export class CustomMouseSensor extends LibMouseSensor {
-  static activators = [
-    {
-      eventName: 'onMouseDown' as const,
-      handler: ({ nativeEvent: event }: MouseEvent) => {
-        return shouldHandleEvent(event.target as HTMLElement);
-      },
-    },
-  ];
-}
-
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
 
-export const TView = React.memo(function T({ template_id, mode, path, close }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function; }) {
+export type TViewProps = {
+  template_id: string;
+  mode: 'edit' | 'preview';
+  path: string;
+  close: Function;
+  /**
+   * 把树读写接口交给外层（TemplateView 拖拽用）。
+   * 用 ref 直连而不是全局事件：TView 是多实例的（画布 / Tab 内嵌 / dynamic 页），
+   * 全局事件会让三个实例互相串台。
+   */
+  apiRef?: React.MutableRefObject<TreeApi | null>;
+};
+
+export const TView = React.memo(function T({ template_id, mode, path, close, apiRef }: TViewProps) {
   const page = proxy<IPageInfo>(({
     template_id,
     path,
@@ -58,34 +66,29 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
   }));
 
   const [editorState, editorStore] = useLocalProxy({
-    // 组件树部分
+    // 组件树部分 —— 扁平存储：所有节点在 map 里，children 存 id 列表
     template_id: '',
-    template: null as ITemplate | null,
+    rootId: '',
+    map: {} as Record<string, FlatNode>,
     loading: true,
-    findNode(id: string, root?: ITemplate | IComponent): null | ITemplate | IComponent {
-      if (!this.template) return null;
-      if (!root) {
-        root = this.template;
-      }
-      if (root._id === id) return root;
-      if (!root.children) return null;
-      for (const c of root.children) {
-        const r = this.findNode(id, c)
-        if (r) return r;
-      }
-      return null;
+
+    // ---------- 读（逻辑用，从 live store 读，不参与渲染依赖）----------
+    getSiblingIndex(id: string) {
+      const node = editorStore.map[id];
+      if (!node) return -1;
+      const parent = editorStore.map[node.parent_id];
+      return parent ? parent.children.indexOf(id) : -1;
     },
-    findParent(id: string, root?: ITemplate | IComponent): ITemplate | IComponent | null {
-      if (!root) {
-        root = this.template!;
-      }
-      if (!root.children) return null;
-      for (const c of root.children) {
-        if (c._id === id) return root;
-        const p = this.findParent(id, c)
-        if (p) return p;
-      }
-      return null;
+    /** 自身 + 所有后代的 id */
+    collectSubtree(id: string) {
+      const out: string[] = [];
+      const dfs = (nid: string) => {
+        out.push(nid);
+        const n = editorStore.map[nid];
+        if (n) n.children.forEach(dfs);
+      };
+      dfs(id);
+      return out;
     },
     /**
      * 该落点是否等价于「原地不动」
@@ -93,29 +96,64 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
      * - 同容器时，index == currentIndex 或 currentIndex + 1 都等于不动
      *   （+1 是因为：摘除当前节点后，它后面的空位填上来，再插回去就回到原位）
      */
-    isNoopDrop(dragId: string, target: { containerId: string; index: number }) {
-      const parent = this.findParent(dragId);
-      if (!parent || !parent.children) return false;
-      if (parent._id !== target.containerId) return false;
-
-      const currentIndex = parent.children.findIndex((c) => c._id === dragId);
+    isNoopDrop(dragId: string, target: DropTarget) {
+      const node = editorStore.map[dragId];
+      if (!node) return false;
+      if (node.parent_id !== target.containerId) return false;
+      const siblings = editorStore.map[target.containerId]?.children;
+      if (!siblings) return false;
+      const currentIndex = siblings.indexOf(dragId);
       if (currentIndex < 0) return false;
-
       return target.index === currentIndex || target.index === currentIndex + 1;
     },
-    insertNode(parentId: string, index: number, node: IComponent) {
-      const parent = this.findParent(parentId);
-      if (!parent) return;
-      const i = Math.max(0, Math.min(index, parent.children.length));
-      parent.children.splice(i, 0, node)
+
+    // ---------- 写（唯一入口：children 与 parent_id 双写在这里收口）----------
+    insertAt(parentId: string, index: number, node: FlatNode) {
+      const parent = editorStore.map[parentId];
+      if (!parent || !node || !node._id) return;
+      // 跨 store 传进来的是普通对象，深拷贝一份再交给 valtio，避免外部引用被间接改写
+      editorStore.map[node._id] = {
+        ...cloneDeep(node),
+        _id: node._id,
+        parent_id: parentId,
+        children: [],
+      };
+      const ids = parent.children.slice();
+      ids.splice(Math.max(0, Math.min(index, ids.length)), 0, node._id);
+      parent.children = ids;
     },
-    removeNode(id: string) {
-      const parent = this.findParent(id)
-      if (!parent) return;
-      const idx = parent.children.findIndex(c => c._id === id);
-      if (idx >= 0) {
-        parent.children.splice(idx, 1)
+    remove(id: string) {
+      const node = editorStore.map[id];
+      if (!node) return;
+      // 整棵子树一起摘掉
+      for (const nid of editorStore.collectSubtree(id)) {
+        delete editorStore.map[nid];
       }
+      const parent = editorStore.map[node.parent_id];
+      if (parent) {
+        parent.children = parent.children.filter((c) => c !== id);
+      }
+    },
+    move(id: string, parentId: string, index: number) {
+      const node = editorStore.map[id];
+      const to = editorStore.map[parentId];
+      if (!node || !to) return;
+      const sameContainer = node.parent_id === parentId;
+      const from = editorStore.map[node.parent_id];
+      const oldIndex = from ? from.children.indexOf(id) : -1;
+      // 先摘除，注意 index 是「摘除之前」的兄弟列表里的落点
+      if (from && oldIndex >= 0) {
+        from.children = from.children.filter((c) => c !== id);
+      }
+      const target = resolveInsertIndex(sameContainer, oldIndex, index);
+      const ids = to.children.slice();
+      ids.splice(Math.max(0, Math.min(target, ids.length)), 0, id);
+      to.children = ids;
+      if (node.parent_id !== parentId) node.parent_id = parentId;
+    },
+    setField(id: string, key: string, value: any) {
+      const n = editorStore.map[id];
+      if (n) set(n, key, value);
     },
 
     // 表单数据部分
@@ -129,17 +167,31 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
         return;
       }
       if (widget.query) {
-        page.setQuery(widget.field, value);
+        editorStore.setQuery(widget.field, value)
       } else {
         set(editorStore.source, widget.field, value)
       }
     },
-    setNodeField(node: ITemplate | IComponent, key: string, value: any) {
-      // this 丢失了~~
-      const n = editorStore.findNode(node._id);
+    setNodeField(node: any, key: string, value: any) {
+      // this 丢失了~~ 统一走 editorStore
+      const id = typeof node === 'string' ? node : node && node._id;
+      if (!id) return;
+      const n = editorStore.map[id];
       if (n) {
         set(n, key, value)
       }
+    },
+    page: {
+      template_id,
+      path,
+      close,
+      param: {},
+      query: {} as any,
+    },
+    setQuery(field: string, value: any) {
+      const query = cloneDeep(editorStore.page.query);
+      query[field] = value
+      editorStore.page.query = query;
     },
 
     menuAction(action: { kind: string; nodeId: string }) {
@@ -148,6 +200,51 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
       }
     }
   })
+
+  // 读接口必须读到「最新快照」，否则不会建立响应式依赖。
+  // stateRef 在每次渲染时更新，api 本身是稳定引用（useMemo 只依赖 editorStore），
+  // 这样 NodeWrapper 的 memo 不会被上下文身份变化打破。
+  const stateRef = useRef(editorState);
+  stateRef.current = editorState;
+
+  const api = useMemo<TreeApi>(() => ({
+    get rootId() {
+      return stateRef.current.rootId;
+    },
+    getNode: (id) => stateRef.current.map[id] as unknown as FlatNode | undefined,
+    getChildren: (id) => {
+      const node = stateRef.current.map[id] as unknown as FlatNode | undefined;
+      if (!node) return [];
+      const out: FlatNode[] = [];
+      for (const cid of node.children) {
+        const child = stateRef.current.map[cid] as unknown as FlatNode | undefined;
+        if (child) out.push(child);
+      }
+      return out;
+    },
+    getParent: (id) => {
+      const node = stateRef.current.map[id] as unknown as FlatNode | undefined;
+      if (!node || !node.parent_id) return undefined;
+      return stateRef.current.map[node.parent_id] as unknown as FlatNode | undefined;
+    },
+    getSiblingIndex: (id) => editorStore.getSiblingIndex(id),
+    collectSubtree: (id) => editorStore.collectSubtree(id),
+    isNoopDrop: (id, target) => editorStore.isNoopDrop(id, target),
+    insertAt: (parentId, index, node) => editorStore.insertAt(parentId, index, node),
+    remove: (id) => editorStore.remove(id),
+    move: (id, parentId, index) => editorStore.move(id, parentId, index),
+    setField: (id, key, value) => editorStore.setField(id, key, value),
+  }), [editorStore]);
+
+  // 交给外层：ref 直连，实例作用域
+  useEffect(() => {
+    if (!apiRef) return;
+    apiRef.current = api;
+    return () => {
+      apiRef.current = null;
+    };
+  }, [apiRef, api]);
+
   const contextmenu = useMemo(() => proxy({
     id: '',
     x: 0,
@@ -180,7 +277,9 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
       if (!editorStore.template_id) return;
       editorStore.loading = true
       const resp = await apis.getTemplateComponents(editorStore.template_id)
-      editorStore.template = resp.data;
+      const data: TreeData = normalizeTree(resp.data as any);
+      editorStore.rootId = data.rootId;
+      editorStore.map = data.map;
       editorStore.loading = false;
     } catch (err) {
       editorStore.loading = false;
@@ -195,24 +294,30 @@ export const TView = React.memo(function T({ template_id, mode, path, close }: {
     }
   }, [template_id])
 
+  const rootNodes = editorState.rootId ? api.getChildren(editorState.rootId) : [];
+
   return <ModeContext.Provider value={mode}>
     <PageContext.Provider value={page}>
-      <ContextMenuContext.Provider value={contextmenu}>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }} data-node-id={template_id}>
-          {editorState.template ? editorState.template.children.map(c => (
-            <NodeWrapper
-              key={c._id}
-              self={c as IComponent}
-              setNodeField={editorStore.setNodeField}
-              source={editorState.source}
-              setDataField={editorStore.setDataField}
-              onContextMenu={onContextMenu}
-            />
-          )) : null}
-          {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />}
-          {editorState.loading && <Spin fullscreen spinning />}
-        </div>
-      </ContextMenuContext.Provider>
+      <TreeContext.Provider value={api}>
+        <ContextMenuContext.Provider value={contextmenu}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }} data-node-id={template_id}>
+            {rootNodes.map(c => (
+              <NodeWrapper
+                key={c._id}
+                self={c}
+                setNodeField={editorStore.setNodeField}
+                source={editorState.source}
+                page={editorState.page}
+                setQuery={editorStore.setQuery}
+                setDataField={editorStore.setDataField}
+                onContextMenu={onContextMenu}
+              />
+            ))}
+            {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />}
+            {editorState.loading && <Spin fullscreen spinning />}
+          </div>
+        </ContextMenuContext.Provider>
+      </TreeContext.Provider>
     </PageContext.Provider>
   </ModeContext.Provider>
 });
@@ -229,6 +334,13 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
   }));
 
+  // canvas 既是 DragOverlay 的挂载点，也是 hitTest 的坐标原点，
+  // 所以要在 store 之前声明，供 dragMove 使用
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  // TView 挂载后把树读写接口交到这里（实例作用域，不走全局事件）
+  const treeRef = useRef<TreeApi | null>(null);
+
   const [editorState, editorStore] = useLocalProxy({
 
     // 拖拽界面部分
@@ -238,8 +350,8 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     containers: [] as ContainerInfo[],
     blocked: new Set<string>(),
     canvasBase: { left: 0, top: 0 },
-    selectedNode: null as null | IComponent,
-    activeNode: null as null | IComponent,
+    selectedNode: null as null | FlatNode,
+    activeNode: null as null | FlatNode,
     get indicator() {
       if (!this.drop) return null;
       const c = this.containers.find((x: ContainerInfo) => x.id === this.drop!.containerId);
@@ -251,12 +363,7 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
 
     dragStart(event: DragStartEvent) {
-      const id = String(event.active.id);
-      // 保险：不管什么原因，锁定节点不允许进入拖拽流程
-      if (!id.startsWith(PALETTE_PREFIX)) {
-        // TODO:
-      }
-
+      const id = String(event.operation.source?.id);
       this.activeId = id;
 
       if (id.startsWith(PALETTE_PREFIX)) {
@@ -264,31 +371,36 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         this.blocked = new Set();
       } else {
         // 从画布拖出：屏蔽自身 + 所有后代
-        // const dragged = this.findNode(id);
-        // const blocked = new Set<string>();
-        // if (dragged) {
-        //   const collect = (n: IComponent | ITemplate) => {
-        //     blocked.add(n._id);
-        //     n.children?.forEach(collect);
-        //   };
-        //   collect(dragged);
-        // }
-        // this.blocked = blocked;
+        const tree = treeRef.current;
+        this.blocked = tree ? new Set(tree.collectSubtree(id)) : new Set();
       }
 
       // 两阶段测量：
       // 1) rAF 后先测一次，尽量贴近"按下瞬间"的布局
       // 2) gap 过渡结束后再测一次，得到最终布局
-      // requestAnimationFrame(() => {
-      //   measure();
-      //   window.setTimeout(measure, GAP_TRANSITION_MS);
-      // });
+      requestAnimationFrame(() => {
+        measure();
+        window.setTimeout(measure, GAP_TRANSITION_MS);
+      });
     },
     dragMove(event: DragMoveEvent) {
-      const ae = event.activatorEvent as PointerEvent;
-      const { left, top } = this.canvasBase;
-      const x = ae.clientX + event.delta.x - left;
-      const y = ae.clientY + event.delta.y - top;
+      // ⚠️ 不能读 event.operation.position.delta。
+      // DragOperation.snapshot() 里是 `position: snapshot(this.position)`，
+      // 而 snapshot() 只做 for...in 浅拷贝（仅可枚举属性）；delta / initial 是
+      // Position 原型上的 class getter（不可枚举），拷贝后被丢掉 → undefined。
+      // 剩下的是 { defaultValue, velocity, current }。
+      //
+      // event.to 和 position.current 都是视口坐标（底层 getEventCoordinates
+      // 取的就是 clientX / clientY）。而 hitTest 需要的是相对 canvas 左上角的
+      // 坐标（measureContainers 把一切归一化到 getRelativeRect(el, canvas)），
+      // 所以这里要减去 canvas 的 boundingClientRect。
+      const point = event.to ?? event.operation.position.current;
+      const canvas = canvasRef.current;
+      if (!point || !canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = point.x - rect.left;
+      const y = point.y - rect.top;
 
       const raw = hitTest(
         this.containers,
@@ -296,26 +408,26 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
         y,
         this.blocked,
       );
-      // 画布内节点：等价于原地不动的落点视为无效
       const id = this.activeId;
-      const hit =
-        raw &&
-          id &&
-          !id.startsWith(PALETTE_PREFIX)
-          // && this.isNoopDrop(id, raw)
-          ? null
-          : raw;
+      if (!raw || !id) {
+        if (this.drop !== null) this.drop = null;
+        return;
+      }
+      // 画布内节点：等价于原地不动的落点视为无效
+      const tree = treeRef.current;
+      if (!id.startsWith(PALETTE_PREFIX) && tree && tree.isNoopDrop(id, raw)) {
+        if (this.drop !== null) this.drop = null;
+        return;
+      }
 
       const prev = this.drop;
       const same =
-        (prev === null && hit === null) ||
-        (prev !== null &&
-          hit !== null &&
-          prev.containerId === hit.containerId &&
-          prev.index === hit.index);
+        prev !== null &&
+        prev.containerId === raw.containerId &&
+        prev.index === raw.index;
 
       if (!same) {
-        this.drop = hit;
+        this.drop = raw;
       }
     },
     dragReset() {
@@ -327,21 +439,14 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     dragEnd() {
       const id = editorStore.activeId;
       const target = editorStore.drop;
+      const tree = treeRef.current;
 
-      if (id && target) {
+      if (id && target && tree) {
         if (id.startsWith(PALETTE_PREFIX)) {
-          // 来自组件库 → 新建节点并插入
-          // const type = id.slice(PALETTE_PREFIX.length) as NodeType;
-          // TODO: insert
-          // const node = createNodeByType(type);
-          // setTree((prev) =>
-          //   insertNode(prev, target.containerId, target.index, node)
-          // );
-          // } else if (!editorStore.isNoopDrop(id, target)) {
+          // TODO(第二步): 来自组件库 → 按 type 新建节点并 tree.insertAt(...)
+        } else if (!tree.isNoopDrop(id, target)) {
           // 来自画布 → 移动
-          // setTree((prev) =>
-          //   prev && moveNode(prev, id, target.containerId, target.index)
-          // );
+          tree.move(id, target.containerId, target.index);
         }
       }
       this.dragReset();
@@ -353,35 +458,46 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     }
   })
 
-  const canvasRef = useRef<HTMLDivElement | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(CustomMouseSensor)
-  );
-
-  // const measure = useCallback(() => {
-  //   const canvas = canvasRef.current;
-  //   if (!canvas) return;
-  //   const cs = measureContainers(editorStore.template, canvas);
-  //   editorStore.containers = cs;
-  //   const r = canvas.getBoundingClientRect();
-  //   editorStore.canvasBase = { left: r.left, top: r.top };
-  // }, []);
+  // 从 TView 交过来的 tree api 上读树。
+  // 之前这里恒为空数组，是因为 template 在 TView 的 store 里、TemplateView 根本读不到；
+  // 现在通过 apiRef 直连就没这个问题了。
+  const measure = useCallback(() => {
+    const canvas = canvasRef.current;
+    const tree = treeRef.current;
+    if (!canvas || !tree) return;
+    const root = tree.getNode(tree.rootId);
+    if (!root) return;
+    const cs = measureContainers(root, canvas, tree.getChildren);
+    editorStore.containers = cs;
+    const r = canvas.getBoundingClientRect();
+    editorStore.canvasBase = { left: r.left, top: r.top };
+  }, []);
 
   return (
     <>
-      <DndContext
-        sensors={sensors}
+      <DragDropProvider
+        sensors={
+          [
+            PointerSensor.configure({
+              activationConstraints: [
+                new PointerActivationConstraints.Distance({ value: 8 })
+              ],
+            }),
+          ]}
+        // 迁移自旧版 CustomMouseSensor：命中 [data-no-dnd] 的元素不允许发起拖拽
+        onBeforeDragStart={e => {
+          if (!shouldHandleEvent(e.operation.source?.element ?? null)) {
+            e.preventDefault();
+          }
+        }}
         onDragStart={e => editorStore.dragStart(e)}
         onDragMove={e => editorStore.dragMove(e)}
         onDragEnd={() => editorStore.dragEnd()}
-        onDragCancel={() => editorStore.dragReset()}
       >
         <div className="app">
           {mode === 'edit' && <Palette types={store.component.types} loading={store.component.typesLoading} />}
           <div className='canvas' ref={canvasRef} style={{ boxShadow: 'inset 0 0 10px #1890ff' }}>
-            <TView template_id={template_id} path={path} mode={mode} close={close} />
+            <TView template_id={template_id} path={path} mode={mode} close={close} apiRef={treeRef} />
             {mode === 'edit' && editorState.indicator && (
               <div
                 className="drop-indicator-wrap"
@@ -413,13 +529,11 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
             )}
           </div>
           {mode === 'edit' && editorState.selectedNode && <EditorPanel
-            node={editorState.selectedNode as IComponent}
+            node={editorState.selectedNode as unknown as FlatNode}
             tabKey='base'
             setNode={(field: string, value: any) => {
-              console.log(editorStore.selectedNode, field, value)
-              if (editorStore.selectedNode) {
-                set(editorStore.selectedNode, field, value)
-              }
+              const id = editorStore.selectedNode?._id;
+              if (id) treeRef.current?.setField(id, field, value)
             }}
             onChange={(patch) => {
               // if (selectedId) setTree((prev) => prev && updateNode(prev, selectedId, patch));
@@ -431,13 +545,13 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
             {
               editorState.activeNode
                 ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
-                  overlay{/* <NodeWrapper self={editorState.activeNode} setNodeField={editorStore.setNodeField} source={editorState.source} setDataField={editorStore.setDataField} /> */}
+                  overlay
                 </div>
                 : null
             }
           </DragOverlay>
         </div>
-      </DndContext>
+      </DragDropProvider>
     </>
   )
 })

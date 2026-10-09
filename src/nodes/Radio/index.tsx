@@ -13,7 +13,7 @@ export default function CRadio({ self, bindings, source, setDataField, mode, pag
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     <Radio.Group
       style={{ display: 'flex', alignItems: 'center', minHeight: 35 }}

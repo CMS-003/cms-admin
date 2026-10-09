@@ -1,5 +1,5 @@
 // src/EditorPanel.tsx
-import { IComponent, IResource } from '@/types';
+import { FlatNode, IComponent, IResource } from '@/types';
 import { useLocalProxy } from '@/utils/valtio';
 import { Button, Divider, Input, Radio, Select, Space, Switch, Tabs } from 'antd';
 import styled from 'styled-components'
@@ -17,7 +17,7 @@ import QueryModal from '@/groups/queriesModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 
 type Props = {
-  node: IComponent;
+  node: FlatNode;
   setNode: Function;
   tabKey: string;
   onChange: (patch: Partial<Omit<IComponent, '_id'>>) => void;

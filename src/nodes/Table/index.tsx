@@ -12,7 +12,7 @@ import { message, Table } from "antd";
 import { getApi } from "@/composer/utils";
 
 
-export default function CTable({ self, bindings, source, setDataField, setNodeField, mode, page, setQuery, children }: IBaseCom) {
+export default function CTable({ self, bindings, source, setDataField, setNodeField, mode, page, setQuery, children, childrenNodes, resolveChildren }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     loading: false,
@@ -89,14 +89,14 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
         // page.setQuery('page_size', p.pageSize as number)
         init();
       }}
-      columns={self.children.map(child => ({
+      columns={childrenNodes.map(child => ({
         title: child.title,
         _id: child._id,
         key: child._id,
         dataIndex: self.widget.field,
         onHeaderCell: () => ({ _id: child._id, title: child.title, self: child, mode: mode, page: page }),
         render: (field: string, data: any) => (
-          child.children.map((item: IComponent, k: number) => (
+          resolveChildren(child._id).map((item, k: number) => (
             <NodeWrapper key={k} self={item} source={data} setNodeField={setNodeField} setDataField={(widget: IWidget, value: any) => {
               if (!widget.field) {
                 return;

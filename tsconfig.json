@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl":"./src",
     "ignoreDeprecations":"6.0",
     "target": "es2020",
     "paths": {
       "@/*": [
-        "./*"
+        "./src/*"
       ]
     },
     "lib": ["ES2020", "DOM", "DOM.Iterable"],

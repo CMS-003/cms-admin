@@ -16,7 +16,7 @@ export default function CCheckbox({ self, bindings, source, setDataField, mode, 
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     <span>
       {self.widget.refer.map((refer, i) => (
         <Checkbox

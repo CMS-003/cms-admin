@@ -139,6 +139,8 @@ export default function Composer(props: any) {
       <TemplateView
         template_id={snap.template_id}
         mode={snap.mode}
+        path=""
+        close={() => { }}
       />
     </div>
   );

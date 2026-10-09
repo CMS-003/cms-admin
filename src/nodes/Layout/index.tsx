@@ -8,7 +8,7 @@ export default function Layout({ self, bindings, mode, children }: IBaseCom) {
     className={cls}
     style={{ display: 'flex', flexDirection: self.attrs.layout === 'horizontal' ? 'row' : 'column', ...self.style }}>
     <div style={{ display: 'flex', }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     {children}
   </div>

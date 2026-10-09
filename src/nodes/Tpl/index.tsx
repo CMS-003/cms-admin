@@ -67,7 +67,7 @@ export default function CTpl({ self, bindings, source, mode, children }: IBaseCo
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     {mode === 'edit' ? self.title : <div style={{ width: '100%' }} dangerouslySetInnerHTML={{ __html: localState.tpl({ ...(source || {}), store }) }}></div>}
   </div>
 }

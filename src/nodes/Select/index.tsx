@@ -22,7 +22,7 @@ export default function CSelect({ self, bindings, source, setDataField, mode, pa
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     <Select
       style={{ flex: 1 }}
       value={data[self.widget.field] || ''}

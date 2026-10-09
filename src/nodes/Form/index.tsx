@@ -28,7 +28,7 @@ function getFields(widget: IWidget) {
   return { picks, omits }
 }
 
-export default function CForm({ self, bindings, mode, page, children }: IBaseCom) {
+export default function CForm({ self, bindings, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     loading: false,
@@ -83,7 +83,7 @@ export default function CForm({ self, bindings, mode, page, children }: IBaseCom
         set(localStore.source, widget.field, value)
       }
     },
-    setNodeField(node: ITemplate | IComponent, key: string, value: any) {
+    setNodeField(node: any, key: string, value: any) {
 
     },
     async getInfo() {
@@ -168,13 +168,13 @@ export default function CForm({ self, bindings, mode, page, children }: IBaseCom
       flexDirection: 'column', height: '100%'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <Grip className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} />}
     </div>
     <FullHeight>
       <FullHeightAuto>
         {localState.booting
           ? <Spin></Spin>
-          : self.children.map(child => (
+          : childrenNodes.map(child => (
             <NodeWrapper key={child._id} self={child} setNodeField={localStore.setNodeField} source={localState.source} setDataField={localStore.setDataField} />
           ))}
       </FullHeightAuto>

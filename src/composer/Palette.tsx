@@ -1,4 +1,4 @@
-import { useDraggable } from '@dnd-kit/core';
+import { useDraggable } from '@dnd-kit/react';
 import { IComponentType } from '../types';
 
 export function Palette({ types, loading }: { types: IComponentType[]; loading: boolean }) {
@@ -20,17 +20,17 @@ export function Palette({ types, loading }: { types: IComponentType[]; loading: 
 }
 
 function PaletteItem({ type }: { type: IComponentType }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `palette:${type}`,
+  // @dnd-kit/react：ref 直接挂在可拖拽元素上，事件监听由 manager 自动接管
+  const { ref, isDragging } = useDraggable({
+    // 必须是组件名（对应 nodes/index.tsx 的 key），供 dragEnd 还原节点类型
+    id: `palette:${type.name}`,
     data: { source: 'palette', type },
   });
 
   return (
     <div
-      ref={setNodeRef}
+      ref={ref}
       className={`palette-item${isDragging ? ' is-dragging' : ''}`}
-      {...attributes}
-      {...listeners}
     >
       <img src={type.cover} />
       <div className='main'>

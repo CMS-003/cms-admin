@@ -1,5 +1,5 @@
 // src/geometry.ts
-import { IComponent, ITemplate } from '@/types';
+import { FlatNode, IComponent, ITemplate } from '@/types';
 
 export type Rect = { left: number; top: number; width: number; height: number };
 
@@ -61,14 +61,21 @@ function getRelativeRect(element: HTMLElement, root: HTMLElement) {
   };
 }
 
+/**
+ * 测量所有容器。
+ *
+ * 扁平存储下节点自己不带子树，children 是 id 列表，
+ * 所以往下走要靠 getChildren 解析（传 tree.getChildren 即可）。
+ */
 export function measureContainers(
-  root: ITemplate,
-  canvas: HTMLElement
+  root: FlatNode,
+  canvas: HTMLElement,
+  getChildren: (id: string) => FlatNode[],
 ): ContainerInfo[] {
   const base = getRelativeRect(canvas, canvas)
   const out: ContainerInfo[] = [];
 
-  const walk = (node: ITemplate | IComponent, parentId: string | null) => {
+  const walk = (node: FlatNode, parentId: string | null) => {
     // if (node.dir == null || !node.children) return;
 
     const el = canvas.querySelector<HTMLElement>(`[data-node-id="${node._id}"]`);
@@ -76,7 +83,9 @@ export function measureContainers(
     const r = getRelativeRect(el, canvas)
     const isRow = node.attrs && node.attrs.layout === 'vertical' ? false : true;
 
-    const childBoxes: ChildBox[] = node.children.map((child: IComponent) => {
+    const children = getChildren(node._id);
+
+    const childBoxes: ChildBox[] = children.map((child) => {
       const childEl = canvas.querySelector<HTMLElement>(
         `[data-node-id="${child._id}"]`
       );
@@ -114,7 +123,7 @@ export function measureContainers(
     });
 
     // 递归时把当前的 node.id 作为子容器的 parentId 传下去
-    node.children.forEach((child) => walk(child, node._id));
+    children.forEach((child) => walk(child, node._id));
   };
 
   walk(root, null);

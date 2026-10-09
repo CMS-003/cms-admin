@@ -23,7 +23,7 @@ const Row = styled.div`
   justify-content: space-around;
 `
 
-export default function CHotArea({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CHotArea({ self, bindings, source, setDataField, setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div
@@ -32,18 +32,19 @@ export default function CHotArea({ self, bindings, source, setDataField, mode, p
     style={{
       flexDirection: 'row',
     }}>
-    {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+    {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     <Area>
       {self.title && <Title>{self.title}</Title>}
       <Content>
-        {chunk(self.children, self.attrs.columns || 1).map((rows, i) => (
+        {chunk(childrenNodes, self.attrs.columns || 1).map((rows, i) => (
           <Row key={i}>
             {rows.map(child => (
               <NodeWrapper
                 key={child._id}
                 self={child}
-                source={{}}
-                setDataField={() => { }}
+                source={source}
+                setDataField={setDataField}
+                setNodeField={setNodeField}
               />
             ))}
           </Row>

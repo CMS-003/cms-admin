@@ -48,7 +48,7 @@ export default function CEditor({ self, bindings, source, setDataField, mode, ch
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     <Editor ref={editorRef}
       editorState={editorState}

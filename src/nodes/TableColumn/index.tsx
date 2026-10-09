@@ -8,7 +8,7 @@ export default function TableColumn({ self, bindings, mode, children }: IBaseCom
     className={cls}
     style={self.style}>
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
       {self.title}
     </div>
   </div>

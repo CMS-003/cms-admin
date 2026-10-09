@@ -30,7 +30,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, setNodeField, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CTab({ self, setNodeField, bindings, source, setDataField, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
@@ -39,7 +39,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <Grip className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} />}
     </div>
     <TabWrap>
       <Tabs
@@ -48,7 +48,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
         onChange={activeKey => {
           setNodeField(self, 'attrs.selected_id', activeKey)
         }}
-        items={self.children.map((child, i) => ({
+        items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
             {child.title}
           </TabItemWrap>,

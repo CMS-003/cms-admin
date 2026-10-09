@@ -20,7 +20,7 @@ export default function CodeEditor({ self, bindings, source, setDataField, mode,
       flexDirection: 'row',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" {...bindings.handle.listeners} {...bindings.handle.attributes} />}
+      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} />}
     </div>
     <CodeMirror
       key={self._id}
