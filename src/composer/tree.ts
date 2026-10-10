@@ -72,13 +72,22 @@ function toIdList(raw: any): string[] {
 }
 
 /**
- * 新节点的 tree_id：
- * - 直接挂在 template 下的一级子节点，自身 tree_id 是空串
- * - 其余节点取「它所属那棵一级子树」的根 id，也就是继承父节点的 tree_id；
- *   父节点本身就是一级节点时它的 tree_id 是空串，所以回落到父节点自己的 _id
+ * 节点的 tree_id（它所属那棵「子树」的标识）。
+ *
+ * 规则 —— 后端以 tree_id 为单位做翻页 / 缓存，所以这棵树里的**每一个**节点
+ * 都必须带同一个 tree_id：
+ * - 直接挂在 template 下的一级子节点，**自身就是这棵子树的根** → tree_id = 自身 _id
+ * - 其余节点继承所属子树的根 id，也就是父节点的 tree_id
+ *
+ * ⚠️ 「一级子节点自己也带这个 id」这一点很关键：一条改动落到
+ * batchUpdateComponent 的 payload 里时，后端要靠 tree_id 找出它属于哪棵树去
+ * 失效 / 刷新缓存。一级子节点如果漏了（早年写成空串），那么「改一级子节点本身」
+ * 这类 diff 后端就认不出所属子树，缓存不会失效。
+ *
+ * @param selfId 正在创建 / 迁移的那个节点自己的 _id（一级子节点拿它当 tree_id）
  */
-export function resolveTreeId(parent: FlatNode, parentIsRoot: boolean): string {
-  if (parentIsRoot) return '';
+export function resolveTreeId(parent: FlatNode, selfId: string, parentIsRoot: boolean): string {
+  if (parentIsRoot) return selfId;
   return parent.tree_id || parent._id;
 }
 
@@ -86,7 +95,9 @@ export function resolveTreeId(parent: FlatNode, parentIsRoot: boolean): string {
  * 把服务端返回的树打平成 map（供 TreeStore.load 使用）。
  *
  * 顺带做三件归一化（都在算 $origin 之前，所以不会产生假变更）：
- * 1. tree_id 按上面的规则重算 —— 它是纯结构派生字段，重算结果和 createNode 一致
+ * 1. tree_id 按上面的规则重算（一级子节点 = 自身 _id）—— 它是纯结构派生字段，
+ *    重算结果和 createNode 一致；服务端存的是不是这个值都不影响基线，
+ *    因为 $origin 是在重算之后才落的
  * 2. order 按数组下标重写成 0..n-1，让后续结构变更的重排有唯一基准
  * 3. accepts 从组件类型表回填（旧版 MST 的 afterCreate 也是这么干的）
  *
@@ -102,11 +113,13 @@ export function normalizeTree(
 
   const walk = (raw: any, parentId: string, depth: number, index: number, treeId: string) => {
     const isRoot = depth === 0;
+    // 一级子节点是所在子树的根：tree_id 取自身 _id；其余继承父节点的 tree_id
+    const resolvedTreeId = isRoot ? (raw.tree_id ?? '') : depth === 1 ? raw._id : treeId;
     const node: FlatNode = {
       ...raw,
       parent_id: parentId,
       children: toIdList(raw),
-      tree_id: treeId,
+      tree_id: resolvedTreeId,
       order: isRoot ? (raw.order ?? 0) : index,
       $origin: {},
       $new: false,
@@ -120,10 +133,10 @@ export function normalizeTree(
 
     map[raw._id] = node;
 
-    // 一级子节点自身 tree_id 为空串，它的子节点（二级）才拿到它的 id
-    const childTreeId = depth === 0 ? '' : depth === 1 ? raw._id : treeId;
+    // 往下传的就是这个节点自己的 tree_id：一级节点传自身 id 给二级，
+    // 之后整棵子树沿用同一个值
     const children: any[] = Array.isArray(raw.children) ? raw.children : [];
-    children.forEach((child, i) => walk(child, raw._id, depth + 1, i, childTreeId));
+    children.forEach((child, i) => walk(child, raw._id, depth + 1, i, resolvedTreeId));
 
     // 基线（根不参与 diff，不用记）
     if (!isRoot) {
@@ -155,20 +168,26 @@ export type CreateNodeOptions = {
 /**
  * 新建节点（返回普通 snapshot，由 store.insertAt 放进 map）。
  * id 用 uuid v7（时间有序，落库后按 id 排序也近似按创建时间排序）。
+ *
+ * tree_id 依赖自己的 _id（一级子节点 = 自身 _id），所以 id 必须先算出来。
+ * 这一点直接决定新节点进 diff 时 payload 里的 tree_id 对不对 ——
+ * 新加的一级节点如果 tree_id 是空串，后端认不出它属于哪棵树。
  */
 export function createNode(o: CreateNodeOptions): FlatNode {
   const attrs: Record<string, any> = {};
   // 沿用旧 appendChild 的特例
   if (o.type === 'MenuItem') attrs.path = '/dynamic';
 
+  const _id = uuidv7();
+
   return {
-    _id: uuidv7(),
+    _id,
     type: o.type,
     parent_id: o.parent._id,
     children: [],
     template_id: o.template_id || o.parent.template_id || '',
     project_id: o.project_id || o.parent.project_id || '',
-    tree_id: resolveTreeId(o.parent, o.parentIsRoot),
+    tree_id: resolveTreeId(o.parent, _id, o.parentIsRoot),
     title: '无',
     name: '',
     icon: '',

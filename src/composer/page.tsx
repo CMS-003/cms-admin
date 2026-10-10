@@ -7,7 +7,6 @@ import apis from '@/api'
 import { TemplateView } from './TemplateView';
 import { createEditorStatus } from './status';
 
-import './styles.css';
 import store from '../store';
 import { ITemplate } from '@/types';
 import { useEffectOnce } from 'react-use';

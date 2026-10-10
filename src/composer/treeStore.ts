@@ -119,6 +119,13 @@ export const TreeStore = types
     map: types.map(NodeModel),
     /** 待提交删除的节点 id。$new 的没落过库，删除时直接丢弃，不进这里 */
     removedIds: types.optional(types.array(types.string), []),
+    /**
+     * 被删节点的 tree_id 快照（nodeId → treeId）。
+     *
+     * 节点一旦从 map 里删掉，它的 tree_id 就查不到了，而提交删除时后端同样要
+     * 按 tree_id 失效缓存 —— 所以删除的那一刻就把这份归属关系记下来。
+     */
+    removedTrees: types.optional(types.frozen<Record<string, string>>(), {}),
     saving: false,
     loading: true,
     /** 表单数据源（setDataField 非 query 部分写这里） */
@@ -198,13 +205,50 @@ export const TreeStore = types
     isDirty(id: string): boolean {
       return this.dirtyIds.indexOf(id) !== -1;
     },
-    /** 收集需要提交的 payload（父在子前，依赖 map 插入顺序） */
+    /**
+     * 收集需要提交的 payload（父在子前，依赖 map 插入顺序）。
+     *
+     * 平铺版视图；`save()` 走的是 `dirtyTrees`（先按 tree_id 归组再摊平），
+     * 两者内容一致，保留这个是为了需要一个纯数组时直接用。
+     */
     collectChanges(): Record<string, any>[] {
       const out: Record<string, any>[] = [];
       self.map.forEach(node => {
         if (node._id !== self.rootId && node.changed) out.push(node.payload);
       });
       return out;
+    },
+    /**
+     * 把 diff 按 tree_id 归组 —— **一棵一级子树就是后端缓存 / 失效的最小单位**。
+     *
+     * 一个分组 = 这棵树里「要改的节点 payload」+「要删的节点 id」。
+     * 除了变更节点自己的 tree_id，还会带上两类「原树」：
+     * - 跨子树移动的节点：它的 $origin.tree_id 是搬走之前那棵树，
+     *   那棵树的缓存同样脏了（虽然节点已经不在里面）
+     * - 被删节点：归属关系从 removedTrees 里取（节点已经不在 map 里了）
+     */
+    get dirtyTrees(): { tree_id: string; changed: Record<string, any>[]; removed: string[] }[] {
+      const groups: Record<string, { tree_id: string; changed: Record<string, any>[]; removed: string[] }> = {};
+      const ensure = (treeId: string) => {
+        const key = treeId || '';
+        if (!groups[key]) groups[key] = { tree_id: key, changed: [], removed: [] };
+        return groups[key];
+      };
+      self.map.forEach(node => {
+        if (node._id === self.rootId || !node.changed) return;
+        ensure(node.tree_id).changed.push(node.payload);
+        // 搬家了：源树的缓存也得失效，哪怕它现在一个改过的节点都没有
+        const from = (node.$origin && node.$origin.tree_id) || '';
+        if (from !== node.tree_id) ensure(from);
+      });
+      self.removedIds.forEach(id => {
+        ensure(self.removedTrees[id] || '').removed.push(id);
+      });
+      return Object.values(groups);
+    },
+    /** 这次提交会影响到的一级子树 id 列表（变更树 + 迁移源树 + 删除树） */
+    get dirtyTreeIds(): string[] {
+      return this.dirtyTrees.map(g => g.tree_id).filter(Boolean);
     },
   }))
   .actions(self => ({
@@ -234,6 +278,7 @@ export const TreeStore = types
         }
       });
       self.removedIds.clear();
+      self.removedTrees = {};
     },
     /** 整体替换 source 里的某个字段路径 */
     setSource(field: string, value: any) {
@@ -279,21 +324,27 @@ export const TreeStore = types
         if (child && child.order !== i) child.order = i;
       });
     },
-    /** 节点移动 / 插入之后，按规则重写整棵子树的 tree_id */
+    /**
+     * 节点移动 / 插入之后，按规则重写整棵子树的 tree_id。
+     *
+     * 规则和 normalizeTree / createNode 保持一致：挂到页面根下的一级子节点
+     * 就是一棵子树的根（tree_id = 自身 id），整棵子树沿用同一个值。
+     * 跨子树拖动时这一步直接决定 diff 里 payload 的 tree_id ——
+     * 用旧的「一级节点 tree_id 为空串」写法，搬到一级的节点会带着空 tree_id 提交。
+     */
     refreshTreeIds(id: string, newParentId: string) {
       const parent = self.map.get(newParentId);
       const node = self.map.get(id);
       if (!parent || !node) return;
-      const parentIsRoot = parent.parent_id === '';
-      const myTreeId = resolveTreeId(parent as any, parentIsRoot);
-      const childTreeId = parentIsRoot ? id : myTreeId;
-      const walk = (nid: string, tid: string, nextTid: string) => {
+      const parentIsRoot = parent._id === self.rootId || parent.parent_id === '';
+      const treeId = resolveTreeId(parent as any, id, parentIsRoot);
+      const walk = (nid: string) => {
         const n = self.map.get(nid);
         if (!n) return;
-        if (n.tree_id !== tid) n.tree_id = tid;
-        n.children.forEach(c => walk(c, nextTid, nextTid));
+        if (n.tree_id !== treeId) n.tree_id = treeId;
+        n.children.forEach(walk);
       };
-      walk(id, myTreeId, childTreeId);
+      walk(id);
     },
     /** 保存成功后就地重置基线（不重新拉取，冲掉选中态 / 滚动位置） */
     resetBaseline(updates: Record<string, any>[]) {
@@ -304,6 +355,7 @@ export const TreeStore = types
         n.$new = false;
       }
       self.removedIds.clear();
+      self.removedTrees = {};
     },
   }))
   // 第二个 actions 块：这里的 self 在类型上已包含上面的方法，可以互相调用
@@ -319,6 +371,9 @@ export const TreeStore = types
         const n = self.map.get(nid);
         if (n && !n.$new && self.removedIds.indexOf(nid) === -1) {
           self.removedIds.push(nid);
+          // 顺手记下归属的子树：节点马上要从 map 里删掉，
+          // 之后 diff 想按 tree_id 归组（后端按树失效缓存）就只能靠这份快照
+          self.removedTrees = { ...self.removedTrees, [nid]: n.tree_id };
         }
       }
       const parent = self.map.get(parentId);
@@ -377,8 +432,12 @@ export const TreeStore = types
     },
     save: flow(function* save() {
       if (self.saving) return;
-      const updates = self.collectChanges();
-      const removes = self.removedIds.slice() as unknown as string[];
+      // diff 按 tree_id 归组后再摊平提交（一棵一级子树 = 后端缓存 / 失效的单位）。
+      // 摊平只是为了适配现接口（batch 收的是节点数组）—— 归属信息在节点 payload
+      // 自带的 tree_id 里，所以一级子节点必须带自己的 id（见 tree.ts 的 resolveTreeId）。
+      const trees = self.dirtyTrees;
+      const updates = trees.flatMap(g => g.changed);
+      const removes = trees.flatMap(g => g.removed);
       if (!updates.length && !removes.length) return;
       self.saving = true;
       try {

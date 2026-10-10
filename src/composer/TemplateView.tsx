@@ -26,6 +26,18 @@ import { createNodeActions, createQueryScope } from './data';
 import { DataEnv, DataEnvContext } from './DataContext';
 
 /**
+ * 节点样式（.node / .node-handle / 选中框 / 右键菜单 …）。
+ *
+ * 放在这里而不是 composer/page.tsx：TView 是所有渲染路径的公共入口 ——
+ * 编辑器、弹框（ModalView）、动态页（pages/dynamic）都渲染它。
+ * 挂在 page.tsx 上时，不走编辑器的路径因为**懒加载**拿不到这份 CSS，
+ * `.node` 的 box-sizing / display:flex / position:relative 全丢，
+ * 表现就是弹框和动态页里布局散架、选中框定位错乱。
+ * CSS 是全局的，import 在这个模块就等于「凡是用到 TView 的地方都在」。
+ */
+import './styles.css';
+
+/**
  * 该元素是否允许发起拖拽。
  * 命中 [data-no-dnd] 的祖先（如 GridCell、react-grid-layout 容器）时禁止拖动。
  */
@@ -43,6 +55,20 @@ function shouldHandleEvent(element: Element | null): boolean {
 
 const PALETTE_PREFIX = 'palette:';
 const GAP_TRANSITION_MS = 220; // 略大于 CSS 里 gap 过渡的 200ms
+
+/**
+ * 把 path 里的 query string 解析成查询条件的初值（'?id=1&a=2' → { id: '1', a: '2' }）。
+ *
+ * 旧版 AutoPage 就是这么干的：`Object.fromEntries(new URLSearchParams(path.split('?')[1]))`。
+ * 作用是把「地址栏」变成页面查询条件的来源 —— 打开弹框时 path 传 '?id=xxx'，
+ * 弹框里的模板（Form）就能通过 useQuery('id') 读到记录 id 去拉详情。
+ */
+function parseQuery(path?: string) {
+  if (!path) return {} as Record<string, string>;
+  const qs = path.split('?')[1];
+  if (!qs) return {} as Record<string, string>;
+  return Object.fromEntries(new URLSearchParams(qs)) as Record<string, string>;
+}
 
 export type TViewProps = {
   template_id: string;
@@ -89,7 +115,8 @@ export const TView = React.memo(observer(function T({ template_id, mode, path, c
     path,
     close,
     param: {},
-    query: {} as any,
+    // path 里的 query string 是查询条件的初值（见 parseQuery 的注释）
+    query: parseQuery(path) as any,
     setQuery(field, value) {
       // const query = cloneDeep(this.query);
       // query[field] = value
@@ -102,7 +129,12 @@ export const TView = React.memo(observer(function T({ template_id, mode, path, c
   // 只改字段、不换对象 —— 换对象就等于把上面那条「身份稳定」又破坏了。
   useEffect(() => {
     if (page.template_id !== template_id) page.template_id = template_id;
-    if (page.path !== path) page.path = path;
+    if (page.path !== path) {
+      page.path = path;
+      // path 换了（弹框换记录 / 动态页跳转）要重新落一次查询条件。
+      // 不重新解析的话 Form 读到的 id 还是上一条记录的 —— 弹框会一直显示旧数据。
+      page.query = parseQuery(path) as any;
+    }
     if (page.close !== close) page.close = close;
   }, [page, template_id, path, close]);
 

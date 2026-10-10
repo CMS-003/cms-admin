@@ -183,13 +183,13 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', height: '100%'
+      flexDirection: 'row', height: '100%'
     }}>
     <div style={{ display: 'flex' }}>
       {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
-    <FullHeight>
-      <FullHeightAuto>
+    <FullHeight style={{ flex: 1 }}>
+      <FullHeightAuto style={self.style}>
         {localState.booting
           ? <Spin></Spin>
           : (

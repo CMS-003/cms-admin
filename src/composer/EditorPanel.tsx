@@ -30,6 +30,7 @@ type Props = {
 };
 
 const Panel = styled.div`
+  width: 350px;
   flex-shrink: 0;
   background: #fbe9b2;
   border-left: 1px solid #e2e8f0;
@@ -123,7 +124,14 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                   <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={node.parent_id} readOnly />
                 </EditItem>
                 <EditItem>
+                  {/* 所属子树（后端按它分页 / 缓存 / 失效）。一级子节点这里是它自己 */}
+                  <Input prefix={<span>树id<Divider orientation="vertical" /></span>} value={node.tree_id} readOnly />
+                </EditItem>
+                <EditItem>
                   <Input prefix={<span>_id<Divider orientation="vertical" /></span>} readOnly value={node._id} />
+                </EditItem>
+                <EditItem>
+                  <Input prefix={<span>类型<Divider orientation="vertical" /></span>} readOnly value={node.type} />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>状态<Divider orientation="vertical" /></span>} type="number" value={node.status} onChange={e => {

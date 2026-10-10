@@ -3,7 +3,7 @@ import { Grip } from "lucide-react";
 import { Tabs } from "antd";
 import styled from "styled-components";
 import Acon from '@/components/Acon'
-import { TemplateView, TView } from '@/composer/TemplateView'
+import { TView } from '@/composer/TemplateView'
 import { NodeWrapper } from "@/composer/NodeWrapper";
 
 const TabWrap = styled.div`

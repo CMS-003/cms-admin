@@ -16,39 +16,42 @@ export default function CInput({ self, actions, bindings, source, mode, page, ch
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'row',
+      flexDirection: 'row', flex: 1
     }}>
     <div>
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
 
-    <Input
-      style={{ flex: 1 }}
-      value={get(source, self.widget.field)}
-      onCompositionStart={() => {
-        localStore.composing = true
-      }}
-      onCompositionEnd={() => {
-        localStore.composing = false
-      }}
-      onChange={e => {
-        actions.setDataField(self.widget, e.target.value);
-      }}
-      onKeyDown={e => {
-        if (e.key === 'Enter' && !localStore.composing && self.widget.action === CONST.ACTION_TYPE.SEARCH) {
-          actions.setDataField({
-            field: 'page',
-            type: 'number',
-            source: '',
-            value: 1,
-            query: true,
-            action: '',
-            method: '',
-            refer: []
-          }, 1)
-          events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
-        }
-      }}
-    />
+    <Space.Compact block>
+      {self.title ? <Space.Addon style={{ flexShrink: 0 }}>{self.title}</Space.Addon> : null}
+      <Input
+        value={get(source, self.widget.field)}
+        name={self._id}
+        onCompositionStart={() => {
+          localStore.composing = true
+        }}
+        onCompositionEnd={() => {
+          localStore.composing = false
+        }}
+        onChange={e => {
+          actions.setDataField(self.widget, e.target.value);
+        }}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && !localStore.composing && self.widget.action === CONST.ACTION_TYPE.SEARCH) {
+            actions.setDataField({
+              field: 'page',
+              type: 'number',
+              source: '',
+              value: 1,
+              query: true,
+              action: '',
+              method: '',
+              refer: []
+            }, 1)
+            events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
+          }
+        }}
+      />
+    </Space.Compact>
   </div>
 }
