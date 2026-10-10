@@ -1,18 +1,15 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
-import styled from "styled-components";
+import { useMode } from "@/context";
 
-const Cell = styled.div`
-  background-color: #d9d9d9c7;
-`
-
-export default function GridCell({ self, actions, bindings, mode, children }: IBaseCom) {
+export default function GridCell({ bindings, children }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', height: '100%'
+      flexDirection: 'row', height: '100%', width: '100%'
     }}>
     <div style={{ display: 'flex', }}>
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}

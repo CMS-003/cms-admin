@@ -2,17 +2,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { createContext, useContext } from 'react';
 import { observer } from 'mobx-react';
 import { useSnapshot } from 'valtio';
-import { TreeContext } from './TreeContext';
-import { acceptedTypes, rootAcceptedTypes } from './componentTypes';
-
-export type MenuAction = {
-  kind: 'edit' | 'append' | 'delete';
-  nodeId: string;
-  /** kind === 'append'：要新建的子节点类型 */
-  type?: string;
-  /** kind === 'edit'：EditorPanel 打开后定位到哪个 tab */
-  tab?: string;
-};
+import { TreeContext } from '@/context';
+import { acceptedTypes, rootAcceptedTypes } from '@/store/component';
+import type { MenuAction } from '@/types';
 
 type CONTEXTMENU = {
   id: string;

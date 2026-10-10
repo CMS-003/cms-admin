@@ -3,11 +3,12 @@ import { NodeWrapper } from "@/composer/NodeWrapper";
 import { IBaseCom } from "@/types";
 import { useLocalProxy } from "@/utils/valtio";
 import { map, get, cloneDeep, isEqual, isEmpty } from "lodash-es";
-import { GripVertical } from "lucide-react";
+import { Grip, GripVertical } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import RGL, { WidthProvider } from 'react-grid-layout'
 import type { ResponsiveProps } from "react-grid-layout";
 import styled from "styled-components";
+import { useActions, useMode } from "@/context";
 
 const Cell = styled.div`
   background-color: #d9d9d9c7;
@@ -16,7 +17,9 @@ const Responsive = WidthProvider(RGL) as unknown as (
   props: ResponsiveProps
 ) => JSX.Element;
 
-export default function GridLayout({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
+export default function GridLayout({ self, bindings, childrenNodes }: IBaseCom) {
+  const actions = useActions();
+  const mode = useMode();
   const [localState, localStore] = useLocalProxy({
     loading: true,
     layouts: [] as { x: number; y: number; w: number; h: number; i: string }[],
@@ -31,8 +34,8 @@ export default function GridLayout({ self, actions, bindings, source, mode, page
       return {
         x: get(item.attrs, 'x', i * 2),
         y: get(item.attrs, 'y', i),
-        w: get(item.attrs, 'w', 2),
-        h: get(item.attrs, 'h', 2),
+        w: get(item.attrs, 'w', 12),
+        h: get(item.attrs, 'h', 11),
         i: item._id,
       }
     })
@@ -89,14 +92,14 @@ export default function GridLayout({ self, actions, bindings, source, mode, page
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', height: '100%',
+      flexDirection: 'row', height: '100%', width: '100%', overflow: 'hidden',
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <Responsive
       autoSize={true}
-      style={{ width: '100%', height: '100%', zIndex: 1 }}
+      style={{ width: '100%', height: '100%', zIndex: 1, position: 'relative' }}
       //@ts-ignore
       cols={cols}
       // 指定可以拖动的选择器
@@ -107,7 +110,7 @@ export default function GridLayout({ self, actions, bindings, source, mode, page
       compactType={null}
       layout={localState.layouts}
       isResizable={true}
-      resizeHandles={['se','nw']}
+      resizeHandles={['se', 'nw']}
       // 允许重叠
       // allowOverlap={true}
       // 防止碰撞

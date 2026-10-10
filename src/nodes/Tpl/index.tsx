@@ -6,6 +6,7 @@ import hbs from 'handlebars'
 import dayjs from 'dayjs';
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import { useMode, useSource } from "@/context";
 
 // 初始化插件（只初始化一次）
 let initialized = false;
@@ -56,7 +57,9 @@ hbs.registerHelper('formatDate', function (o, format) {
   return o;
 });
 
-export default function CTpl({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CTpl({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     tpl: hbs.compile(self.widget.value as string, {})

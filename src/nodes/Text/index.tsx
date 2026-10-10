@@ -2,6 +2,7 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import styled from 'styled-components';
 import { isNil } from 'lodash-es';
+import { useMode, useSource } from "@/context";
 
 const Text = styled.div`
   line-height: 1.5;
@@ -13,7 +14,9 @@ const Text = styled.div`
   min-height: 32px;
 `
 
-export default function CText({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CText({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

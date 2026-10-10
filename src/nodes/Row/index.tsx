@@ -1,10 +1,9 @@
 import { IBaseCom } from "@/types";
-import { Radio } from "antd";
 import { GripVertical } from "lucide-react";
-import { get } from 'lodash-es'
-import store from "@/store";
+import { useMode } from "@/context";
 
-export default function CRow({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CRow({ bindings, children }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

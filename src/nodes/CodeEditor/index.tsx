@@ -1,12 +1,15 @@
 import { IBaseCom } from "@/types";
-import { Col } from "antd";
 import { GripVertical } from "lucide-react";
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import { useEffectOnce } from 'react-use';
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CodeEditor({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CodeEditor({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     if (!source._id) {

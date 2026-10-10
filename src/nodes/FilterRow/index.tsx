@@ -2,8 +2,11 @@ import { NodeWrapper } from "@/composer/NodeWrapper";
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { useEffectOnce } from "react-use";
+import { useActions, useMode } from "@/context";
 
-export default function CFilterRow({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CFilterRow({ bindings, childrenNodes }: IBaseCom) {
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', 'no-scrollbar', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     childrenNodes.forEach(child => {

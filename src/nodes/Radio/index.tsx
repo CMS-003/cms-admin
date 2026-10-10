@@ -3,8 +3,12 @@ import { Radio } from "antd";
 import { GripVertical } from "lucide-react";
 import { get } from 'lodash-es'
 import store from "@/store";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CRadio({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CRadio({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

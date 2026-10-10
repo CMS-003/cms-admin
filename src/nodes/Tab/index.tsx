@@ -3,8 +3,9 @@ import { Grip } from "lucide-react";
 import { Tabs } from "antd";
 import styled from "styled-components";
 import Acon from '@/components/Acon'
-import { TView } from '@/composer/TemplateView'
+import { TemplateView } from '@/composer/TemplateView'
 import { NodeWrapper } from "@/composer/NodeWrapper";
+import { useActions, useMode, usePage } from "@/context";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -30,7 +31,10 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CTab({ self, bindings, childrenNodes }: IBaseCom) {
+  const actions = useActions();
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
@@ -55,7 +59,7 @@ export default function CTab({ self, actions, bindings, source, mode, page, chil
           key: child._id,
           children: (
             child.attrs.content_type === 'template'
-              ? <TView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
+              ? <TemplateView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
               : <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} />
           )
         }))}

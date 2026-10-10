@@ -1,14 +1,18 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
-import { Acon, VisualBox } from '@/components'
+import { Acon } from '@/components'
 import { useLocalProxy } from "@/utils/valtio";
 import { FullHeight, FullWidth } from "@/components/style";
 import { Input, Tag } from "antd";
 import { isNil } from "lodash-es";
 import { useEffectOnce } from "react-use";
 import { Fragment } from "react/jsx-runtime";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CTags({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CTags({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     addVisible: false,
@@ -33,7 +37,7 @@ export default function CTags({ self, actions, bindings, source, mode, children 
     <FullHeight>
       <FullWidth>
         {((source[field] || []) as string[]).map((tag, i) => (
-          <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
+          <Tag style={{ margin: '6px 5px 6px 0' }} variant='outlined' key={tag} closable onClose={() => {
             const rest = source[field].filter((v: string) => v !== tag)
             actions.setDataField(self.widget, rest)
           }}>{tag}</Tag>

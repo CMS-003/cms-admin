@@ -1,7 +1,9 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
+import { useMode } from "@/context";
 
-export default function Menu({ self, actions, bindings, mode, page, children }: IBaseCom) {
+export default function Menu({ bindings, children }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

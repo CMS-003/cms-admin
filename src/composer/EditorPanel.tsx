@@ -11,11 +11,11 @@ import store from '@/store';
 import { cloneDeep, isPlainObject, pick } from 'lodash-es';
 import { observer } from 'mobx-react';
 import { getSnapshot, isStateTreeNode } from 'mobx-state-tree';
-import { TreeNode } from './treeStore';
+import { TreeNode } from '@/store/tree';
 import { Fragment, useEffect } from 'react';
 import ResourceModal from '@/components/ResourceModal';
 import CONST from '@/constant';
-import QueryModal from '@/groups/queriesModal';
+import QueryModal from './QueryModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 
 type Props = {
@@ -275,9 +275,9 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                     }} />
                   </Space.Compact>
 
-                  {queries.map(id => (
+                  {queries.map((id: string) => (
                     <Input key={id} readOnly value={id} suffix={<Acon icon="X" onClick={() => {
-                      onChange('queries', queries.filter(q => q !== id))
+                      onChange('queries', queries.filter((q: string) => q !== id))
                     }} />} />
                   ))}
                   {localState.showQueryModal && <QueryModal

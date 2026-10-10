@@ -1,29 +1,9 @@
-import { DraggableProvided } from "react-beautiful-dnd";
-import { type IComponent } from "@/store/component";
-export { type IComponent };
+import type { IResource } from './resource';
 
-export type IMode = 'edit' | 'preview'
-
-export type IPageInfo = {
-  template_id: string;
-  path: string;
-  param: { [key: string]: string };
-  query: { [key: string]: string | number };
-  setQuery: (field: string, value: number | string) => void;
-  close: Function;
-}
-
-export type IConfig = {
-  _id?: string;
-  name?: string;
-  cover?: string;
-  desc?: string;
-  available?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  type: string;
-  data: any;
-}
+/**
+ * 组件的**数据形态**（后端 / 数据库里长什么样）。
+ * 编辑器侧的渲染契约在 `types/editor.ts`，扁平化之后的树节点在 `types/tree.ts`。
+ */
 
 export type IWidget = {
   field: string,
@@ -42,33 +22,60 @@ export type IWidget = {
   method: string;
 }
 
-export type IAuto = {
-  self: IComponent;
-  parent?: IPageInfo;
-  children?: any;
-  query?: any;
-  source: any;
-  initField?: boolean;
-  setDataField: (widget: IWidget, value: any) => void;
-}
-export type IBaseComponent = {
-  mode:IMode;
-  page:IPageInfo;
-  drag: {
-    isDragOver: boolean;
-    get className(): string;
-    events: {
-      onDrop?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onDragLeave?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onDragOver?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseEnter?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseOver?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onMouseLeave?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-      onContextMenu?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    }
-  }
+/**
+ * 一条组件记录。
+ *
+ * 服务端的模板接口返回的是**嵌套**结构（children 里塞子对象），
+ * 编辑器加载后会用 `normalizeTree` 打平成 FlatNode 再渲染。
+ * 编辑态字段（$origin / $new / $selected）不在这里 —— 那是编辑器加上去的。
+ */
+export type IComponent = {
+  _id: string;
+  type: string;
+  template_id?: string;
+  project_id?: string;
+  parent_id?: string;
+  tree_id?: string;
+  title?: string;
+  name?: string;
+  icon?: string;
+  cover?: string;
+  desc?: string;
+  url?: string;
+  order?: number;
+  status?: number;
+  attrs?: any;
+  style?: any;
+  widget?: Partial<IWidget>;
+  accepts?: string[];
+  queries?: string[];
+  resources?: IResource[];
+  children?: IComponent[];
 }
 
+/** 一个模板页（页面根就是它，children 是页面下的一级子节点） */
+export type ITemplate = {
+  _id: string;
+  project_id: string;
+  title: string;
+  name: string;
+  desc: string;
+  cover: string;
+  type: string;
+  path: string;
+  attrs: object;
+  style: object;
+  available: boolean;
+  order: number;
+  children: IComponent[];
+}
+
+/**
+ * 组件类型（admin 里维护的那张表）。
+ *
+ * 这张表是「接收规则」的权威来源：节点上的 accepts 是加载时从这张表回填的，
+ * 而 level 只存在于类型上、不存在于节点上。
+ */
 export type IComponentType = {
   _id: string;
   name: string;
@@ -85,6 +92,18 @@ export type IComponentType = {
   accepts: string[];
 }
 
+export type IConfig = {
+  _id?: string;
+  name?: string;
+  cover?: string;
+  desc?: string;
+  available?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  type: string;
+  data: any;
+}
+
 export enum IEditorComponent {
   Select = 'Select',
   Input = 'Input',
@@ -97,6 +116,7 @@ export enum IEditorComponent {
   Image = 'Image',
   Editor = 'Editor',
 }
+
 export type IEditorField = {
   field: string;
   title: string;

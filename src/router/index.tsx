@@ -14,7 +14,7 @@ import store from '@/store'
 
 import ErrorPage from '@/pages/error'
 import { CenterXY } from '@/components/style';
-import { TitleContext } from '@/groups/context';
+import { TitleContext } from '@/context';
 
 // path=pathname+search=xxxkey=fullpath
 // 除了 Page 路由中 path 不能体现 search 参数 IPage 和 IPanel 要分开
@@ -62,8 +62,7 @@ function getPanelByPath(path: string, title?: string): IPanel {
 const LoadableFilePage = lazy(() => import('@/pages/file'))
 const LoadableUserBind = lazy(() => import('@/pages/user/bind'))
 
-const LoadableEditable = lazy(() => import('@/pages/template/editable'))
-const LoadableComposer = lazy(() => import('@/composer/page'))
+const LoadableComposer = lazy(() => import('@/composer/EditorPage'))
 const LoadableTemplatePage = lazy(() => import('@/pages/template'))
 const LoadableComponentTypePage = lazy(() => import('@/pages/template/component-type'))
 

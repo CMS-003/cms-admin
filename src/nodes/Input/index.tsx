@@ -5,8 +5,13 @@ import { useLocalProxy } from "@/utils/valtio";
 import { pick, get } from 'lodash-es';
 import CONST from "@/constant";
 import events from '@/utils/event';
+import { useActions, useMode, usePage, useSource } from "@/context";
 
-export default function CInput({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CInput({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     composing: false,

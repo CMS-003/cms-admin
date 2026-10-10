@@ -1,13 +1,12 @@
 import { useDraggable } from '@dnd-kit/react';
 import { RestrictToVerticalAxis, RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
-import { INode } from '../types';
-import { ModeContext, PageContext } from '@/groups/context';
 import { memo, useCallback, useContext, useMemo } from 'react';
 import { observer, Observer } from 'mobx-react';
-import BaseNode from '../nodes/index'
-import { TreeContext, EditorStatusContext } from './TreeContext';
-import { useDataEnv } from './DataContext';
+
+import BaseNode from '@/nodes'
+import { ModeContext, TreeContext, EditorStatusContext } from '@/context';
 import { useProxySelector } from '@/utils/valtio';
+import type { INode } from '@/types';
 
 /** 兜底：脱离 TreeContext 时（例如独立渲染）返回空列表 */
 const EMPTY_CHILDREN: any[] = [];
@@ -20,18 +19,15 @@ const EMPTY_RESOLVER = () => EMPTY_CHILDREN;
  * - <Observer>：把 <Com> 的渲染也纳入追踪，节点组件本身不用逐个包 observer，
  *   里面读 self.title / self.attrs 等照样能响应
  *
- * 共享数据（source / query / actions）一律从 DataEnvContext 取，**不再走 prop**：
- * 子节点是各容器组件自己渲染的，需要它们逐个记得透传 —— 历史上漏过 page、漏过 source，
- * 每次都是一个 bug。现在容器只在「给子树换数据源」时包一层 <SourceScope>
- * （Table 的行、Form 的详情），其余自动继承。这里只保留节点自己的东西。
+ * 组件只收「它自己的东西」（self / bindings / 子节点）：
+ * 共享数据（source / query / actions / mode / page）一律走 `@/context`，
+ * 容器只在「给子树换数据源」时包一层 <SourceScope>（Table 的行、Form 的详情、
+ * Objects 的每一项），其余自动继承 —— 少一个 prop 就少一类
+ * 「容器忘了往下传」的 bug（历史上漏过 page、漏过 source）。
  */
 export const NodeWrapper = memo(observer(function ComponentView({ self, onContextMenu, onSelect }: INode) {
   const mode = useContext(ModeContext);
   const tree = useContext(TreeContext);
-  /** 页面信息（template_id / path / close）由 TView 经 Provider 下发，身份稳定 */
-  const page = useContext(PageContext);
-  /** 当前子树的数据环境：source 快照 + query 域 + 写入通道 */
-  const env = useDataEnv();
 
   const modifiers = useMemo(() => {
     const mods = [];
@@ -56,7 +52,7 @@ export const NodeWrapper = memo(observer(function ComponentView({ self, onContex
    * .node-handle 是右键菜单的入口（root 不接右键），但 handle 元素自身没有
    * data-node-id（那个在 root 上），回调里读 e.currentTarget.dataset.nodeId 只会拿到
    * undefined → 菜单永远打不开。这里在 dnd-kit 的 ref 之外补一手：
-   * 把 id/type 写到 handle 元素上，这样 34 个节点组件、以及 Table/GridLayout 里
+   * 把 id/type 写到 handle 元素上，这样各节点组件、以及 Table/GridLayout 里
    * 嵌套透传的 onContextMenu 都不用改。
    */
   const nodeHandleRef = useCallback(
@@ -129,29 +125,24 @@ export const NodeWrapper = memo(observer(function ComponentView({ self, onContex
   );
 
   const Com = BaseNode[self.type as keyof typeof BaseNode];
-  if (Com) {
-    return (
-      <Observer>
-        {() => (
-          <Com
-            self={self}
-            actions={env.actions}
-            bindings={bindings}
-            page={page}
-            source={env.source}
-            mode={mode}
-            childrenNodes={childrenNodes}
-            resolveChildren={resolveChildren}
-            onSelect={onSelect}
-          >
-            {childrenNodes.map(child => (
-              <NodeWrapper key={child._id} self={child} onContextMenu={onContextMenu} onSelect={onSelect} />
-            ))}
-          </Com>
-        )}
-      </Observer>
-    )
-  } else {
-    return <div>不支持</div>
+  if (!Com) {
+    return <div>不支持</div>;
   }
+  return (
+    <Observer>
+      {() => (
+        <Com
+          self={self}
+          bindings={bindings}
+          childrenNodes={childrenNodes}
+          resolveChildren={resolveChildren}
+          onSelect={onSelect}
+        >
+          {childrenNodes.map(child => (
+            <NodeWrapper key={child._id} self={child} onContextMenu={onContextMenu} onSelect={onSelect} />
+          ))}
+        </Com>
+      )}
+    </Observer>
+  )
 }));

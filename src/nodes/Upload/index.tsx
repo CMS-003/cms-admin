@@ -1,7 +1,6 @@
 import { IBaseCom } from "@/types";
-import { Input, message, Radio, Upload } from "antd";
+import { Input, message, Upload } from "antd";
 import { GripVertical } from "lucide-react";
-import { get } from 'lodash-es'
 import store from "@/store";
 import styled from 'styled-components'
 import { FullHeight } from '@/components/style'
@@ -10,6 +9,7 @@ import { Acon } from '@/components'
 import type { RcFile } from 'antd/es/upload';
 import apis from '@/api'
 import CONST from '@/constant'
+import { useActions, useMode, useSource } from "@/context";
 
 const Preview = styled.div`
   display: flex;
@@ -25,7 +25,10 @@ const Preview = styled.div`
 `
 
 
-export default function CUpload({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CUpload({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const inputRef = useRef(null);
   const [url, setURL] = useState('')

@@ -3,12 +3,15 @@ import { GripVertical } from "lucide-react";
 import { message, Switch } from "antd";
 import { useEffectOnce } from "react-use";
 import { useLocalProxy } from "@/utils/valtio";
-import { useQuery } from "@/composer/DataContext";
 import { get } from 'lodash-es';
 import apis from "@/api";
 import CONST from "@/constant";
+import { useActions, useMode, useQuery, useSource } from "@/context";
 
-export default function CSwitch({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CSwitch({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   /** 仅查询：数据源是页面查询条件，不是表单的 source */
   const isQuery = !!self.widget.query;

@@ -1,7 +1,8 @@
-import { IComponent, IPageInfo, IWidget } from "./component"
 export * from "./user"
 export * from "./menu"
 export * from "./component"
+export * from "./editor"
+export * from "./tree"
 export * from "./project"
 export * from "./resource"
 export * from "./table"
@@ -11,22 +12,6 @@ declare global {
     goto: (url: string) => void;
     sendCustomEvent: (view_id: string, name: string, data?: any) => void;
   }
-}
-
-export type ITemplate = {
-  _id: string;
-  project_id: string;
-  title: string;
-  name: string;
-  desc: string;
-  cover: string;
-  type: string;
-  path: string;
-  attrs: object;
-  style: object;
-  available: boolean;
-  order: number;
-  children: IComponent[]
 }
 
 export type ISNS = {
@@ -42,118 +27,4 @@ export type ILog = {
   group: string;
   content: string;
   createdAt: Date;
-}
-
-export type IBindings = {
-  root: {
-    ref: (element: HTMLElement | null) => void;
-    'data-node-id': string;
-    'data-node-type': string;
-    /**
-     * 编辑态选中标记（'' | 'edit' | 'curr' | 'drag'），由 NodeWrapper 计算后下发。
-     * CSS 用 `.node[data-mark='xx']::after` 画选框，节点组件不用管。
-     */
-    'data-mark'?: string;
-    /** 鼠标进出节点。用于维护 EditorStatus.currNodeId */
-    onMouseEnter?: React.MouseEventHandler<any>;
-    onMouseLeave?: React.MouseEventHandler<any>;
-  };
-  /** 右键菜单：由各组件挂到 .node-handle（拖拽手柄）上，只有手柄区域可右键 */
-  onContextMenu?: React.MouseEventHandler<any>;
-  handleRef: (element: Element | null) => void;
-  isDragging: boolean;
-}
-
-/**
- * 扁平化之后的节点。
- *
- * children 从「节点对象数组」换成了「子节点 id 的有序列表」，
- * 反向指针是 parent_id（根的直接子级为 ''）。
- * 每个节点在树 store 的 map 里是唯一一份，所以对象引用可以当身份用。
- *
- * 注意：节点自身的子树信息不在 children 里，需要子节点对象时用 childrenNodes
- * （由 NodeWrapper 从 TreeContext 解析后传下来）。
- */
-export type FlatNode = {
-  _id: string;
-  type: string;
-  parent_id: string;
-  children: string[];
-  template_id: string;
-  project_id: string;
-  tree_id: string;
-  title: string;
-  name: string;
-  icon: string;
-  cover: string;
-  desc: string;
-  url: string;
-  order: number;
-  status: number;
-  attrs: any;
-  style: any;
-  /** MST 迁移后节点上的 widget 是结构化模型实例，这里放宽成 any 以保持结构兼容 */
-  widget: any;
-  queries: string[];
-  resources: any[];
-
-  // ---------- 编辑态字段：数据库里没有，只在编辑器 / 预览里用 ----------
-  /**
-   * 从数据库读回来时的快照（不含 $ 字段和 children）。
-   * 拿它和当前值对比就知道这个节点改过没有 —— 本次保存要提交哪些节点就靠它。
-   */
-  $origin: any;
-  /** 编辑器里新加、还没落库的节点 */
-  $new: boolean;
-  /** 编辑模式下选中态，预览时取代 attrs.selected 用 */
-  $selected: boolean;
-
-  [props: string]: any;
-};
-
-/**
- * 传给节点组件的方法集合。
- *
- * 之前 setNodeField / setDataField / setQuery 是三个平级 prop，
- * MST 迁移后合并成一个对象传递，组件里解构 `actions` 使用。
- */
-export type INodeActions = {
-  /** 写节点字段，key 支持 'attrs.x' / 'widget.field' 路径（落到树 store 的 action） */
-  setNodeField: (node: any, key: string, value: any) => void;
-  /** 写表单数据源；widget.query 为真时落到 page.query */
-  setDataField: (widget: IWidget, value: any) => void;
-  /** 写页面 query */
-  setQuery: (field: string, value: any) => void;
-};
-
-export type IBaseCom = {
-  self: FlatNode;
-  /** 子节点对象数组（self.children 是 id 列表，这个才是对象） */
-  childrenNodes: FlatNode[];
-  /**
-   * 按 id 解析任意节点的子节点对象。
-   * 需要往下多看一层时用（例如 Table 的列里还要渲染列自己的子节点）。
-   */
-  resolveChildren: (id: string) => FlatNode[];
-  bindings: IBindings;
-  /** 方法集合（setNodeField / setDataField / setQuery） */
-  actions: INodeActions;
-  source: any;
-  mode: 'edit' | 'preview';
-  page: IPageInfo;
-  children: any;
-  [props: string]: any;
-};
-
-/**
- * NodeWrapper 的入参。
- * 共享数据（source / query / actions）不在里面 —— 那些走 DataEnvContext，
- * 容器组件不必、也不该再逐层透传。
- */
-export type INode = {
-  self: FlatNode;
-  onContextMenu?: React.MouseEventHandler<any>;
-  /** FilterRow → FilterTag：把「选中的是哪个标签」广播给同级 */
-  onSelect?: (id: string) => void;
-  [props: string]: any;
 }

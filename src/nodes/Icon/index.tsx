@@ -6,7 +6,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
 import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useMemo } from "react";
 import { useLocalProxy } from "@/utils/valtio";
-import { getApi } from "@/composer/utils";
 import { ModalView } from "@/composer/ModalView";
 import events from "@/utils/event";
 import CONST from "@/constant";
@@ -16,6 +15,7 @@ import { get, isEmpty, pick } from 'lodash-es';
 import hbs from 'handlebars';
 import type { RcFile } from "antd/es/upload";
 import styled from 'styled-components'
+import { useActions, useMode, usePage, useSource } from "@/context";
 
 const Preview = styled.div`
   display: flex;
@@ -49,7 +49,11 @@ const Preview = styled.div`
  * 所以这个图标放在 Table 的单元格里读写的就是**那一行**，放在 Form 里就是详情本身，
  * 不需要（也不该）自己去找「父页面」。
  */
-export default function CIcon({ self, actions, bindings, source, mode, page }: IBaseCom) {
+export default function CIcon({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const navigate = useNavigate();
 
@@ -99,7 +103,7 @@ export default function CIcon({ self, actions, bindings, source, mode, page }: I
         : pick(data, refer.map((r: any) => r.value as string));
       // 行内操作靠 url 里的 :id 定位记录；没有 id 时不能让 :id 被替换成 "undefined"
       const params = data && data._id ? { id: data._id } : {};
-      const result = await apis.fetch(widget.method, getApi(self, params), payload);
+      const result = await apis.fetch(widget.method, self.getApi(params), payload);
       if (result.code === 0) {
         // 广播给同级列表（Table 监听它重新拉数据）
         events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) });
@@ -251,8 +255,8 @@ export default function CIcon({ self, actions, bindings, source, mode, page }: I
     </div>
     {content}
     {/*
-      弹框：内嵌一个独立的 TView（mode='preview'，自带 store 与 page）。
-      path='?id=xxx' 会把记录 id 落进那个 TView 的 query，
+      弹框：内嵌一个独立的 TemplateView（mode='preview'，自带 store 与 page）。
+      path='?id=xxx' 会把记录 id 落进那个 TemplateView 的 query，
       里面的 Form 用 useQuery('id') 就能拉到这条记录 —— 这是调试表单的主路径。
     */}
     {localState.template_id && (

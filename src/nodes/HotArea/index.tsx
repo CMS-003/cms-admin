@@ -3,6 +3,7 @@ import { GripVertical } from "lucide-react";
 import styled from 'styled-components'
 import { NodeWrapper } from "@/composer/NodeWrapper";
 import { chunk } from "lodash-es";
+import { useMode } from "@/context";
 
 const Area = styled.div`
   display: flex;
@@ -23,7 +24,8 @@ const Row = styled.div`
   justify-content: space-around;
 `
 
-export default function CHotArea({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CHotArea({ self, bindings, childrenNodes }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div

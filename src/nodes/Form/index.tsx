@@ -1,7 +1,7 @@
 import { FullHeight, FullHeightAuto } from "@/components/style";
 import { IBaseCom, IResource, IWidget } from "@/types";
 import { useLocalProxy } from "@/utils/valtio";
-import { SourceScope, useQuery, useQueryScope } from "@/composer/DataContext";
+import { SourceScope, useMode, usePage, useQuery, useQueryScope } from "@/context";
 import { GripVertical, Grip } from "lucide-react";
 import { Button, message, Space, Spin } from 'antd'
 import { NodeWrapper } from "@/composer/NodeWrapper";
@@ -39,7 +39,9 @@ function getFields(widget: IWidget) {
  * 子节点写入走的是这份副本，而读取走的是 `page.query` —— 写和读不是一个对象，
  * 加上挂载时只抄一次，等于永远读到过期值。现在只有一份 query，就是页面那份。
  */
-export default function CForm({ self, bindings, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CForm({ self, bindings, childrenNodes }: IBaseCom) {
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   // query 域在方法（getInfo / updateInfo）里是命令式读的，用 ref 兜住最新的一份

@@ -1,7 +1,9 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
+import { useMode } from "@/context";
 
-export default function TableColumn({ self, actions, bindings, mode, children }: IBaseCom) {
+export default function TableColumn({ self, bindings }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

@@ -1,8 +1,12 @@
 import { IBaseCom } from "@/types";
 import { Input } from "antd";
 import { GripVertical } from "lucide-react";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CHidden({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CHidden({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

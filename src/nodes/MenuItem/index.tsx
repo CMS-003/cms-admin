@@ -3,6 +3,7 @@ import { FullWidth } from "@/components/style";
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import styled from 'styled-components'
+import { useMode } from "@/context";
 
 const MenuItem = styled.div`
   color: #333;
@@ -13,7 +14,8 @@ const MenuItem = styled.div`
   }
 `
 
-export default function CMenuItem({ self, actions, bindings, mode, children }: IBaseCom) {
+export default function CMenuItem({ self, bindings, children }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

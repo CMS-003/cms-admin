@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { Center, FullHeight } from '@/components/style'
 import { useLocalProxy } from "@/utils/valtio";
 import store from "@/store";
+import { useMode } from "@/context";
 
 const Header = styled.div`
  font-weight: 600;
@@ -53,7 +54,8 @@ const ItemTitle = styled.div`
   margin: 5px 0;
 `
 
-export default function CPickCard({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CPickCard({ self, bindings }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     show: false,

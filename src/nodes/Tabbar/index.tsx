@@ -2,12 +2,11 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import Acon from '@/components/Acon'
 import styled from 'styled-components'
-import { Center, FullHeight } from '@/components/style'
-import store from "@/store";
 import { Tabs } from "antd";
 import { cloneDeep } from "lodash-es";
 import { TemplateView } from "@/composer/TemplateView";
 import { NodeWrapper } from "@/composer/NodeWrapper";
+import { useActions, useMode, usePage } from "@/context";
 
 const TabWrap = styled.div`
   height: 100%;
@@ -32,7 +31,10 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CPickCard({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CTabbar({ self, bindings, childrenNodes }: IBaseCom) {
+  const actions = useActions();
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div

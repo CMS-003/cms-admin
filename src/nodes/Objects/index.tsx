@@ -1,15 +1,10 @@
 import { IBaseCom, IResource } from "@/types";
-import { Col } from "antd";
 import { GripVertical } from "lucide-react";
-import apis from '@/api';
 import styled from 'styled-components';
-import CONST from '@/constant';
-import { get, isNil } from 'lodash-es';
-import { useLocalProxy } from "@/utils/valtio";
+import { get } from 'lodash-es';
 import { FullHeight } from "@/components/style";
 import { NodeWrapper } from "@/composer/NodeWrapper";
-import { SourceScope } from "@/composer/DataContext";
-import { Fragment } from "react/jsx-runtime";
+import { SourceScope, useActions, useMode, useSource } from "@/context";
 
 const ObjectItem = styled.div`
   display: flex;
@@ -20,14 +15,14 @@ const ObjectItem = styled.div`
   padding: 2px;
   border: 1px dashed #00000036;
   width: 100%;
+  gap: 5px;
 `
 
-export default function CObjects({ self, actions, bindings, source, mode, children, childrenNodes }: IBaseCom) {
+export default function CObjects({ self, bindings, children, childrenNodes }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
-  const [localState, localStore] = useLocalProxy({
-    showAdd: false,
-    source: {} as any,
-  });
 
   /** 本节点铺开的就是 source 里 widget.field 指向的那个数组（参考 groups 的 ObjectList） */
   const field = get(source, self.widget.field);
@@ -58,7 +53,7 @@ export default function CObjects({ self, actions, bindings, source, mode, childr
     <div style={{ display: 'flex' }}>
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
-    <FullHeight style={{ flex: 1 }}>
+    <FullHeight style={{ flex: 1, gap: 5 }}>
       {mode === 'edit'
         ? children
         : list.map((item: IResource, i: number) => (

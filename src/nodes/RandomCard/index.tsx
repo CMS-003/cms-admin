@@ -3,6 +3,7 @@ import { GripVertical } from "lucide-react";
 import Acon from '@/components/Acon'
 import styled from 'styled-components'
 import { FullHeight } from '@/components/style'
+import { useMode } from "@/context";
 
 const Header = styled.div`
  font-weight: 600;
@@ -17,7 +18,8 @@ background-color: #fff;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CPickCard({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CRandomCard({ self, bindings }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div

@@ -6,8 +6,12 @@ import { stateToHTML } from 'draft-js-export-html';
 import 'draft-js/dist/Draft.css';
 import store from "@/store";
 import { useState, useRef, useEffect } from "react";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CEditor({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CEditor({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [editorState, setEditorState] = useState(
     () => EditorState.createEmpty(),

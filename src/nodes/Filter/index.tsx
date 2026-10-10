@@ -1,9 +1,11 @@
-import { FullHeight, FullHeightAuto, FullHeightFix } from "@/components/style";
+import { FullHeight, FullHeightAuto } from "@/components/style";
 import { IBaseCom } from "@/types";
 import { Grip } from "lucide-react";
 import { Empty } from 'antd';
+import { useMode } from "@/context";
 
-export default function CFilter({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CFilter({ bindings, children }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

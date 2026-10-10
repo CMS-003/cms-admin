@@ -1,5 +1,4 @@
 import { IBaseCom } from "@/types";
-import { GripVertical } from "lucide-react";
 import styled from 'styled-components'
 
 export const TabItemWrap = styled.div`
@@ -20,7 +19,7 @@ export const TabItemWrap = styled.div`
   }
 `
 
-export default function CTabItem({ self, actions, bindings, mode, children }: IBaseCom) {
+export default function CTabItem({ bindings, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

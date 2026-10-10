@@ -1,18 +1,20 @@
 import { NodeWrapper } from "@/composer/NodeWrapper";
-import { SourceScope, useQuery, useQueryScope } from "@/composer/DataContext";
+import { SourceScope, useActions, useMode, usePage, useQuery, useQueryScope } from "@/context";
 import { IBaseCom, IResource } from "@/types";
 import { useLocalProxy } from "@/utils/valtio";
 import { isNil, set } from 'lodash-es'
 import apis from "@/api";
 import CONST from "@/constant";
 import events from "@/utils/event";
-import { GripVertical } from "lucide-react";
+import { Grip, GripVertical } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useEffectOnce } from "react-use";
 import { message, Table } from "antd";
-import { getApi } from "@/composer/utils";
 
-export default function CTable({ self, actions, bindings, mode, page, children, childrenNodes, resolveChildren }: IBaseCom) {
+export default function CTable({ self, bindings, childrenNodes, resolveChildren }: IBaseCom) {
+  const actions = useActions();
+  const mode = useMode();
+  const page = usePage();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     loading: false,
@@ -55,7 +57,7 @@ export default function CTable({ self, actions, bindings, mode, page, children, 
       localStore.loading = true
       // 显式传进来的（搜索事件携带的快照）优先，否则现读查询域
       const current = Object.assign({}, params ?? queryScope.get())
-      const resp = await apis.fetch(self.widget.method, getApi(self, current, current));
+      const resp = await apis.fetch(self.widget.method, self.getApi(current, current));
       if (resp.code === 0) {
         localStore.resources = (resp.data as any).items as IResource[]
         localStore.total = (resp.data as any).total || 0
@@ -112,10 +114,10 @@ export default function CTable({ self, actions, bindings, mode, page, children, 
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', overflow: 'hidden'
+      flexDirection: 'row', height: '100%', overflow: 'hidden'
     }}>
     <div style={{ display: 'flex' }}>
-      {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
+      {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <Table<IResource>
       style={{}}

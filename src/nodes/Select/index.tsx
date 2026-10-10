@@ -1,14 +1,17 @@
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
-import { Select, message } from 'antd'
+import { Select, Space, message } from 'antd'
 import store from "@/store";
 import { useEffect } from "react";
 import apis from "@/api";
 import CONST from "@/constant";
 import { get } from 'lodash-es';
-import { useQuery, useQueryScope } from "@/composer/DataContext";
+import { useActions, useMode, useQuery, useQueryScope, useSource } from "@/context";
 
-export default function CSelect({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CSelect({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   /** 仅查询：数据源是页面查询条件，不是表单的 source */
   const isQuery = !!self.widget.query;
@@ -45,36 +48,40 @@ export default function CSelect({ self, actions, bindings, source, mode, childre
       flexDirection: 'row',
     }}>
     {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
-    <Select
-      style={{ flex: 1 }}
-      // null / undefined 才当归成「没值」（显示 placeholder）。
-      // 只把 nullish 归一，'' 要留着 —— 「全部」这类选项的 value 就是 ''，得能匹配上。
-      value={value ?? undefined}
-      onChange={async (v) => {
-        if (mode === 'edit') return;
-        // 回滚要读的是「本字段」的原值（现读查询域 / 当前子树的数据源）
-        const data: any = isQuery ? (queryScope.get() ?? {}) : source;
-        const old = get(data, field)
-        actions.setDataField(self.widget, v)
-        if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
-          try {
-            const result = await apis.fetch(self.widget.method, self.getApi({ id: data?._id }), { [field]: v })
-            if (result.code === 0) {
-              message.info('修改成功', 1)
-            } else {
+
+    <Space.Compact>
+      {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
+      <Select
+        style={{ flex: 1 }}
+        // null / undefined 才当归成「没值」（显示 placeholder）。
+        // 只把 nullish 归一，'' 要留着 —— 「全部」这类选项的 value 就是 ''，得能匹配上。
+        value={value ?? undefined}
+        onChange={async (v) => {
+          if (mode === 'edit') return;
+          // 回滚要读的是「本字段」的原值（现读查询域 / 当前子树的数据源）
+          const data: any = isQuery ? (queryScope.get() ?? {}) : source;
+          const old = get(data, field)
+          actions.setDataField(self.widget, v)
+          if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
+            try {
+              const result = await apis.fetch(self.widget.method, self.getApi({ id: data?._id }), { [field]: v })
+              if (result.code === 0) {
+                message.info('修改成功', 1)
+              } else {
+                actions.setDataField(self.widget, old)
+                message.warning(result.message);
+              }
+            } catch (e) {
               actions.setDataField(self.widget, old)
-              message.warning(result.message);
+              message.warning('修改失败')
             }
-          } catch (e) {
-            actions.setDataField(self.widget, old)
-            message.warning('修改失败')
           }
-        }
-      }}
-    >
-      {[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])].map((t: any, i: number) => (
-        <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
-      ))}
-    </Select>
+        }}
+      >
+        {[...self.widget.refer, ...(store.global.getValue(self.widget.source) || [])].map((t: any, i: number) => (
+          <Select.Option key={i} value={t.value}>{t.label}</Select.Option>
+        ))}
+      </Select>
+    </Space.Compact>
   </div>
 }

@@ -1,365 +1,176 @@
-import { types, IMSTArray, getSnapshot, IAnyModelType, applySnapshot, detach, Instance } from 'mobx-state-tree'
-import { IComponentType, IResource } from '@/types'
-import { isEqual, omit, cloneDeep, set } from 'lodash-es'
-import { v4 } from 'uuid'
+import { types, IMSTArray } from 'mobx-state-tree'
+import { IComponentType } from '@/types'
 
-function validateDate(str: string) {
-  const date = Date.parse(str);
-  if (isNaN(date)) throw new Error("Invalid date");
-
-  return new Date(date);
-}
-
-export const IsoDate = types.custom({
-  name: "IsoDate",
-  fromSnapshot(value: string) {
-    return validateDate(value);
-  },
-  toSnapshot(value) {
-    return value.toISOString();
-  },
-  isTargetType(maybeDate) {
-    return maybeDate instanceof Date;
-  },
-  getValidationMessage(snapshot) {
-    // If we don't throw an error here when the snapshot is faulty (e.g. null),
-    // things like types.maybeNull(IsoDate) will not work properly
-    try {
-      validateDate(snapshot);
-      return "";
-    } catch (error: any) {
-      return error.message;
-    }
-  }
-});
-function deepEqual(a: any, b: any) {
-  return isEqual(a, b);
-}
-export function mergeQuery(rawUrl: string, additionalQuery: { [key: string]: any }) {
-  // 判断是否为完整 URL（包含协议）
-  const hasProtocol = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(rawUrl);
-
-  // 构造 URL 对象：相对路径需要提供一个 base（location.href 可用）
-  const base = window.location.origin;
-  const url = hasProtocol ? new URL(rawUrl) : new URL(rawUrl, base);
-
-  // 合并 query 参数
-  const params = new URLSearchParams(url.search);
-  for (const [key, value] of Object.entries(additionalQuery)) {
-    params.set(key, value); // 会覆盖已有 key
-  }
-
-  url.search = params.toString();
-
-  // 返回
-  return hasProtocol
-    ? url.toString()                         // 完整 URL：返回完整的带 host 的 URL
-    : url.pathname + url.search;            // 相对路径：去掉 host，只保留路径和 query
-}
-
-// 使用 const 断言创建只读数组
-const FIELD_TYPE_VALUES = ['string', 'number', 'boolean', 'json', 'array'] as const;
-
-export const Component = types.model('Component', {
-  // 编辑用属性
-  $origin: types.frozen({}),
-  $selected: types.optional(types.boolean, false),
-  $new: types.optional(types.boolean, false),
-  _id: types.optional(types.string, ''),
-  type: types.optional(types.string, ''),
-  template_id: types.optional(types.string, ''),
-  project_id: types.optional(types.string, ''),
-  parent_id: types.optional(types.string, ''),
-  tree_id: types.optional(types.string, ''),
-  title: types.optional(types.string, ''),
-  name: types.optional(types.string, ''),
-  icon: types.optional(types.string, ''),
-  cover: types.optional(types.string, ''),
-  desc: types.optional(types.string, ''),
-  order: types.optional(types.number, 1),
-  status: types.optional(types.number, 1),
-  createdAt: types.maybe(IsoDate),
-  updatedAt: types.maybe(IsoDate),
-  style: types.optional(types.frozen(), {}),
-  attrs: types.optional(types.frozen(), {}),
-  widget: types.model({
-    field: types.optional(types.string, ''),
-    value: types.optional(types.union(types.string, types.number, types.boolean, types.frozen({})), ''),
-    type: types.enumeration<typeof FIELD_TYPE_VALUES>(['string', 'number', 'boolean', 'json', 'array']),
-    query: types.optional(types.boolean, false),
-    source: types.optional(types.string, ''),
-    refer: types.optional(types.array(types.model({ value: types.optional(types.union(types.string, types.number, types.boolean), ''), label: types.optional(types.string, '') })), []),
-    action: types.optional(types.string, ''),
-    method: types.optional(types.string, ''),
-  }),
-  accepts: types.array(types.string),
-  url: types.optional(types.string, ''),
-  resources: types.optional(types.array(types.model({
-    _id: types.string,
-    title: types.optional(types.string, ''),
-    cover: types.optional(types.string, ''),
-    poster: types.optional(types.string, ''),
-    thumbnail: types.optional(types.string, ''),
-    status: types.optional(types.number, 0),
-  })), []),
-  queries: types.optional(types.array(types.string), []),
-  children: types.array(types.late((): IAnyModelType => Component))
-}).views(self => ({
-  toJSON(all = false) {
-    const data = cloneDeep(getSnapshot(self));
-    if (all) {
-      data.children = self.children.map(child => child.toJSON(all))
-    }
-    return omit(data, all ? ['data', '$origin', '$selected', '$new'] : ['data', 'children', '$origin', '$selected', '$new'])
-  },
-  diff() {
-    if (!deepEqual(self.$origin, this.toJSON())) {
-      return true;
-    }
-    return false;
-  },
-  getApi(params: any = {}, query: any = {}) {
-    let url = self.url;
-    const regex = /:([a-zA-Z\-_]+)/g;
-    const matches = [...url.matchAll(regex)];
-    matches.forEach(match => {
-      url = url.replace(match[0], params[match[1]])
-    })
-    url = mergeQuery(url, query)
-    return url;
-  }
-})).actions(self => ({
-  setAttr<K extends keyof typeof self>(key: K, value: typeof self[K]) {
-    set(self, key, value)
-  },
-  afterCreate() {
-    const type = manager.types.find(t => t.name === self.type);
-    // @ts-ignore
-    self.accepts = type ? getSnapshot(type.accepts) : []
-    if (self._id) {
-      self.$origin = self.$new ? {} : self.toJSON() as any;
-    } else {
-      self.$new = true;
-      self._id = v4();
-      if (!self.tree_id) {
-        self.tree_id = self._id;
-      }
-    }
-  }
-})).actions(self => ({
-  // children
-  appendChild(type: string) {
-    let attrs: any = {};
-    if (type === 'MenuItem') {
-      attrs.path = '/dynamic'
-    }
-    self.children.push(Component.create({
-      $origin: {},
-      _id: '',
-      tree_id: self.tree_id,
-      parent_id: self._id,
-      project_id: self.project_id,
-      template_id: self.template_id,
-      type,
-      attrs,
-      style: {},
-      title: '无',
-      name: '',
-      icon: '',
-      cover: '',
-      desc: '',
-      order: self.children.length,
-      status: 1,
-      url: '',
-      widget: { field: '', value: '', type: 'string', refer: [], action: '', method: '', query: false },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      accepts: self.toJSON().accepts,
-      children: [],
-    }))
-    return self.children[self.children.length - 1];
-  },
-  appendChildData(child: IComponent) {
-    self.children.push(child)
-  },
-  removeChild(_id: string) {
-    const i = self.children.findIndex(c => c._id === _id);
-    if (i !== -1) {
-      detach(self.children[i])
-      const j = self.children.findIndex(c => c._id === _id);
-      if (j !== -1) {
-        self.children.splice(j, 1);
-      }
-    } else {
-      self.children.forEach(c => {
-        c.removeChild(_id);
-      })
-    }
-  },
-  swap(oldIndex: number, newIndex: number) {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const removed = detach(self.children[oldIndex])
-    self.children.splice(newIndex, 0, Component.create(removed as IComponent));
-    self.children.forEach((child, i) => {
-      child.setAttr('order', i);
-    })
-  },
-})).actions(self => ({
-  // refer数组操作
-  pushRefer(t: { label: string, value: string }) {
-    let v: any = t.value;
-    if (self.widget.type === 'boolean') {
-      v = ['1', 'true', 'TRUE'].includes(v)
-    } else if (self.widget.type === 'number') {
-      v = v === '' ? '' : parseInt(v) || 0
-    }
-    t.value = v;
-    self.widget.refer.push(t);
-  },
-  remRefer(n: number) {
-    self.widget.refer.splice(n, 1);
-  },
-  swapRefer(oldIndex: number, newIndex: number) {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const [removed] = self.widget.refer.splice(oldIndex, 1);
-    const old = getSnapshot(removed);
-    self.widget.refer.splice(newIndex, 0, old);
-  },
-})).actions(self => ({
-  // resources 数组操作
-  addResource(data: IResource) {
-    self.resources.push(data)
-  },
-  remResource(_id: string) {
-    const index = self.resources.findIndex(item => item._id === _id);
-    if (index > -1) {
-      self.resources.splice(index, 1)
-    }
-  },
-  swapResource(oldIndex: number, newIndex: number) {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const [removed] = self.resources.splice(oldIndex, 1);
-    const old = getSnapshot(removed);
-    self.resources.splice(newIndex, 0, old);
-  },
-})).actions(self => ({
-  // widget 操作
-  setWidget(k: 'field' | 'value' | 'action' | 'method' | 'query' | 'source', v: string | boolean) {
-    if (k === 'value') {
-      const str = v as string;
-      if (self.widget.type === 'boolean') {
-        self.widget.value = ['1', 'true', 'TRUE'].includes(str)
-      } else if (self.widget.type === 'number') {
-        self.widget.value = parseInt(str) || 0
-      } else {
-        self.widget.value = v;
-      }
-    } else if (k === 'query') {
-      self.widget.query = v ? true : false;
-    } else if (['action', 'field', 'method', 'source'].includes(k)) {
-      self.widget[k] = v as string;
-    }
-  },
-  changeWidgetType(type: 'string' | 'number' | 'boolean' | 'json' | 'array') {
-    if (type === self.widget.type) {
-      return;
-    } else if (type === 'number') {
-      self.widget.value = parseInt(self.widget.value as string) || '';
-      self.widget.refer.forEach(r => r.value = parseInt(r.value as string));
-    } else if (type === 'boolean') {
-      self.widget.value = ['1', 'true', 'TRUE'].includes(self.widget.value as any) as boolean;
-    } else if (type === 'json') {
-      if (typeof self.widget.value !== 'object') {
-        try {
-          self.widget.value = JSON.parse(self.widget.value as string);
-        } catch (err) {
-          self.widget.value = {};
-        }
-      }
-    } else {
-      self.widget.value = self.widget.value.toString();
-      self.widget.refer.forEach(r => r.value = r.value.toString());
-    }
-    self.widget.type = type;
-  },
-}));
-
-export interface IComponent extends Instance<typeof Component> { }
-
-const ComponentType = types.model({
+/**
+ * 组件类型表（admin 里维护的 name / accepts / level）+ 全部接收判定。
+ *
+ * 为什么要和判定放在一起：判定完全由这张表推导（accepts / level / 父子约束），
+ * 分成两个模块后「表在这里、规则在那里」，改规则要来回找。现在一个文件里
+ * 「表 + 读表的方法」齐了，编辑器只需要 `import { canAcceptType } from '@/store/component'`。
+ *
+ * 约定：这些函数读的是 manager.types —— 在渲染 / 事件回调里读，
+ * MST 会自动建立依赖（类型表在启动时拉一次就固定了，实际很少变）。
+ */
+const ComponentType = types.model('ComponentType', {
   _id: types.string,
   name: types.string,
   title: types.string,
-  status: types.optional(types.number, 0),
-  level: types.optional(types.number, 1),
-  cover: types.optional(types.string, ''),
   group: types.optional(types.string, ''),
+  cover: types.optional(types.string, ''),
+  status: types.optional(types.number, 0),
+  /** 层级（见 IComponentType.level），默认 1 */
+  level: types.optional(types.number, 1),
   accepts: types.array(types.string),
 })
 
-const componentManager = types.model({
-  list: types.array(Component),
+const componentStore = types.model('ComponentStore', {
+  /** 组件类型表 */
   types: types.array(ComponentType),
-  editing_component_id: types.optional(types.string, ''),
-  hover_component_id: types.optional(types.string, ''),
-  dragingType: types.optional(types.string, ''),
-  dragingLevel: types.optional(types.number, 1),
-  dragingWidgetType: types.optional(types.string, ''),
-  can_drag_id: types.optional(types.string, ''),
-  isDragging: types.optional(types.boolean, false),
-  listLoading: types.optional(types.boolean, true),
   typesLoading: types.optional(types.boolean, true),
-}).views(self => ({
-  getList(): IComponent[] {
-    return self.list.toJSON();
-  },
-})).actions((self) => ({
-})).actions((self) => ({
-  setList(items: IComponent[]) {
-    self.list = items as IMSTArray<typeof Component>;
-    self.listLoading = false;
-  },
+  /** 通用排序拖拽（components/SortableDD）正在拖 —— 拖的时候要屏蔽画布的其它响应 */
+  isDragging: types.optional(types.boolean, false),
+}).actions(self => ({
   setTypes(items: IComponentType[]) {
     self.types = items as IMSTArray<typeof ComponentType>;
-    self.typesLoading = false
+    self.typesLoading = false;
   },
-  canDrop(from: string, to: string) {
-    const com = self.types.find(it => it.name === to);
-    if (!com) {
-      return false;
-    }
-    const result = com.accepts.includes(from) || (self.dragingLevel === 1 && com.accepts.includes('all'));
-    return result;
-  },
-  setEditComponentId(id: string) {
-    self.editing_component_id = id;
-  },
-  setHoverComponentId(id: string) {
-    self.hover_component_id = id
-  },
-  setDragType(type: string, level: number) {
-    self.dragingType = type;
-    self.dragingLevel = level;
-  },
-  setDragWidgetType(type: string) {
-    self.dragingWidgetType = type;
-  },
-  setCanDragId(id: string) {
-    self.can_drag_id = id;
-  },
-  setIsDragging(bool: boolean) {
-    self.isDragging = bool;
-  },
-  async fetch() {
-
+  setIsDragging(is: boolean) {
+    self.isDragging = is;
   },
 }))
-const manager = componentManager.create();
+
+const manager = componentStore.create();
 
 export default manager;
+
+// ---------------------------------------------------------------------------
+// 读表
+// ---------------------------------------------------------------------------
+
+/** 类型表（MST 数组 → 普通数组形态） */
+export function componentTypes(): IComponentType[] {
+  return manager.types as unknown as IComponentType[];
+}
+
+/** 按 name 查类型定义 */
+export function findComponentType(type: string): IComponentType | undefined {
+  return componentTypes().find(t => t.name === type);
+}
+
+/**
+ * 某个类型允许接收的子节点类型。
+ *
+ * 返回 undefined 表示类型表里没有这个类型 —— 调用方应保留节点自己存的 accepts
+ * （类型表比模板数据晚加载时，不能把「查不到」当成「什么都不收」）。
+ */
+export function typeAccepts(type: string): string[] | undefined {
+  const def: any = findComponentType(type);
+  if (!def) return undefined;
+  const accepts = def.accepts;
+  if (!accepts) return [];
+  return typeof accepts.toJSON === 'function' ? accepts.toJSON() : Array.from(accepts);
+}
+
+/** 类型的层级，默认 1 */
+export function typeLevel(type: string): number {
+  const def: any = findComponentType(type);
+  return def?.level ?? 1;
+}
+
+// ---------------------------------------------------------------------------
+// 接收判定
+// ---------------------------------------------------------------------------
+
+/** 父节点 accepts 里的通配项：声明了它就还能接收 level === 1 的其它类型 */
+export const DROP_ACCEPT_ALL = 'all';
+
+/**
+ * 父节点能不能接收这个类型的子节点（判定原语）。
+ *
+ * - 父节点的 accepts 里显式列出了子节点类型 → 接收
+ * - 否则，只有「子节点类型的 level === 1 且父节点 accepts 含 'all'」才接收
+ * - accepts 为空数组 → 什么都不收
+ *
+ * level 是「组件类型」的属性（不在节点上）：level 为 2 / 3 的类型只能被父节点点名，
+ * 不能走 'all' 通配。拖动和新增两条路径都走这一个判定，避免两边规则跑偏。
+ */
+export function canAcceptIn(
+  parentAccepts: string[] | undefined | null,
+  childType: string,
+  childLevel: number,
+): boolean {
+  if (!childType) return false;
+  const accepts = parentAccepts || [];
+  if (accepts.indexOf(childType) >= 0) return true;
+  return childLevel === 1 && accepts.indexOf(DROP_ACCEPT_ALL) >= 0;
+}
+
+/**
+ * 「只能挂在哪」的父子约束（子类型 → 允许的父类型）。
+ *
+ * 类型表里的 accepts 描述的是「容器收哪些子节点」，管不住反方向：容器只要配了 'all'，
+ * 所有 level === 1 的类型都会被它收进来 —— 包括 TableColumn 这种结构上必须贴着
+ * Table 的子节点，于是它就能被拖到页面一级去。这张表是反方向的最后一道闸。
+ * **新增「只能挂在某容器下」的规则就往这里加一行。**
+ */
+const EXCLUSIVE_PARENTS: Record<string, string[]> = {
+  TableColumn: ['Table'],
+};
+
+/** 这个子类型允许的父类型；返回 undefined 表示没有父子约束 */
+export function exclusiveParentsOf(childType: string): string[] | undefined {
+  return EXCLUSIVE_PARENTS[childType];
+}
+
+/** 父子约束：这个子类型能不能挂在 parentType 下（没有约束的类型恒为 true） */
+export function parentAllowed(parentType: string, childType: string): boolean {
+  const allowed = EXCLUSIVE_PARENTS[childType];
+  if (!allowed) return true;
+  return allowed.indexOf(parentType) >= 0;
+}
+
+/**
+ * 容器能不能接收某个类型的子节点。
+ *
+ * accepts 优先取类型表（权威），类型表里查不到才回落到节点自己存的值。
+ * level 取子节点类型的 level —— 它是类型的属性，不在节点上。
+ * 先过父子约束：父类型不对（比如往 Layout 里放 TableColumn）直接不收。
+ */
+export function canAcceptType(
+  parentType: string,
+  parentAccepts: string[] | undefined,
+  childType: string,
+): boolean {
+  if (!parentAllowed(parentType, childType)) return false;
+  const live = typeAccepts(parentType);
+  return canAcceptIn(live ?? parentAccepts, childType, typeLevel(childType));
+}
+
+/**
+ * 页面根（template 外壳）能不能接收某个类型的子节点。
+ *
+ * 根不是业务容器，没有实体的 accepts，规则固定为：**只接收 level === 1 的一级节点**。
+ * 这样 TableColumn / GridCell 之类必须贴在特定容器里的结构子节点就到不了页面一级。
+ * 父子约束同样生效（所以 TableColumn 即便 level 是 1 也进不来）。
+ */
+export function canAcceptAtRoot(parentType: string, childType: string): boolean {
+  if (!parentAllowed(parentType, childType)) return false;
+  return typeLevel(childType) === 1;
+}
+
+/** 某个容器能接收哪些类型 —— 右键菜单「新增子节点」列表用 */
+export function acceptedTypes(
+  parentType: string,
+  parentAccepts: string[] | undefined,
+): IComponentType[] {
+  const live = typeAccepts(parentType);
+  const accepts = live ?? parentAccepts;
+  return componentTypes().filter(
+    t => parentAllowed(parentType, t.name) && canAcceptIn(accepts, t.name, t.level ?? 1),
+  );
+}
+
+/** 页面根能接收哪些类型 —— 右键菜单挂在根上时的「新增子节点」列表 */
+export function rootAcceptedTypes(parentType: string): IComponentType[] {
+  return componentTypes().filter(t => canAcceptAtRoot(parentType, t.name));
+}

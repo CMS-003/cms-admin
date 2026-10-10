@@ -2,8 +2,12 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { Checkbox } from "antd";
 import { useEffectOnce } from "react-use";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CCheckbox({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
+export default function CCheckbox({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     if (!source._id) {

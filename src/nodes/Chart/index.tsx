@@ -2,6 +2,7 @@ import apis from "@/api";
 import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useMode } from "@/context";
 
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -33,7 +34,8 @@ echarts.use([
   TransformComponent
 ]);
 
-export default function Chart({ self, actions, bindings, mode, children }: IBaseCom) {
+export default function Chart({ self, bindings }: IBaseCom) {
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const divRef = useRef<HTMLDivElement | null>(null)
   const [inited, setInited] = useState(false)
@@ -75,7 +77,7 @@ export default function Chart({ self, actions, bindings, mode, children }: IBase
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', position: 'relative', height: '100%'
+      flexDirection: 'column', position: 'relative', height: '100%', width: '100%', flex: 1
     }}>
     <div style={{ display: 'flex' }}>
       {mode === 'edit' && <GripVertical className="node-handle" style={{ position: 'absolute', height: 'auto', zIndex: 3 }} ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}

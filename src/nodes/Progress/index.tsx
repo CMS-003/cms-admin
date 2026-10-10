@@ -2,8 +2,12 @@ import { IBaseCom } from "@/types";
 import { Progress } from "antd";
 import { GripVertical } from "lucide-react";
 import { useEffectOnce } from "react-use";
+import { useActions, useMode, useSource } from "@/context";
 
-export default function CProgress({ self, actions, bindings, source, mode, children }: IBaseCom) {
+export default function CProgress({ self, bindings }: IBaseCom) {
+  const source = useSource();
+  const actions = useActions();
+  const mode = useMode();
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     if (!source._id) {
