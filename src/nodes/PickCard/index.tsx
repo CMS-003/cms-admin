@@ -53,7 +53,7 @@ const ItemTitle = styled.div`
   margin: 5px 0;
 `
 
-export default function CPickCard({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CPickCard({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     show: false,

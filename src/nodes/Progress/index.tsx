@@ -3,11 +3,11 @@ import { Progress } from "antd";
 import { GripVertical } from "lucide-react";
 import { useEffectOnce } from "react-use";
 
-export default function CProgress({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CProgress({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     if (!source._id) {
-      setDataField(self.widget, self.widget.value)
+      actions.setDataField(self.widget, self.widget.value)
     }
   })
   return <div

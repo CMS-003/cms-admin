@@ -17,7 +17,7 @@ background-color: #fff;
 const Content = styled.div`
   min-height: 120px;
 `
-export default function CPickCard({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CPickCard({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div

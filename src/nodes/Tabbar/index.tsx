@@ -32,7 +32,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CPickCard({ self, bindings, source, setDataField,setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CPickCard({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div
@@ -51,7 +51,7 @@ export default function CPickCard({ self, bindings, source, setDataField,setNode
         onChange={activeKey => {
           const attrs = cloneDeep(self.attrs);
           attrs.selected_id = activeKey
-          setNodeField(self, 'attrs', attrs)
+          actions.setNodeField(self, 'attrs', attrs)
         }}
         items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
@@ -62,7 +62,7 @@ export default function CPickCard({ self, bindings, source, setDataField,setNode
           children: (
             child.attrs.content_type === 'template'
               ? <TemplateView mode='preview' template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper self={child} source={source} setNodeField={setNodeField} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
+              : <NodeWrapper self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />

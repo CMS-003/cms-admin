@@ -7,13 +7,13 @@ import apis from "@/api";
 import CONST from "@/constant";
 import { snapshot } from "valtio";
 
-export default function CSelect({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CSelect({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const data = !self.widget.query ? source : page.query;
 
   useEffectOnce(() => {
     if (!source._id || mode === 'edit' || self.widget.query) {
-      setDataField(self.widget, self.widget.value)
+      actions.setDataField(self.widget, self.widget.value)
     }
   })
   return <div
@@ -29,18 +29,18 @@ export default function CSelect({ self, bindings, source, setDataField, mode, pa
       onChange={async (v) => {
         if (mode === 'edit') return;
         const old = data[self.widget.value as string]
-        setDataField(self.widget, v)
+        actions.setDataField(self.widget, v)
         if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
           try {
             const result = await apis.fetch(self.widget.method, self.getApi({ id: data._id }), { [self.widget.field]: v })
             if (result.code === 0) {
               message.info('修改成功', 1)
             } else {
-              setDataField(self.widget, old)
+              actions.setDataField(self.widget, old)
               message.warning(result.message);
             }
           } catch (e) {
-            setDataField(self.widget, old)
+            actions.setDataField(self.widget, old)
             message.warning('修改失败')
           }
         }

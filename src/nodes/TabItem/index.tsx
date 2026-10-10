@@ -20,7 +20,7 @@ export const TabItemWrap = styled.div`
   }
 `
 
-export default function CTabItem({ self, bindings, mode, children }: IBaseCom) {
+export default function CTabItem({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

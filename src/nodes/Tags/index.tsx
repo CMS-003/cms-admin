@@ -8,7 +8,7 @@ import { isNil } from "lodash-es";
 import { useEffectOnce } from "react-use";
 import { Fragment } from "react/jsx-runtime";
 
-export default function CTags({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CTags({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     addVisible: false,
@@ -16,7 +16,7 @@ export default function CTags({ self, bindings, source, setDataField, mode, chil
   });
   useEffectOnce(() => {
     if (isNil(source[self.widget.field])) {
-      setDataField(self.widget, self.widget.value)
+      actions.setDataField(self.widget, self.widget.value)
     }
   })
   const field = self.widget.field;
@@ -35,7 +35,7 @@ export default function CTags({ self, bindings, source, setDataField, mode, chil
         {((source[field] || []) as string[]).map((tag, i) => (
           <Tag style={{ margin: '6px 5px 6px 0' }} key={tag} closable onClose={() => {
             const rest = source[field].filter((v: string) => v !== tag)
-            setDataField(self.widget, rest)
+            actions.setDataField(self.widget, rest)
           }}>{tag}</Tag>
         ))}
       </FullWidth>
@@ -47,7 +47,7 @@ export default function CTags({ self, bindings, source, setDataField, mode, chil
             <Acon icon='CircleCheck' onClick={() => {
               if (localStore.tempTag && !source[field].includes(localStore.tempTag)) {
                 const tags = [...source[field], localStore.tempTag]
-                setDataField(self.widget, tags)
+                actions.setDataField(self.widget, tags)
               }
               localStore.tempTag = ''
               localStore.addVisible = false

@@ -2,7 +2,7 @@ import { IBaseCom } from "@/types";
 import { Col } from "antd";
 import { GripVertical } from "lucide-react";
 
-export default function CField({ self, bindings, mode, children }: IBaseCom) {
+export default function CField({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

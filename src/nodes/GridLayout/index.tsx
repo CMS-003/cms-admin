@@ -16,7 +16,7 @@ const Responsive = WidthProvider(RGL) as unknown as (
   props: ResponsiveProps
 ) => JSX.Element;
 
-export default function GridLayout({ self, bindings, source, setDataField, setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
+export default function GridLayout({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
   const [localState, localStore] = useLocalProxy({
     loading: true,
     layouts: [] as { x: number; y: number; w: number; h: number; i: string }[],
@@ -49,13 +49,13 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
         d.attrs.w = layouts[i].w;
         d.attrs.h = layouts[i].h;
         if (!localStore.loading) {
-          setNodeField(c, 'attrs', d.attrs)
+          actions.setNodeField(c, 'attrs', d.attrs)
         }
       }
       if ((c as any).$new !== true && isEqual(d.attrs, o.attrs)) {
         return null
       } else if (mode === 'preview') {
-        setNodeField(c, '$origin', d)
+        actions.setNodeField(c, '$origin', d)
       }
       return d;
     }).filter(v => v !== null);
@@ -124,7 +124,7 @@ export default function GridLayout({ self, bindings, source, setDataField, setNo
     >
       {childrenNodes.map(child => (
         <Cell key={child._id} data-no-dnd>
-          <NodeWrapper self={child} source={source} setDataField={setDataField} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} />
+          <NodeWrapper self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
         </Cell>
       ))}
     </Responsive>

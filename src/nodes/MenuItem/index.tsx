@@ -13,7 +13,7 @@ const MenuItem = styled.div`
   }
 `
 
-export default function CMenuItem({ self, bindings, mode, children }: IBaseCom) {
+export default function CMenuItem({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

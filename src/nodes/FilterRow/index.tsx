@@ -3,12 +3,12 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { useEffectOnce } from "react-use";
 
-export default function CFilterRow({ self, bindings, setNodeField, source, setDataField, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CFilterRow({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', 'no-scrollbar', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   useEffectOnce(() => {
     childrenNodes.forEach(child => {
       if (child.attrs.selected) {
-        setNodeField(child, '$selected', true)
+        actions.setNodeField(child, '$selected', true)
       }
     })
   })
@@ -22,9 +22,9 @@ export default function CFilterRow({ self, bindings, setNodeField, source, setDa
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     {childrenNodes.map(child => (
-      <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} onSelect={(id: string) => {
+      <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} onSelect={(id: string) => {
         childrenNodes.forEach(c => {
-          setNodeField(c, '$selected', id === c._id ? true : false)
+          actions.setNodeField(c, '$selected', id === c._id ? true : false)
         })
       }} />
     ))}

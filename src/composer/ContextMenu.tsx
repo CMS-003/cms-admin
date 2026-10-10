@@ -1,5 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { createContext, useContext } from 'react';
+import { observer } from 'mobx-react';
 import { useSnapshot } from 'valtio';
 import { TreeContext } from './TreeContext';
 import { acceptedTypes } from './componentTypes';
@@ -32,7 +33,8 @@ const TABS: Array<{ tab: string; label: string }> = [
   { tab: 'layout', label: '布局' },
 ];
 
-export function ContextMenuContent({
+/** observer：菜单开着的时候节点 accepts 变了（比如刚加载完类型表）也能跟着刷新 */
+export const ContextMenuContent = observer(function ContextMenuContent({
   contextmenu, onAction,
 }: {
   contextmenu: { x: number; y: number; id: string; open: Function; close: Function };
@@ -116,4 +118,4 @@ export function ContextMenuContent({
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
-}
+});

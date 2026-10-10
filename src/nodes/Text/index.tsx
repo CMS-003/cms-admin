@@ -13,7 +13,7 @@ const Text = styled.div`
   min-height: 32px;
 `
 
-export default function CText({ self, bindings, source, mode, children }: IBaseCom) {
+export default function CText({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

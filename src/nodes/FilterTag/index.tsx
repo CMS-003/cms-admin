@@ -2,7 +2,7 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { Tag } from 'antd'
 
-export default function CFilterTag({ self, bindings, source, setDataField, mode, page, children, onSelect }: IBaseCom) {
+export default function CFilterTag({ self, actions, bindings, source, mode, page, children, onSelect }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

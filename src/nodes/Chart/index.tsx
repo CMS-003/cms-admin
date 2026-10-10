@@ -33,7 +33,7 @@ echarts.use([
   TransformComponent
 ]);
 
-export default function Chart({ self, bindings, mode, children }: IBaseCom) {
+export default function Chart({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const divRef = useRef<HTMLDivElement | null>(null)
   const [inited, setInited] = useState(false)

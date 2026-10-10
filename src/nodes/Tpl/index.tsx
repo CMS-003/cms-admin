@@ -56,7 +56,7 @@ hbs.registerHelper('formatDate', function (o, format) {
   return o;
 });
 
-export default function CTpl({ self, bindings, source, mode, children }: IBaseCom) {
+export default function CTpl({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     tpl: hbs.compile(self.widget.value as string, {})

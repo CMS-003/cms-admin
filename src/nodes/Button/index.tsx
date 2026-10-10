@@ -9,7 +9,7 @@ import events from '@/utils/event';
 import { useNavigate } from 'react-router-dom'
 import { useLocalProxy } from "@/utils/valtio";
 
-export default function CButton({ self, source, bindings, mode, setDataField, page, children }: IBaseCom) {
+export default function CButton({ self, actions, source, bindings, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const navigate = useNavigate()
   const [localState, localStore] = useLocalProxy({
@@ -27,7 +27,7 @@ export default function CButton({ self, source, bindings, mode, setDataField, pa
     </div>
     <Button type={self.attrs.type || 'primary'} icon={self.icon ? <Acon icon={self.icon} /> : null} onClick={async () => {
       if (self.widget.action === CONST.ACTION_TYPE.SEARCH) {
-        setDataField({
+        actions.setDataField({
           field: 'page',
           type: 'number',
           source: '',
@@ -44,7 +44,7 @@ export default function CButton({ self, source, bindings, mode, setDataField, pa
         localStore.template_id = self.widget.method
       } else if (self.widget.action === CONST.ACTION_TYPE.FETCH) {
         const params = self.getApi({ id: source._id, [self.widget.field]: source[self.widget.field] });
-        const data = isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map(r => r.value as string));
+        const data = isEmpty(self.widget.refer) ? source : pick(source, self.widget.refer.map((r: any) => r.value as string));
         const result = await apis.fetch(self.widget.method, params, data,)
         if (result.code === 0) {
           notification.info({ title: '请求成功', placement: 'topRight' })

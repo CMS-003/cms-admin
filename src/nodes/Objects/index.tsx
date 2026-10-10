@@ -19,7 +19,7 @@ const ObjectItem = styled.div`
   border: 1px dashed #00000036;
 `
 
-export default function CObjects({ self, bindings, source, setDataField,setNodeField, mode, children, childrenNodes }: IBaseCom) {
+export default function CObjects({ self, actions, bindings, source, mode, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     showAdd: false,
@@ -41,7 +41,7 @@ export default function CObjects({ self, bindings, source, setDataField,setNodeF
         : (source[self.widget.field] || []).map((item: IResource) => (
           <ObjectItem key={item._id}>
             {childrenNodes.map(child => (
-              <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
+              <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
             ))}
           </ObjectItem>
         ))}

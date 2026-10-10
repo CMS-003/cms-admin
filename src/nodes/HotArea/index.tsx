@@ -23,7 +23,7 @@ const Row = styled.div`
   justify-content: space-around;
 `
 
-export default function CHotArea({ self, bindings, source, setDataField, setNodeField, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CHotArea({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
 
   return <div
@@ -42,10 +42,9 @@ export default function CHotArea({ self, bindings, source, setDataField, setNode
               <NodeWrapper
                 key={child._id}
                 self={child}
+                actions={actions}
                 onContextMenu={bindings.onContextMenu}
                 source={source}
-                setDataField={setDataField}
-                setNodeField={setNodeField}
               />
             ))}
           </Row>

@@ -84,7 +84,8 @@ export type FlatNode = {
   status: number;
   attrs: any;
   style: any;
-  widget: IWidget;
+  /** MST 迁移后节点上的 widget 是结构化模型实例，这里放宽成 any 以保持结构兼容 */
+  widget: any;
   queries: string[];
   resources: any[];
 
@@ -102,6 +103,21 @@ export type FlatNode = {
   [props: string]: any;
 };
 
+/**
+ * 传给节点组件的方法集合。
+ *
+ * 之前 setNodeField / setDataField / setQuery 是三个平级 prop，
+ * MST 迁移后合并成一个对象传递，组件里解构 `actions` 使用。
+ */
+export type INodeActions = {
+  /** 写节点字段，key 支持 'attrs.x' / 'widget.field' 路径（落到树 store 的 action） */
+  setNodeField: (node: any, key: string, value: any) => void;
+  /** 写表单数据源；widget.query 为真时落到 page.query */
+  setDataField: (widget: IWidget, value: any) => void;
+  /** 写页面 query */
+  setQuery: (field: string, value: any) => void;
+};
+
 export type IBaseCom = {
   self: FlatNode;
   /** 子节点对象数组（self.children 是 id 列表，这个才是对象） */
@@ -112,9 +128,9 @@ export type IBaseCom = {
    */
   resolveChildren: (id: string) => FlatNode[];
   bindings: IBindings;
-  setNodeField: (node: ITemplate | IComponent | FlatNode, key: string, value: any) => void;
+  /** 方法集合（setNodeField / setDataField / setQuery） */
+  actions: INodeActions;
   source: any;
-  setDataField: (widget: IWidget, value: any) => void;
   mode: 'edit' | 'preview';
   page: IPageInfo;
   children: any;
@@ -124,8 +140,7 @@ export type IBaseCom = {
 export type INode = {
   self: FlatNode;
   source: any;
-  setNodeField: (node: ITemplate | IComponent | FlatNode, key: string, value: any) => void;
-  setDataField: (widget: IWidget, value: any) => void;
+  actions: INodeActions;
   onContextMenu?: React.MouseEventHandler<any>;
   [props: string]: any;
 }

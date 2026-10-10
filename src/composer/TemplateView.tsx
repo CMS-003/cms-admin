@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragMoveEvent, DragOverlay, DragStartEvent, DragDropProvider } from '@dnd-kit/react';
-import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
+import { ContextMenuContent, ContextMenuContext, MenuAction } from './ContextMenu';
 import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
-import { FlatNode, IPageInfo, IWidget } from '@/types';
+import { FlatNode, IPageInfo, IWidget, INodeActions } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
 import store from '@/store';
@@ -12,28 +12,15 @@ import { NodeWrapper } from './NodeWrapper';
 import { EditorPanel } from './EditorPanel';
 import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
 import { TreeContext } from './TreeContext';
-import {
-  DropTarget,
-  TreeApi,
-  TreeData,
-  collectChanges,
-  collectSubtreeIds,
-  createNode,
-  getSiblingIndexIn,
-  insertIntoMap,
-  isNodeChanged,
-  isNoopDropIn,
-  moveInMap,
-  normalizeTree,
-  reindexInMap,
-  refreshSubtreeTreeIds,
-  removeFromMap,
-} from './tree';
+import { normalizeTree } from './tree';
+import { TreeStore, TreeStoreInstance } from './treeStore';
 import { canAcceptType, typeAccepts } from './componentTypes';
 import { EditorStatus, createEditorStatus } from './status';
 
 import { useLocalProxy } from '@/utils/valtio';
 import { proxy, useSnapshot } from 'valtio';
+import { autorun } from 'mobx';
+import { observer } from 'mobx-react';
 import { getWidgetValue } from './utils';
 import { cloneDeep, isNil, set } from 'lodash-es';
 
@@ -62,11 +49,11 @@ export type TViewProps = {
   path: string;
   close: Function;
   /**
-   * 把树读写接口交给外层（TemplateView 拖拽用）。
+   * 把树 store 交给外层（TemplateView 拖拽用）。
    * 用 ref 直连而不是全局事件：TView 是多实例的（画布 / Tab 内嵌 / dynamic 页），
    * 全局事件会让三个实例互相串台。
    */
-  apiRef?: React.MutableRefObject<TreeApi | null>;
+  apiRef?: React.MutableRefObject<TreeStoreInstance | null>;
   /**
    * 编辑器状态（脏数据数量 / 保存 / 当前编辑节点）。由需要工具栏的那一层创建后传进来；
    * 独立渲染 TView 时不传，内部自己造一个。
@@ -74,13 +61,16 @@ export type TViewProps = {
   status?: EditorStatus;
 };
 
-export const TView = React.memo(function T({ template_id, mode, path, close, apiRef, status }: TViewProps) {
-  // 编辑器状态要在 store 之前解析：store 里的 action（右键菜单等）要写它，
-  // 而 action 是在首次渲染时就创建好的闭包。用 ref 读，避免闭包捕获到旧对象。
+export const TView = React.memo(observer(function T({ template_id, mode, path, close, apiRef, status }: TViewProps) {
+  // 编辑器状态要在 action 之前解析：menuAction 要写它。
+  // 用 ref 读，避免闭包捕获到旧对象。
   const [ownStatus] = useState(() => createEditorStatus());
   const editorStatus = status ?? ownStatus;
   const statusRef = useRef(editorStatus);
   statusRef.current = editorStatus;
+
+  // 树 store：MST 实例，读写同源。observer 包着，加载完成 / 结构变化会自动重渲染
+  const [store] = useState(() => TreeStore.create({}));
 
   const page = proxy<IPageInfo>(({
     template_id,
@@ -95,157 +85,14 @@ export const TView = React.memo(function T({ template_id, mode, path, close, api
     },
   }));
 
-  const [editorState, editorStore] = useLocalProxy({
-    // ---------- 组件树：扁平存储，所有节点在 map 里，children 存 id 列表 ----------
-    template_id: '',
-    rootId: '',
-    map: {} as Record<string, FlatNode>,
-    loading: true,
-
-    // ---------- 变更追踪 ----------
-    /** 待提交的变更节点 id（新增 + 修改） */
-    dirtyIds: [] as string[],
-    /** 待提交删除的节点 id。$new 的节点没落过库，删除时直接丢弃，不会进这里 */
-    removedIds: [] as string[],
-    saving: false,
-
-    /** 重算单个节点的变更状态。写接口改完数据都要调它，dirtyIds 才不会漏。 */
-    recache(id: string) {
-      if (!id || id === editorStore.rootId) return;
-      const node = editorStore.map[id];
-      if (!node) return;
-      const dirty = isNodeChanged(node as unknown as FlatNode);
-      const i = editorStore.dirtyIds.indexOf(id);
-      if (dirty && i === -1) {
-        editorStore.dirtyIds = [...editorStore.dirtyIds, id];
-      } else if (!dirty && i !== -1) {
-        editorStore.dirtyIds = editorStore.dirtyIds.filter((x) => x !== id);
-      }
+  // ---------- 方法合并成一个 actions 对象往下传 ----------
+  // setNodeField 写树（store action）；setDataField / setQuery 是表单数据侧，
+  // query 落 page proxy、其余落 store.source
+  const actions = useMemo<INodeActions>(() => ({
+    setNodeField(node: any, key: string, value: any) {
+      const id = typeof node === 'string' ? node : node && node._id;
+      if (id) store.setField(id, key, value);
     },
-    recacheMany(ids: string[]) {
-      ids.forEach((id) => editorStore.recache(id));
-    },
-
-    // ---------- 读（逻辑用，从 live store 读，不参与渲染依赖）----------
-    getSiblingIndex(id: string) {
-      return getSiblingIndexIn(editorStore.map, id);
-    },
-    collectSubtree(id: string) {
-      return collectSubtreeIds(editorStore.map, id);
-    },
-    isNoopDrop(dragId: string, target: DropTarget) {
-      return isNoopDropIn(editorStore.map, dragId, target);
-    },
-
-    // ---------- 写 ----------
-    // 树的结构语义全在 tree.ts 的纯函数里（children / parent_id 双写也在那收口），
-    // 这里只负责在改完之后补「变更簿记」。
-    insertAt(parentId: string, index: number, node: FlatNode) {
-      if (!insertIntoMap(editorStore.map, parentId, index, node)) return;
-      // 新节点必须重算（$new 恒为脏）；被挤到后面的兄弟 order 变了也要重算
-      editorStore.recache(node._id);
-      editorStore.recacheMany(reindexInMap(editorStore.map, parentId));
-      // createNode 已经按规则写好 tree_id，这里兜一层，防止外部塞进来的节点带错值
-      editorStore.recacheMany(refreshSubtreeTreeIds(editorStore.map, node._id, parentId));
-    },
-    remove(id: string) {
-      const node = editorStore.map[id];
-      if (!node) return;
-      const parentId = node.parent_id;
-      const subtree = collectSubtreeIds(editorStore.map, id);
-      // 先记账（removeFromMap 之后这些节点就查不到了）：
-      // $new 的还没进数据库，直接丢弃；其它节点待删除，保存时一起提交
-      for (const nid of subtree) {
-        if (nid === editorStore.rootId) continue;
-        const n = editorStore.map[nid];
-        if (n && !n.$new && editorStore.removedIds.indexOf(nid) === -1) {
-          editorStore.removedIds = [...editorStore.removedIds, nid];
-        }
-      }
-      removeFromMap(editorStore.map, id);
-      editorStore.dirtyIds = editorStore.dirtyIds.filter((d) => subtree.indexOf(d) === -1);
-      // 剩下的兄弟 order 前移了
-      editorStore.recacheMany(reindexInMap(editorStore.map, parentId));
-    },
-    move(id: string, parentId: string, index: number) {
-      const containers = moveInMap(editorStore.map, id, parentId, index);
-      if (!containers.length) return;
-      // 两边容器的 order 都要重排
-      for (const cid of containers) {
-        editorStore.recacheMany(reindexInMap(editorStore.map, cid));
-      }
-      // 换了所属的一级子树时，整棵子树的 tree_id 都要跟着改
-      editorStore.recacheMany(refreshSubtreeTreeIds(editorStore.map, id, parentId));
-      // 跨容器时被移动节点的 parent_id 变了，但它的 order / tree_id 值未必变，
-      // 所以不能只依赖上面那两轮，得单独再算一次
-      editorStore.recache(id);
-    },
-    setField(id: string, key: string, value: any) {
-      const n = editorStore.map[id];
-      if (!n) return;
-      set(n, key, value);
-      editorStore.recache(id);
-    },
-
-    // ---------- 新建 ----------
-    createAndInsert(parentId: string, index: number, type: string) {
-      const parent = editorStore.map[parentId];
-      if (!parent) return null;
-      // 拖放约束对「新增」同样生效。root 是页面壳，不做约束
-      if (parentId !== editorStore.rootId
-        && !canAcceptType(parent.type, (parent as any).accepts, type)) {
-        message.warning(`「${parent.title || parent.type}」不接收「${type}」类型的子节点`);
-        return null;
-      }
-      const node = createNode({
-        type,
-        parent: parent as unknown as FlatNode,
-        parentIsRoot: parentId === editorStore.rootId,
-        index,
-        template_id: editorStore.template_id || parent.template_id,
-        project_id: parent.project_id,
-        accepts: typeAccepts(type) ?? [],
-      });
-      editorStore.insertAt(parentId, index, node);
-      return node;
-    },
-
-    // ---------- 保存 ----------
-    async save() {
-      if (editorStore.saving) return;
-      const updates = collectChanges({ rootId: editorStore.rootId, map: editorStore.map });
-      const removes = editorStore.removedIds.slice();
-      if (!updates.length && !removes.length) return;
-
-      editorStore.saving = true;
-      try {
-        if (updates.length) {
-          await apis.batchUpdateComponent({ body: updates });
-        }
-        if (removes.length) {
-          await apis.batchDestroyComponent({ ids: removes.join(',') });
-        }
-        // 提交成功 → 就地重置基线。
-        // 不重新拉取：拉取会把选中态、滚动位置、$selected 全冲掉，
-        // 而且本地数据本来就是权威的（只缺后端补的 updatedAt）。
-        for (const p of updates) {
-          const n = editorStore.map[p._id];
-          if (!n) continue;
-          n.$origin = cloneDeep(p);   // 必须深拷贝：p 里的 attrs / style 还是活引用
-          n.$new = false;
-        }
-        editorStore.dirtyIds = [];
-        editorStore.removedIds = [];
-      } catch (err: any) {
-        message.error(`保存失败：${err?.message || err}`);
-        throw err;
-      } finally {
-        editorStore.saving = false;
-      }
-    },
-
-    // ---------- 表单数据 ----------
-    source: {} as any,
     setDataField(widget: IWidget, value: any) {
       if (!widget.field) {
         return;
@@ -255,134 +102,60 @@ export const TView = React.memo(function T({ template_id, mode, path, close, api
         return;
       }
       if (widget.query) {
-        editorStore.setQuery(widget.field, value)
+        page.setQuery(widget.field, value);
       } else {
-        set(editorStore.source, widget.field, value)
+        store.setSource(widget.field, value);
       }
-    },
-    setNodeField(node: any, key: string, value: any) {
-      // this 丢失了~~ 统一走 editorStore
-      const id = typeof node === 'string' ? node : node && node._id;
-      if (!id) return;
-      editorStore.setField(id, key, value);
-    },
-    page: {
-      template_id,
-      path,
-      close,
-      param: {},
-      query: {} as any,
     },
     setQuery(field: string, value: any) {
-      const query = cloneDeep(editorStore.page.query);
-      query[field] = value
-      editorStore.page.query = query;
+      page.setQuery(field, value);
     },
+  }), [store, page]);
 
-    // ---------- 右键菜单 ----------
-    menuAction(action: { kind: string; nodeId: string; type?: string; tab?: string }) {
-      const id = action.nodeId;
-      if (!id || !editorStore.map[id]) return;
-
-      if (action.kind === 'edit') {
-        // 选中 → TemplateView 那边据此从树里取节点，交给 EditorPanel
-        statusRef.current.editNodeId = id;
-        statusRef.current.editNodeTab = action.tab || 'base';
-        return;
-      }
-
-      if (action.kind === 'append') {
-        if (!action.type) return;
-        const parent = editorStore.map[id];
-        const node = editorStore.createAndInsert(id, parent.children.length, action.type);
-        if (node) {
-          // 和旧版一致：新建完直接把编辑面板开到这个新节点上
-          statusRef.current.editNodeId = node._id;
-          statusRef.current.editNodeTab = 'base';
-        }
-        return;
-      }
-
-      if (action.kind === 'delete') {
-        if (statusRef.current.editNodeId === id) statusRef.current.editNodeId = '';
-        editorStore.remove(id);
-      }
+  // ---------- 数据加载 ----------
+  const refreshTemplateDetail = useCallback(async () => {
+    try {
+      if (!template_id) return;
+      store.setKV('loading', true)
+      const resp = await apis.getTemplateComponents(template_id);
+      // normalizeTree 一次性把 $origin 基线、order、tree_id、accepts 归一化
+      const data = normalizeTree(resp.data as any, typeAccepts);
+      store.setKV('template_id', template_id)
+      store.load(data);
+      // 换页/刷新后原来编辑的节点已经不存在了，别留着 id 指向空气
+      statusRef.current.editNodeId = '';
+      store.setKV('loading', false)
+    } catch (err) {
+      store.setKV('loading', false)
+      console.log(err)
     }
-  })
+  }, [template_id, store])
 
-  // 读接口必须读到「最新快照」，否则不会建立响应式依赖。
-  // stateRef 在每次渲染时更新，api 本身是稳定引用（useMemo 只依赖 editorStore），
-  // 这样 NodeWrapper 的 memo 不会被上下文身份变化打破。
-  const stateRef = useRef(editorState);
-  stateRef.current = editorState;
+  useEffect(() => {
+    refreshTemplateDetail()
+  }, [template_id])
 
-  const api = useMemo<TreeApi>(() => ({
-    get rootId() {
-      return stateRef.current.rootId;
-    },
-    getNode: (id) => stateRef.current.map[id] as unknown as FlatNode | undefined,
-    getChildren: (id) => {
-      const node = stateRef.current.map[id] as unknown as FlatNode | undefined;
-      if (!node) return [];
-      const out: FlatNode[] = [];
-      for (const cid of node.children) {
-        const child = stateRef.current.map[cid] as unknown as FlatNode | undefined;
-        if (child) out.push(child);
-      }
-      return out;
-    },
-    getParent: (id) => {
-      const node = stateRef.current.map[id] as unknown as FlatNode | undefined;
-      if (!node || !node.parent_id) return undefined;
-      return stateRef.current.map[node.parent_id] as unknown as FlatNode | undefined;
-    },
-    getSiblingIndex: (id) => editorStore.getSiblingIndex(id),
-    collectSubtree: (id) => editorStore.collectSubtree(id),
-    isNoopDrop: (id, target) => editorStore.isNoopDrop(id, target),
-    canAccept: (containerId, childType) => {
-      if (!childType) return true;
-      const s = stateRef.current;
-      // root 是 template 本身（页面壳），不在组件类型表里，不做约束
-      if (containerId === s.rootId) return true;
-      const parent = s.map[containerId] as unknown as FlatNode | undefined;
-      if (!parent) return false;
-      return canAcceptType(parent.type, parent.accepts, childType);
-    },
-    isDirty: (id) => editorStore.dirtyIds.indexOf(id) !== -1,
-    getDirtyIds: () => editorStore.dirtyIds.slice(),
-    getRemovedIds: () => editorStore.removedIds.slice(),
-    insertAt: (parentId, index, node) => editorStore.insertAt(parentId, index, node),
-    remove: (id) => editorStore.remove(id),
-    move: (id, parentId, index) => editorStore.move(id, parentId, index),
-    setField: (id, key, value) => editorStore.setField(id, key, value),
-    createAndInsert: (parentId, index, type) => editorStore.createAndInsert(parentId, index, type),
-    save: () => editorStore.save(),
-  }), [editorStore]);
+  // ---------- 编辑器状态同步（工具栏保存按钮靠这个）----------
+  useEffect(() => {
+    editorStatus.save = () => store.save();
+    const dispose = autorun(() => {
+      editorStatus.dirtyCount = store.dirtyCount;
+      editorStatus.saving = store.saving;
+    });
+    return () => {
+      dispose();
+      editorStatus.save = async () => { };
+    };
+  }, [editorStatus, store]);
 
   // 交给外层：ref 直连，实例作用域
   useEffect(() => {
     if (!apiRef) return;
-    apiRef.current = api;
+    apiRef.current = store;
     return () => {
       apiRef.current = null;
     };
-  }, [apiRef, api]);
-
-  // ---------- 编辑器状态同步（工具栏保存按钮靠这个）----------
-  useEffect(() => {
-    editorStatus.save = () => editorStore.save();
-    return () => {
-      editorStatus.save = async () => { };
-    };
-  }, [editorStatus, editorStore]);
-
-  useEffect(() => {
-    editorStatus.dirtyCount = editorState.dirtyIds.length + editorState.removedIds.length;
-  }, [editorStatus, editorState.dirtyIds.length, editorState.removedIds.length]);
-
-  useEffect(() => {
-    editorStatus.saving = editorState.saving;
-  }, [editorStatus, editorState.saving]);
+  }, [apiRef, store]);
 
   const contextmenu = useMemo(() => proxy({
     id: '',
@@ -398,72 +171,79 @@ export const TView = React.memo(function T({ template_id, mode, path, close, api
     },
   }), [template_id])
   // 右键回调：打开全局单例菜单
+  // 目标 id 从 handle 元素上读：NodeWrapper 的 nodeHandleRef 会给 .node-handle
+  // 注入 data-node-id；万一某些组件把右键挂到了别处，再向上找最近的节点 root 兜底。
   const onContextMenu = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();  // 阻止冒泡到父节点
-      if (contextmenu) {
-        const nodeId = (e.currentTarget as HTMLElement).dataset.nodeId;
-        contextmenu.open(nodeId || '', e.clientX, e.clientY);
+      const el = e.currentTarget as HTMLElement;
+      const anchor = el.dataset?.nodeId
+        ? el
+        : (el.closest?.('[data-node-id]') as HTMLElement | null);
+      const nodeId = anchor?.dataset?.nodeId || '';
+      if (nodeId) {
+        contextmenu.open(nodeId, e.clientX, e.clientY);
       }
     },
     [contextmenu]
   );
 
-  const refreshTemplateDetail = useCallback(async () => {
-    try {
-      if (!editorStore.template_id) return;
-      editorStore.loading = true
-      const resp = await apis.getTemplateComponents(editorStore.template_id)
-      // normalizeTree 一次性把 $origin 基线、order、tree_id、accepts 归一化
-      const data: TreeData = normalizeTree(resp.data as any, typeAccepts);
-      editorStore.rootId = data.rootId;
-      editorStore.map = data.map;
-      editorStore.dirtyIds = [];
-      editorStore.removedIds = [];
-      // 换页/刷新后原来编辑的节点已经不存在了，别留着 id 指向空气
-      statusRef.current.editNodeId = '';
-      editorStore.loading = false;
-    } catch (err) {
-      editorStore.loading = false;
-      console.log(err)
-    }
-  }, [editorStore.template_id])
+  const menuAction = useCallback((action: MenuAction) => {
+    const id = action.nodeId;
+    if (!id || !store.map.get(id)) return;
 
-  useEffect(() => {
-    if (template_id && template_id !== editorStore.template_id) {
-      editorStore.template_id = template_id
-      refreshTemplateDetail()
+    if (action.kind === 'edit') {
+      // 选中 → TemplateView 那边据此从树里取节点，交给 EditorPanel
+      statusRef.current.editNodeId = id;
+      statusRef.current.editNodeTab = action.tab || 'base';
+      return;
     }
-  }, [template_id])
 
-  const rootNodes = editorState.rootId ? api.getChildren(editorState.rootId) : [];
+    if (action.kind === 'append') {
+      if (!action.type) return;
+      const parent = store.map.get(id);
+      if (!parent) return;
+      const node = store.createAndInsert(id, parent.children.length, action.type);
+      if (node) {
+        // 和旧版一致：新建完直接把编辑面板开到这个新节点上
+        statusRef.current.editNodeId = node._id;
+        statusRef.current.editNodeTab = 'base';
+      }
+      return;
+    }
+
+    if (action.kind === 'delete') {
+      if (statusRef.current.editNodeId === id) statusRef.current.editNodeId = '';
+      store.remove(id);
+    }
+  }, [store]);
+
+  const rootNodes = store.rootId ? store.getChildren(store.rootId) : [];
 
   return <ModeContext.Provider value={mode}>
     <PageContext.Provider value={page}>
-      <TreeContext.Provider value={api}>
+      <TreeContext.Provider value={store}>
         <ContextMenuContext.Provider value={contextmenu}>
           <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }} data-node-id={template_id}>
             {rootNodes.map(c => (
               <NodeWrapper
                 key={c._id}
                 self={c}
-                setNodeField={editorStore.setNodeField}
-                source={editorState.source}
-                page={editorState.page}
-                setQuery={editorStore.setQuery}
-                setDataField={editorStore.setDataField}
+                actions={actions}
+                source={store.source}
+                page={page}
                 onContextMenu={onContextMenu}
               />
             ))}
-            {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={editorStore.menuAction} />}
-            {editorState.loading && <Spin fullscreen spinning />}
+            {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={menuAction} />}
+            {store.loading && <Spin fullscreen spinning />}
           </div>
         </ContextMenuContext.Provider>
       </TreeContext.Provider>
     </PageContext.Provider>
   </ModeContext.Provider>
-});
+}));
 
 export const TemplateView = React.memo(function Template({ template_id, mode, path, close, status }: { template_id: string; mode: 'edit' | 'preview'; path: string; close: Function; status?: EditorStatus; }) {
   // 编辑器状态在「需要工具栏的那一层」创建，TView 和多实例共用不了同一个。
@@ -472,23 +252,12 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
   const editorStatus = status ?? ownStatus;
   const statusSnap = useSnapshot(editorStatus);
 
-  const page = proxy<IPageInfo>(({
-    template_id,
-    path,
-    close,
-    param: {},
-    query: {} as any,
-    setQuery(field, value) {
-      this.query[field] = value;
-    },
-  }));
-
   // canvas 既是 DragOverlay 的挂载点，也是 hitTest 的坐标原点，
   // 所以要在 store 之前声明，供 dragMove 使用
   const canvasRef = useRef<HTMLDivElement | null>(null);
 
-  // TView 挂载后把树读写接口交到这里（实例作用域，不走全局事件）
-  const treeRef = useRef<TreeApi | null>(null);
+  // TView 挂载后把树 store 交到这里（实例作用域，不走全局事件）
+  const treeRef = useRef<TreeStoreInstance | null>(null);
 
   const [editorState, editorStore] = useLocalProxy({
 
@@ -619,23 +388,21 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     },
   })
 
-  // 从 TView 交过来的 tree api 上读树。
-  // 之前这里恒为空数组，是因为 template 在 TView 的 store 里、TemplateView 根本读不到；
-  // 现在通过 apiRef 直连就没这个问题了。
+  // 从 TView 交过来的树 store 上读树。
   const measure = useCallback(() => {
     const canvas = canvasRef.current;
     const tree = treeRef.current;
     if (!canvas || !tree) return;
     const root = tree.getNode(tree.rootId);
     if (!root) return;
-    const cs = measureContainers(root, canvas, tree.getChildren);
+    const cs = measureContainers(root as any, canvas, tree.getChildren);
     editorStore.containers = cs;
     const r = canvas.getBoundingClientRect();
     editorStore.canvasBase = { left: r.left, top: r.top };
   }, []);
 
   // 当前编辑的节点：只存 id，节点对象每次从树里取 ——
-  // 取到的是树 store 里的节点代理，EditorPanel 会订阅它，改数据面板能跟着刷新。
+  // 取到的是 MST 节点实例，EditorPanel 是 observer，改数据面板能跟着刷新。
   const editNodeId = statusSnap.editNodeId;
   const selectedNode = editNodeId && treeRef.current
     ? (treeRef.current.getNode(editNodeId) ?? null)

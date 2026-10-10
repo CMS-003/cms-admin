@@ -3,7 +3,7 @@ import { IBaseCom } from "@/types";
 import { Grip } from "lucide-react";
 import { Empty } from 'antd';
 
-export default function CFilter({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CFilter({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

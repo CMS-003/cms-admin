@@ -2,7 +2,7 @@ import { IBaseCom } from "@/types";
 import { Input } from "antd";
 import { GripVertical } from "lucide-react";
 
-export default function CHidden({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CHidden({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
@@ -20,7 +20,7 @@ export default function CHidden({ self, bindings, source, setDataField, mode, ch
       value={mode === 'preview' ? source[self.widget.field] : self.widget.field}
       style={self.style}
       onChange={e => {
-        setDataField(self.widget, e.target.value);
+        actions.setDataField(self.widget, e.target.value);
       }}
     />
   </div>

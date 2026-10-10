@@ -4,7 +4,7 @@ import { GripVertical } from "lucide-react";
 import { get } from 'lodash-es'
 import store from "@/store";
 
-export default function CRow({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CRow({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

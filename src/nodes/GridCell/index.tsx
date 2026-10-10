@@ -6,7 +6,7 @@ const Cell = styled.div`
   background-color: #d9d9d9c7;
 `
 
-export default function GridCell({ self, bindings, mode, children }: IBaseCom) {
+export default function GridCell({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}

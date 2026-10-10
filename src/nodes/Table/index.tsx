@@ -13,7 +13,7 @@ import { message, Table } from "antd";
 import { getApi } from "@/composer/utils";
 
 
-export default function CTable({ self, bindings, source, setDataField, setNodeField, mode, page, setQuery, children, childrenNodes, resolveChildren }: IBaseCom) {
+export default function CTable({ self, actions, bindings, source, mode, page, children, childrenNodes, resolveChildren }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     loading: false,
@@ -62,7 +62,7 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
 
   useEffectOnce(() => {
     if (!page.query.page_size) {
-      setQuery('page_size', 20)
+      actions.setQuery('page_size', 20)
     }
     init();
     events.on(CONST.ACTION_TYPE.SEARCH, onSetQuery);
@@ -101,16 +101,7 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
         onHeaderCell: () => ({ _id: child._id, title: child.title, self: child, mode: mode, page: page }),
         render: (field: string, data: any) => (
           resolveChildren(child._id).map((item, k: number) => (
-            <NodeWrapper key={k} self={item} source={data} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} setDataField={(widget: IWidget, value: any) => {
-              if (!widget.field) {
-                return;
-              }
-              value = getWidgetValue(widget, value);
-              if (isNil(value)) {
-                return;
-              }
-              data[widget.field] = value
-            }} />
+            <NodeWrapper key={k} self={item} source={data} actions={actions} onContextMenu={bindings.onContextMenu} />
           ))
         )
       }))}
@@ -118,7 +109,7 @@ export default function CTable({ self, bindings, source, setDataField, setNodeFi
         header: {
           cell: (props: any) => {
             return <th>
-              <NodeWrapper self={props.self} source={source} setDataField={setDataField} setNodeField={setNodeField} onContextMenu={bindings.onContextMenu} />
+              <NodeWrapper self={props.self} source={source} actions={actions} onContextMenu={bindings.onContextMenu} />
             </th>
           }
         }

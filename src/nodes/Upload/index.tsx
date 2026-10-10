@@ -25,7 +25,7 @@ const Preview = styled.div`
 `
 
 
-export default function CUpload({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CUpload({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const inputRef = useRef(null);
   const [url, setURL] = useState('')
@@ -67,7 +67,7 @@ export default function CUpload({ self, bindings, source, setDataField, mode, pa
         }}
         onBlur={e => {
           setFocused(false)
-          setDataField(self.widget, e.currentTarget.value)
+          actions.setDataField(self.widget, e.currentTarget.value)
           setPreview(e.currentTarget.value)
         }}
         suffix={focused ? <Acon icon="CircleCheck" onClick={() => {
@@ -97,7 +97,7 @@ export default function CUpload({ self, bindings, source, setDataField, mode, pa
             data.append('filepath', source[self.widget.field])
             const result = await apis.fetch(self.widget.method, self.url, data);
             if (result.code === 0 && result.data.filepath) {
-              setDataField(self.widget, result.data.filepath)
+              actions.setDataField(self.widget, result.data.filepath)
               setURL(result.data.filepath)
             }
           } catch (e) {

@@ -7,7 +7,7 @@ import 'draft-js/dist/Draft.css';
 import store from "@/store";
 import { useState, useRef, useEffect } from "react";
 
-export default function CEditor({ self, bindings, source, setDataField, mode, children }: IBaseCom) {
+export default function CEditor({ self, actions, bindings, source, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [editorState, setEditorState] = useState(
     () => EditorState.createEmpty(),
@@ -15,7 +15,7 @@ export default function CEditor({ self, bindings, source, setDataField, mode, ch
   const editorRef = useRef(null);
   useEffectOnce(() => {
     if (!source._id) {
-      setDataField(self.widget, self.widget.value)
+      actions.setDataField(self.widget, self.widget.value)
     }
   })
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function CEditor({ self, bindings, source, setDataField, mode, ch
       blockRendererFn={mediaBlockRenderer}
       onChange={(v) => {
         setEditorState(v)
-        setDataField(self.widget, stateToHTML(v.getCurrentContent(), {
+        actions.setDataField(self.widget, stateToHTML(v.getCurrentContent(), {
           blockRenderers: {
             unstyled: (block) => {
               const text = block.getText();

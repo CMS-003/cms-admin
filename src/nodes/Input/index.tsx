@@ -6,7 +6,7 @@ import { pick, get } from 'lodash-es';
 import CONST from "@/constant";
 import events from '@/utils/event';
 
-export default function CInput({ self, bindings, source, setDataField, mode, page, children }: IBaseCom) {
+export default function CInput({ self, actions, bindings, source, mode, page, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   const [localState, localStore] = useLocalProxy({
     composing: false,
@@ -32,11 +32,11 @@ export default function CInput({ self, bindings, source, setDataField, mode, pag
         localStore.composing = false
       }}
       onChange={e => {
-        setDataField(self.widget, e.target.value);
+        actions.setDataField(self.widget, e.target.value);
       }}
       onKeyDown={e => {
         if (e.key === 'Enter' && !localStore.composing && self.widget.action === CONST.ACTION_TYPE.SEARCH) {
-          setDataField({
+          actions.setDataField({
             field: 'page',
             type: 'number',
             source: '',

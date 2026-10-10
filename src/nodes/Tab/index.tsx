@@ -30,7 +30,7 @@ const TabItemWrap = styled.div`
   }
 `
 
-export default function CTab({ self, setNodeField, bindings, source, setDataField, mode, page, children, childrenNodes }: IBaseCom) {
+export default function CTab({ self, actions, bindings, source, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
@@ -46,7 +46,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
         activeKey={self.attrs.selected_id}
         tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'Menu'} /> }}
         onChange={activeKey => {
-          setNodeField(self, 'attrs.selected_id', activeKey)
+          actions.setNodeField(self, 'attrs.selected_id', activeKey)
         }}
         items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
@@ -56,7 +56,7 @@ export default function CTab({ self, setNodeField, bindings, source, setDataFiel
           children: (
             child.attrs.content_type === 'template'
               ? <TView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper key={child._id} self={child} setNodeField={setNodeField} source={source} setDataField={setDataField} onContextMenu={bindings.onContextMenu} />
+              : <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />

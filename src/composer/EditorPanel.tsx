@@ -9,16 +9,17 @@ import { SortDD } from '@/components/SortableDD';
 import { FullWidth, AlignAround } from '@/components/style';
 import store from '@/store';
 import { cloneDeep, isPlainObject, pick } from 'lodash-es';
-import { getSnapshot } from 'mobx-state-tree';
+import { observer } from 'mobx-react';
+import { getSnapshot, isStateTreeNode } from 'mobx-state-tree';
+import { TreeNode } from './treeStore';
 import { Fragment, useEffect } from 'react';
 import ResourceModal from '@/components/ResourceModal';
 import CONST from '@/constant';
 import QueryModal from '@/groups/queriesModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
-import { getVersion, proxy, useSnapshot } from 'valtio';
 
 type Props = {
-  node: FlatNode;
+  node: TreeNode;
   /**
    * 唯一的写入口。field 是字段路径，支持 'title' / 'widget.field' / 'attrs.x'
    * 这种写法（TView 那边走 lodash set 落到节点上，同时标脏）。
@@ -53,22 +54,6 @@ export const EditItem = styled.div`
   gap: 5px;
 `
 
-/** useSnapshot 必须拿到真正的 proxy，非 proxy 传进去 subscribe 会直接报错 */
-const EMPTY_NODE = proxy({}) as unknown as FlatNode;
-
-/**
- * 订阅节点。
- *
- * 面板拿到的 node 是 TView 树 store 里的节点代理，订阅它之后受控输入才能跟着数据走
- * ——「加参考值 / 删资源 / 拖排序」这类改动改的是 store，不订阅的话面板不会重渲染，
- * 界面会跳回旧值。传进来的若是普通对象（不是 proxy）就退回原对象，不做订阅。
- */
-function useNodeSnapshot(node: FlatNode): FlatNode {
-  const reactive = !!node && typeof node === 'object' && getVersion(node) !== undefined;
-  const snap = useSnapshot(reactive ? node : EMPTY_NODE);
-  return reactive ? (snap as unknown as FlatNode) : node;
-}
-
 /** 交换数组里两个下标（返回新数组）。越界 / 相同则原样返回 */
 function swapArray<T>(list: T[], a: number, b: number): T[] {
   if (a === b || a < 0 || b < 0 || a >= list.length || b >= list.length) return list;
@@ -79,8 +64,11 @@ function swapArray<T>(list: T[], a: number, b: number): T[] {
   return next;
 }
 
-export function EditorPanel({ node: rawNode, onChange, tabKey, onClose }: Props) {
-  const node = useNodeSnapshot(rawNode);
+/**
+ * 面板是 observer：node 是 MST 节点实例，读到的字段变化会自动重渲染，
+ * 受控输入才能跟着数据走（「加参考值 / 删资源 / 拖排序」都改 store）。
+ */
+export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKey, onClose }: Props) {
   const refer = node.widget?.refer || [];
   const resources = node.resources || [];
   const queries = node.queries || [];
@@ -298,7 +286,7 @@ export function EditorPanel({ node: rawNode, onChange, tabKey, onClose }: Props)
                   静态数据
                   <SortDD
                     direction='vertical'
-                    items={resources.map((v: any) => ({ id: v._id, data: v }))}
+                    items={resources.map((v: any) => ({ id: v._id, data: isStateTreeNode(v) ? getSnapshot(v) : v }))}
                     renderItem={(item: any, handler: any) => {
                       return <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
                         <Acon icon='Move' style={{ marginRight: 5 }} {...handler} />
@@ -435,4 +423,4 @@ export function EditorPanel({ node: rawNode, onChange, tabKey, onClose }: Props)
       </Tabs>
     </Panel>
   );
-}
+});

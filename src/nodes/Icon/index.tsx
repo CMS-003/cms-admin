@@ -2,7 +2,7 @@ import { IBaseCom } from "@/types";
 import { GripVertical } from "lucide-react";
 import { Acon, VisualBox } from '@/components'
 
-export default function CIcon({ self, bindings, mode, children }: IBaseCom) {
+export default function CIcon({ self, actions, bindings, mode, children }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
