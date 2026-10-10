@@ -39,13 +39,7 @@ export default function CHotArea({ self, actions, bindings, source, mode, page, 
         {chunk(childrenNodes, self.attrs.columns || 1).map((rows, i) => (
           <Row key={i}>
             {rows.map(child => (
-              <NodeWrapper
-                key={child._id}
-                self={child}
-                actions={actions}
-                onContextMenu={bindings.onContextMenu}
-                source={source}
-              />
+              <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} />
             ))}
           </Row>
         ))}

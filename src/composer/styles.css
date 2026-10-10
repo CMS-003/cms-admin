@@ -139,8 +139,73 @@ body {
 .node {
   box-sizing: border-box;
   display: flex;
+  /* 选中框（下面的 ::after）靠它定位。节点的 absolute 子元素没有 left/top 时
+     仍留在静态位置，所以加这一条不会挪动任何东西。 */
+  position: relative;
   /* min-width: 32px;
   min-height: 32px; */
+}
+
+/* ---------- 编辑态选中框 ----------
+   旧版是往每个节点里塞 8 个 DOM（LineL/T/R/B + ConerLT/RT/LB/RB）来做
+   四条虚线边 + 四个角标。这里用一个伪元素顶掉：
+     - 四边：border: 1px dashed
+     - 四角：8 层 background-image 拼出「横 8px + 竖 8px」的 L 形角标
+   颜色统一走 currentColor，所以改一个 color 就同时换掉边线和角标。
+   零额外 DOM、每种节点类型都不用管。
+
+   选择器故意不带 .node 前缀：树的根（template 壳 div）没有 React 组件承载，
+   它只有一个 data-mark 属性，走的是同一套框。
+   定位基准由各自保证：节点是 .node 的 position: relative，
+   壳 div 是它的 inline style。 */
+[data-mark='edit']::after,
+[data-mark='curr']::after,
+[data-mark='drag']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  /* 选框绝不能挡住节点自己的交互（输入框、按钮都得能点） */
+  pointer-events: none;
+  color: transparent;
+  border: 1px dashed currentColor;
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor);
+  background-size:
+    8px 1px, 1px 8px,
+    8px 1px, 1px 8px,
+    8px 1px, 1px 8px,
+    8px 1px, 1px 8px;
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* 正在编辑（右键「编辑属性」进来的那个） */
+[data-mark='edit']::after {
+  color: #ef4444;
+}
+
+/* 鼠标所在（curr 的优先级高于 edit） */
+[data-mark='curr']::after {
+  color: #38bdf8;
+}
+
+/* 拖拽落点：淡黄，实线 + 淡黄底 */
+[data-mark='drag']::after {
+  color: #eab308;
+  border-style: solid;
+  background-color: rgba(250, 204, 21, 0.12);
 }
 
 .node.is-dragging {
@@ -156,18 +221,35 @@ body {
   pointer-events: none;
 }
 
-.drop-container-highlight {
+/* ---------- 拖拽预览 ----------
+   DragOverlay 里挂的是被拖元素 DOM 的深拷贝（见 composer/preview.ts）。
+   overlay 自身已被 dnd-kit 定成 position: fixed + 源元素的宽高（content-box
+   的 padding / border 差额它也补偿过了），所以这里只要撑满就行：
+   宿主 inset: 0，克隆体在宿主左上角铺满 100%。
+   位置显式写 left/top + width/height，不能用 inset 简写 —— 克隆体若是
+   absolute 而宽度 auto，会被 shrink-to-fit 收成内容宽度，比原节点窄。
+   克隆体要压掉的：
+   - transform：源节点可能带拖拽/布局用的 transform
+   - margin：外面那圈 margin 不能带进来
+   - opacity：半透明，落点指示条才能透出来看见 */
+.drag-preview-host {
   position: absolute;
+  inset: 0;
   pointer-events: none;
-  z-index: 15;
-  border-radius: 10px;
-  background: rgba(250, 204, 21, 0.10);
-  box-shadow: inset 0 0 0 1.5px rgba(250, 204, 21, 0.55);
-  transition:
-    left 120ms cubic-bezier(.2, .9, .3, 1.15),
-    top 120ms cubic-bezier(.2, .9, .3, 1.15),
-    width 120ms ease,
-    height 120ms ease;
+}
+
+.drag-preview-host > * {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  transform: none !important;
+  /* 半透明：overlay 是 position: fixed + z-index: infinity，盖在落点指示条上面，
+     不透明的话就看不见往哪儿插了。源节点克隆时可能带着 .is-dragging（opacity .5），
+     所以这里必须 important */
+  opacity: 0.75 !important;
 }
 
 /* ---------- 指示条 ---------- */
@@ -234,10 +316,6 @@ body {
   color: #94a3b8;
   transition: background 120ms, color 120ms;
   height: 100%;
-}
-
-.node-handle:hover {
-  background-color: lightblue;
 }
 
 .node-handle--ghost {

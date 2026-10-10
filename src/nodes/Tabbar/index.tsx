@@ -62,7 +62,7 @@ export default function CPickCard({ self, actions, bindings, source, mode, page,
           children: (
             child.attrs.content_type === 'template'
               ? <TemplateView mode='preview' template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
+              : <NodeWrapper self={child} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />

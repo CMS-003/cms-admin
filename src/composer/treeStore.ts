@@ -4,7 +4,7 @@ import { cloneDeep, isEqual, set as ldset } from 'lodash-es';
 import apis from '@/api';
 import type { IWidget } from '@/types';
 import { mergeQuery } from './utils';
-import { canAcceptType, typeAccepts } from './componentTypes';
+import { canAcceptAtRoot, canAcceptType, exclusiveParentsOf, typeAccepts } from './componentTypes';
 import { createNode, resolveTreeId, resolveInsertIndex, toPayload, TreeData } from './tree';
 
 /**
@@ -170,12 +170,18 @@ export const TreeStore = types
       if (idx < 0) return false;
       return target.index === idx || target.index === idx + 1;
     },
-    /** 拖放 / 新增共用的接收判定。root 是页面壳，不做约束 */
+    /**
+     * 拖放 / 新增共用的接收判定。
+     *
+     * root 是页面壳，不是业务容器：它不收任何带 accepts 语义的约束，但**只收一级节点**
+     * （level === 1），否则 TableColumn / GridCell 这类结构子节点会被拖到页面一级。
+     * 其余容器走类型表的 accepts / level + 父子约束。
+     */
     canAccept(containerId: string, childType: string): boolean {
       if (!childType) return true;
-      if (containerId === self.rootId) return true;
       const parent = self.map.get(containerId);
       if (!parent) return false;
+      if (containerId === self.rootId) return canAcceptAtRoot(parent.type, childType);
       return canAcceptType(parent.type, parent.accepts, childType);
     },
     /** 待提交的变更节点 id（新增 + 修改）。根节点（template 本身）不算 */
@@ -341,8 +347,20 @@ export const TreeStore = types
     createAndInsert(parentId: string, index: number, type: string): TreeNode | null {
       const parent = self.map.get(parentId);
       if (!parent) return null;
-      if (parentId !== self.rootId && !canAcceptType(parent.type, parent.accepts, type)) {
-        message.warning(`「${parent.title || parent.type}」不接收「${type}」类型的子节点`);
+      const atRoot = parentId === self.rootId;
+      const ok = atRoot
+        ? canAcceptAtRoot(parent.type, type)
+        : canAcceptType(parent.type, parent.accepts, type);
+      if (!ok) {
+        // 父子约束挡下来时报得更具体一点，否则用户不知道为什么加不进去
+        const owners = exclusiveParentsOf(type);
+        message.warning(
+          owners
+            ? `「${type}」只能作为「${owners.join(' / ')}」的子节点`
+            : atRoot
+              ? `「${type}」不能放在页面一级`
+              : `「${parent.title || parent.type}」不接收「${type}」类型的子节点`,
+        );
         return null;
       }
       const node = createNode({

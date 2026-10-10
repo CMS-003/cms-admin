@@ -12,8 +12,7 @@ import store from '../store';
 import { ITemplate } from '@/types';
 import { useEffectOnce } from 'react-use';
 import { groupBy, isEmpty } from 'lodash-es';
-import { useLocalProxy } from '@/utils/valtio';
-import { useSnapshot } from 'valtio';
+import { useLocalProxy, useProxySelector } from '@/utils/valtio';
 import { DataNode } from 'antd/es/tree';
 
 type PageTreeNode = {
@@ -34,7 +33,10 @@ export default function Composer(props: any) {
   // 编辑器状态（脏数据数量 / 保存中）。由这里创建、往下传给 TemplateView → TView，
   // 这样工具栏上的保存按钮能按 dirtyCount 高亮，而嵌套的 TView 用的是各自的状态。
   const [status] = useState(() => createEditorStatus());
-  const snapStatus = useSnapshot(status);
+  // 只订阅这两个字段：status 里还有 currNodeId / dragging（鼠标划过时高频变化），
+  // 整体 useSnapshot 会让整个工具栏每次 hover 都重渲染
+  const dirtyCount = useProxySelector(status, s => s.dirtyCount) ?? 0;
+  const saving = useProxySelector(status, s => s.saving) ?? false;
 
   // 获取模板页
   const refreshTemplates = useCallback(async () => {
@@ -142,9 +144,9 @@ export default function Composer(props: any) {
         {/* 有变更时高亮并且可点；没有变更时禁用。提交走 batchUpdateComponent / batchDestroyComponent */}
         <Button
           type="primary"
-          danger={snapStatus.dirtyCount > 0}
-          disabled={snapStatus.dirtyCount === 0}
-          loading={snapStatus.saving}
+          danger={dirtyCount > 0}
+          disabled={dirtyCount === 0}
+          loading={saving}
           style={{ minWidth: 90 }}
           onClick={async () => {
             try {
@@ -155,7 +157,7 @@ export default function Composer(props: any) {
             }
           }}
         >
-          保存{snapStatus.dirtyCount > 0 ? ` (${snapStatus.dirtyCount})` : ''}
+          保存{dirtyCount > 0 ? ` (${dirtyCount})` : ''}
         </Button>
       </AlignAside>
       <TemplateView

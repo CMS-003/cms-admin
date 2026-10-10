@@ -124,7 +124,7 @@ export default function GridLayout({ self, actions, bindings, source, mode, page
     >
       {childrenNodes.map(child => (
         <Cell key={child._id} data-no-dnd>
-          <NodeWrapper self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
+          <NodeWrapper self={child} onContextMenu={bindings.onContextMenu} />
         </Cell>
       ))}
     </Responsive>

@@ -88,7 +88,12 @@ export function measureContainers(
     const el = canvas.querySelector<HTMLElement>(`[data-node-id="${node._id}"]`);
     if (!el) return;
     const r = getRelativeRect(el, canvas)
-    const isRow = node.attrs && node.attrs.layout === 'vertical' ? false : true;
+    // 主轴方向：attrs.layout === 'vertical' 就是竖排（column），其余按横排（row）。
+    // 树根（template 外壳）例外 —— 它的根 div 是写死的 flexDirection: column，
+    // 所以默认竖排，只有显式配了 'horizontal' 才当横排。
+    // 这里判错的话，根容器的插入下标会按 x 轴算，拖到空白处落点会串位。
+    const layout = node.attrs && node.attrs.layout;
+    const isRow = node._id === root._id ? layout === 'horizontal' : layout !== 'vertical';
 
     const children = getChildren(node._id);
 

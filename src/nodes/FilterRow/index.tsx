@@ -22,7 +22,7 @@ export default function CFilterRow({ self, actions, bindings, source, mode, page
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     {childrenNodes.map(child => (
-      <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} onSelect={(id: string) => {
+      <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} onSelect={(id: string) => {
         childrenNodes.forEach(c => {
           actions.setNodeField(c, '$selected', id === c._id ? true : false)
         })

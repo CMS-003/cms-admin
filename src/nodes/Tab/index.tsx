@@ -56,7 +56,7 @@ export default function CTab({ self, actions, bindings, source, mode, page, chil
           children: (
             child.attrs.content_type === 'template'
               ? <TView key={child._id} mode={'preview'} template_id={child.attrs.template_id} path={page.path} close={page.close} />
-              : <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
+              : <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} />
           )
         }))}
       />

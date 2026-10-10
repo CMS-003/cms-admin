@@ -49,6 +49,14 @@ export type IBindings = {
     ref: (element: HTMLElement | null) => void;
     'data-node-id': string;
     'data-node-type': string;
+    /**
+     * 编辑态选中标记（'' | 'edit' | 'curr' | 'drag'），由 NodeWrapper 计算后下发。
+     * CSS 用 `.node[data-mark='xx']::after` 画选框，节点组件不用管。
+     */
+    'data-mark'?: string;
+    /** 鼠标进出节点。用于维护 EditorStatus.currNodeId */
+    onMouseEnter?: React.MouseEventHandler<any>;
+    onMouseLeave?: React.MouseEventHandler<any>;
   };
   /** 右键菜单：由各组件挂到 .node-handle（拖拽手柄）上，只有手柄区域可右键 */
   onContextMenu?: React.MouseEventHandler<any>;
@@ -137,10 +145,15 @@ export type IBaseCom = {
   [props: string]: any;
 };
 
+/**
+ * NodeWrapper 的入参。
+ * 共享数据（source / query / actions）不在里面 —— 那些走 DataEnvContext，
+ * 容器组件不必、也不该再逐层透传。
+ */
 export type INode = {
   self: FlatNode;
-  source: any;
-  actions: INodeActions;
   onContextMenu?: React.MouseEventHandler<any>;
+  /** FilterRow → FilterTag：把「选中的是哪个标签」广播给同级 */
+  onSelect?: (id: string) => void;
   [props: string]: any;
 }

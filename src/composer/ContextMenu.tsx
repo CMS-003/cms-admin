@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import { observer } from 'mobx-react';
 import { useSnapshot } from 'valtio';
 import { TreeContext } from './TreeContext';
-import { acceptedTypes } from './componentTypes';
+import { acceptedTypes, rootAcceptedTypes } from './componentTypes';
 
 export type MenuAction = {
   kind: 'edit' | 'append' | 'delete';
@@ -45,7 +45,14 @@ export const ContextMenuContent = observer(function ContextMenuContent({
 
   // 目标节点：能不能加子节点、能加哪些类型，全看它自己的 accepts / level
   const node = state.id && tree ? tree.getNode(state.id) : undefined;
-  const childTypes = node ? acceptedTypes(node.type, node.accepts) : [];
+  // 根（template 外壳）不是业务容器，没有 accepts —— 它能加的是「一级节点」，
+  // 按 level === 1 + 父子约束算，和拖放走同一套规则
+  const isRoot = !!node && !!tree && node._id === tree.rootId;
+  const childTypes = node
+    ? isRoot
+      ? rootAcceptedTypes(node.type)
+      : acceptedTypes(node.type, node.accepts)
+    : [];
   const canAppend = !!node;
   const canDelete = !!node && !!node.parent_id;   // 根节点不可删
 

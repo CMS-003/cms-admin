@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DragMoveEvent, DragOverlay, DragStartEvent, DragDropProvider } from '@dnd-kit/react';
 import { ContextMenuContent, ContextMenuContext, MenuAction } from './ContextMenu';
 import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
-import { FlatNode, IPageInfo, IWidget, INodeActions } from '@/types';
+import { IPageInfo } from '@/types';
 import { ModeContext, PageContext } from '../groups/context';
 import apis from '@/api';
 import store from '@/store';
@@ -11,18 +11,19 @@ import { Palette } from './Palette';
 import { NodeWrapper } from './NodeWrapper';
 import { EditorPanel } from './EditorPanel';
 import { ContainerInfo, measureContainers, hitTest, getIndicatorRect } from './geometry';
-import { TreeContext } from './TreeContext';
+import { TreeContext, EditorStatusContext } from './TreeContext';
 import { normalizeTree } from './tree';
 import { TreeStore, TreeStoreInstance } from './treeStore';
 import { canAcceptType, typeAccepts } from './componentTypes';
+import { createDragPreview } from './preview';
 import { EditorStatus, createEditorStatus } from './status';
 
-import { useLocalProxy } from '@/utils/valtio';
-import { proxy, useSnapshot } from 'valtio';
+import { useLocalProxy, useProxySelector } from '@/utils/valtio';
+import { proxy, subscribe } from 'valtio';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react';
-import { getWidgetValue } from './utils';
-import { cloneDeep, isNil, set } from 'lodash-es';
+import { createNodeActions, createQueryScope } from './data';
+import { DataEnv, DataEnvContext } from './DataContext';
 
 /**
  * 该元素是否允许发起拖拽。
@@ -72,45 +73,60 @@ export const TView = React.memo(observer(function T({ template_id, mode, path, c
   // 树 store：MST 实例，读写同源。observer 包着，加载完成 / 结构变化会自动重渲染
   const [store] = useState(() => TreeStore.create({}));
 
-  const page = proxy<IPageInfo>(({
+  /**
+   * 页面级共享数据（模板 id / 路径 / 查询条件）。
+   *
+   * 必须**身份稳定**：原来这行是 `const page = proxy(...)` 直接写在 render 里，
+   * 每次渲染都会造出一个**新的 proxy**。于是「写」和「读」落在两个不同的对象上：
+   * Select 通过 actions 把 status 写进了最新的那个 proxy（setQuery 里打印得到），
+   * 而 Table / Form 这类在 `useEffectOnce` / `useCallback` 里捕获过 page 的节点，
+   * 读到的永远是**第一次渲染**造出来的那个死对象 —— 搜索事件触发 init 时
+   * `page.query` 自然是空的。
+   * 用 useState 建一次，后续所有渲染复用同一个实例，读写才同源。
+   */
+  const [page] = useState(() => proxy<IPageInfo>({
     template_id,
     path,
     close,
     param: {},
     query: {} as any,
     setQuery(field, value) {
-      const query = cloneDeep(this.query);
-      query[field] = value
-      this.query = query;
+      // const query = cloneDeep(this.query);
+      // query[field] = value
+      // this.query = query;
+      this.query[field] = value;
     },
   }));
 
-  // ---------- 方法合并成一个 actions 对象往下传 ----------
-  // setNodeField 写树（store action）；setDataField / setQuery 是表单数据侧，
-  // query 落 page proxy、其余落 store.source
-  const actions = useMemo<INodeActions>(() => ({
-    setNodeField(node: any, key: string, value: any) {
-      const id = typeof node === 'string' ? node : node && node._id;
-      if (id) store.setField(id, key, value);
-    },
-    setDataField(widget: IWidget, value: any) {
-      if (!widget.field) {
-        return;
-      }
-      value = getWidgetValue(widget, value);
-      if (isNil(value)) {
-        return;
-      }
-      if (widget.query) {
-        page.setQuery(widget.field, value);
-      } else {
-        store.setSource(widget.field, value);
-      }
-    },
-    setQuery(field: string, value: any) {
-      page.setQuery(field, value);
-    },
-  }), [store, page]);
+  // template_id / path / close 是 props 派生出来的，props 变了要同步进同一个实例。
+  // 只改字段、不换对象 —— 换对象就等于把上面那条「身份稳定」又破坏了。
+  useEffect(() => {
+    if (page.template_id !== template_id) page.template_id = template_id;
+    if (page.path !== path) page.path = path;
+    if (page.close !== close) page.close = close;
+  }, [page, template_id, path, close]);
+
+  // ---------- 数据环境 ----------
+  // 一个模板页只建一份。三种数据的归属：
+  //   query  → 挂在 page 上（列表页的查询条件整页共用），逐字段写、按值订阅
+  //   source → 模板级就是 store.source（MST frozen，整体替换成新对象）
+  //   子树的 source（Table 的行 / Form 的详情）由各自的 <SourceScope> 覆盖
+  const query = useMemo(() => createQueryScope(page), [page]);
+
+  const env = useMemo<DataEnv>(() => ({
+    // 读一次 store.source：整体替换时（setSource 会 cloneDeep）引用变化，
+    // observer 追踪到 → TView 重渲染 → env 重建 → 子树拿到新快照
+    source: store.source,
+    query,
+    actions: createNodeActions({
+      query,
+      setNodeField(node: any, key: string, value: any) {
+        const id = typeof node === 'string' ? node : node && node._id;
+        if (id) store.setField(id, key, value);
+      },
+      writeSource: (field, value) => store.setSource(field, value),
+    }),
+  }), [store, query, store.source]);
 
   // ---------- 数据加载 ----------
   const refreshTemplateDetail = useCallback(async () => {
@@ -219,27 +235,54 @@ export const TView = React.memo(observer(function T({ template_id, mode, path, c
     }
   }, [store]);
 
+  // ---------- 树根（template 壳）的选中框 ----------
+  // rootId === template_id，也就是树的根就是下面那个壳 div —— 它没有 React 组件
+  // 承载，走不了 NodeWrapper 那一套，所以这里单独盯 DOM 属性。
+  // 用 effect + subscribe 而不是 state：标记跟着鼠标高频变化，
+  // 走 state 会把整个 TView（连带画布上所有节点）重渲染。
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    const update = () => {
+      const mark = mode !== 'edit' ? ''
+        : editorStatus.currNodeId === store.rootId ? (editorStatus.dragging ? 'drag' : 'curr')
+          : editorStatus.editNodeId === store.rootId ? 'edit'
+            : '';
+      if (el.dataset.mark === mark) return;
+      if (mark) el.dataset.mark = mark;
+      else delete el.dataset.mark;
+    };
+    update();
+    return subscribe(editorStatus, update);
+  }, [editorStatus, store, mode]);
+
   const rootNodes = store.rootId ? store.getChildren(store.rootId) : [];
 
   return <ModeContext.Provider value={mode}>
     <PageContext.Provider value={page}>
       <TreeContext.Provider value={store}>
-        <ContextMenuContext.Provider value={contextmenu}>
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }} data-node-id={template_id}>
-            {rootNodes.map(c => (
-              <NodeWrapper
-                key={c._id}
-                self={c}
-                actions={actions}
-                source={store.source}
-                page={page}
-                onContextMenu={onContextMenu}
-              />
-            ))}
-            {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={menuAction} />}
-            {store.loading && <Spin fullscreen spinning />}
-          </div>
-        </ContextMenuContext.Provider>
+        {/* 选中框（edit / curr / drag 三种配色）靠它驱动，NodeWrapper 消费 */}
+        <EditorStatusContext.Provider value={editorStatus}>
+          {/* 数据环境：source 快照 + query 域 + 写入通道。子树靠 <SourceScope> 覆盖 */}
+          <DataEnvContext.Provider value={env}>
+            <ContextMenuContext.Provider value={contextmenu}>
+              <div
+                ref={shellRef}
+                // position: relative 是给选框的 ::after 当定位基准用的
+                // （inline 的 display: flex 会盖掉 .node 里那条，这里不受影响）
+                style={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}
+                data-node-id={template_id}
+              >
+                {rootNodes.map(c => (
+                  <NodeWrapper key={c._id} self={c} onContextMenu={onContextMenu} />
+                ))}
+                {mode === 'edit' && <ContextMenuContent contextmenu={contextmenu} onAction={menuAction} />}
+                {store.loading && <Spin fullscreen spinning />}
+              </div>
+            </ContextMenuContext.Provider>
+          </DataEnvContext.Provider>
+        </EditorStatusContext.Provider>
       </TreeContext.Provider>
     </PageContext.Provider>
   </ModeContext.Provider>
@@ -250,11 +293,20 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
   // TemplateView 自己也要读 editNodeId 来渲染 EditorPanel，所以这里必须有兜底的那一份。
   const [ownStatus] = useState(() => createEditorStatus());
   const editorStatus = status ?? ownStatus;
-  const statusSnap = useSnapshot(editorStatus);
+  // 只订阅这两个值。status 里还有 currNodeId / dragging（鼠标划过高频变化），
+  // 整体 useSnapshot 会让整个 TemplateView 连带 EditorPanel 跟着重渲染
+  const editNodeId = useProxySelector(editorStatus, s => s.editNodeId) ?? '';
+  const editNodeTab = useProxySelector(editorStatus, s => s.editNodeTab) ?? 'base';
 
   // canvas 既是 DragOverlay 的挂载点，也是 hitTest 的坐标原点，
   // 所以要在 store 之前声明，供 dragMove 使用
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  // ---------- 拖拽预览 ----------
+  // 被拖元素 DOM 的深拷贝，和它要挂进去的宿主节点。
+  // 克隆体是原生 DOM，塞进 valtio proxy 会被包成 proxy 而炸掉，所以只能走 ref。
+  const previewRef = useRef<HTMLElement | null>(null);
+  const previewHostRef = useRef<HTMLDivElement | null>(null);
 
   // TView 挂载后把树 store 交到这里（实例作用域，不走全局事件）
   const treeRef = useRef<TreeStoreInstance | null>(null);
@@ -269,20 +321,26 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     containers: [] as ContainerInfo[],
     blocked: new Set<string>(),
     canvasBase: { left: 0, top: 0 },
-    activeNode: null as null | FlatNode,
     get indicator() {
       if (!this.drop) return null;
       const c = this.containers.find((x: ContainerInfo) => x.id === this.drop!.containerId);
       return c ? getIndicatorRect(c, this.drop.index) : null;
     },
-    get dropContainer() {
-      if (!this.drop) return null;
-      return this.containers.find((c: ContainerInfo) => c.id === this.drop!.containerId) ?? null;
-    },
 
     dragStart(event: DragStartEvent) {
       const id = String(event.operation.source?.id);
       this.activeId = id;
+
+      // 抓一份源元素的 DOM 克隆当预览。
+      // source.element 就是「发起拖拽的那个元素」——画布节点是它的根 div
+      // （NodeWrapper 把 useDraggable 的 ref 挂在 bindings.root 上），
+      // 组件库里的项就是 palette-item。两者同一条路径，不用分开处理。
+      previewRef.current = createDragPreview(event.operation.source?.element);
+
+      // 进入拖拽态：currNodeId 的配色从「悬停(天蓝)」切成「落点(淡黄)」，
+      // 旧的悬停值先清掉，免得拖拽还没移动时残留一个悬停框
+      editorStatus.dragging = true;
+      editorStatus.currNodeId = '';
 
       const tree = treeRef.current;
       if (id.startsWith(PALETTE_PREFIX)) {
@@ -338,11 +396,13 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
       );
       if (!raw || !id) {
         if (this.drop !== null) this.drop = null;
+        if (editorStatus.currNodeId !== '') editorStatus.currNodeId = '';
         return;
       }
       // 画布内节点：等价于原地不动的落点视为无效
       if (!id.startsWith(PALETTE_PREFIX) && tree && tree.isNoopDrop(id, raw)) {
         if (this.drop !== null) this.drop = null;
+        if (editorStatus.currNodeId !== '') editorStatus.currNodeId = '';
         return;
       }
 
@@ -354,14 +414,27 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
 
       if (!same) {
         this.drop = raw;
+        // 落点容器自己把「淡黄」画在自个儿身上，不再由画布盖一层
+        // hitTest 算出来的矩形 —— 那个对 Table / GridLayout 这类
+        // 自定义子结构框不准
+        if (editorStatus.currNodeId !== raw.containerId) {
+          editorStatus.currNodeId = raw.containerId;
+        }
       }
     },
     dragReset() {
       this.activeId = '';
       this.dragType = '';
       this.drop = null;
+      // 预览的克隆体只活一次拖拽；下次 dragStart 会重新抓一份
+      // （节点的 DOM 可能在两次拖拽之间变过，不能复用旧的）
+      previewRef.current = null;
       this.containers = [];
       this.blocked = new Set();
+      // 退出拖拽态。currNodeId 一并清掉：拖拽结束后鼠标常常还停在原地不动，
+      // 不清就会一直挂着那个淡黄框
+      editorStatus.dragging = false;
+      editorStatus.currNodeId = '';
     },
     dragEnd() {
       const id = editorStore.activeId;
@@ -401,9 +474,25 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
     editorStore.canvasBase = { left: r.left, top: r.top };
   }, []);
 
+  /**
+   * 把拖拽预览的克隆体挂进 DragOverlay。
+   *
+   * 这里**故意不写依赖数组**：宿主 div 是 DragOverlay 的 children，
+   * 而它只在「有 source」时才会渲染出来 —— 宿主挂载和「dragStart 里抓克隆」
+   * 不在同一个 effect 周期里。每次 commit 都试挂一遍最稳：
+   * 宿主一出现就挂上，已经挂好（firstChild 就是它）就直接跳过，开销可以忽略。
+   *
+   * 克隆体是原生 DOM，React 渲染不了，只能手动 appendChild。
+   */
+  useEffect(() => {
+    const host = previewHostRef.current;
+    const el = previewRef.current;
+    if (!host || !el || host.firstChild === el) return;
+    host.replaceChildren(el);
+  });
+
   // 当前编辑的节点：只存 id，节点对象每次从树里取 ——
   // 取到的是 MST 节点实例，EditorPanel 是 observer，改数据面板能跟着刷新。
-  const editNodeId = statusSnap.editNodeId;
   const selectedNode = editNodeId && treeRef.current
     ? (treeRef.current.getNode(editNodeId) ?? null)
     : null;
@@ -450,39 +539,27 @@ export const TemplateView = React.memo(function Template({ template_id, mode, pa
                 />
               </div>
             )}
-            {/* 背景 */}
-            {mode === 'edit' && editorState.dropContainer && (
-              <div
-                className="drop-container-highlight"
-                style={{
-                  left: editorState.dropContainer.rect.left,
-                  top: editorState.dropContainer.rect.top,
-                  width: editorState.dropContainer.rect.width,
-                  height: editorState.dropContainer.rect.height,
-                }}
-              />
-            )}
+            {/* 拖拽落点的容器高亮不再由这里盖一层算出来的矩形，
+                改由落点节点自己的 .node[data-mark='drag']::after 画 —— 
+                Table / GridLayout 这类自定义子结构的实际边界只有节点自己知道 */}
           </div>
           {mode === 'edit' && selectedNode && <EditorPanel
             // 换节点就重挂载，面板里的 tab / 弹窗状态跟着重置
             key={selectedNode._id}
             node={selectedNode}
-            tabKey={statusSnap.editNodeTab}
+            tabKey={editNodeTab}
             onChange={(field, value) => {
               const id = editorStatus.editNodeId;
               if (id) treeRef.current?.setField(id, field, value);
             }}
             onClose={() => { editorStatus.editNodeId = ''; }}
           />}
-          {/* 预览 */}
+          {/* 拖拽预览：内容是 dragStart 时克隆的源元素 DOM，
+              由上面那个 effect 挂进这个宿主 div。
+              dnd-kit 会把 overlay 自身定成和源元素一样大并跟着指针走，
+              所以这里只需要一个撑满的宿主 + 让克隆体贴满它即可（样式见 styles.css） */}
           <DragOverlay dropAnimation={null}>
-            {
-              editorState.activeNode
-                ? <div style={{ opacity: 0.7, backgroundColor: '#ccc', }}>
-                  overlay
-                </div>
-                : null
-            }
+            <div ref={previewHostRef} className="drag-preview-host" />
           </DragOverlay>
         </div>
       </DragDropProvider>

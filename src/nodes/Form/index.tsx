@@ -1,15 +1,15 @@
 import { FullHeight, FullHeightAuto } from "@/components/style";
-import { IBaseCom, IComponent, IResource, ITemplate, IWidget } from "@/types";
+import { IBaseCom, IResource, IWidget } from "@/types";
 import { useLocalProxy } from "@/utils/valtio";
+import { SourceScope, useQuery, useQueryScope } from "@/composer/DataContext";
 import { GripVertical, Grip } from "lucide-react";
 import { Button, message, Space, Spin } from 'antd'
 import { NodeWrapper } from "@/composer/NodeWrapper";
 import apis from "@/api";
 import events from "@/utils/event";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useEffectOnce } from "react-use";
-import { getWidgetValue } from "@/composer/utils";
-import { isNil, set, isEqual, isEmpty, omit, pick } from "lodash-es";
+import { cloneDeep, isEmpty, isEqual, omit, pick, set } from "lodash-es";
 import CONST from "@/constant";
 
 function getFields(widget: IWidget) {
@@ -28,14 +28,33 @@ function getFields(widget: IWidget) {
   return { picks, omits }
 }
 
+/**
+ * 详情表单。
+ *
+ * 数据模型：
+ * - **source** = 本表单的详情数据，整个子树共用（这里用 <SourceScope> 覆盖模板级数据源）
+ * - **query** = 页面查询条件（整页共用一份），表单只从这里取 `id` 决定拉哪条 / 是新建还是更新
+ *
+ * 以前这里有第二份 query（`localStore.query`，挂载时从 `page.query.id` 抄一次）：
+ * 子节点写入走的是这份副本，而读取走的是 `page.query` —— 写和读不是一个对象，
+ * 加上挂载时只抄一次，等于永远读到过期值。现在只有一份 query，就是页面那份。
+ */
 export default function CForm({ self, bindings, mode, page, children, childrenNodes }: IBaseCom) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
+
+  // query 域在方法（getInfo / updateInfo）里是命令式读的，用 ref 兜住最新的一份
+  const queryScope = useQueryScope();
+  const queryRef = useRef(queryScope);
+  queryRef.current = queryScope;
+
+  /** 渲染里要订阅：id 变了要重新拉详情 */
+  const resourceId = useQuery<string>('id');
+
   const [localState, localStore] = useLocalProxy({
     loading: false,
     $origin: {} as any,
     booting: true,
     source: {} as any,
-    query: { id: page.query.id } as any,
     get isDiffed() {
       const keys1 = Object.keys(this.$origin);
       const keys2 = Object.keys(this.source);
@@ -56,9 +75,15 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
       })
       return !isEmpty(result)
     },
+    /**
+     * 落基线。
+     * $origin 必须**深拷贝**：以前是 `this.$origin = source; this.source = source`，
+     * 两个字段指向同一个对象，之后任何一次编辑都会连基线一起改掉 ——
+     * isDiffed 永远是 false，保存按钮永远灰着。
+     */
     initSource(source: any) {
-      this.$origin = source;
-      this.source = source;
+      this.$origin = cloneDeep(source);
+      this.source = cloneDeep(source);
     },
     setSubStatus(type: 'chapters' | 'images' | 'videos', _id: string, status: number) {
       if (this.source[type]) {
@@ -69,29 +94,15 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
         })
       }
     },
-    setDataField(widget: IWidget, value: any) {
-      if (!widget.field) {
-        return;
-      }
-      value = getWidgetValue(widget, value);
-      if (isNil(value)) {
-        return;
-      }
-      if (widget.query) {
-        localStore.query[widget.field] = value;
-      } else {
-        set(localStore.source, widget.field, value)
-      }
-    },
-    setNodeField(node: any, key: string, value: any) {
-
-    },
     async getInfo() {
-      if (self.widget.action === 'FETCH' && mode === 'preview' && page.query.id) {
+      const id = queryRef.current.get('id');
+      if (self.widget.action === 'FETCH' && mode === 'preview' && id) {
         this.loading = true
-        const resp = await apis.fetch('get', self.getApi(page.query));
+        const resp = await apis.fetch('get', self.getApi(queryRef.current.get()));
         if (resp.code === 0) {
-          this.source = resp.data
+          // 拉回来就是当前基线：不落 $origin 的话，isDiffed 会拿空对象比，
+          // 刚打开就判定「有改动」，保存按钮一直是亮的
+          this.initSource(resp.data)
         }
         this.loading = false
       }
@@ -103,21 +114,17 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
         const { omits, picks } = getFields(self.widget);
         const data = this.source as IResource;
         const changes = omits.length ? omit(data, omits) : (picks.length ? pick(data, picks) : data);
-        const url = self.getApi(this.query)
-        const result = page.query.id
+        // 只有 id 参与拼 URL（和以前 localStore.query 的内容一致）
+        const id = queryRef.current.get('id');
+        const url = self.getApi(id ? { id } : {})
+        const result = id
           ? await apis.fetch<IResource>('put', url, changes)
           : await apis.fetch<IResource>('post', url, changes);
         if (result.code === 0) {
           if (result.data) {
-            this.$origin = result.data as any;
             this.initSource(result.data)
-            // page.setQuery('id', result.data._id)
-          } else {
-            this.$origin = this.source;
-          }
-          if (result.data) {
             // 刷新父页面列表
-            events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(parent || page, ['template_id', 'path', 'param', 'query']) })
+            events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick((page || {}) as any, ['template_id', 'path', 'param', 'query']) })
             if (close) {
               page.close()
             }
@@ -140,7 +147,8 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
         const resource_id = data.resource_id;
         if (data.resource_type === 'resource' && resource_id === this.source._id) {
           this.source.status = data.status;
-          this.$origin = this.source;
+          // 这条改动来自服务端，等同新基线（同样要深拷贝，不能和 source 共享引用）
+          this.$origin = cloneDeep(this.source);
         } else if (data.resource_type === 'chapter') {
           this.setSubStatus('chapters', resource_id, data.status)
         } else if (data.resource_type === 'video') {
@@ -154,11 +162,21 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
 
   useEffect(() => {
     localStore.getInfo();
-  }, [page.query['id'], self.widget.action])
+  }, [resourceId, self.widget.action])
+
+  /**
+   * websocket 推送的资源状态变化。
+   * 不能写成 `events.on('event', localStore.changeResource)` —— valtio 的 proxy
+   * **不绑定方法**，方法被摘出来单独调用时 `this` 会丢，里面的 `this.source` 会直接抛。
+   */
+  const handleResourceEvent = useCallback((data: any) => {
+    localStore.changeResource(data)
+  }, [localStore])
+
   useEffectOnce(() => {
-    events.on('event', localStore.changeResource);
+    events.on('event', handleResourceEvent);
     return () => {
-      events.off('event', localStore.changeResource)
+      events.off('event', handleResourceEvent)
     }
   })
   return <div
@@ -174,9 +192,17 @@ export default function CForm({ self, bindings, mode, page, children, childrenNo
       <FullHeightAuto>
         {localState.booting
           ? <Spin></Spin>
-          : childrenNodes.map(child => (
-            <NodeWrapper key={child._id} self={child} actions={{ setNodeField: localStore.setNodeField, setDataField: localStore.setDataField, setQuery: (field: string, value: any) => { localStore.query[field] = value; } }} source={localState.source} onContextMenu={bindings.onContextMenu} />
-          ))}
+          : (
+            /* 整棵子树换成「详情」这个数据源；写回落活的 localStore.source（不是快照） */
+            <SourceScope
+              source={localState.source}
+              write={(field, value) => set(localStore.source, field, value)}
+            >
+              {childrenNodes.map(child => (
+                <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} />
+              ))}
+            </SourceScope>
+          )}
       </FullHeightAuto>
       <Space style={{ padding: 8, justifyContent: 'center' }}>
         <Button loading={localState.loading} disabled={mode === 'edit' || localState.loading || !localState.isDiffed} type='primary' onClick={() => localStore.updateInfo(false)}>保存</Button>

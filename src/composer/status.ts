@@ -12,6 +12,10 @@ import { proxy } from 'valtio';
  *
  * 后面要加的 edit_node_id（当前编辑节点）/ current_node_id（鼠标所在节点）
  * 也放在这里，属于同一类「编辑器级共享状态」。
+ *
+ * ⚠️ 这两个字段是**高频**变化的（鼠标每滑过一个节点就写一次），
+ * 消费方一律用 `useProxySelector` 做值级订阅，不要用 `useSnapshot` 整体订阅，
+ * 否则画布上所有节点 + 工具栏都会跟着重渲染。
  */
 export type EditorStatus = {
   /** 待提交的变更数量（新增 + 修改 + 删除），0 表示没有脏数据 */
@@ -24,11 +28,22 @@ export type EditorStatus = {
    * 当前正在编辑的节点 id（右键菜单「编辑属性」进来的那个）。'' 表示没在编辑。
    *
    * 只存 id、不存节点对象：节点对象要从树里取，这样节点被删掉时自然就取不到了，
-   * 也不会在这里留一份可能过期的副本。编辑模式下的选中背景也用它。
+   * 也不会在这里留一份可能过期的副本。编辑模式下的选中框也用它。
    */
   editNodeId: string;
   /** EditorPanel 打开时定位到哪个 tab：base / widget / data / event / layout */
   editNodeTab: string;
+  /**
+   * 鼠标所在的节点 id。由 NodeWrapper 的 mouseenter / mouseleave 维护
+   * （mouseenter 不冒泡，所以拿到的永远是鼠标底下最内层的那个节点）。
+   *
+   * 拖拽期间它承载的是**落点容器**：hitTest 算出来的 containerId 直接写进来，
+   * 让容器把高亮画在自己身上 —— 比在画布上盖一层算出来的矩形准得多，
+   * Table / GridLayout 这类自定义子结构靠 rect 是框不准的。
+   */
+  currNodeId: string;
+  /** 是否正在拖拽。决定 currNodeId 用「悬停」配色还是「落点」配色 */
+  dragging: boolean;
 };
 
 export function createEditorStatus(): EditorStatus {
@@ -38,5 +53,7 @@ export function createEditorStatus(): EditorStatus {
     save: async () => { },
     editNodeId: '',
     editNodeTab: 'base',
+    currNodeId: '',
+    dragging: false,
   });
 }

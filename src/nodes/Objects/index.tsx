@@ -41,7 +41,7 @@ export default function CObjects({ self, actions, bindings, source, mode, childr
         : (source[self.widget.field] || []).map((item: IResource) => (
           <ObjectItem key={item._id}>
             {childrenNodes.map(child => (
-              <NodeWrapper key={child._id} self={child} actions={actions} source={source} onContextMenu={bindings.onContextMenu} />
+              <NodeWrapper key={child._id} self={child} onContextMenu={bindings.onContextMenu} />
             ))}
           </ObjectItem>
         ))}
