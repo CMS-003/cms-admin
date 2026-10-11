@@ -191,7 +191,7 @@ export default function CForm({ self, bindings, childrenNodes }: IBaseCom) {
       {mode === 'edit' && <Grip className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
     <FullHeight style={{ flex: 1 }}>
-      <FullHeightAuto style={self.style}>
+      <FullHeightAuto style={{ padding: '5px 0 0 0', ...self.style }}>
         {localState.booting
           ? <Spin></Spin>
           : (

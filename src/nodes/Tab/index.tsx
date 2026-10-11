@@ -47,10 +47,10 @@ export default function CTab({ self, bindings, childrenNodes }: IBaseCom) {
     </div>
     <TabWrap>
       <Tabs
-        activeKey={self.attrs.selected_id}
+        activeKey={self.$selected_id || self.attrs.selected_id}
         tabBarExtraContent={{ right: <Acon icon={(self.icon) || 'Menu'} /> }}
         onChange={activeKey => {
-          actions.setNodeField(self, 'attrs.selected_id', activeKey)
+          actions.setNodeField(self, '$selected_id', activeKey)
         }}
         items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>

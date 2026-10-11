@@ -127,7 +127,7 @@ export default function CTable({ self, bindings, childrenNodes, resolveChildren 
       sticky={true}
       dataSource={mode === 'edit' ? [localState.temp] : localState.resources}
       onChange={p => {
-        // page.setQuery('page', p.current as number)
+        actions.setQuery('page', p.current as number)
         // page.setQuery('page_size', p.pageSize as number)
         init();
       }}

@@ -71,6 +71,6 @@ export default function CTpl({ self, bindings }: IBaseCom) {
       flexDirection: 'row',
     }}>
     {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
-    {mode === 'edit' ? self.title : <div style={{ width: '100%' }} dangerouslySetInnerHTML={{ __html: localState.tpl({ ...(source || {}), store }) }}></div>}
+    {mode === 'edit' ? self.title : <div className='two-line-ellipsis' dangerouslySetInnerHTML={{ __html: localState.tpl({ ...(source || {}), store }) }}></div>}
   </div>
 }

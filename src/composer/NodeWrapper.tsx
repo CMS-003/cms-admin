@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/react';
 import { RestrictToVerticalAxis, RestrictToHorizontalAxis } from '@dnd-kit/abstract/modifiers';
-import { memo, useCallback, useContext, useMemo } from 'react';
-import { observer, Observer } from 'mobx-react';
+import { memo, useCallback, useContext, useMemo, type ComponentType } from 'react';
+import { observer } from 'mobx-react';
 
 import BaseNode from '@/nodes'
 import { ModeContext, TreeContext, EditorStatusContext } from '@/context';
@@ -15,9 +15,20 @@ const EMPTY_RESOLVER = () => EMPTY_CHILDREN;
 /**
  * 节点渲染器。
  *
- * - observer：组件自身读到的 MST 数据（children / attrs.layout / isDragging）变化时重渲染
- * - <Observer>：把 <Com> 的渲染也纳入追踪，节点组件本身不用逐个包 observer，
- *   里面读 self.title / self.attrs 等照样能响应
+ * 两层响应式，职责不同：
+ * - 外层 observer（本组件自己）：订阅 children（tree.getChildren）、
+ *   attrs.layout（拖拽轴约束）这类「NodeWrapper 需要的东西」
+ * - 内层 observed(self.type)：订阅节点组件内部读的字段（self.style / self.title …）
+ *
+ * ⚠️ 内层为什么必须是 `observer(Com)` 而不能写成 `<Observer>{() => <Com/>}</Observer>`：
+ * mobx-react 的 <Observer> 最终是 `reaction.track(() => fn())`，
+ * 只追踪 **fn 这一次同步执行期间** 读到的 observable。而这种写法的 fn 只做了
+ * `React.createElement(Com, props)` —— Com 的函数体是 React 在下一轮 work loop
+ * 才调用的，早已出了 track 的范围。
+ * 后果：节点组件里读的 self.style / self.title 一个都没被订阅，
+ * 改样式只会让 store 变脏（工具栏的 dirtyCount 会动）而画布纹丝不动，
+ * 直到鼠标划过把 currNodeId 改了（status 是 valtio，NodeWrapper 自己订阅着）
+ * 才连带重渲染一次 —— 表现就是「动了鼠标才刷新」。
  *
  * 组件只收「它自己的东西」（self / bindings / 子节点）：
  * 共享数据（source / query / actions / mode / page）一律走 `@/context`，
@@ -25,6 +36,26 @@ const EMPTY_RESOLVER = () => EMPTY_CHILDREN;
  * Objects 的每一项），其余自动继承 —— 少一个 prop 就少一类
  * 「容器忘了往下传」的 bug（历史上漏过 page、漏过 source）。
  */
+
+/**
+ * 按类型取「已套 observer」的节点组件。
+ *
+ * WeakMap 缓存保证跨渲染组件身份稳定：每次 render 现造一个组件类型，
+ * React 会当成新类型直接卸载重建整棵子树（输入框失焦、动画重放）。
+ * 节点组件自身一行都不用改 —— 读 self.xxx 自动订阅。
+ */
+const observedCache = new WeakMap<ComponentType<any>, ComponentType<any>>();
+function observed(type: string): ComponentType<any> | undefined {
+  const Com = BaseNode[type as keyof typeof BaseNode] as ComponentType<any> | undefined;
+  if (!Com) return undefined;
+  let Wrapped = observedCache.get(Com);
+  if (!Wrapped) {
+    Wrapped = observer(Com) as ComponentType<any>;
+    observedCache.set(Com, Wrapped);
+  }
+  return Wrapped;
+}
+
 export const NodeWrapper = memo(observer(function ComponentView({ self, onContextMenu, onSelect }: INode) {
   const mode = useContext(ModeContext);
   const tree = useContext(TreeContext);
@@ -124,25 +155,21 @@ export const NodeWrapper = memo(observer(function ComponentView({ self, onContex
     [self._id, self.type, mark, onMouseEnter, onMouseLeave, onContextMenu, isDragging, ref, nodeHandleRef]
   );
 
-  const Com = BaseNode[self.type as keyof typeof BaseNode];
+  const Com = observed(self.type);
   if (!Com) {
     return <div>不支持</div>;
   }
   return (
-    <Observer>
-      {() => (
-        <Com
-          self={self}
-          bindings={bindings}
-          childrenNodes={childrenNodes}
-          resolveChildren={resolveChildren}
-          onSelect={onSelect}
-        >
-          {childrenNodes.map(child => (
-            <NodeWrapper key={child._id} self={child} onContextMenu={onContextMenu} onSelect={onSelect} />
-          ))}
-        </Com>
-      )}
-    </Observer>
+    <Com
+      self={self}
+      bindings={bindings}
+      childrenNodes={childrenNodes}
+      resolveChildren={resolveChildren}
+      onSelect={onSelect}
+    >
+      {childrenNodes.map(child => (
+        <NodeWrapper key={child._id} self={child} onContextMenu={onContextMenu} onSelect={onSelect} />
+      ))}
+    </Com>
   )
 }));

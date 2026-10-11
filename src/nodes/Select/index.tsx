@@ -49,7 +49,7 @@ export default function CSelect({ self, bindings }: IBaseCom) {
     }}>
     {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
 
-    <Space.Compact>
+    <Space.Compact style={{ minWidth: 80 }}>
       {self.title ? <Space.Addon>{self.title}</Space.Addon> : null}
       <Select
         style={{ flex: 1 }}

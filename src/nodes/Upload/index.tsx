@@ -51,12 +51,12 @@ export default function CUpload({ self, bindings }: IBaseCom) {
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'row',
+      flexDirection: 'row', flex: 1,
     }}>
     <div style={{ display: 'flex' }}>
       {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     </div>
-    <FullHeight>
+    <FullHeight style={{ width: '100%' }}>
       <Input
         disabled={loading}
         ref={inputRef}

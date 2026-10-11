@@ -19,6 +19,7 @@ import {
   TreeContext,
   EditorStatusContext,
   createEditorStatus,
+  useSetTitleContext,
 } from '@/context';
 
 import { ContextMenuContent, ContextMenuContext } from './ContextMenu';
@@ -73,7 +74,7 @@ export const TemplateView = React.memo(observer(function TemplateView({
 
   // 树 store：MST 实例，读写同源。observer 包着，加载完成 / 结构变化会自动重渲染
   const [tree] = useState(() => createTreeStore(template_id));
-
+  const setTitle = useSetTitleContext()
   /**
    * 页面级共享数据（模板 id / 路径 / 查询条件）。
    *
@@ -139,6 +140,7 @@ export const TemplateView = React.memo(observer(function TemplateView({
       const resp = await apis.getTemplateComponents(template_id);
       // normalizeTree 一次性把 $origin 基线、order、tree_id、accepts 归一化
       const data = normalizeTree(resp.data as any, typeAccepts);
+      setTitle(page.path, resp.data.title)
       tree.setKV('template_id', template_id);
       tree.load(data);
       // 换页/刷新后原来编辑的节点已经不存在了，别留着 id 指向空气

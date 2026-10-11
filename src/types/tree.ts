@@ -52,6 +52,7 @@ export type FlatNode = {
   $new: boolean;
   /** 编辑模式下选中态，预览时取代 attrs.selected 用 */
   $selected: boolean;
+  $selected_id?: string;
 
   [view: string]: any;
 };

@@ -84,6 +84,7 @@ export const NodeModel = types
     $origin: types.optional(types.frozen<any>(), {}),
     $new: types.optional(types.boolean, false),
     $selected: types.optional(types.boolean, false),
+    $selected_id: types.optional(types.string, ''),
   })
   .views(self => ({
     /** 可直接发给后端的 payload（剥掉 children 与 $ 编辑态字段） */
