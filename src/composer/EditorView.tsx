@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { PointerSensor, PointerActivationConstraints } from '@dnd-kit/dom';
+import { isAlive } from 'mobx-state-tree';
 
 import store from '@/store';
 import type { TreeStoreInstance } from '@/store/tree';
@@ -98,9 +99,12 @@ export function EditorView({ template_id, mode, path, close, status }: EditorVie
 
   // 当前编辑的节点：只存 id，节点对象每次从树里取 ——
   // 取到的是 MST 节点实例，EditorPanel 是 observer，改数据面板能跟着刷新。
-  const selectedNode = editNodeId && treeRef.current
-    ? (treeRef.current.getNode(editNodeId) ?? null)
-    : null;
+  //
+  // 这里还要 isAlive 兜一道：EditorView 不是 observer，树变了不会重渲染，
+  // 「删掉一个节点/子树」之后 editNodeId 可能还指着已经不在树上的节点。
+  // 把死节点交给 EditorPanel，它一渲染就会读 node.title / node._id → MST 告警。
+  const found = editNodeId && treeRef.current ? treeRef.current.getNode(editNodeId) : null;
+  const selectedNode = found && isAlive(found) ? found : null;
 
   return (
     <>

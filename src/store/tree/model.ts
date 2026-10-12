@@ -44,6 +44,14 @@ const WidgetModel = types.model('NodeWidget', {
   ),
   action: types.optional(types.string, ''),
   method: types.optional(types.string, ''),
+  /**
+   * 响应映射（仅 FETCH 用）：`{ 目标字段: 规则 }`，规则 `$` 开头是取值路径、
+   * 其他是默认填充值。语义见 `@/utils/mapping`。
+   *
+   * frozen 而不是 map：面板每次编辑都**整体替换**这张表，不逐 key 写
+   * （逐 key 写要绕过 frozen 的只读，得不偿失）。整体替换一样可追踪。
+   */
+  mapping: types.optional(types.frozen<Record<string, any>>(), {}),
 });
 
 const ResourceModel = types.model('NodeResource', {

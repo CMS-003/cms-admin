@@ -1,4 +1,5 @@
 import { IBaseCom } from "@/types";
+import { GripVertical } from "lucide-react";
 import styled from 'styled-components'
 
 export const TabItemWrap = styled.div`
@@ -19,16 +20,19 @@ export const TabItemWrap = styled.div`
   }
 `
 
-export default function CTabItem({ bindings, children }: IBaseCom) {
+export default function CTabItem({ self, bindings, special = false, children }: IBaseCom & { special?: boolean }) {
   const cls = ['node', bindings.isDragging ? 'is-dragging' : '',].join(' ');
   return <div
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'column', height: '100%',
+      flexDirection: special ? 'row' : 'column', height: '100%',
     }}>
-    <TabItemWrap>
-      {children}
-    </TabItemWrap>
+    {special
+      ? <><GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} /> {self.title}</>
+      : <TabItemWrap>
+        {children}
+      </TabItemWrap>
+    }
   </div>
 }

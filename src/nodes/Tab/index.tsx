@@ -54,7 +54,8 @@ export default function CTab({ self, bindings, childrenNodes }: IBaseCom) {
         }}
         items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
-            {child.title}
+            {/* {child.title} */}
+            {mode === 'edit' ? <NodeWrapper key={child._id} self={child} special={true} onContextMenu={bindings.onContextMenu} /> : child.title}
           </TabItemWrap>,
           key: child._id,
           children: (

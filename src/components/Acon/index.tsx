@@ -63,6 +63,8 @@ import {
   Menu,
   CirclePercent,
   MessageSquare,
+  ArrowUpToLine,
+  LayersArrowUp,
 } from 'lucide-react';
 import styled from 'styled-components';
 
@@ -91,6 +93,8 @@ const Map: { [key: string]: React.ForwardRefExoticComponent<Omit<LucideProps, "r
   Move,
   MoveLeft,
   MoveRight,
+  ArrowUpToLine,
+  LayersArrowUp,
 
   Progress: CirclePercent,
   CirclePlus,

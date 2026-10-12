@@ -20,6 +20,20 @@ export type IWidget = {
   }[];
   action: string;
   method: string;
+  /**
+   * **响应映射**（只有 `action === 'FETCH'` 用）。
+   *
+   * 外部接口的响应包装格式各不相同（本项目是 `{code, message, data}`，
+   * 第三方可能是 `{status, result: {list: [...]}}`），这份配置把「原始响应 body」
+   * 映射成项目统一的结构：`{ [目标字段]: 规则 }`。
+   *
+   * - 规则以 `$` 开头 = 取值路径，lodash `get(body, path)`（`'$data.list'` → `body.data.list`）
+   * - 其他值 = 默认填充值，原样写进结果
+   *
+   * 例：`{ code: 0, data: '$data.list' }` → `{ code: 0, data: body.data.list }`
+   * 语义与实现见 `@/utils/mapping`，编辑器里在「事件」面板配置。
+   */
+  mapping: Record<string, any>;
 }
 
 /**

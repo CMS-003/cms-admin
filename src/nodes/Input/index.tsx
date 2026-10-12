@@ -51,7 +51,8 @@ export default function CInput({ self, bindings }: IBaseCom) {
               query: true,
               action: '',
               method: '',
-              refer: []
+              refer: [],
+              mapping: {},
             }, 1)
             events.emit(CONST.ACTION_TYPE.SEARCH, { target: pick(page, ['template_id', 'path', 'param', 'query']) })
           }

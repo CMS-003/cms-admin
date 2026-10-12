@@ -240,7 +240,15 @@ export const TemplateView = React.memo(observer(function TemplateView({
     }
 
     if (action.kind === 'delete') {
-      if (statusRef.current.editNodeId === id) statusRef.current.editNodeId = '';
+      // 删的可能是整棵子树，而面板里正在编辑的节点可能就在这棵子树里。
+      // 不关掉的话 editNodeId 会指向一个已死的节点，EditorPanel 会继续渲染它 ——
+      // 读 node.title / node._id 就会触发 MST 的
+      // "You are trying to read or write to an object that is no longer part of a state tree"。
+      // （collectSubtree 要在 remove 之前取：节点一删就查不到了）
+      const editing = statusRef.current.editNodeId;
+      if (editing && tree.collectSubtree(id).indexOf(editing) !== -1) {
+        statusRef.current.editNodeId = '';
+      }
       tree.remove(id);
     }
   }, [tree]);

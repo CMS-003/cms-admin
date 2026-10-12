@@ -9,6 +9,7 @@ import Row from './Row';
 import Tab from './Tab'
 import TabItem from './TabItem'
 import Tabbar from './Tabbar'
+import TabbarItem from './TabbarItem'
 import Filter from './Filter'
 import FilterRow from './FilterRow'
 import FilterTag from './FilterTag'
@@ -46,6 +47,7 @@ const nodes = {
   Objects,
   Row,
   Tabbar,
+  TabbarItem,
   Tab,
   TabItem,
   HotArea,

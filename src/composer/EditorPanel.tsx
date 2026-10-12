@@ -17,6 +17,7 @@ import ResourceModal from '@/components/ResourceModal';
 import CONST from '@/constant';
 import QueryModal from './QueryModal';
 import { CopyToClipboard } from 'react-copy-to-clipboard-ts';
+import { foldMappingRows, toMappingRows, type MappingRow } from '@/utils/mapping';
 
 type Props = {
   node: TreeNode;
@@ -65,6 +66,8 @@ function swapArray<T>(list: T[], a: number, b: number): T[] {
   return next;
 }
 
+/** 响应映射的草稿行 ↔ 存储对象：语义都在 `@/utils/mapping`，这里只负责接进面板 */
+
 /**
  * 面板是 observer：node 是 MST 节点实例，读到的字段变化会自动重渲染，
  * 受控输入才能跟着数据走（「加参考值 / 删资源 / 拖排序」都改 store）。
@@ -80,6 +83,8 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
     tabKey,
     showQueryModal: false,
     showResourceModal: false,
+    // 响应映射的草稿行（面板按节点 _id 重挂载，所以初始化时取一次就够了）
+    mappingRows: toMappingRows(node.widget?.mapping),
   });
 
   // 从右键菜单切换 tab（菜单里点「数据」→ 面板直接跳到数据页）
@@ -88,6 +93,24 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
       localStore.tabKey = tabKey;
     }
   }, [tabKey]);
+
+  // ---------- 响应映射（仅 FETCH）----------
+  // 三处改动都要把「折回的对象」整体写回：mapping 是 frozen，逐 key 写不会被追踪
+  const writeMappingRows = (rows: MappingRow[]) => {
+    localStore.mappingRows = rows;
+    onChange('widget.mapping', foldMappingRows(rows));
+  };
+  const updateMappingRow = (index: number, patch: Partial<MappingRow>) => {
+    const rows = localState.mappingRows.map((row, i) => (i === index ? { ...row, ...patch } : { ...row }));
+    writeMappingRows(rows);
+  };
+  const removeMappingRow = (index: number) => {
+    writeMappingRows(localState.mappingRows.filter((_, i) => i !== index).map(r => ({ ...r })));
+  };
+  // 新增只是加一行空行，空字段名折不出来东西，所以不写 store（也不该此时就标脏）
+  const addMappingRow = () => {
+    localStore.mappingRows = [...localState.mappingRows.map(r => ({ ...r })), { key: '', value: '' }];
+  };
 
   return (
     <Panel>
@@ -369,6 +392,34 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                       }} />
                   </Space.Compact>}
                 </EditItem>
+                {/* 响应映射：外部接口的包装格式和本项目不一样时，用它把响应 body 翻译过来 */}
+                {node.widget?.action === CONST.ACTION_TYPE.FETCH && <EditItem>
+                  <Space.Compact block style={{ alignItems: 'center' }}>
+                    <div>响应映射</div>
+                    <Divider orientation="vertical" />
+                    <Acon icon='CirclePlus' onClick={addMappingRow} />
+                  </Space.Compact>
+                  <div style={{ fontSize: 12, color: '#a08a4b', lineHeight: 1.6 }}>
+                    字段 → 规则。<b>$</b> 开头是取值路径（<code>$data.list</code>），其他值原样填充。
+                  </div>
+                  {localState.mappingRows.map((row, i) => (
+                    <Space.Compact key={i} block style={{ marginBottom: 5 }}>
+                      <Input
+                        placeholder="字段"
+                        value={row.key}
+                        onChange={e => updateMappingRow(i, { key: e.target.value })}
+                      />
+                      <Input
+                        placeholder="$data.list"
+                        value={row.value}
+                        onChange={e => updateMappingRow(i, { value: e.target.value })}
+                      />
+                      <Space.Addon style={{ padding: '0 8px' }}>
+                        <Acon icon='CircleX' onClick={() => removeMappingRow(i)} />
+                      </Space.Addon>
+                    </Space.Compact>
+                  ))}
+                </EditItem>}
                 <EditItem>
                   <Space.Compact block>
                     <Space.Addon style={{ flexShrink: 0 }}>

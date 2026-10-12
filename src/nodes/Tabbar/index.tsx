@@ -20,6 +20,7 @@ const TabWrap = styled.div`
 `
 const TabItemWrap = styled.div`
   display: flex;
+  width: 100%;
   flex-direction: row;
   align-items: center;
   & > span.anticon {
@@ -41,11 +42,12 @@ export default function CTabbar({ self, bindings, childrenNodes }: IBaseCom) {
     {...bindings.root}
     className={cls}
     style={{
-      flexDirection: 'row',
+      flexDirection: 'row', height: '100%'
     }}>
     {mode === 'edit' && <GripVertical className="node-handle" ref={bindings.handleRef} onContextMenu={bindings.onContextMenu} />}
     <TabItemWrap>
       <Tabs
+        style={{ height: '100%', width: '100%' }}
         activeKey={self.attrs.selected_id}
         tabBarStyle={{ width: '100%' }}
         tabPlacement='bottom'
@@ -57,8 +59,10 @@ export default function CTabbar({ self, bindings, childrenNodes }: IBaseCom) {
         }}
         items={childrenNodes.map((child, i) => ({
           label: <TabItemWrap>
-            {child.icon ? <Acon icon={child.icon} /> : null}
-            {child.title}
+            {mode === 'edit' ? <NodeWrapper key={child._id} self={child} special={true} onContextMenu={bindings.onContextMenu} /> : <>
+              {child.icon ? <Acon icon={child.icon} /> : null}
+              {child.title}
+            </>}
           </TabItemWrap>,
           key: child._id,
           children: (

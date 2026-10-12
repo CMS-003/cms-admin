@@ -184,7 +184,7 @@ export function createNode(o: CreateNodeOptions): FlatNode {
     status: 1,
     attrs,
     style: {},
-    widget: { field: '', value: '', type: 'string', refer: [], action: '', method: '', query: false, source: '' },
+    widget: { field: '', value: '', type: 'string', refer: [], action: '', method: '', query: false, source: '', mapping: {} },
     accepts: o.accepts ? o.accepts.slice() : [],
     queries: [],
     resources: [],
