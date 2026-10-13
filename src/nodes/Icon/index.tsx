@@ -102,7 +102,7 @@ export default function CIcon({ self, bindings }: IBaseCom) {
         ? data
         : pick(data, refer.map((r: any) => r.value as string));
       // 行内操作靠 url 里的 :id 定位记录；没有 id 时不能让 :id 被替换成 "undefined"
-      const params = data && data._id ? { id: data._id } : {};
+      const params = { id: data._id, ...data };//
       const result = await apis.fetch(widget.method, self.getApi(params), payload);
       if (result.code === 0) {
         // 广播给同级列表（Table 监听它重新拉数据）
@@ -213,7 +213,7 @@ export default function CIcon({ self, bindings }: IBaseCom) {
         beforeUpload={(file) => { doUpload(file as unknown as RcFile); return false; }}
       >
         {/* <Preview style={{ backgroundImage: localState.preview ? `url(${localState.preview})` : '' }}> */}
-          <Acon icon={(self.icon || 'Upload') as any} style={self.style} />
+        <Acon icon={(self.icon || 'Upload') as any} style={self.style} />
         {/* </Preview> */}
       </Upload>
     );
