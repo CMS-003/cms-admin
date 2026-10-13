@@ -69,6 +69,12 @@ function swapArray<T>(list: T[], a: number, b: number): T[] {
 /** 响应映射的草稿行 ↔ 存储对象：语义都在 `@/utils/mapping`，这里只负责接进面板 */
 
 /**
+ * 会消费 `attrs.more` / `attrs.refresh` 的节点类型。
+ * 只有列表类节点才有「更多 / 刷新」这两个开关，别的节点不给它们露脸。
+ */
+const LIST_TYPES = ['Card', 'Banner'];
+
+/**
  * 面板是 observer：node 是 MST 节点实例，读到的字段变化会自动重渲染，
  * 受控输入才能跟着数据走（「加参考值 / 删资源 / 拖排序」都改 store）。
  */
@@ -129,19 +135,17 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
             label: '基础', key: 'base', children: (
               <ScrollWrap>
                 <EditItem>
-                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} value={node.title} onChange={e => {
-                    onChange('title', e.target.value);
-                  }} />
-                </EditItem>
-                <EditItem>
                   <Input prefix={<span>描述<Divider orientation="vertical" /></span>} value={node.desc} onChange={e => {
                     onChange('desc', e.target.value);
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input prefix={<span>项目id<Divider orientation="vertical" /></span>} value={node.project_id} onChange={e => {
-                    onChange('project_id', e.target.value);
+                  <Input prefix={<span>标题<Divider orientation="vertical" /></span>} value={node.title} onChange={e => {
+                    onChange('title', e.target.value);
                   }} />
+                </EditItem>
+                <EditItem>
+                  <Input prefix={<span>项目id<Divider orientation="vertical" /></span>} value={node.project_id} readOnly />
                 </EditItem>
                 <EditItem>
                   <Input prefix={<span>上级id<Divider orientation="vertical" /></span>} value={node.parent_id} readOnly />
@@ -167,7 +171,7 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                   }} />
                 </EditItem>
                 <EditItem>
-                  <Input prefix={<span>图标<Divider orientation="vertical" /></span>} value={node.icon} onChange={e => {
+                  <Input prefix={<span>图标<Divider orientation="vertical" /></span>} value={node.icon} onBlur={e => {
                     onChange('icon', e.target.value)
                   }} />
                 </EditItem>
@@ -201,9 +205,22 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                   </Space.Compact>
                 </EditItem>
                 <EditItem>
+                  {/* 数据来源：列表类节点（Card / Banner）据此决定去哪拿数据 */}
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>数据来源</Space.Addon>
+                    <Select style={{ width: '100%' }} value={node.widget?.from || 'data'} onChange={(v) => {
+                      onChange('widget.from', v)
+                    }}>
+                      <Select.Option value="data">节点数据</Select.Option>
+                      <Select.Option value="global">全局配置</Select.Option>
+                      <Select.Option value="api">接口请求</Select.Option>
+                    </Select>
+                  </Space.Compact>
+                </EditItem>
+                <EditItem>
                   <Space.Compact block>
                     <Space.Addon style={{ flexShrink: 0 }}>字段</Space.Addon>
-                    <Input value={node.widget?.field} onChange={e => {
+                    <Input value={node.widget?.field} onBlur={e => {
                       onChange('widget.field', e.target.value);
                     }} />
                     <Space.Addon>
@@ -218,14 +235,14 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                     </Space.Addon>
                   </Space.Compact>
                   <Space.Compact block>
-                    <Space.Addon style={{ flexShrink: 0 }}>来源</Space.Addon>
-                    <Input placeholder="默认" value={node.widget?.source} onChange={e => {
+                    <Space.Addon style={{ flexShrink: 0 }}>全局路径</Space.Addon>
+                    <Input placeholder="全局配置里的路径" value={node.widget?.source} onBlur={e => {
                       onChange('widget.source', e.target.value);
                     }} />
                   </Space.Compact>
                   <Space.Compact block orientation="vertical">
                     默认值
-                    <Input.TextArea value={String(node.widget?.value ?? '')} onChange={e => {
+                    <Input.TextArea value={String(node.widget?.value ?? '')} onBlur={e => {
                       onChange('widget.value', e.target.value);
                     }} />
                   </Space.Compact>
@@ -348,6 +365,23 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                     }}>添加资源</Button>
                   </AlignAround>
                 </EditItem>
+                {/* 列表类节点（Card / Banner）的两个开关 */}
+                {LIST_TYPES.indexOf(node.type) !== -1 && <EditItem>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>更多页面</Space.Addon>
+                    <Input placeholder="要跳去的页面视图，留空则不显示" value={node.attrs?.more || ''} onBlur={e => {
+                      onChange('attrs.more', e.target.value)
+                    }} />
+                  </Space.Compact>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>显示刷新</Space.Addon>
+                    <Space.Addon style={{ flex: 1 }}>
+                      <Switch checkedChildren='是' unCheckedChildren='否' checked={!!node.attrs?.refresh} onChange={checked => {
+                        onChange('attrs.refresh', checked)
+                      }} />
+                    </Space.Addon>
+                  </Space.Compact>
+                </EditItem>}
               </ScrollWrap>
             )
           },
@@ -407,12 +441,12 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                       <Input
                         placeholder="字段"
                         value={row.key}
-                        onChange={e => updateMappingRow(i, { key: e.target.value })}
+                        onBlur={e => updateMappingRow(i, { key: e.target.value })}
                       />
                       <Input
                         placeholder="$data.list"
                         value={row.value}
-                        onChange={e => updateMappingRow(i, { value: e.target.value })}
+                        onBlur={e => updateMappingRow(i, { value: e.target.value })}
                       />
                       <Space.Addon style={{ padding: '0 8px' }}>
                         <Acon icon='CircleX' onClick={() => removeMappingRow(i)} />

@@ -35,6 +35,8 @@ const WidgetModel = types.model('NodeWidget', {
   type: types.optional(types.string, 'string'),
   query: types.optional(types.boolean, false),
   source: types.optional(types.string, ''),
+  /** 列表类节点的数据来源：data（节点 resources）/ global（全局配置）/ api（请求） */
+  from: types.optional(types.string, 'data'),
   refer: types.optional(
     types.array(types.model('NodeRefer', {
       value: types.optional(types.union(types.string, types.number, types.boolean), ''),

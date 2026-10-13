@@ -25,6 +25,7 @@ import HotArea from './HotArea'
 import TextArea from './TextArea'
 import PickCard from './PickCard'
 import RandomCard from './RandomCard'
+import Card from './Card'
 import Radio from './Radio'
 import Tpl from './Tpl'
 import Text from './Text'
@@ -36,6 +37,7 @@ import Input from './Input'
 import Progress from './Progress'
 import CodeEditor from './CodeEditor'
 import Tags from './Tags'
+import Banner from './Banner'
 
 const nodes = {
   Menu,
@@ -59,6 +61,8 @@ const nodes = {
   Form,
   Field,
 
+  Banner,
+  Card,
   Tpl,
   Text,
   Icon,

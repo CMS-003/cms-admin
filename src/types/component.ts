@@ -14,6 +14,18 @@ export type IWidget = {
   query: boolean;
   type: 'boolean' | 'number' | 'string' | 'json' | 'array';
   source: string;
+  /**
+   * **数据来源**（列表类节点用：Card / Banner …），默认 `'data'`。
+   *
+   * | 值         | 数据来自                                                         |
+   * |------------|------------------------------------------------------------------|
+   * | `'data'`   | 节点自己的 `resources`（「数据」面板维护的静态数据）              |
+   * | `'global'` | 全局配置里 `source` 指向的那一段（`store.global.getValue(source)`） |
+   * | `'api'`    | 请求 `method` + 节点 `url`，响应按 `mapping` 翻译后再取列表        |
+   *
+   * 取数与归一在 `@/nodes/_shared/useResourceList`。
+   */
+  from: 'data' | 'global' | 'api';
   refer: {
     label: string;
     value: string | number | boolean;
