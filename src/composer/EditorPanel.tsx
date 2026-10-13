@@ -1,5 +1,4 @@
-// src/EditorPanel.tsx
-import { FlatNode, IResource } from '@/types';
+import { FlatNode, IResource, IStyleVars } from '@/types';
 import { useLocalProxy } from '@/utils/valtio';
 import { Button, Divider, Input, Radio, Select, Space, Switch, Tabs } from 'antd';
 import styled from 'styled-components'
@@ -121,7 +120,11 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
   return (
     <Panel>
       <Tabs
-        style={{ flex: 1, display: 'flex', height: '100%', overflow: 'hidden' }}
+        style={{
+          flex: 1, display: 'flex', height: '100%', overflow: 'hidden',
+          // 去掉 Tab 下面那条 1px 分隔线（antd 6 默认开启 cssVar，这个变量是活的）
+          '--ant-line-width': 0
+        } as IStyleVars}
         activeKey={localState.tabKey}
         onChange={v => {
           if (v === 'close') {
@@ -196,84 +199,70 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
               <ScrollWrap>
                 <EditItem>
                   <Space.Compact style={{ width: '100%', }}>
-                    <Space.Addon style={{ padding: '6px 8px' }}>仅查询</Space.Addon>
-                    <Space.Addon style={{ flex: 1 }}>
+                    仅查询
+                    <Divider orientation='vertical' />
+                    <div>
                       <Switch checkedChildren='是' unCheckedChildren='否' checked={!!node.widget?.query} onChange={checked => {
                         onChange('widget.query', checked)
                       }} />
-                    </Space.Addon>
-                  </Space.Compact>
-                </EditItem>
-                <EditItem>
-                  {/* 数据来源：列表类节点（Card / Banner）据此决定去哪拿数据 */}
-                  <Space.Compact block>
-                    <Space.Addon style={{ flexShrink: 0 }}>数据来源</Space.Addon>
-                    <Select style={{ width: '100%' }} value={node.widget?.from || 'data'} onChange={(v) => {
-                      onChange('widget.from', v)
-                    }}>
-                      <Select.Option value="data">节点数据</Select.Option>
-                      <Select.Option value="global">全局配置</Select.Option>
-                      <Select.Option value="api">接口请求</Select.Option>
-                    </Select>
+                    </div>
                   </Space.Compact>
                 </EditItem>
                 <EditItem>
                   <Space.Compact block>
-                    <Space.Addon style={{ flexShrink: 0 }}>字段</Space.Addon>
-                    <Input value={node.widget?.field} onBlur={e => {
+                    字段名
+                    <Divider orientation='vertical' />
+                    <Input style={{ flex: 1 }} value={node.widget?.field} onBlur={e => {
                       onChange('widget.field', e.target.value);
                     }} />
-                    <Space.Addon>
-                      <Select value={node.widget?.type} onChange={(vv) => {
-                        onChange('widget.type', vv)
-                      }}>
-                        <Select.Option value="json" >json</Select.Option>
-                        <Select.Option value="string" >string</Select.Option>
-                        <Select.Option value="number" >number</Select.Option>
-                        <Select.Option value="boolean" >boolean</Select.Option>
-                      </Select>
-                    </Space.Addon>
+                    <Select prefix="类型" style={{ flex: 1 }} value={node.widget?.type} onChange={(vv) => {
+                      onChange('widget.type', vv)
+                    }}>
+                      <Select.Option value="json" >json</Select.Option>
+                      <Select.Option value="string" >string</Select.Option>
+                      <Select.Option value="number" >number</Select.Option>
+                      <Select.Option value="boolean" >boolean</Select.Option>
+                    </Select>
                   </Space.Compact>
                   <Space.Compact block>
-                    <Space.Addon style={{ flexShrink: 0 }}>全局路径</Space.Addon>
-                    <Input placeholder="全局配置里的路径" value={node.widget?.source} onBlur={e => {
-                      onChange('widget.source', e.target.value);
-                    }} />
-                  </Space.Compact>
-                  <Space.Compact block orientation="vertical">
-                    默认值
+                    <span style={{ whiteSpace: 'nowrap' }}>默认值</span>
+                    <Divider orientation='vertical' />
                     <Input.TextArea value={String(node.widget?.value ?? '')} onBlur={e => {
                       onChange('widget.value', e.target.value);
                     }} />
                   </Space.Compact>
-                  参考值
-                  <SortDD
-                    direction='vertical'
-                    handle={true}
-                    items={[...refer, ...(store.global.getValue(node.widget?.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
-                      return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
-                    })}
-                    renderItem={(item: any, handler: any) => {
-                      return <Space.Compact style={{ marginBottom: 5 }}>
-                        <Space.Addon style={{ flexShrink: 0 }}>
-                          <FullWidth>
-                            <Acon icon='Move' style={{ marginRight: 5 }}  {...handler} />
-                            {item.data.label}
-                          </FullWidth>
-                        </Space.Addon>
-                        <Input
-                          readOnly
-                          value={item.data.value}
-                          disabled={item.disabled}
-                        />
-                      </Space.Compact>
-                    }}
-                    sort={(oldIndex: number, newIndex: number) => {
-                      // items 里尾随的是「来源」里带出来的只读项，拖到它们身上直接忽略
-                      if (oldIndex >= refer.length || newIndex >= refer.length) return;
-                      onChange('widget.refer', swapArray([...refer], oldIndex, newIndex));
-                    }}
-                  />
+                  <Space.Compact block>
+                    参考值
+                    <Divider orientation='vertical' style={{ '--ant-line-width': 0 } as IStyleVars} />
+                    <SortDD
+                      direction='vertical'
+                      handle={true}
+                      items={[...refer, ...(store.global.getValue(node.widget?.source) || []).map((v: any) => ({ ...v, disabled: true }))].map((v: any) => {
+                        return { id: v.value, data: isPlainObject(v) ? v : getSnapshot(v), disabled: v.disabled ? true : false, }
+                      })}
+                      renderItem={(item: any, handler: any) => {
+                        return <Space.Compact style={{ marginBottom: 5 }}>
+                          <Space.Addon style={{ flexShrink: 0 }}>
+                            <FullWidth>
+                              <Acon icon='Move' style={{ marginRight: 5 }}  {...handler} />
+                              {item.data.label}
+                            </FullWidth>
+                          </Space.Addon>
+                          <Input
+                            readOnly
+                            value={item.data.value}
+                            disabled={item.disabled}
+                          />
+                        </Space.Compact>
+                      }}
+                      sort={(oldIndex: number, newIndex: number) => {
+                        // items 里尾随的是「来源」里带出来的只读项，拖到它们身上直接忽略
+                        if (oldIndex >= refer.length || newIndex >= refer.length) return;
+                        onChange('widget.refer', swapArray([...refer], oldIndex, newIndex));
+                      }}
+                    />
+                  </Space.Compact>
+
                   <AlignAround>
                     {localState.addWidgetReferVisible
                       ? <Fragment>
@@ -331,7 +320,26 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                   />}
                 </EditItem>
                 <EditItem>
-                  静态数据
+                  {/* 数据来源：列表类节点（Card / Banner）据此决定去哪拿数据 */}
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>数据来源</Space.Addon>
+                    <Select style={{ width: '100%' }} value={node.widget?.from || 'data'} onChange={(v) => {
+                      onChange('widget.from', v)
+                    }}>
+                      <Select.Option value="data">节点数据</Select.Option>
+                      <Select.Option value="global">全局配置</Select.Option>
+                      <Select.Option value="api">接口请求</Select.Option>
+                    </Select>
+                  </Space.Compact>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>来源值</Space.Addon>
+                    <Input placeholder="全局配置名称或api地址" value={node.widget?.source} onBlur={e => {
+                      onChange('widget.source', e.target.value);
+                    }} />
+                  </Space.Compact>
+                </EditItem>
+                <EditItem>
+                  节点数据
                   <SortDD
                     direction='vertical'
                     items={resources.map((v: any) => ({ id: v._id, data: isStateTreeNode(v) ? getSnapshot(v) : v }))}
@@ -389,6 +397,26 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
             label: '事件', key: 'event', children: (
               <ScrollWrap>
                 <EditItem>
+                  <Space.Compact block>
+                    <Space.Addon style={{ flexShrink: 0 }}>
+                      事件类型
+                    </Space.Addon>
+                    <Select style={{ width: '100%' }} value={node.widget?.action} onChange={v => {
+                      onChange('widget.action', v);
+                    }} >
+                      <Select.Option value="">无</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
+                      <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
+                    </Select>
+                  </Space.Compact>
+                </EditItem>
+                <EditItem>
                   {
                     (node.widget?.action === CONST.ACTION_TYPE.GOTO_PAGE || node.widget?.action === CONST.ACTION_TYPE.OPEN_URL)
                     && <Input prefix="跳转url" value={node.url} onChange={e => {
@@ -431,49 +459,29 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
                   <Space.Compact block style={{ alignItems: 'center' }}>
                     <div>响应映射</div>
                     <Divider orientation="vertical" />
-                    <Acon icon='CirclePlus' onClick={addMappingRow} />
                   </Space.Compact>
-                  <div style={{ fontSize: 12, color: '#a08a4b', lineHeight: 1.6 }}>
-                    字段 → 规则。<b>$</b> 开头是取值路径（<code>$data.list</code>），其他值原样填充。
-                  </div>
                   {localState.mappingRows.map((row, i) => (
                     <Space.Compact key={i} block style={{ marginBottom: 5 }}>
                       <Input
                         placeholder="字段"
                         value={row.key}
-                        onBlur={e => updateMappingRow(i, { key: e.target.value })}
+                        onChange={e => updateMappingRow(i, { key: e.target.value })}
                       />
                       <Input
                         placeholder="$data.list"
                         value={row.value}
-                        onBlur={e => updateMappingRow(i, { value: e.target.value })}
+                        onChange={e => updateMappingRow(i, { value: e.target.value })}
                       />
                       <Space.Addon style={{ padding: '0 8px' }}>
                         <Acon icon='CircleX' onClick={() => removeMappingRow(i)} />
                       </Space.Addon>
                     </Space.Compact>
                   ))}
+                  <Acon icon='CirclePlus' onClick={addMappingRow} />
+                  <div style={{ fontSize: 12, color: '#a08a4b', lineHeight: 1.6 }}>
+                    字段 → 规则。<b>$</b> 开头是取值路径（<code>$data.list</code>），其他值原样填充。
+                  </div>
                 </EditItem>}
-                <EditItem>
-                  <Space.Compact block>
-                    <Space.Addon style={{ flexShrink: 0 }}>
-                      事件类型
-                    </Space.Addon>
-                    <Select style={{ width: '100%' }} value={node.widget?.action} onChange={v => {
-                      onChange('widget.action', v);
-                    }} >
-                      <Select.Option value="">无</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.GOTO_PAGE}>跳标签页</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.OPEN_URL}>跳转外链</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.MODAL}>打开弹框</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.COPY}>复制数据</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.SEARCH}>执行搜索</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.FETCH}>发送请求</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.PREVIEW}>图片预览</Select.Option>
-                      <Select.Option value={CONST.ACTION_TYPE.UPLOAD}>文件上传</Select.Option>
-                    </Select>
-                  </Space.Compact>
-                </EditItem>
               </ScrollWrap>
             )
           },
@@ -481,28 +489,32 @@ export const EditorPanel = observer(function EditorPanel({ node, onChange, tabKe
             label: '布局', key: 'layout', children: (
               <ScrollWrap>
                 <EditItem>
-                  布局方向<Divider orientation='vertical' />
-                  <Radio.Group value={node.attrs?.layout} options={[
-                    { label: '水平', value: 'horizontal' },
-                    { label: '垂直', value: 'vertical' },
-                  ]} onChange={e => {
-                    const attrs = cloneDeep(node.attrs || {});
-                    attrs.layout = e.target.value
-                    onChange('attrs', attrs)
-                  }} />
+                  <Space.Compact>
+                    布局方向<Divider orientation='vertical' />
+                    <Radio.Group value={node.attrs?.layout} options={[
+                      { label: '水平', value: 'horizontal' },
+                      { label: '垂直', value: 'vertical' },
+                    ]} onChange={e => {
+                      const attrs = cloneDeep(node.attrs || {});
+                      attrs.layout = e.target.value
+                      onChange('attrs', attrs)
+                    }} />
+                  </Space.Compact>
                 </EditItem>
                 <EditItem>
-                  样式
-                  <Input.TextArea style={{ minHeight: 150 }} defaultValue={JSON.stringify(node.style, null, 2)} onBlur={e => {
-                    try {
-                      const style = JSON5.parse(e.target.value)
-                      onChange('style', style);
-                    } catch (e) {
+                  <Space.Compact>
+                    样式<Divider orientation='vertical' />
+                    <Input.TextArea style={{ minHeight: 150, flex: 1 }} defaultValue={JSON.stringify(node.style, null, 2)} onBlur={e => {
+                      try {
+                        const style = JSON5.parse(e.target.value)
+                        onChange('style', style);
+                      } catch (e) {
 
-                    } finally {
+                      } finally {
 
-                    }
-                  }} />
+                      }
+                    }} />
+                  </Space.Compact>
                 </EditItem>
               </ScrollWrap>
             )
